@@ -1,0 +1,75 @@
+{
+  "name": "my-courses-widget",
+  "version": "0.0.1",
+  "appId": "urn:d2l:fra:id:my-courses-widget",
+  "description": "Brightspace My Courses homepage widget",
+  "main": "src/app.js",
+  "private": true,
+  "scripts": {
+    "prebuild": "rimraf dist && mkdir dist && rimraf test/coverage",
+    "build:appconfig": "frau-appconfig-builder",
+    "build:js": "browserify -s my-courses-widget ./src/app.js > ./dist/app.js",
+    "build": "npm run build:appconfig && npm run build:js",
+    "resolver": "npm run build && frau-local-appresolver",
+    "report-coverage": "lcov-result-merger 'coverage/**/lcov.info' | coveralls",
+    "pretest:karma": "rimraf node_modules/karma-coverage/node_modules/istanbul",
+    "test:karma": "karma start karma.conf.js --single-run",
+    "test": "npm run test:karma"
+  },
+  "config": {
+    "frauAppConfigBuilder": {
+      "appFile": "app.js",
+      "dist": "./dist",
+      "envVar": "TRAVIS"
+    },
+    "frauLocalAppResolver": {
+      "appClass": "urn:d2l:fra:class:my-courses-widget"
+    }
+  },
+  "homepage": "https://github.com/Brightspace/my-courses-widget",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Brightspace/my-courses-widget.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Brightspace/my-courses-widget/issues"
+  },
+  "keywords": [
+    "d2l",
+    "homepage",
+    "widget"
+  ],
+  "author": "D2L Corporation",
+  "devDependencies": {
+    "babelify": "^6.1.3",
+    "browserify": "^11.0.1",
+    "browserify-istanbul": "^0.2.1",
+    "coveralls": "^2.11.8",
+    "frau-appconfig-builder": "^0.1.0",
+    "frau-local-appresolver": "^0.3.0",
+    "frau-publisher": "^2.5.3",
+    "isparta": "^4.0.0",
+    "istanbul": "^0.4.2",
+    "jasmine-core": "^2.4.1",
+    "karma": "^0.13.22",
+    "karma-browserify": "^4.3.0",
+    "karma-cli": "^0.1.2",
+    "karma-coverage": "^0.5.5",
+    "karma-jasmine": "^0.3.8",
+    "karma-phantomjs-launcher": "^1.0.0",
+    "lcov-result-merger": "^1.0.2",
+    "phantomjs-prebuilt": "^2.1.6",
+    "rimraf": "^2.5.2",
+    "watchify": "^3.7.0"
+  },
+  "browserify": {
+    "transform": [
+      [
+        "babelify",
+        {
+          "stage": 0
+        }
+      ]
+    ]
+  }
+}
