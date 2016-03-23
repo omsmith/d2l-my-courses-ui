@@ -14,7 +14,8 @@
     "report-coverage": "lcov-result-merger 'coverage/**/lcov.info' | coveralls",
     "pretest:karma": "rimraf node_modules/karma-coverage/node_modules/istanbul",
     "test:karma": "karma start karma.conf.js --single-run",
-    "test": "npm run test:karma"
+    "test:lint:js": "eslint --ext .js src",
+    "test": "npm run test:lint:js -s && npm run test:karma"
   },
   "config": {
     "frauAppConfigBuilder": {
@@ -41,10 +42,13 @@
   ],
   "author": "D2L Corporation",
   "devDependencies": {
+    "babel-eslint": "^6.0.0-beta.6",
     "babelify": "^6.1.3",
     "browserify": "^11.0.1",
     "browserify-istanbul": "^0.2.1",
     "coveralls": "^2.11.8",
+    "eslint": "^2.4.0",
+    "eslint-config-brightspace": "^0.2.0",
     "frau-appconfig-builder": "^0.1.0",
     "frau-local-appresolver": "^0.3.0",
     "frau-publisher": "^2.5.3",
