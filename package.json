@@ -13,6 +13,7 @@
     "resolver": "npm run build && frau-local-appresolver",
     "report-coverage": "lcov-result-merger 'coverage/**/lcov.info' | coveralls",
     "pretest:karma": "rimraf node_modules/karma-coverage/node_modules/istanbul",
+    "publish:cdn": "frau-publisher",
     "test:karma": "karma start karma.conf.js --single-run",
     "test:lint:js": "eslint --ext .js src",
     "test": "npm run test:lint:js -s && npm run test:karma"
@@ -25,6 +26,16 @@
     },
     "frauLocalAppResolver": {
       "appClass": "urn:d2l:fra:class:my-courses-widget"
+    },
+    "frauPublisher": {
+      "files": "./dist/**",
+      "moduleType": "app",
+      "targetDirectory": "my-courses-widget",
+      "creds": {
+        "key": "AKIAJPPTMUGNIRI3SB6A"
+      },
+      "devTagVar": "TRAVIS_COMMIT",
+      "versionVar": "TRAVIS_TAG"
     }
   },
   "homepage": "https://github.com/Brightspace/my-courses-widget",
