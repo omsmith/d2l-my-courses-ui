@@ -32,7 +32,8 @@
       "moduleType": "app",
       "targetDirectory": "my-courses-widget",
       "creds": {
-        "key": "AKIAJPPTMUGNIRI3SB6A"
+        "key": "AKIAJPPTMUGNIRI3SB6A",
+        "secretVar": "CDN_SECRET"
       },
       "devTagVar": "TRAVIS_COMMIT",
       "versionVar": "TRAVIS_TAG"
