@@ -13,7 +13,7 @@
     "resolver": "npm run build && frau-local-appresolver",
     "report-coverage": "lcov-result-merger 'coverage/**/lcov.info' | coveralls",
     "pretest:karma": "rimraf node_modules/karma-coverage/node_modules/istanbul",
-    "publish:cdn": "frau-publisher",
+    "publish:cdn": "npm run build -s && frau-publisher",
     "test:karma": "karma start karma.conf.js --single-run",
     "test:lint:js": "eslint --ext .js src",
     "test": "npm run test:lint:js -s && npm run test:karma"
