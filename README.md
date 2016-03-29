@@ -33,11 +33,7 @@ The demo app can be visited at:
 
 ## Unit Tests
 
-The unit tests are built and run using [web-component-tester](https://github.com/Polymer/web-component-tester) which must be installed prior to running the tests (may require `sudo`).
-
-```
-npm install -g web-component-tester
-```
+The unit tests are built and run using [web-component-tester](https://github.com/Polymer/web-component-tester).
 
 To run unit tests and perform linting, run:
 
