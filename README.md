@@ -21,29 +21,29 @@ npm run build
 To run the application locally, run the following from within the project:
 
 ```shell
-npm run resolver
+npm run serve
 ```
 
 This will:
-- build the application with an `appconfig.json` specific for local builds
-- start a local app resolver
-- start a local web server to host your application
+- build the application into the dist folder
+- start a local server using polyserve
 
-The app resolver can be visited at:
-> http://localhost:3000/resolve/urn%3Ad2l%3Afra%3Aclass%3Amy-courses-widget
-
-The application's `appconfig.json` can be viewed at:
-> http://localhost:3000/app/appconfig.json
-
-The application can be viewed from within Brightspace by creating a homepage that includes this widget.
+The demo app can be visited at:
+> http://localhost:8080/components/my-courses-widget/demo/index.html
 
 ## Unit Tests
+
+The unit tests are built and run using [web-component-tester](https://github.com/Polymer/web-component-tester) which must be installed prior to running the tests (may require `sudo`).
+
+```
+npm install -g web-component-tester
+```
+
+To run unit tests and perform linting, run:
 
 ```shell
 npm test
 ```
-
-View full code coverage report at `{project dir}/coverage/{browser}/lcov-report/index.html`
 
 ## Publishing & Releasing
 

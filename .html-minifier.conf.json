@@ -1,0 +1,10 @@
+{
+  "customAttrAssign": [
+    {"source":"\\$="}
+  ],
+  "customAttrSurround": [
+    [ {"source": "\\({\\{"}, {"source": "\\}\\}"} ],
+    [ {"source": "\\[\\["}, {"source": "\\]\\]"}  ]
+  ],
+  "minifyJS": true
+}
