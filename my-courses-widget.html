@@ -1,8 +1,5 @@
 <link rel="import" href="http://www.polymer-project.org/1.0/components/polymer/polymer.html">
 <link rel="import" href="bower_components/iron-ajax/iron-ajax.html">
-
-<link rel="import" href="../polymer/polymer.html">
-<link rel="import" href="../iron-ajax/iron-ajax.html">
 <link rel="import" href="course-tile.html">
 
 <dom-module id="my-courses-widget">
@@ -16,7 +13,7 @@
 
     <p>My Courses</p>
   	<iron-ajax auto
-      url="demo/my-courses.json"
+      url="my-courses.json"
       last-response="{{data}}"></iron-ajax>
 
     <template is="dom-repeat" items="[[data.Items]]">
