@@ -58,6 +58,8 @@ $ git push upstream master --tags
 ## Contributing
 Contributions are welcome, please submit a pull request!
 
+> Note: To contribute, please create a branch in this repo instead of a fork. We are using [Sauce Labs](https://saucelabs.com/) in our CI builds which don't work in PRs from forks. Thanks!
+
 ### Code Style
 
 This repository is configured with [EditorConfig](http://editorconfig.org) rules and
