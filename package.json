@@ -12,7 +12,7 @@
     "publish:cdn": "npm run build -s && frau-publisher",
     "serve": "npm run build && polyserve",
     "test:lint:js": "eslint *.html",
-    "test": "npm run test:lint:js && npm run build && wct"
+    "test": "npm run test:lint:js && npm run build && wct --skip-plugin sauce"
   },
   "config": {
     "frauPublisher": {
