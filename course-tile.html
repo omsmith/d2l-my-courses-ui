@@ -1,29 +1,29 @@
 <link rel="import" href="http://www.polymer-project.org/1.0/components/polymer/polymer.html">
 
 <dom-module id="course-tile">
-	<template>
-		<style>
-		:host {
-			display: block;
-			border: 1px solid red;
-		}
-		</style>
+  <template>
+    <style>
+    :host {
+      display: block;
+      border: 1px solid red;
+    }
+    </style>
 
-		<h3>[[name]]</h3>
-		<a href="[[target]]">Go to [[name]]</a>
-	</template>
+    <h3>[[name]]</h3>
+    <a href="[[target]]">Go to [[name]]</a>
+  </template>
 
-	<script>
-		Polymer({
-			is: 'course-tile',
-			properties: {
-				target: {
-					type: String
-				},
-				name: {
-					type: String
-				}
-			}
-		});
-	</script>
+  <script>
+    Polymer({
+      is: 'course-tile',
+      properties: {
+        target: {
+          type: String
+        },
+        name: {
+          type: String
+        }
+      }
+    });
+  </script>
 </dom-module>

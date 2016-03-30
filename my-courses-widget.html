@@ -16,10 +16,10 @@
       url="my-courses.json"
       last-response="{{data}}"></iron-ajax>
 
-    <template is="dom-repeat" items="[[data.Items]]">
+    <template is="dom-repeat" items="[[data.entities]]">
       <course-tile
-        target="http://pltest.uat.d2ldev.com/d2l/home/[[item.OrgUnit.Id]]"
-      	name="[[item.OrgUnit.Name]]"></course-tile>
+        target="http://pltest.uat.d2ldev.com/d2l/home/[[item.properties.id]]"
+        name="[[item.properties.name]]"></course-tile>
     </template>
 
   </template>
