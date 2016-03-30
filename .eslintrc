@@ -1,12 +1,10 @@
 {
-  "ecmaFeatures": {
-    "modules": true
-  },
-  "extends": "brightspace",
-  "parser": "babel-eslint",
+  "extends": "eslint:recommended",
   "env": {
-    "es6": true,
-    "browser": true,
-    "jasmine": true
+    "browser": true
+  },
+  "plugins": ["html"],
+  "globals": {
+    "Polymer": false
   }
 }

@@ -1,0 +1,35 @@
+{
+  "name": "my-courses-widget",
+  "description": "Brightspace My Courses homepage widget",
+  "authors": [
+    "D2L Corporation"
+  ],
+  "license": "MIT",
+  "keywords": [
+    "d2l",
+    "homepage",
+    "widget"
+  ],
+  "homepage": "https://github.com/Brightspace/my-courses-widget",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    ".editorconfig",
+    ".eslintrc",
+    ".gitignore",
+    ".travis.yml",
+    "package.json",
+    "test",
+    "tests",
+    "/demo/"
+  ],
+  "dependencies": {
+    "polymer": "Polymer/polymer#^1.4.0",
+    "iron-ajax": "PolymerElements/iron-ajax#^1.2.0"
+  },
+  "devDependencies": {
+    "web-component-tester": "^4.2.2"
+  }
+}
