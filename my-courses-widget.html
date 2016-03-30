@@ -1,14 +1,40 @@
 <link rel="import" href="http://www.polymer-project.org/1.0/components/polymer/polymer.html">
 <link rel="import" href="bower_components/iron-ajax/iron-ajax.html">
 
-<dom-module id="my-courses-widget">
-	<template>
-		Hello World!
-	</template>
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../iron-ajax/iron-ajax.html">
+<link rel="import" href="course-tile.html">
 
-	<script>
-		Polymer({
-			is: 'my-courses-widget'
-		});
-	</script>
+<dom-module id="my-courses-widget">
+  <template>
+
+    <style>
+    :host {
+      display: inline-block;
+    }
+    </style>
+
+    <p>My Courses</p>
+  	<iron-ajax auto
+      url="demo/my-courses.json"
+      last-response="{{data}}"></iron-ajax>
+
+    <template is="dom-repeat" items="[[data.Items]]">
+      <course-tile
+        target="http://pltest.uat.d2ldev.com/d2l/home/[[item.OrgUnit.Id]]"
+      	name="[[item.OrgUnit.Name]]"></course-tile>
+    </template>
+
+  </template>
+
+  <script>
+  Polymer({
+    is: 'my-courses-widget',
+    properties: {
+      data: {
+        type: Object
+      }
+    }
+  });
+  </script>
 </dom-module>

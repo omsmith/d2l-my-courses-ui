@@ -1,0 +1,188 @@
+{
+    "PagingInfo":{
+        "Bookmark":"123067",
+        "HasMoreItems":false
+    },
+    "Items":[
+        {
+            "OrgUnit":{
+                "Id":6606,
+                "Type":{
+                    "Id":1,
+                    "Code":"Organization",
+                    "Name":"Organization"
+                },
+                "Name":"Dev",
+                "Code":null
+            },
+            "Access":{
+                "IsActive":true,
+                "StartDate":null,
+                "EndDate":null,
+                "CanAccess":true
+            }
+        },
+        {
+            "OrgUnit":{
+                "Id":121421,
+                "Type":{
+                    "Id":3,
+                    "Code":"Course Offering",
+                    "Name":"Course Offering"
+                },
+                "Name":"Computer Architecture",
+                "Code":"ECE429"
+            },
+            "Access":{
+                "IsActive":true,
+                "StartDate":null,
+                "EndDate":null,
+                "CanAccess":true
+            }
+        },
+        {
+            "OrgUnit":{
+                "Id":123059,
+                "Type":{
+                    "Id":3,
+                    "Code":"Course Offering",
+                    "Name":"Course Offering"
+                },
+                "Name":"Course Plugins",
+                "Code":"Course-Plugin"
+            },
+            "Access":{
+                "IsActive":true,
+                "StartDate":null,
+                "EndDate":null,
+                "CanAccess":true
+            }
+        },
+        {
+            "OrgUnit":{
+                "Id":123060,
+                "Type":{
+                    "Id":3,
+                    "Code":"Course Offering",
+                    "Name":"Course Offering"
+                },
+                "Name":"Rock 'n' Roll and U.S. History",
+                "Code":"HIST105"
+            },
+            "Access":{
+                "IsActive":true,
+                "StartDate":null,
+                "EndDate":null,
+                "CanAccess":true
+            }
+        },
+        {
+            "OrgUnit":{
+                "Id":123061,
+                "Type":{
+                    "Id":3,
+                    "Code":"Course Offering",
+                    "Name":"Course Offering"
+                },
+                "Name":"LTI Data",
+                "Code":"LTI"
+            },
+            "Access":{
+                "IsActive":true,
+                "StartDate":null,
+                "EndDate":null,
+                "CanAccess":true
+            }
+        },
+        {
+            "OrgUnit":{
+                "Id":123062,
+                "Type":{
+                    "Id":3,
+                    "Code":"Course Offering",
+                    "Name":"Course Offering"
+                },
+                "Name":"Brightspace Content UI by Type",
+                "Code":"BS-CUI-T"
+            },
+            "Access":{
+                "IsActive":true,
+                "StartDate":null,
+                "EndDate":null,
+                "CanAccess":true
+            }
+        },
+        {
+            "OrgUnit":{
+                "Id":123064,
+                "Type":{
+                    "Id":3,
+                    "Code":"Course Offering",
+                    "Name":"Course Offering"
+                },
+                "Name":"Brightspace Content UI",
+                "Code":"BS-CUI"
+            },
+            "Access":{
+                "IsActive":true,
+                "StartDate":null,
+                "EndDate":null,
+                "CanAccess":true
+            }
+        },
+        {
+            "OrgUnit":{
+                "Id":123065,
+                "Type":{
+                    "Id":3,
+                    "Code":"Course Offering",
+                    "Name":"Course Offering"
+                },
+                "Name":"Evolutionary Psychology",
+                "Code":"PSYCH361"
+            },
+            "Access":{
+                "IsActive":true,
+                "StartDate":null,
+                "EndDate":null,
+                "CanAccess":true
+            }
+        },
+        {
+            "OrgUnit":{
+                "Id":123066,
+                "Type":{
+                    "Id":3,
+                    "Code":"Course Offering",
+                    "Name":"Course Offering"
+                },
+                "Name":"K12 - Content",
+                "Code":"K12-1"
+            },
+            "Access":{
+                "IsActive":true,
+                "StartDate":null,
+                "EndDate":null,
+                "CanAccess":true
+            }
+        },
+        {
+            "OrgUnit":{
+                "Id":123067,
+                "Type":{
+                    "Id":3,
+                    "Code":"Course Offering",
+                    "Name":"Course Offering"
+                },
+                "Name":"Labour Relations",
+                "Code":"HRM307"
+            },
+            "Access":{
+                "IsActive":true,
+                "StartDate":null,
+                "EndDate":null,
+                "CanAccess":true
+            }
+        }
+    ]
+}

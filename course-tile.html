@@ -1,0 +1,25 @@
+<link rel="import" href="../polymer/polymer.html">
+
+<dom-module id="course-tile">
+	<template>
+		<style>
+		</style>
+
+		<h3>[[name]]</h3>
+		<a href="[[target]]">Go to [[name]]</a>
+	</template>
+
+	<script>
+		Polymer({
+			is: 'course-tile',
+			properties: {
+				target: {
+					type: String
+				},
+				name: {
+					type: String
+				}
+			}
+		});
+	</script>
+</dom-module>
