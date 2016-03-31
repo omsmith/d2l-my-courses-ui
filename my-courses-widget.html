@@ -3,35 +3,50 @@
 <link rel="import" href="course-tile.html">
 
 <dom-module id="my-courses-widget">
-  <template>
+	<template>
 
-    <style>
-    :host {
-      display: inline-block;
-    }
-    </style>
+	<style>
+	:host {
+		display: inline-block;
+	}
+	</style>
 
-    <p>My Courses</p>
-  	<iron-ajax auto
-      url="my-courses.json"
-      last-response="{{data}}"></iron-ajax>
+	<p>My Courses</p>
 
-    <template is="dom-repeat" items="[[data.entities]]">
-      <course-tile
-        target="http://pltest.uat.d2ldev.com/d2l/home/[[item.properties.id]]"
-        name="[[item.properties.name]]"></course-tile>
-    </template>
+	<iron-ajax
+		auto
+		url="{{uisEndpoint}}"
+		headers="{{getHeaders()}}"
+		last-response="{{data}}"></iron-ajax>
 
-  </template>
+	<template is="dom-repeat" items="[[data.entities]]">
+		<course-tile
+			target="[[lms]][[item.properties.id]]"
+			name="[[item.properties.name]]"></course-tile>
+	</template>
 
-  <script>
-  Polymer({
-    is: 'my-courses-widget',
-    properties: {
-      data: {
-        type: Object
-      }
-    }
-  });
-  </script>
+	</template>
+
+	<script>
+	Polymer({
+		is: 'my-courses-widget',
+		properties: {
+			data: Object,
+			uisEndpoint: {
+				type: String,
+				value: 'http://127.0.0.1:3000/enrollments'
+			},
+			lms: {
+				type: String,
+				value: 'http://pltest.uat.d2ldev.com/d2l/home/'
+			}
+		},
+		getHeaders: function () {
+			return {
+				Authorization: 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6IjJmMzU4MDVjLTU0NTYtNDIzMC05Mjk2LWNiYmY3YjU3MGIxZSJ9.eyJzdWIiOiIzMDIzNyIsInRlbmFudGlkIjoiNmM0NThjNjYtZDdmMC00OTkzLWEwYzUtNDRkNmE3NDdiMjY4Iiwic2NvcGUiOiIqOio6KiIsImp0aSI6ImE5NjBlOWY2LWYyZDctNDBmMS1hNmFlLWMxNmY4MzYwMDAzMyIsImlzcyI6Imh0dHBzOi8vYXBpLmJyaWdodHNwYWNlLmNvbS9hdXRoIiwiYXVkIjoiaHR0cHM6Ly9hcGkuYnJpZ2h0c3BhY2UuY29tL2F1dGgvdG9rZW4iLCJleHAiOjE0NTk0NTg4MDQsIm5iZiI6MTQ1OTQ1NTIwNH0.nK8rEw7Dgn1i2J63QOq5QJqI3kn-XNrIh3kGZjaZF1565Au5VquNRmLcNfvNxuCLEOfBYd-52cNZwyJrOH4q5DwNAz1RfUc_vGVwx_3C_F3GA6kZ0_7gloJ5tM2FHqQfgi7ifUIFLYr2yTK-a7j0Dt54K31xzFQvkEK21RT9jEvQsgAg7GxOzj2SOQMCBkqXHK1Efz0PDLKgAWx6PT_c62eq_R71YeRLisqcd8Be61ysqMWLBUw7WRvPyaNUHdZftKUwR60HNGzoN7Go5Zqu0CUY8wGLtL6RIJToK4FDXWvTliSqiupt0zEjgopRh6LycxyVfCxy8gROcRx90mgN0A',
+				Accept: 'application/vnd.siren+json'
+			}
+		}
+	});
+	</script>
 </dom-module>
