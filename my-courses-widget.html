@@ -5,25 +5,48 @@
 <dom-module id="my-courses-widget">
 	<template>
 
-	<style>
-	:host {
-		display: inline-block;
-	}
-	</style>
+		<style>
+		:host {
+			display: inline-block;
+		}
+		</style>
 
-	<p>My Courses</p>
+		<h2>My Courses</h2>
 
-	<iron-ajax
-		auto
-		url="{{uisEndpoint}}"
-		headers="{{getHeaders()}}"
-		last-response="{{data}}"></iron-ajax>
+		<p>
+		Xsrf: [[xsrfResponse]]<br/>
+		Token: [[tokenResponse]]
+		</p>
 
-	<template is="dom-repeat" items="[[data.entities]]">
-		<course-tile
-			target="[[lms]][[item.properties.id]]"
-			name="[[item.properties.name]]"></course-tile>
-	</template>
+		<iron-ajax
+			auto
+			id="xsrfRequest"
+			on-response="xsrfRequestFinished"
+			url="[[lms]]/d2l/lp/auth/xsrf-tokens"
+			with-credentials="true"
+			last-response="{{xsrfResponse}}"></iron-ajax>
+
+		<iron-ajax
+			id="tokenRequest"
+			on-response="tokenRequestFinished"
+			method="POST"
+			body="scope=*:*:*"
+			url="[[lms]]/d2l/lp/auth/oauth2/token"
+			headers="{{tokenHeaders}}"
+			with-credentials="true"
+			last-response="{{tokenResponse}}"></iron-ajax>
+
+		<iron-ajax
+			id="enrollmentsRequest"
+			url="[[uisEndpoint]]"
+			headers="{{enrollmentsHeaders}}"
+			last-response="{{enrollmentsResponse}}"></iron-ajax>
+
+		<template is="dom-repeat" items="[[enrollmentsResponse.entities]]">
+			<course-tile
+				target="[[lms]]/d2l/home/[[item.properties.id]]"
+				name="[[item.properties.name]]"></course-tile>
+		</template>
 
 	</template>
 
@@ -31,21 +54,43 @@
 	Polymer({
 		is: 'my-courses-widget',
 		properties: {
-			data: Object,
+			tokenResponse: Object,
+			tokenHeaders: {
+				type: Object,
+				computed: 'getTokenHeaders(xsrfResponse)'
+			},
+			enrollmentsResponse: Object,
+			enrollmentsHeaders: {
+				type: Object,
+				computed: 'getEnrollmentsHeaders(tokenResponse)'
+			},
 			uisEndpoint: {
 				type: String,
 				value: 'http://127.0.0.1:3000/enrollments'
 			},
 			lms: {
 				type: String,
-				value: 'http://pltest.uat.d2ldev.com/d2l/home/'
+				value: 'http://127.0.0.1:44444'
 			}
 		},
-		getHeaders: function () {
+		getTokenHeaders: function (xsrfResponse) {
 			return {
-				Authorization: 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6IjJmMzU4MDVjLTU0NTYtNDIzMC05Mjk2LWNiYmY3YjU3MGIxZSJ9.eyJzdWIiOiIzMDIzNyIsInRlbmFudGlkIjoiNmM0NThjNjYtZDdmMC00OTkzLWEwYzUtNDRkNmE3NDdiMjY4Iiwic2NvcGUiOiIqOio6KiIsImp0aSI6ImE5NjBlOWY2LWYyZDctNDBmMS1hNmFlLWMxNmY4MzYwMDAzMyIsImlzcyI6Imh0dHBzOi8vYXBpLmJyaWdodHNwYWNlLmNvbS9hdXRoIiwiYXVkIjoiaHR0cHM6Ly9hcGkuYnJpZ2h0c3BhY2UuY29tL2F1dGgvdG9rZW4iLCJleHAiOjE0NTk0NTg4MDQsIm5iZiI6MTQ1OTQ1NTIwNH0.nK8rEw7Dgn1i2J63QOq5QJqI3kn-XNrIh3kGZjaZF1565Au5VquNRmLcNfvNxuCLEOfBYd-52cNZwyJrOH4q5DwNAz1RfUc_vGVwx_3C_F3GA6kZ0_7gloJ5tM2FHqQfgi7ifUIFLYr2yTK-a7j0Dt54K31xzFQvkEK21RT9jEvQsgAg7GxOzj2SOQMCBkqXHK1Efz0PDLKgAWx6PT_c62eq_R71YeRLisqcd8Be61ysqMWLBUw7WRvPyaNUHdZftKUwR60HNGzoN7Go5Zqu0CUY8wGLtL6RIJToK4FDXWvTliSqiupt0zEjgopRh6LycxyVfCxy8gROcRx90mgN0A',
-				Accept: 'application/vnd.siren+json'
-			}
+				'X-Csrf-Token': xsrfResponse.referrerToken
+			};
+		},
+		getEnrollmentsHeaders: function (tokenResponse) {
+			return {
+				'Authorization': 'Bearer ' + tokenResponse.access_token,
+				'Accept': 'application/vnd.siren+json'
+			};
+		},
+		xsrfRequestFinished: function () {
+			// Don't get tokens until we have the XSRF header
+			this.$.tokenRequest.generateRequest();
+		},
+		tokenRequestFinished: function () {
+			// Don't get enrollments until we have the JWT header
+			this.$.enrollmentsRequest.generateRequest();
 		}
 	});
 	</script>
