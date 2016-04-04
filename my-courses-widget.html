@@ -21,14 +21,14 @@
 		<iron-ajax
 			auto
 			id="xsrfRequest"
-			on-response="xsrfRequestFinished"
+			on-response="xsrfOnResponse"
 			url="[[lms]]/d2l/lp/auth/xsrf-tokens"
 			with-credentials="true"
 			last-response="{{xsrfResponse}}"></iron-ajax>
 
 		<iron-ajax
 			id="tokenRequest"
-			on-response="tokenRequestFinished"
+			on-response="tokenOnResponse"
 			method="POST"
 			body="scope=*:*:*"
 			url="[[lms]]/d2l/lp/auth/oauth2/token"
@@ -54,12 +54,13 @@
 	Polymer({
 		is: 'my-courses-widget',
 		properties: {
+			xsrfResponse: Object,
 			tokenResponse: Object,
+			enrollmentsResponse: Object,
 			tokenHeaders: {
 				type: Object,
 				computed: 'getTokenHeaders(xsrfResponse)'
 			},
-			enrollmentsResponse: Object,
 			enrollmentsHeaders: {
 				type: Object,
 				computed: 'getEnrollmentsHeaders(tokenResponse)'
@@ -84,13 +85,17 @@
 				'Accept': 'application/vnd.siren+json'
 			};
 		},
-		xsrfRequestFinished: function () {
-			// Don't get tokens until we have the XSRF header
-			this.$.tokenRequest.generateRequest();
+		xsrfOnResponse: function (e, request) {
+			if (request.xhr.status === 200) {
+				// Don't try to get tokens until we have the XSRF header
+				this.$.tokenRequest.generateRequest();
+			}
 		},
-		tokenRequestFinished: function () {
-			// Don't get enrollments until we have the JWT header
-			this.$.enrollmentsRequest.generateRequest();
+		tokenOnResponse: function (e, request) {
+			if (request.xhr.status === 200) {
+				// Don't try to get enrollments until we have the JWT header
+				this.$.enrollmentsRequest.generateRequest();
+			}
 		}
 	});
 	</script>
