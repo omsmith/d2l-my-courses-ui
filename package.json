@@ -7,7 +7,7 @@
     "prebuild": "rimraf dist && mkdir dist",
     "build:html": "vulcanize --strip-exclude bower_components/polymer/polymer.html --inline-script --inline-css my-courses-widget.html > ./dist/my-courses-widget.html",
     "build:minify": "vulcanize --strip-exclude bower_components/polymer/polymer.html --inline-script --inline-css my-courses-widget.html | html-minifier -c .html-minifier.conf.json > ./dist/my-courses-widget.min.html",
-    "build": "npm run build:html && npm run build:minify && cp ./demo/my-courses.json ./dist/",
+    "build": "npm run build:html && npm run build:minify",
     "postinstall": "bower install",
     "publish:cdn": "npm run build -s && frau-publisher",
     "serve": "npm run build && polyserve",
