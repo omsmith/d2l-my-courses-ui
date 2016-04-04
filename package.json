@@ -5,8 +5,8 @@
   "private": true,
   "scripts": {
     "prebuild": "rimraf dist && mkdir dist",
-    "build:html": "vulcanize --strip-exclude bower_components/polymer/polymer.html --inline-script --inline-css my-courses-widget.html > ./dist/my-courses-widget.html",
-    "build:minify": "vulcanize --strip-exclude bower_components/polymer/polymer.html --inline-script --inline-css my-courses-widget.html | html-minifier -c .html-minifier.conf.json > ./dist/my-courses-widget.min.html",
+    "build:html": "vulcanize --strip-exclude bower_components/polymer/polymer.html --inline-script --inline-css my-courses-widget.html > ./dist/my-courses-widget.html && vulcanize --strip-exclude bower_components/polymer/polymer.html --inline-script --inline-css course-tile.html > ./dist/course-tile.html",
+    "build:minify": "vulcanize --strip-exclude bower_components/polymer/polymer.html --inline-script --inline-css my-courses-widget.html | html-minifier -c .html-minifier.conf.json > ./dist/my-courses-widget.min.html && vulcanize --strip-exclude bower_components/polymer/polymer.html --inline-script --inline-css course-tile.html | html-minifier -c .html-minifier.conf.json > ./dist/course-tile.min.html",
     "build": "npm run build:html && npm run build:minify",
     "postinstall": "bower install",
     "publish:cdn": "npm run build -s && frau-publisher",
