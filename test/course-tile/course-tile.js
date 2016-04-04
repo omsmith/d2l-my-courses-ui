@@ -1,3 +1,5 @@
+/* global describe, it, beforeEach, fixture, expect */
+
 describe('<course-tile>', function () {
 	var courseTile;
 

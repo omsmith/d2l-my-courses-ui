@@ -11,8 +11,9 @@
     "postinstall": "bower install",
     "publish:cdn": "npm run build -s && frau-publisher",
     "serve": "npm run build && polyserve",
-    "test:lint:js": "eslint *.html",
-    "test": "npm run test:lint:js && npm run build && wct --skip-plugin sauce",
+    "test:lint:js": "eslint test/ --ext .js",
+    "test:lint:html": "eslint *.html",
+    "test": "npm run test:lint:js && npm run test:lint:html && npm run build && wct --skip-plugin sauce",
     "test:no-lint": "npm run build && wct --skip-plugin sauce -p"
   },
   "config": {
