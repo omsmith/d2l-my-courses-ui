@@ -7,7 +7,7 @@ describe('<course-tile>', function () {
 		courseTile = fixture('course-tile-fixture');
 	});
 
-	it('loading element', function () {
+	it('loads element', function () {
 		expect(courseTile).to.exist;
 	});
 
