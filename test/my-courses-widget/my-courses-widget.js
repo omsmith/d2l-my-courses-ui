@@ -56,14 +56,14 @@ describe('smoke test', function() {
 		});
 
 		it('should send a correct XSRF request', function (done) {
+			request = ajaxElement.generateRequest();
+			server.respond();
+
 			ajaxElement.addEventListener('response', function () {
 				expect(request.response).to.be.an('object');
 				expect(request.response.referrerToken).to.equal(xsrfResponse.body.referrerToken);
 				done();
 			});
-
-			request = ajaxElement.generateRequest();
-			server.respond();
 		});
 
 		it('should have a read-only response object', function() {
@@ -89,16 +89,16 @@ describe('smoke test', function() {
 		});
 
 		it('should send a correct token request', function (done) {
+			widget._setXsrfResponse(xsrfResponse.body);
+
+			request = ajaxElement.generateRequest();
+			server.respond();
+
 			ajaxElement.addEventListener('response', function () {
 				expect(request.response).to.be.an('object');
 				expect(request.response.access_token).to.equal(tokenResponse.body.access_token);
 				done();
 			});
-
-			widget._setXsrfResponse(xsrfResponse.body);
-
-			request = ajaxElement.generateRequest();
-			server.respond();
 		});
 
 		it('should have a read-only response object', function() {
@@ -123,17 +123,17 @@ describe('smoke test', function() {
 		});
 
 		it('should send a correct enrollments request', function (done) {
-			ajaxElement.addEventListener('response', function () {
-				expect(request.response).to.be.an('object');
-				expect(Array.isArray(request.response.entities)).to.be.true;
-				done();
-			});
-
 			widget._setXsrfResponse(xsrfResponse.body);
 			widget._setTokenResponse(tokenResponse.body);
 
 			request = ajaxElement.generateRequest();
 			server.respond();
+
+			ajaxElement.addEventListener('response', function () {
+				expect(request.response).to.be.an('object');
+				expect(Array.isArray(request.response.entities)).to.be.true;
+				done();
+			});
 		});
 
 		it('should have a read-only response object', function() {
