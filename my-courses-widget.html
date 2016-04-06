@@ -32,14 +32,15 @@
 			method="POST"
 			body="scope=*:*:*"
 			url="[[lms]]/d2l/lp/auth/oauth2/token"
-			headers="{{tokenHeaders}}"
+			headers="[[tokenHeaders]]"
 			with-credentials="true"
 			last-response="{{tokenResponse}}"></iron-ajax>
 
 		<iron-ajax
 			id="enrollmentsRequest"
+			on-response="enrollmentsOnResponse"
 			url="[[uisEndpoint]]"
-			headers="{{enrollmentsHeaders}}"
+			headers="[[enrollmentsHeaders]]"
 			last-response="{{enrollmentsResponse}}"></iron-ajax>
 
 		<template is="dom-repeat" items="[[enrollmentsResponse.entities]]">
@@ -54,9 +55,18 @@
 	Polymer({
 		is: 'my-courses-widget',
 		properties: {
-			xsrfResponse: Object,
-			tokenResponse: Object,
-			enrollmentsResponse: Object,
+			xsrfResponse: {
+				type: Object,
+				readOnly: true
+			},
+			tokenResponse: {
+				type: Object,
+				readOnly: true
+			},
+			enrollmentsResponse: {
+				type: Object,
+				readOnly: true
+			},
 			tokenHeaders: {
 				type: Object,
 				computed: 'getTokenHeaders(xsrfResponse)'
@@ -85,16 +95,23 @@
 				'Accept': 'application/vnd.siren+json'
 			};
 		},
-		xsrfOnResponse: function (e, request) {
-			if (request.xhr.status === 200) {
+		xsrfOnResponse: function (response) {
+			if (response.detail.status === 200) {
 				// Don't try to get tokens until we have the XSRF header
+				this._setXsrfResponse(response.detail.xhr.response);
 				this.$.tokenRequest.generateRequest();
 			}
 		},
-		tokenOnResponse: function (e, request) {
-			if (request.xhr.status === 200) {
+		tokenOnResponse: function (response) {
+			if (response.detail.status === 200) {
+				this._setTokenResponse(response.detail.xhr.response);
 				// Don't try to get enrollments until we have the JWT header
 				this.$.enrollmentsRequest.generateRequest();
+			}
+		},
+		enrollmentsOnResponse: function (response) {
+			if (response.detail.status === 200) {
+				this._setEnrollmentsResponse(response.detail.xhr.response);
 			}
 		}
 	});
