@@ -65,6 +65,14 @@ describe('smoke test', function() {
 			request = ajaxElement.generateRequest();
 			server.respond();
 		});
+
+		it('should have a read-only response object', function() {
+			widget._setXsrfResponse('foo');
+
+			widget.xsrfResponse = 'bar';
+
+			expect(widget.xsrfResponse).to.equal('foo');
+		});
 	});
 
 	describe('Token request', function () {
@@ -92,6 +100,14 @@ describe('smoke test', function() {
 			request = ajaxElement.generateRequest();
 			server.respond();
 		});
+
+		it('should have a read-only response object', function() {
+			widget._setTokenResponse('foo');
+
+			widget.tokenResponse = 'bar';
+
+			expect(widget.tokenResponse).to.equal('foo');
+		});
 	});
 
 	describe('Enrollments request', function () {
@@ -118,6 +134,14 @@ describe('smoke test', function() {
 
 			request = ajaxElement.generateRequest();
 			server.respond();
+		});
+
+		it('should have a read-only response object', function() {
+			widget._setEnrollmentsResponse('foo');
+
+			widget.enrollmentsResponse = 'bar';
+
+			expect(widget.enrollmentsResponse).to.equal('foo');
 		});
 	});
 });
