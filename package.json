@@ -11,8 +11,8 @@
     "serve": "npm run build && polyserve",
     "test:lint:js": "eslint test/ --ext .js",
     "test:lint:html": "eslint *.html",
-    "test": "npm run test:lint:js && npm run test:lint:html && npm run build && wct --skip-plugin sauce",
-    "test:no-lint": "npm run build && wct --skip-plugin sauce -p"
+    "test": "npm run test:lint:js && npm run test:lint:html && npm run build && wct",
+    "test:no-lint": "npm run build && wct -p"
   },
   "config": {
     "frauPublisher": {

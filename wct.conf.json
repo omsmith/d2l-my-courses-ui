@@ -4,6 +4,7 @@
       "browsers": ["firefox"]
     },
     "sauce": {
+      "disabled": true,
       "browsers": [
         {
           "browserName": "chrome",
