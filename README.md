@@ -31,6 +31,10 @@ This will:
 The demo app can be visited at:
 > http://localhost:8080/components/my-courses-widget/demo/index.html
 
+## `user-info-api` Integration
+
+The My Courses widget pulls data from an instance of the User Info Service to get the enrollments for a user. This functionality is currently in a beta-ish state, as doing so more cleanly would require the widget to be running hosted on the LMS. As it stands now, some changes are required to the LMS to enable CORS headers on all requests for this approach to work.
+
 ## Unit Tests
 
 The unit tests are built and run using [web-component-tester](https://github.com/Polymer/web-component-tester).

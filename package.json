@@ -5,14 +5,14 @@
   "private": true,
   "scripts": {
     "prebuild": "rimraf dist && mkdir dist",
-    "build:html": "vulcanize --strip-exclude bower_components/polymer/polymer.html --inline-script --inline-css my-courses-widget.html > ./dist/my-courses-widget.html",
-    "build:minify": "vulcanize --strip-exclude bower_components/polymer/polymer.html --inline-script --inline-css my-courses-widget.html | html-minifier -c .html-minifier.conf.json > ./dist/my-courses-widget.min.html",
-    "build": "npm run build:html && npm run build:minify && cp ./demo/my-courses.json ./dist/",
+    "build": "vulcanize --strip-exclude bower_components/polymer/polymer.html --inline-script --inline-css my-courses-widget.html > ./dist/my-courses-widget.html && vulcanize --strip-exclude bower_components/polymer/polymer.html --inline-script --inline-css course-tile.html > ./dist/course-tile.html",
     "postinstall": "bower install",
     "publish:cdn": "npm run build -s && frau-publisher",
     "serve": "npm run build && polyserve",
-    "test:lint:js": "eslint *.html",
-    "test": "npm run test:lint:js && npm run build && wct --skip-plugin sauce"
+    "test:lint:js": "eslint test/ --ext .js",
+    "test:lint:html": "eslint *.html",
+    "test": "npm run test:lint:js && npm run test:lint:html && npm run build && wct",
+    "test:no-lint": "npm run build && wct -p"
   },
   "config": {
     "frauPublisher": {
@@ -46,10 +46,9 @@
     "eslint": "^2.4.0",
     "eslint-plugin-html": "^1.4.0",
     "frau-publisher": "^2.5.3",
-    "html-minifier": "^1.3.1",
     "polyserve": "^0.7.1",
     "rimraf": "^2.5.2",
-    "vulcanize": "^1.14.8",
+    "vulcanize": "1.14.8",
     "web-component-tester": "^4.2.2"
   }
 }

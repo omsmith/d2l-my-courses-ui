@@ -3,35 +3,117 @@
 <link rel="import" href="course-tile.html">
 
 <dom-module id="my-courses-widget">
-  <template>
+	<template>
 
-    <style>
-    :host {
-      display: inline-block;
-    }
-    </style>
+		<style>
+		:host {
+			display: inline-block;
+		}
+		</style>
 
-    <p>My Courses</p>
-  	<iron-ajax auto
-      url="my-courses.json"
-      last-response="{{data}}"></iron-ajax>
+		<h2>My Courses</h2>
 
-    <template is="dom-repeat" items="[[data.entities]]">
-      <course-tile
-        target="http://pltest.uat.d2ldev.com/d2l/home/[[item.properties.id]]"
-        name="[[item.properties.name]]"></course-tile>
-    </template>
+		<p>
+		Xsrf: [[xsrfResponse.referrerToken]]<br/>
+		Token: [[tokenResponse.access_token]]
+		</p>
 
-  </template>
+		<iron-ajax
+			auto
+			id="xsrfRequest"
+			on-response="xsrfOnResponse"
+			url="[[lms]]/d2l/lp/auth/xsrf-tokens"
+			with-credentials="true"
+			last-response="{{xsrfResponse}}"></iron-ajax>
 
-  <script>
-  Polymer({
-    is: 'my-courses-widget',
-    properties: {
-      data: {
-        type: Object
-      }
-    }
-  });
-  </script>
+		<iron-ajax
+			id="tokenRequest"
+			on-response="tokenOnResponse"
+			method="POST"
+			body="scope=*:*:*"
+			url="[[lms]]/d2l/lp/auth/oauth2/token"
+			headers="[[tokenHeaders]]"
+			with-credentials="true"
+			last-response="{{tokenResponse}}"></iron-ajax>
+
+		<iron-ajax
+			id="enrollmentsRequest"
+			on-response="enrollmentsOnResponse"
+			url="[[uisEndpoint]]"
+			headers="[[enrollmentsHeaders]]"
+			last-response="{{enrollmentsResponse}}"></iron-ajax>
+
+		<template is="dom-repeat" items="[[enrollmentsResponse.entities]]">
+			<course-tile
+				target="[[lms]]/d2l/home/[[item.properties.id]]"
+				name="[[item.properties.name]]"></course-tile>
+		</template>
+
+	</template>
+
+	<script>
+	Polymer({
+		is: 'my-courses-widget',
+		properties: {
+			xsrfResponse: {
+				type: Object,
+				readOnly: true
+			},
+			tokenResponse: {
+				type: Object,
+				readOnly: true
+			},
+			enrollmentsResponse: {
+				type: Object,
+				readOnly: true
+			},
+			tokenHeaders: {
+				type: Object,
+				computed: 'getTokenHeaders(xsrfResponse)'
+			},
+			enrollmentsHeaders: {
+				type: Object,
+				computed: 'getEnrollmentsHeaders(tokenResponse)'
+			},
+			uisEndpoint: {
+				type: String,
+				value: 'http://127.0.0.1:3000/enrollments'
+			},
+			lms: {
+				type: String,
+				value: 'http://127.0.0.1:44444'
+			}
+		},
+		getTokenHeaders: function (xsrfResponse) {
+			return {
+				'X-Csrf-Token': xsrfResponse.referrerToken
+			};
+		},
+		getEnrollmentsHeaders: function (tokenResponse) {
+			return {
+				'Authorization': 'Bearer ' + tokenResponse.access_token,
+				'Accept': 'application/vnd.siren+json'
+			};
+		},
+		xsrfOnResponse: function (response) {
+			if (response.detail.status === 200) {
+				// Don't try to get tokens until we have the XSRF header
+				this._setXsrfResponse(response.detail.xhr.response);
+				this.$.tokenRequest.generateRequest();
+			}
+		},
+		tokenOnResponse: function (response) {
+			if (response.detail.status === 200) {
+				this._setTokenResponse(response.detail.xhr.response);
+				// Don't try to get enrollments until we have the JWT header
+				this.$.enrollmentsRequest.generateRequest();
+			}
+		},
+		enrollmentsOnResponse: function (response) {
+			if (response.detail.status === 200) {
+				this._setEnrollmentsResponse(response.detail.xhr.response);
+			}
+		}
+	});
+	</script>
 </dom-module>

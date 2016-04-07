@@ -6,10 +6,10 @@
 		<title>my-courses-widget Demo</title>
 		<script src="../../webcomponentsjs/webcomponents-lite.js"></script>
 		<script>
-	      /*
-	      window.Polymer = window.Polymer || {};
-	      window.Polymer.dom = 'shadow';
-	      */
+			window.Polymer = {
+				dom: 'shadow',
+				lazyRegister: true
+			};
 	    </script>
 		<link rel="stylesheet" href="demo.css">
 		<link rel="import" href="../dist/my-courses-widget.html">
