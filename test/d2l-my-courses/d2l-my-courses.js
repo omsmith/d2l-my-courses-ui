@@ -28,7 +28,7 @@ describe('smoke test', function() {
 	beforeEach(function () {
 		server = sinon.fakeServer.create();
 
-		widget = fixture('my-courses-widget-fixture');
+		widget = fixture('d2l-my-courses-fixture');
 		ajaxElements = widget.getElementsByTagName('iron-ajax');
 		for (var i = 0; i < ajaxElements.length; ++i) {
 			// Disable automatic triggering of requests by default
