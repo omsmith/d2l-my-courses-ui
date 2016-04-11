@@ -1,6 +1,6 @@
 {
   "name": "my-courses-widget",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Brightspace My Courses homepage widget",
   "private": true,
   "scripts": {
