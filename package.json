@@ -5,14 +5,14 @@
   "private": true,
   "scripts": {
     "prebuild": "rimraf dist && mkdir dist",
-    "build": "vulcanize --strip-exclude bower_components/polymer/polymer.html --inline-script --inline-css my-courses-widget.html > ./dist/my-courses-widget.html && vulcanize --strip-exclude bower_components/polymer/polymer.html --inline-script --inline-css course-tile.html > ./dist/course-tile.html",
+    "build": "cp d2l-*.html ./dist/",
     "postinstall": "bower install",
     "publish:cdn": "npm run build -s && frau-publisher",
-    "serve": "npm run build && polyserve",
+    "serve": "polyserve",
     "test:lint:js": "eslint test/ --ext .js",
     "test:lint:html": "eslint *.html",
-    "test": "npm run test:lint:js && npm run test:lint:html && npm run build && wct",
-    "test:no-lint": "npm run build && wct -p"
+    "test": "npm run test:lint:js && npm run test:lint:html && wct",
+    "test:no-lint": "wct -p"
   },
   "config": {
     "frauPublisher": {
@@ -41,6 +41,7 @@
     "widget"
   ],
   "author": "D2L Corporation",
+  "license": "Apache-2.0",
   "devDependencies": {
     "bower": "^1.7.7",
     "eslint": "^2.4.0",
@@ -48,7 +49,6 @@
     "frau-publisher": "^2.5.3",
     "polyserve": "^0.7.1",
     "rimraf": "^2.5.2",
-    "vulcanize": "1.14.8",
     "web-component-tester": "^4.2.2"
   }
 }

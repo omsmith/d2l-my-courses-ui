@@ -1,8 +1,8 @@
-<link rel="import" href="http://www.polymer-project.org/1.0/components/polymer/polymer.html">
-<link rel="import" href="bower_components/iron-ajax/iron-ajax.html">
-<link rel="import" href="course-tile.html">
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../iron-ajax/iron-ajax.html">
+<link rel="import" href="d2l-course-tile.html">
 
-<dom-module id="my-courses-widget">
+<dom-module id="d2l-my-courses">
 	<template>
 
 		<style>
@@ -44,16 +44,16 @@
 			last-response="{{enrollmentsResponse}}"></iron-ajax>
 
 		<template is="dom-repeat" items="[[enrollmentsResponse.entities]]">
-			<course-tile
+			<d2l-course-tile
 				target="[[lms]]/d2l/home/[[item.properties.id]]"
-				name="[[item.properties.name]]"></course-tile>
+				name="[[item.properties.name]]"></d2l-course-tile>
 		</template>
 
 	</template>
 
 	<script>
 	Polymer({
-		is: 'my-courses-widget',
+		is: 'd2l-my-courses',
 		properties: {
 			xsrfResponse: {
 				type: Object,

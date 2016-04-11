@@ -10,12 +10,6 @@ Install dependencies via NPM:
 npm install
 ```
 
-Build application assets to the `dist` directory:
-
-```shell
-npm run build
-```
-
 ## Running Locally
 
 To run the application locally, run the following from within the project:
@@ -24,9 +18,7 @@ To run the application locally, run the following from within the project:
 npm run serve
 ```
 
-This will:
-- build the application into the dist folder
-- start a local server using polyserve
+This will start a local server using polyserve
 
 The demo app can be visited at:
 > http://localhost:8080/components/my-courses-widget/demo/index.html

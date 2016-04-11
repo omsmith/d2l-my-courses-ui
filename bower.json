@@ -4,13 +4,14 @@
   "authors": [
     "D2L Corporation"
   ],
-  "license": "MIT",
+  "license": "Apache-2.0",
   "keywords": [
     "d2l",
     "homepage",
     "widget"
   ],
   "homepage": "https://github.com/Brightspace/my-courses-widget",
+  "main": "d2l-my-courses.html",
   "private": true,
   "ignore": [
     "**/.*",

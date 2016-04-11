@@ -1,10 +1,10 @@
 /* global describe, it, beforeEach, fixture, expect */
 
-describe('<course-tile>', function () {
+describe('<d2l-course-tile>', function () {
 	var courseTile;
 
 	beforeEach(function () {
-		courseTile = fixture('course-tile-fixture');
+		courseTile = fixture('d2l-course-tile-fixture');
 	});
 
 	it('loads element', function () {
