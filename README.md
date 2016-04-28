@@ -27,6 +27,17 @@ The demo app can be visited at:
 
 The My Courses widget pulls data from an instance of the User Info Service to get the enrollments for a user. This functionality is currently in a beta-ish state, as doing so more cleanly would require the widget to be running hosted on the LMS. As it stands now, some changes are required to the LMS to enable CORS headers on all requests for this approach to work.
 
+## Local Testing
+
+Testing from within LMS:
+
+1) Checkout brightspace/my-courses-widget and brightspace/brightspace-integration projects into same folder
+2) In brightspace-integration project, switch to c12i12 branch
+3) Build my-courses-widget, then brightspace-integration
+4) Run brightspace-integration locally
+
+Note: On Windows, there exists an issue with relative paths, which will prevent web-component-shards from completing successfully without modifying vulcanize to not use path.posix. See: https://github.com/Polymer/vulcanize/issues/338
+
 ## Unit Tests
 
 The unit tests are built and run using [web-component-tester](https://github.com/Polymer/web-component-tester).
