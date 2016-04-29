@@ -31,12 +31,15 @@ The My Courses widget pulls data from an instance of the User Info Service to ge
 
 Testing from within LMS:
 
-1) Checkout brightspace/my-courses-widget and brightspace/brightspace-integration projects into same folder
-2) In brightspace-integration project, switch to c12i12 branch
-3) Build my-courses-widget, then brightspace-integration
-4) Run brightspace-integration locally
+1) Checkout brightspace/my-courses-widget and brightspace/brightspace-integration
+2) In brightspace-integration project, ensure you're in the correct branch (c12i12)
+3) In my-courses-widget directory, run 'bower link' to allow it to be linked from brightspace-integration
+4) In brightspace-integration directory, run 'bower link my-courses-widget' to link to local my-courses-widget project
+5) Build and run brightspace-integration (will have to be rebuilt on any changes to my-courses-widget)
 
 Note: On Windows, there exists an issue with relative paths, which will prevent web-component-shards from completing successfully without modifying vulcanize to not use path.posix. See: https://github.com/Polymer/vulcanize/issues/338
+
+Under Windows, uou will likely also run into a problem in brightspace-integration where web-component-shards will fail due to the 'tmp' directory not being able to be deleted, preventing 'npm run serve' from succeeding. A simple workaround is to run the contents of the npm 'serve' script directly after building, and removing the tmp directory manually.
 
 ## Unit Tests
 
