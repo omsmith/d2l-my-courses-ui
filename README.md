@@ -32,9 +32,23 @@ The My Courses widget pulls data from an instance of the User Info Service to ge
 Testing from within LMS:
 
 1) Checkout brightspace/my-courses-widget and brightspace/brightspace-integration
+
 2) In brightspace-integration project, ensure you're in the correct branch (c12i12)
-3) In my-courses-widget directory, run 'bower link' to allow it to be linked from brightspace-integration
-4) In brightspace-integration directory, run 'bower link my-courses-widget' to link to local my-courses-widget project
+
+3) In my-courses-widget directory, run 
+
+```shell
+bower link 
+```
+to allow it to be linked from brightspace-integration
+
+4) In brightspace-integration directory, run 
+
+```shell
+bower link my-courses-widget
+```
+to link to the local my-courses-widget project
+
 5) Build and run brightspace-integration (will have to be rebuilt on any changes to my-courses-widget)
 
 Note: On Windows, there exists an issue with relative paths, which will prevent web-component-shards from completing successfully without modifying vulcanize to not use path.posix. See: https://github.com/Polymer/vulcanize/issues/338
