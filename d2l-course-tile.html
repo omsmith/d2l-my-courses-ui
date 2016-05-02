@@ -1,39 +1,62 @@
 <link rel="import" href="../polymer/polymer.html">
 
 <dom-module id="d2l-course-tile">
-  <template>
-    <style>
-    :host {
-      display: block;
-      margin: 1em;
-      padding: 1em;
-      border: 3px solid #006FBF;
-      border-radius: 25px;
-      background-color: #E57231;
-    }
-    p {
-      font-family: "Lato-Light" sans-serif;
-      font-weight: 300;
-      font-size: 20px;
-      letter-spacing: 0.3px;
-    }
-    </style>
+	<template>
+		<style>
+		:host {
+			width: 270px;
+			height: 200px;
+			background-color: #FFFFFF;
+			float: left;
+			margin-right: 30px;
+			margin-bottom: 30px;
+		}
+		a {
+			text-decoration: none;
+			color: inherit;
+		}
+		.course-image {
+			width: 100%;
+			height: 60%;
+			background-image: url(http://lorempixel.com/640/480/cats/);
+			background-size: cover;
+			background-position: center;
+			border-top-left-radius: 15px;
+			border-top-right-radius: 15px;
+		}
+		.course-text {
+			width: 100%;
+			height: 60px;
+			overflow: hidden;
+			position: relative;
+			padding-top: 15px;
+			/* ellipses for long text */
+			display: -webkit-box;
+			-webkit-line-clamp: 2;
+			-webkit-box-orient: vertical;
+		}
+		</style>
 
-    <p>Enrollment: [[name]]</p>
-    <a href="[[target]]">Go to [[name]]</a>
-  </template>
+		<a href="[[target]]">
+			<div class="course-image">
+			</div>
+			<div class="course-text">
+				[[name]]
+			</div>
+		</a>
+	</template>
 
-  <script>
-    Polymer({
-      is: 'd2l-course-tile',
-      properties: {
-        target: {
-          type: String
-        },
-        name: {
-          type: String
-        }
-      }
-    });
-  </script>
+	<script>
+		Polymer({
+			is: 'd2l-course-tile',
+			properties: {
+				target: {
+					type: String
+				},
+				name: {
+					type: String
+				}
+			}
+		});
+	</script>
 </dom-module>
