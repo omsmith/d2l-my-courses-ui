@@ -1,4 +1,4 @@
-# my-courses-widget
+# d2l-my-courses-ui
 
 The UI for the My Courses homepage widget in the LE.
 
@@ -21,7 +21,7 @@ npm run serve
 This will start a local server using polyserve
 
 The demo app can be visited at:
-> http://localhost:8080/components/my-courses-widget/demo/index.html
+> http://localhost:8080/components/d2l-my-courses/demo/index.html
 
 ## `user-info-api` Integration
 
@@ -31,25 +31,25 @@ The My Courses widget pulls data from an instance of the User Info Service to ge
 
 Testing from within LMS:
 
-1) Checkout brightspace/my-courses-widget and brightspace/brightspace-integration
+1) Checkout brightspace/d2l-my-courses-ui and brightspace/brightspace-integration
 
 2) In brightspace-integration project, ensure you're in the correct branch (c12i12)
 
-3) In my-courses-widget directory, run 
+3) In d2l-my-courses-ui directory, run
 
 ```shell
-bower link 
+bower link
 ```
 to allow it to be linked from brightspace-integration
 
-4) In brightspace-integration directory, run 
+4) In brightspace-integration directory, run
 
 ```shell
-bower link my-courses-widget
+bower link d2l-my-courses-ui
 ```
-to link to the local my-courses-widget project
+to link to the local d2l-my-courses-ui project
 
-5) Build and run brightspace-integration (will have to be rebuilt on any changes to my-courses-widget)
+5) Build and run brightspace-integration (will have to be rebuilt on any changes to d2l-my-courses-ui)
 
 Note: On Windows, there exists an issue with relative paths, which will prevent web-component-shards from completing successfully without modifying vulcanize to not use path.posix. See: https://github.com/Polymer/vulcanize/issues/338
 

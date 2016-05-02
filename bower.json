@@ -1,5 +1,5 @@
 {
-  "name": "my-courses-widget",
+  "name": "d2l-my-courses",
   "description": "Brightspace My Courses homepage widget",
   "authors": [
     "D2L Corporation"
@@ -10,7 +10,7 @@
     "homepage",
     "widget"
   ],
-  "homepage": "https://github.com/Brightspace/my-courses-widget",
+  "homepage": "https://github.com/Brightspace/d2l-my-courses-ui",
   "main": "d2l-my-courses.html",
   "private": true,
   "ignore": [

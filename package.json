@@ -1,5 +1,5 @@
 {
-  "name": "my-courses-widget",
+  "name": "d2l-my-courses",
   "version": "0.1.1",
   "description": "Brightspace My Courses homepage widget",
   "private": true,
@@ -27,13 +27,13 @@
       "versionVar": "TRAVIS_TAG"
     }
   },
-  "homepage": "https://github.com/Brightspace/my-courses-widget",
+  "homepage": "https://github.com/Brightspace/d2l-my-courses-ui",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Brightspace/my-courses-widget.git"
+    "url": "https://github.com/Brightspace/d2l-my-courses-ui.git"
   },
   "bugs": {
-    "url": "https://github.com/Brightspace/my-courses-widget/issues"
+    "url": "https://github.com/Brightspace/d2l-my-courses-ui/issues"
   },
   "keywords": [
     "d2l",
