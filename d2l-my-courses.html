@@ -1,5 +1,5 @@
 <link rel="import" href="../polymer/polymer.html">
-<link rel="import" href="../iron-ajax/iron-ajax.html">
+<link rel="import" href="../d2l-ajax-ui/d2l-ajax.html">
 <link rel="import" href="d2l-course-tile.html">
 
 <dom-module id="d2l-my-courses">
@@ -11,41 +11,17 @@
 		}
 		</style>
 
-		<h2>My Courses</h2>
-
-		<p>
-		Xsrf: [[xsrfResponse.referrerToken]]<br/>
-		Token: [[tokenResponse.access_token]]
-		</p>
-
-		<iron-ajax
-			auto
-			id="xsrfRequest"
-			on-response="xsrfOnResponse"
-			url="[[lms]]/d2l/lp/auth/xsrf-tokens"
-			with-credentials="true"
-			last-response="{{xsrfResponse}}"></iron-ajax>
-
-		<iron-ajax
-			id="tokenRequest"
-			on-response="tokenOnResponse"
-			method="POST"
-			body="scope=*:*:*"
-			url="[[lms]]/d2l/lp/auth/oauth2/token"
-			headers="[[tokenHeaders]]"
-			with-credentials="true"
-			last-response="{{tokenResponse}}"></iron-ajax>
-
-		<iron-ajax
+		<d2l-ajax
 			id="enrollmentsRequest"
+			auto
 			on-response="enrollmentsOnResponse"
-			url="[[uisEndpoint]]"
-			headers="[[enrollmentsHeaders]]"
-			last-response="{{enrollmentsResponse}}"></iron-ajax>
+			url="{{enrollmentsUrl}}"
+			headers='{ "Accept": "application/vnd.siren+json" }'
+			last-response="{{enrollmentsResponse}}"></d2l-ajax>
 
 		<template is="dom-repeat" items="[[enrollmentsResponse.entities]]">
 			<d2l-course-tile
-				target="[[lms]]/d2l/home/[[item.properties.id]]"
+				target="/d2l/home/[[item.properties.id]]"
 				name="[[item.properties.name]]"></d2l-course-tile>
 		</template>
 
@@ -55,58 +31,12 @@
 	Polymer({
 		is: 'd2l-my-courses',
 		properties: {
-			xsrfResponse: {
-				type: Object,
-				readOnly: true
-			},
-			tokenResponse: {
-				type: Object,
-				readOnly: true
-			},
 			enrollmentsResponse: {
 				type: Object,
 				readOnly: true
 			},
-			tokenHeaders: {
-				type: Object,
-				computed: 'getTokenHeaders(xsrfResponse)'
-			},
-			enrollmentsHeaders: {
-				type: Object,
-				computed: 'getEnrollmentsHeaders(tokenResponse)'
-			},
-			uisEndpoint: {
-				type: String,
-				value: 'https://pulse-user-info.api.brightspace.com/enrollments'
-			},
-			lms: {
-				type: String,
-				value: ''
-			}
-		},
-		getTokenHeaders: function (xsrfResponse) {
-			return {
-				'X-Csrf-Token': xsrfResponse.referrerToken
-			};
-		},
-		getEnrollmentsHeaders: function (tokenResponse) {
-			return {
-				'Authorization': 'Bearer ' + tokenResponse.access_token,
-				'Accept': 'application/vnd.siren+json'
-			};
-		},
-		xsrfOnResponse: function (response) {
-			if (response.detail.status === 200) {
-				// Don't try to get tokens until we have the XSRF header
-				this._setXsrfResponse(response.detail.xhr.response);
-				this.$.tokenRequest.generateRequest();
-			}
-		},
-		tokenOnResponse: function (response) {
-			if (response.detail.status === 200) {
-				this._setTokenResponse(response.detail.xhr.response);
-				// Don't try to get enrollments until we have the JWT header
-				this.$.enrollmentsRequest.generateRequest();
+			enrollmentsUrl: {
+				type: String
 			}
 		},
 		enrollmentsOnResponse: function (response) {
