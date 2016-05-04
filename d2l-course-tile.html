@@ -18,7 +18,6 @@
 		.course-image {
 			width: 100%;
 			height: 60%;
-			background-image: url(http://lorempixel.com/640/480/cats/);
 			background-size: cover;
 			background-position: center;
 			border-top-left-radius: 10px;
@@ -55,7 +54,30 @@
 				},
 				name: {
 					type: String
+				},
+				imageSrc: {
+					type: String
+				},
+				imageCategories: {
+					type: Array,
+					readOnly: true,
+					value: function () {
+						return [
+							'abstract', 'animals', 'business', 'city', 'food', 'people', 'nature', 'sports', 'transport'
+						];
+					}
 				}
+			},
+			ready: function () {
+				var courseImage = this.$$('.course-image'),
+					courseImageSrc = this.imageSrc || this._getRandomImageUrl();
+
+				Polymer.dom(courseImage).setAttribute('style', 'background-image: url(' + courseImageSrc + ');');
+			},
+			_getRandomImageUrl: function () {
+				var index = Math.floor((Math.random() * 10) + 1); // 1 - 10 inclusive
+				var category = this.imageCategories[Math.floor((Math.random() * this.imageCategories.length))];
+				return 'http://lorempixel.com/640/480/' + category + '/' + index;
 			}
 		});
 	</script>
