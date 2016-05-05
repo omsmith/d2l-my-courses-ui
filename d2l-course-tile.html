@@ -4,20 +4,27 @@
 	<template>
 		<style>
 		:host {
-			width: 270px;
-			height: 200px;
-			background-color: #FFFFFF;
-			float: left;
-			margin-right: 30px;
-			margin-bottom: 30px;
+			display: block;
 		}
 		a, a:hover, a:visited {
 			text-decoration: none;
 			color: inherit;
 		}
-		.course-image {
+		.course-image-container {
+			position: relative;
+		}
+		.course-image-container:before {
+			display: block;
+			content: "";
 			width: 100%;
-			height: 60%;
+			padding-top: 43%; /* image aspect ratio */
+		}
+		.course-image {
+			position: absolute;
+			top: 0;
+			left: 0;
+			right: 0;
+			bottom: 0;
 			background-size: cover;
 			background-position: center;
 			border-top-left-radius: 10px;
@@ -25,7 +32,7 @@
 		}
 		.course-text {
 			width: 100%;
-			height: 68px;
+			max-height: 75px;
 			overflow: hidden;
 			position: relative;
 			padding-top: 8px;
@@ -37,7 +44,8 @@
 		</style>
 
 		<a href="[[target]]">
-			<div class="course-image">
+			<div class="course-image-container">
+				<div class="course-image"></div>
 			</div>
 			<div class="course-text">
 				[[name]]
