@@ -68,7 +68,7 @@
 			id="enrollmentsRequest"
 			auto
 			on-response="enrollmentsOnResponse"
-			url="{{enrollmentsUrl}}"
+			url="[[pinnedCoursesUrl]]"
 			headers='{ "Accept": "application/vnd.siren+json" }'
 			last-response="{{enrollmentsResponse}}"></d2l-ajax>
 
@@ -93,6 +93,10 @@
 			enrollmentsUrl: {
 				type: String
 			},
+			pinnedCoursesUrl: {
+				type: String,
+				computed: '_getPinnedCoursesUrl(enrollmentsUrl)'
+			},
 			windowResizeHandler: {
 				type: Object,
 				readOnly: true,
@@ -112,6 +116,9 @@
 				this._setupColumns(response.detail.xhr.response.entities.length);
 				this._setEnrollmentsResponse(response.detail.xhr.response);
 			}
+		},
+		_getPinnedCoursesUrl: function (enrollmentsUrl) {
+			return enrollmentsUrl + '?filter=pinned';
 		},
 		_calcNumColumns: function (node, itemCount) {
 			var width = node.getBoundingClientRect().width;

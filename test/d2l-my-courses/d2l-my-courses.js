@@ -42,7 +42,7 @@ describe('smoke test', function() {
 			server.respondImmediately = true;
 			server.respondWith(
 				'GET',
-				widget.enrollmentsUrl,
+				widget.pinnedCoursesUrl,
 				function (req) {
 					expect(req.requestHeaders['authorization']).to.match(/Bearer/);
 					expect(req.requestHeaders['accept']).to.equal('application/vnd.siren+json');
@@ -50,7 +50,7 @@ describe('smoke test', function() {
 				});
 		});
 
-		it('should send a correct enrollments request', function (done) {
+		it('should send an enrollments request for pinned courses', function (done) {
 			ajaxElement.authToken = 'such access wow';
 			ajaxElement.generateRequest();
 
@@ -66,6 +66,88 @@ describe('smoke test', function() {
 			widget.enrollmentsResponse = 'bar';
 
 			expect(widget.enrollmentsResponse).to.equal('foo');
+		});
+	});
+
+	describe('layout', function () {
+		describe('column calculations', function () {
+			it('should be correct according to the crazy design', function () {
+				[{
+					width: 767,
+					itemCount: 0,
+					expectedColumns: 1
+				}, {
+					width: 767,
+					itemCount: 3,
+					expectedColumns: 1
+				}, {
+					width: 767,
+					itemCount: 4,
+					expectedColumns: 2
+				}, {
+					width: 991,
+					itemCount: 0,
+					expectedColumns: 3
+				}, {
+					width: 991,
+					itemCount: 1,
+					expectedColumns: 2
+				}, {
+					width: 991,
+					itemCount: 2,
+					expectedColumns: 2
+				}, {
+					width: 991,
+					itemCount: 3,
+					expectedColumns: 3
+				}, {
+					width: 991,
+					itemCount: 4,
+					expectedColumns: 2
+				}, {
+					width: 991,
+					itemCount: 5,
+					expectedColumns: 3
+				}, {
+					width: 992,
+					itemCount: 0,
+					expectedColumns: 4
+				}, {
+					width: 992,
+					itemCount: 1,
+					expectedColumns: 2
+				}, {
+					width: 992,
+					itemCount: 2,
+					expectedColumns: 2
+				}, {
+					width: 992,
+					itemCount: 3,
+					expectedColumns: 3
+				}, {
+					width: 992,
+					itemCount: 4,
+					expectedColumns: 2
+				}, {
+					width: 992,
+					itemCount: 5,
+					expectedColumns: 3
+				}, {
+					width: 992,
+					itemCount: 6,
+					expectedColumns: 3
+				}, {
+					width: 992,
+					itemCount: 7,
+					expectedColumns: 4
+				}]
+				.forEach(function (scenario) {
+					var description = 'width: ' + scenario.width + '; itemCount: ' + scenario.itemCount;
+					var node = document.getElementById('container-' + scenario.width);
+					var numberOfColumns = widget._calcNumColumns(node, scenario.itemCount);
+					expect(numberOfColumns, description).to.equal(scenario.expectedColumns);
+				});
+			});
 		});
 	});
 });
