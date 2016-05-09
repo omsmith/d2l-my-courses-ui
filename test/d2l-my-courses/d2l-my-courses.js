@@ -143,8 +143,7 @@ describe('smoke test', function() {
 				}]
 				.forEach(function (scenario) {
 					var description = 'width: ' + scenario.width + '; itemCount: ' + scenario.itemCount;
-					var node = document.getElementById('container-' + scenario.width);
-					var numberOfColumns = widget._calcNumColumns(node, scenario.itemCount);
+					var numberOfColumns = widget._calcNumColumns(scenario.width, scenario.itemCount);
 					expect(numberOfColumns, description).to.equal(scenario.expectedColumns);
 				});
 			});

@@ -24,7 +24,7 @@
 
 		d2l-course-tile {
 			width: 100%;
-			margin-bottom: 30px;
+			margin-bottom: 21px;
 		}
 
 		.columns-2 d2l-course-tile {
@@ -120,8 +120,7 @@
 		_getPinnedCoursesUrl: function (enrollmentsUrl) {
 			return enrollmentsUrl + '?filter=pinned';
 		},
-		_calcNumColumns: function (node, itemCount) {
-			var width = node.getBoundingClientRect().width;
+		_calcNumColumns: function (width, itemCount) {
 			var numCols = 1;
 
 			if (width < 768) {
@@ -148,7 +147,8 @@
 		},
 		_setupColumns: function (itemCount) {
 			var container = this.$$('.my-courses-container');
-			var numCols = this._calcNumColumns(container, itemCount);
+			var width = this._getAvailableWidth(container);
+			var numCols = this._calcNumColumns(width, itemCount);
 			var colClasses = ['columns-2', 'columns-3', 'columns-4'];
 
 			var currentColClass = function (domNode) {
@@ -178,6 +178,24 @@
 					domNode.classList.remove(oldClassName);
 				}
 			}
+		},
+		// This method will first try to get the available width from the passed in DOM node, but if the
+		// reported width is zero, it will walk the ancestor tree to find a node that has a width.
+		// The width will be zero if the element is hidden with display: none.
+		// If an ancestor node is used for the width, it may not be entirely accurate, but it should be
+		// fine for the purpose of creating a decent layout for a hidden widget.
+		_getAvailableWidth: function (node) {
+			var width = node.getBoundingClientRect().width;
+
+			if (width > 0) {
+				return width;
+			}
+
+			if (!node.parentElement) {
+				return 0;
+			}
+
+			return this._getAvailableWidth(node.parentElement);
 		},
 		_handleWindowResize: function () {
 			var itemCount = this.enrollmentsResponse ? this.enrollmentsResponse.entities.length : 0;
