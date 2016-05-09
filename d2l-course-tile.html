@@ -1,44 +1,13 @@
 <link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="d2l-course-tile-styles.html">
 
 <dom-module id="d2l-course-tile">
 	<template>
-		<style>
-		:host {
-			width: 270px;
-			height: 200px;
-			background-color: #FFFFFF;
-			float: left;
-			margin-right: 30px;
-			margin-bottom: 30px;
-		}
-		a, a:hover, a:visited {
-			text-decoration: none;
-			color: inherit;
-		}
-		.course-image {
-			width: 100%;
-			height: 60%;
-			background-image: url(http://lorempixel.com/640/480/cats/);
-			background-size: cover;
-			background-position: center;
-			border-top-left-radius: 10px;
-			border-top-right-radius: 10px;
-		}
-		.course-text {
-			width: 100%;
-			height: 68px;
-			overflow: hidden;
-			position: relative;
-			padding-top: 8px;
-			/* ellipses for long text */
-			display: -webkit-box;
-			-webkit-line-clamp: 2;
-			-webkit-box-orient: vertical;
-		}
-		</style>
+		<style include="d2l-course-tile-styles"></style>
 
 		<a href="[[target]]">
-			<div class="course-image">
+			<div class="course-image-container">
+				<div class="course-image"></div>
 			</div>
 			<div class="course-text">
 				[[name]]
@@ -55,7 +24,30 @@
 				},
 				name: {
 					type: String
+				},
+				imageSrc: {
+					type: String
+				},
+				imageCategories: {
+					type: Array,
+					readOnly: true,
+					value: function () {
+						return [
+							'abstract', 'animals', 'business', 'city', 'food', 'people', 'nature', 'sports', 'transport'
+						];
+					}
 				}
+			},
+			ready: function () {
+				var courseImage = this.$$('.course-image'),
+					courseImageSrc = this.imageSrc || this._getRandomImageUrl();
+
+				Polymer.dom(courseImage).setAttribute('style', 'background-image: url(' + courseImageSrc + ');');
+			},
+			_getRandomImageUrl: function () {
+				var index = Math.floor((Math.random() * 10) + 1); // 1 - 10 inclusive
+				var category = this.imageCategories[Math.floor((Math.random() * this.imageCategories.length))];
+				return 'http://lorempixel.com/640/480/' + category + '/' + index;
 			}
 		});
 	</script>

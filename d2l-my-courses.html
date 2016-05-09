@@ -1,34 +1,27 @@
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../d2l-ajax-ui/d2l-ajax.html">
+<link rel="import" href="d2l-my-courses-styles.html">
 <link rel="import" href="d2l-course-tile.html">
 
 <dom-module id="d2l-my-courses">
 	<template>
-
-		<style>
-		:host {
-			display: inline-block;
-			font-family: 'Lato-Regular', sans-serif;
-			font-size: 20px;
-			line-height: 30px;
-			letter-spacing: 1px;
-			color: #565a5c;
-		}
-		</style>
+		<style include="d2l-my-courses-styles"></style>
 
 		<d2l-ajax
 			id="enrollmentsRequest"
 			auto
 			on-response="enrollmentsOnResponse"
-			url="{{enrollmentsUrl}}"
+			url="[[pinnedCoursesUrl]]"
 			headers='{ "Accept": "application/vnd.siren+json" }'
 			last-response="{{enrollmentsResponse}}"></d2l-ajax>
 
-		<template is="dom-repeat" items="[[enrollmentsResponse.entities]]">
-			<d2l-course-tile
-				target="/d2l/home/[[item.properties.id]]"
-				name="[[item.properties.name]]"></d2l-course-tile>
-		</template>
+		<div class="my-courses-container">
+			<template is="dom-repeat" items="[[enrollmentsResponse.entities]]">
+				<d2l-course-tile
+					target="/d2l/home/[[item.properties.id]]"
+					name="[[item.properties.name]]"></d2l-course-tile>
+			</template>
+		</div>
 
 	</template>
 
@@ -42,12 +35,124 @@
 			},
 			enrollmentsUrl: {
 				type: String
+			},
+			pinnedCoursesUrl: {
+				type: String,
+				readOnly: true,
+				computed: '_getPinnedCoursesUrl(enrollmentsUrl)'
+			},
+			windowResizeHandler: {
+				type: Object,
+				readOnly: true,
+				value: function () {
+					return this._handleWindowResize.bind(this);
+				}
 			}
+		},
+		attached: function () {
+			this._addThrottledEventListener('resize', this.windowResizeHandler);
+		},
+		detached: function () {
+			window.removeEventListener('resize', this.windowResizeHandler);
 		},
 		enrollmentsOnResponse: function (response) {
 			if (response.detail.status === 200) {
+				this._setupColumns(response.detail.xhr.response.entities.length);
 				this._setEnrollmentsResponse(response.detail.xhr.response);
 			}
+		},
+		_getPinnedCoursesUrl: function (enrollmentsUrl) {
+			return enrollmentsUrl + '?filter=pinned';
+		},
+		_calcNumColumns: function (width, itemCount) {
+			var numCols = 1;
+
+			if (width < 768) {
+				if (itemCount >= 4) {
+					numCols = 2;
+				}
+			} else if (width < 992) {
+				if (itemCount === 1 || itemCount === 2 || itemCount === 4) {
+					numCols = 2;
+				} else {
+					numCols = 3;
+				}
+			} else {
+				if (itemCount === 1 || itemCount === 2 || itemCount === 4) {
+					numCols = 2;
+				} else if (itemCount === 3 || itemCount === 5 || itemCount === 6) {
+					numCols = 3;
+				} else {
+					numCols = 4;
+				}
+			}
+
+			return numCols;
+		},
+		_setupColumns: function (itemCount) {
+			var container = this.$$('.my-courses-container');
+			var width = this._getAvailableWidth(container);
+			var numCols = this._calcNumColumns(width, itemCount);
+			var colClasses = ['columns-2', 'columns-3', 'columns-4'];
+
+			var currentColClass = function (domNode) {
+				var foundClass = '';
+				colClasses.forEach(function (item) {
+					if (!foundClass && domNode.classList.contains(item)) {
+						foundClass = item;
+					}
+				});
+				return foundClass;
+			}
+
+			var domNode = Polymer.dom(container);
+			var oldClassName = currentColClass(domNode);
+
+			if (numCols > 1) {
+				var newClassName = 'columns-' + numCols;
+
+				if (oldClassName !== newClassName) {
+					if (oldClassName) {
+						domNode.classList.remove(oldClassName);
+					}
+					domNode.classList.add(newClassName);
+				}
+			} else {
+				if (oldClassName) {
+					domNode.classList.remove(oldClassName);
+				}
+			}
+		},
+		// This method will first try to get the available width from the passed in DOM node, but if the
+		// reported width is zero, it will walk the ancestor tree to find a node that has a width.
+		// The width will be zero if the element is hidden with display: none.
+		// If an ancestor node is used for the width, it may not be entirely accurate, but it should be
+		// fine for the purpose of creating a decent layout for a hidden widget.
+		_getAvailableWidth: function (node) {
+			var width = node.getBoundingClientRect().width;
+
+			if (width > 0) {
+				return width;
+			}
+
+			if (!node.parentElement) {
+				return 0;
+			}
+
+			return this._getAvailableWidth(node.parentElement);
+		},
+		_handleWindowResize: function () {
+			var itemCount = this.enrollmentsResponse ? this.enrollmentsResponse.entities.length : 0;
+			this._setupColumns(itemCount);
+		},
+		_addThrottledEventListener: function (eventName, eventHandler) {
+			var timeout = false,
+				delay = 100;
+
+			window.addEventListener(eventName, function () {
+				clearTimeout(timeout);
+				timeout = setTimeout(eventHandler, delay);
+			});
 		}
 	});
 	</script>
