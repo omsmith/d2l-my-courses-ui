@@ -1,68 +1,11 @@
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../d2l-ajax-ui/d2l-ajax.html">
+<link rel="import" href="d2l-my-courses-styles.html">
 <link rel="import" href="d2l-course-tile.html">
 
 <dom-module id="d2l-my-courses">
 	<template>
-
-		<style>
-		:host {
-			display: block;
-			font-family: 'Lato-Regular', sans-serif;
-			font-size: 20px;
-			line-height: 30px;
-			letter-spacing: 1px;
-			color: #565a5c;
-		}
-
-		.my-courses-container {
-			display: flex;
-			flex-wrap: wrap;
-			flex-direction: row;
-			align-items: flex-start;
-		}
-
-		d2l-course-tile {
-			width: 100%;
-			margin-bottom: 21px;
-		}
-
-		.columns-2 d2l-course-tile {
-			width: 47.5%;
-			margin-left: 2.5%;
-			margin-right: 2.5%;
-		}
-		.columns-2 d2l-course-tile:nth-of-type(2n) {
-			margin-right: 0;
-		}
-		.columns-2 d2l-course-tile:nth-of-type(2n+1) {
-			margin-left: 0;
-		}
-
-		.columns-3 d2l-course-tile {
-			width: 31%;
-			margin-left: 1.67%;
-			margin-right: 1.67%;
-		}
-		.columns-3 d2l-course-tile:nth-of-type(3n) {
-			margin-right: 0;
-		}
-		.columns-3 d2l-course-tile:nth-of-type(3n+1) {
-			margin-left: 0;
-		}
-
-		.columns-4 d2l-course-tile {
-			width: 23%;
-			margin-left: 1.33%;
-			margin-right: 1.33%;
-		}
-		.columns-4 d2l-course-tile:nth-of-type(4n) {
-			margin-right: 0;
-		}
-		.columns-4 d2l-course-tile:nth-of-type(4n+1) {
-			margin-left: 0;
-		}
-		</style>
+		<style include="d2l-my-courses-styles"></style>
 
 		<d2l-ajax
 			id="enrollmentsRequest"
@@ -95,6 +38,7 @@
 			},
 			pinnedCoursesUrl: {
 				type: String,
+				readOnly: true,
 				computed: '_getPinnedCoursesUrl(enrollmentsUrl)'
 			},
 			windowResizeHandler: {
