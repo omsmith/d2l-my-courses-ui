@@ -25,6 +25,25 @@
 					image-src="{{getCourseImageUrl(item.links)}}"
 					pinned="{{getPinnedState(item.entities)}}"></d2l-course-tile>
 			</template>
+			
+                        <p id="allcoursesbutton">View All Courses</p>
+
+                        <paper-dialog id="mydialog">
+                            <div class="dialog-content">
+                                <p class="header">Pinned<p>
+                                <template is="dom-repeat" items="[[enrollmentsResponse.entities]]">
+                                <d2l-course-tile
+                                        target="/d2l/home/[[item.properties.id]]"
+                                        name="[[item.properties.name]]"></d2l-course-tile>
+                                </template>
+                                <p class="header">Unpinned</p>
+                                <template is="dom-repeat" items="{{unpinnedCoursesFilter()}}">
+                                <d2l-course-tile
+                                        target="/d2l/home/[[item.properties.id]]"
+                                        name="[[item.properties.name]]"></d2l-course-tile>
+                                </template>
+                            </div>
+                        </paper-dialog>
 		</div>
 
 	</template>
@@ -53,6 +72,12 @@
 				}
 			}
 		},
+		listeners: {
+                    'allcoursesbutton.tap': 'toggleDialog'
+		},
+		observers: [
+                    'unpinnedCoursesFilter(enrollmentsResponse, allEnrollmentsResponse)'
+		],
 		attached: function () {
 			this._addThrottledEventListener('resize', this.windowResizeHandler);
 		},
@@ -63,6 +88,7 @@
 			if (response.detail.status === 200) {
 				this._setupColumns(response.detail.xhr.response.entities.length);
 				this._setEnrollmentsResponse(response.detail.xhr.response);
+				this._setAllEnrollmentsResponse(response.detail.xhr.response);
 			}
 		},
 		getCourseImageUrl: function (links) {
@@ -78,6 +104,42 @@
 					return entities[i].class.indexOf('pinned') > -1;
 				}
 			}
+		},
+		allEnrollmentsOnResponse: function (response) {
+                    if (response.detail.status === 200) {
+				this._setEnrollmentsResponse(response.detail.xhr.response);
+			}
+		},
+		unpinnedCoursesFilter: function(enrollmentsResponse, allEnrollmentsResponse) {
+                    // Filter result of allEnrollmentsResponse using enrollmentsResponse (currently "pinned courses" data)
+                    var pinnedCoursesEntities = [];
+                    var allCoursesEntities = [];
+                    var unpinnedCoursesEntities = [];
+                    
+                    if(this.enrollmentsResponse && this.allEnrollmentsResponse) {
+                        pinnedCoursesEntities = this.enrollmentsResponse.entities;
+                        allCoursesEntities = this.allEnrollmentsResponse.entities;
+                        
+                        for(let i of allCoursesEntities) {
+                            let isPinned = false;
+                            
+                            for(let j of pinnedCoursesEntities) {
+                                if(i.properties.id == j.properties.id) {
+                                    isPinned = true;
+                                    break;
+                                }
+                            }
+                            
+                            if(!isPinned) {
+                                unpinnedCoursesEntities.push(i);
+                            }
+                        }
+                    }
+                        
+                    return unpinnedCoursesEntities;
+		},
+		toggleDialog: function () {
+                    this.$.mydialog.open();
 		},
 		_getPinnedCoursesUrl: function (enrollmentsUrl) {
 			return enrollmentsUrl + '?filter=pinned';
