@@ -30,6 +30,10 @@
     "polymer": "Polymer/polymer#^1.4.0",
     "iron-ajax": "PolymerElements/iron-ajax#^1.2.0",
     "d2l-ajax": "Brightspace/d2l-ajax-ui#1.0.1"
+    "iron-overlay-behavior": "PolymerElements/iron-overlay-behavior#^1.7.1",
+    "iron-icon": "PolymerElements/iron-icon#^1.0.8",
+    "iron-iconset-svg": "PolymerElements/iron-iconset-svg#^1.0.9",
+    "neon-animation": "PolymerElements/neon-animation#^1.2.2"
   },
   "devDependencies": {
     "web-component-tester": "^4.2.2"

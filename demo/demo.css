@@ -1,3 +1,12 @@
 main {
 	padding: 30px;
 }
+
+.d2l-max-width {
+	margin: 0 auto;
+	max-width: 1230px;
+}
+
+.d2l-shim-body-overflow {
+	overflow: hidden;
+}

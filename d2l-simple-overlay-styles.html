@@ -1,0 +1,48 @@
+<dom-module id="d2l-simple-overlay-styles">
+	<template>
+		<style>
+		:host {
+			background: white;
+			margin: 0;
+			padding: 0;
+			position: fixed;
+			top: 0;
+			left: 0;
+			height: 100%;
+			width: 100%;
+			border-top: 4px solid #003b71;
+		}
+
+		.close-button {
+			background: none;
+			border: none;
+			margin: 0;
+			padding: 0;
+			color: #72777a;
+			width: 24px;
+			height: 24px;
+		}
+
+		.pull-right {
+			float: right;
+		}
+
+		iron-icon {
+			width: 12px;
+			height: 12px;
+		}
+
+		.scrollable {
+			max-height: calc(100vh - 84px);
+			overflow-y: auto;
+		}
+
+		.max-width {
+			padding: 0 15px;
+			margin-left: auto;
+			margin-right: auto;
+			max-width: 1230px;
+		}
+		</style>
+	</template>
+</dom-module>
