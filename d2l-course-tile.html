@@ -26,28 +26,17 @@
 					type: String
 				},
 				imageSrc: {
-					type: String
-				},
-				imageCategories: {
-					type: Array,
-					readOnly: true,
-					value: function () {
-						return [
-							'abstract', 'animals', 'business', 'city', 'food', 'people', 'nature', 'sports', 'transport'
-						];
-					}
+					type: String,
+					observer: '_imageSrcChanged'
 				}
 			},
-			ready: function () {
-				var courseImage = this.$$('.course-image'),
-					courseImageSrc = this.imageSrc || this._getRandomImageUrl();
-
-				Polymer.dom(courseImage).setAttribute('style', 'background-image: url(' + courseImageSrc + ');');
-			},
-			_getRandomImageUrl: function () {
-				var index = Math.floor((Math.random() * 10) + 1); // 1 - 10 inclusive
-				var category = this.imageCategories[Math.floor((Math.random() * this.imageCategories.length))];
-				return 'http://lorempixel.com/640/480/' + category + '/' + index;
+			_imageSrcChanged: function (newValue) {
+				var courseImage = this.$$('.course-image');
+				if (newValue) {
+					Polymer.dom(courseImage).setAttribute('style', 'background-image: url(' + newValue + ');');
+				} else {
+					Polymer.dom(courseImage).setAttribute('style', 'background: #E57231');
+				}
 			}
 		});
 	</script>

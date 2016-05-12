@@ -16,10 +16,13 @@
 			last-response="{{enrollmentsResponse}}"></d2l-ajax>
 
 		<div class="my-courses-container">
-			<template is="dom-repeat" items="[[enrollmentsResponse.entities]]">
+			<template
+				is="dom-repeat"
+				items="[[enrollmentsResponse.entities]]">
 				<d2l-course-tile
 					target="/d2l/home/[[item.properties.id]]"
-					name="[[item.properties.name]]"></d2l-course-tile>
+					name="[[item.properties.name]]"
+					image-src="{{getCourseImageUrl(item.links)}}"></d2l-course-tile>
 			</template>
 		</div>
 
@@ -59,6 +62,18 @@
 			if (response.detail.status === 200) {
 				this._setupColumns(response.detail.xhr.response.entities.length);
 				this._setEnrollmentsResponse(response.detail.xhr.response);
+			}
+		},
+		getCourseImageUrl: function (links) {
+			var courseImageLink = links.find(function(item) {
+				return item.rel.indexOf('course-image') > -1;
+			});
+
+			if (courseImageLink) {
+				return courseImageLink.href;
+			} else {
+				// If no course image, let course-tile know (so it can use a placeholder)
+				return false
 			}
 		},
 		_getPinnedCoursesUrl: function (enrollmentsUrl) {

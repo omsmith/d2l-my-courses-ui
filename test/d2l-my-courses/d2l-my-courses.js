@@ -12,7 +12,11 @@ describe('smoke test', function() {
 					properties: {
 						name: 'Test Name',
 						id: 'TestName'
-					}
+					},
+					links: [{
+						rel: ['course-image'],
+						href: 'http://example.com'
+					}]
 				}]
 			}
 		};
