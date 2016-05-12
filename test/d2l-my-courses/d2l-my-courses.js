@@ -6,7 +6,7 @@ describe('smoke test', function() {
 		server,
 		widget,
 		enrollmentsResponse = {
-			headers: { Authorization: 'Bearer such access wow' },
+			headers: { },
 			body: {
 				entities: [{
 					properties: {
@@ -44,18 +44,17 @@ describe('smoke test', function() {
 				'GET',
 				widget.pinnedCoursesUrl,
 				function (req) {
-					expect(req.requestHeaders['authorization']).to.match(/Bearer/);
 					expect(req.requestHeaders['accept']).to.equal('application/vnd.siren+json');
 					req.respond(200, enrollmentsResponse.headers, JSON.stringify(enrollmentsResponse.body));
 				});
 		});
 
 		it('should send an enrollments request for pinned courses', function (done) {
-			ajaxElement.authToken = 'such access wow';
 			ajaxElement.generateRequest();
 
-			ajaxElement.addEventListener('response', function (response) {
-				expect(Array.isArray(response.detail.xhr.response.entities)).to.be.true;
+			setTimeout(function() {
+				expect(widget.enrollmentsResponse).to.be.defined;
+				expect(Array.isArray(widget.enrollmentsResponse.entities)).to.be.true;
 				done();
 			});
 		});
