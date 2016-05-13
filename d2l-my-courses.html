@@ -2,6 +2,8 @@
 <link rel="import" href="../d2l-ajax/d2l-ajax.html">
 <link rel="import" href="d2l-my-courses-styles.html">
 <link rel="import" href="d2l-course-tile.html">
+<link rel="import" href="d2l-all-courses-view.html">
+<link rel="import" href="d2l-simple-overlay.html">
 
 <dom-module id="d2l-my-courses">
 	<template>
@@ -15,39 +17,28 @@
 			headers='{ "Accept": "application/vnd.siren+json" }'
 			last-response="{{enrollmentsResponse}}"></d2l-ajax>
 
+			<div class="my-courses-container">
 		<div class="my-courses-container">
 			<template
 				is="dom-repeat"
 				items="[[enrollmentsResponse.entities]]">
-				<d2l-course-tile
-					target="/d2l/home/[[item.properties.id]]"
+					<d2l-course-tile
+						target="/d2l/home/[[item.properties.id]]"
 					name="[[item.properties.name]]"
 					image-src="{{getCourseImageUrl(item.links)}}"
 					pinned="{{getPinnedState(item.entities)}}"></d2l-course-tile>
-			</template>
+				</template>
+			</div>
 			
-                        <p id="allcoursesbutton">View All Courses</p>
-
-                        <paper-dialog id="mydialog">
-                            <div class="dialog-content">
-                                <p class="header">Pinned<p>
-                                <template is="dom-repeat" items="[[enrollmentsResponse.entities]]">
-                                <d2l-course-tile
-                                        target="/d2l/home/[[item.properties.id]]"
-                                        name="[[item.properties.name]]"></d2l-course-tile>
-                                </template>
-                                <p class="header">Unpinned</p>
-                                <template is="dom-repeat" items="{{unpinnedCoursesFilter()}}">
-                                <d2l-course-tile
-                                        target="/d2l/home/[[item.properties.id]]"
-                                        name="[[item.properties.name]]"></d2l-course-tile>
-                                </template>
-                            </div>
-                        </paper-dialog>
+			<a href="#" id="all-courses-button" class="vui-small-text-2" alt="">View All Courses</a>
+			
+			<d2l-all-courses-view
+				enrollments-url="[[enrollmentsUrl]]"
+				pinned-courses-entities="{{enrollmentsResponse.entities}}">
+			</d2l-all-courses-view>
 		</div>
-
 	</template>
-
+	
 	<script>
 	Polymer({
 		is: 'd2l-my-courses',
@@ -60,8 +51,6 @@
 				type: String
 			},
 			pinnedCoursesUrl: {
-				type: String,
-				readOnly: true,
 				computed: '_getPinnedCoursesUrl(enrollmentsUrl)'
 			},
 			windowResizeHandler: {
@@ -73,11 +62,8 @@
 			}
 		},
 		listeners: {
-                    'allcoursesbutton.tap': 'toggleDialog'
+			'all-courses-button.tap': 'openAllCoursesView'
 		},
-		observers: [
-                    'unpinnedCoursesFilter(enrollmentsResponse, allEnrollmentsResponse)'
-		],
 		attached: function () {
 			this._addThrottledEventListener('resize', this.windowResizeHandler);
 		},
@@ -88,7 +74,6 @@
 			if (response.detail.status === 200) {
 				this._setupColumns(response.detail.xhr.response.entities.length);
 				this._setEnrollmentsResponse(response.detail.xhr.response);
-				this._setAllEnrollmentsResponse(response.detail.xhr.response);
 			}
 		},
 		getCourseImageUrl: function (links) {
@@ -105,41 +90,8 @@
 				}
 			}
 		},
-		allEnrollmentsOnResponse: function (response) {
-                    if (response.detail.status === 200) {
-				this._setEnrollmentsResponse(response.detail.xhr.response);
-			}
-		},
-		unpinnedCoursesFilter: function(enrollmentsResponse, allEnrollmentsResponse) {
-                    // Filter result of allEnrollmentsResponse using enrollmentsResponse (currently "pinned courses" data)
-                    var pinnedCoursesEntities = [];
-                    var allCoursesEntities = [];
-                    var unpinnedCoursesEntities = [];
-                    
-                    if(this.enrollmentsResponse && this.allEnrollmentsResponse) {
-                        pinnedCoursesEntities = this.enrollmentsResponse.entities;
-                        allCoursesEntities = this.allEnrollmentsResponse.entities;
-                        
-                        for(let i of allCoursesEntities) {
-                            let isPinned = false;
-                            
-                            for(let j of pinnedCoursesEntities) {
-                                if(i.properties.id == j.properties.id) {
-                                    isPinned = true;
-                                    break;
-                                }
-                            }
-                            
-                            if(!isPinned) {
-                                unpinnedCoursesEntities.push(i);
-                            }
-                        }
-                    }
-                        
-                    return unpinnedCoursesEntities;
-		},
-		toggleDialog: function () {
-                    this.$.mydialog.open();
+		openAllCoursesView: function () {
+			this.$$('d2l-all-courses-view').open();
 		},
 		_getPinnedCoursesUrl: function (enrollmentsUrl) {
 			return enrollmentsUrl + '?filter=pinned';

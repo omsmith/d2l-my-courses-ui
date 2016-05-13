@@ -19,8 +19,10 @@
 			<h2>{{title}}</h2>
 		</div>
 		<div class="scrollable">
-			<div class="max-width">
-				<content></content>
+			<div id="scrollable-width-container" class="max-width">
+				<div id="margin-offset-placeholder">
+					<content></content>
+				</div>
 			</div>
 		</div>
 	</template>
@@ -59,7 +61,14 @@
 							}
 						};
 					}
-				}
+				},
+				windowResizeHandler: {
+					type: Object,
+					value: function () {
+						return this._handleWindowResize.bind(this);
+						},
+					readOnly: true
+					}
 			},
 			handleClose: function () {
 				this.close();
@@ -90,9 +99,50 @@
 				document.body.classList.toggle('d2l-shim-body-overflow', this.opened);
 				if (this.opened) {
 					this._finishRenderOpened();
+					this._reinitializeLayout();
 				} else {
 					this._finishRenderClosed();
 				}
+			},
+			_handleWindowResize: function () {
+				this._reinitializeLayout();
+			},
+			_reinitializeLayout: function() {
+				var scrollbarMarginClassName = "scrollbar-margin-offset";
+				var maxWidthClassName = "max-width";
+				var maxWidthOverflowClassName = "max-width-scrollable-overflow";
+				
+				var scrollableElement = this.$$('.scrollable');
+				var scrollableContainer = this.$$('#scrollable-width-container');
+				var marginOffsetPlaceholderElement = this.$$('#margin-offset-placeholder');
+				
+				var scrollbarVisible = scrollableElement.scrollHeight > scrollableElement.clientHeight;
+				
+				if(scrollbarVisible) {
+					marginOffsetPlaceholderElement.classList.add(scrollbarMarginClassName);
+					scrollableContainer.classList.add(maxWidthOverflowClassName);
+					scrollableContainer.classList.remove(maxWidthClassName);
+				}
+				else {
+					marginOffsetPlaceholderElement.classList.remove(scrollbarMarginClassName);
+					scrollableContainer.classList.add(maxWidthClassName);
+					scrollableContainer.classList.remove(maxWidthOverflowClassName);
+				}
+			},
+			attached: function () {
+				this._addThrottledEventListener('resize', this.windowResizeHandler);
+			},
+			detached: function () {
+				window.removeEventListener('resize', this.windowResizeHandler);
+			},
+			_addThrottledEventListener: function (eventName, eventHandler) {
+				var timeout = false,
+					delay = 100;
+
+				window.addEventListener(eventName, function () {
+					clearTimeout(timeout);
+					timeout = setTimeout(eventHandler, delay);
+				});
 			}
 		})
 	</script>
