@@ -65,12 +65,10 @@
 			}
 		},
 		getCourseImageUrl: function (links) {
-			var courseImageLink = links.find(function(item) {
-				return item.rel.indexOf('course-image') > -1;
-			});
-
-			if (courseImageLink) {
-				return courseImageLink.href;
+			for (var i = 0; i < links.length; ++i) {
+				if (links[i].rel.indexOf('course-image') > -1) {
+					return links[i].href;
+				}
 			}
 		},
 		_getPinnedCoursesUrl: function (enrollmentsUrl) {
