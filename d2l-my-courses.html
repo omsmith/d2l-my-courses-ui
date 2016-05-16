@@ -29,16 +29,16 @@
 					pinned="{{getPinnedState(item.entities)}}"></d2l-course-tile>
 				</template>
 			</div>
-			
-			<a href="#" id="all-courses-button" class="vui-small-text-2" alt="">View All Courses</a>
-			
+
+			<a href="javascript:void(0);" id="all-courses-button" class="vui-small-text-2" alt="">View All Courses</a>
+
 			<d2l-all-courses-view
 				enrollments-url="[[enrollmentsUrl]]"
 				pinned-courses-entities="{{enrollmentsResponse.entities}}">
 			</d2l-all-courses-view>
 		</div>
 	</template>
-	
+
 	<script>
 	Polymer({
 		is: 'd2l-my-courses',
