@@ -16,6 +16,10 @@ describe('smoke test', function() {
 					links: [{
 						rel: ['course-image'],
 						href: 'http://example.com'
+					}],
+					entities: [{
+						rel: ['preferences'],
+						class: ['pinned']
 					}]
 				}]
 			}

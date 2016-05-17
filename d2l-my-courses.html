@@ -22,7 +22,8 @@
 				<d2l-course-tile
 					target="/d2l/home/[[item.properties.id]]"
 					name="[[item.properties.name]]"
-					image-src="{{getCourseImageUrl(item.links)}}"></d2l-course-tile>
+					image-src="{{getCourseImageUrl(item.links)}}"
+					pinned="{{getPinnedState(item.entities)}}"></d2l-course-tile>
 			</template>
 		</div>
 
@@ -68,6 +69,13 @@
 			for (var i = 0; i < links.length; ++i) {
 				if (links[i].rel.indexOf('course-image') > -1) {
 					return links[i].href + '?width=768&height=1';
+				}
+			}
+		},
+		getPinnedState: function (entities) {
+			for (var i = 0; i < entities.length; ++i) {
+				if (entities[i].class.indexOf('preferences') > -1) {
+					return entities[i].class.indexOf('pinned') > -1;
 				}
 			}
 		},
