@@ -1,4 +1,5 @@
 <link rel="import" href="../vui-typography/typography.html">
+<link rel="import" href="../vui-colors/colors.html">
 
 <dom-module id="d2l-course-tile-styles">
 	<template>
@@ -7,19 +8,32 @@
 			display: block;
 			@apply(--vui-font);
 		}
+
+		:focus .course-text {
+			text-decoration: underline;
+		}
+
 		a, a:hover, a:visited {
 			text-decoration: none;
 			color: inherit;
 		}
+
+		a:focus .course-text {
+			text-decoration: underline;
+			color: var(--vui-color-celestuba);
+		}
+
 		.course-image-container {
 			position: relative;
 		}
+
 		.course-image-container:before {
 			display: block;
 			content: "";
 			width: 100%;
 			padding-top: 43%; /* image aspect ratio */
 		}
+
 		.course-image {
 			position: absolute;
 			top: 0;
@@ -32,6 +46,7 @@
 			background-position: center;
 			background-size: cover;
 		}
+
 		.course-text {
 			@apply(--vui-heading-4);
 			width: 100%;

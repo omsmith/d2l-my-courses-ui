@@ -4,10 +4,14 @@
 <link rel="import" href="d2l-course-tile.html">
 <link rel="import" href="d2l-all-courses-view.html">
 <link rel="import" href="d2l-simple-overlay.html">
+<link rel="import" href="d2l-formatjs-behavior.html">
+<link rel="import" href="d2l-lang-terms.html">
 
 <dom-module id="d2l-my-courses">
 	<template>
 		<style include="d2l-my-courses-styles"></style>
+
+		<d2l-lang-terms></d2l-lang-terms>
 
 		<d2l-ajax
 			id="enrollmentsRequest"
@@ -17,7 +21,7 @@
 			headers='{ "Accept": "application/vnd.siren+json" }'
 			last-response="{{enrollmentsResponse}}"></d2l-ajax>
 
-			<div class="my-courses-container">
+		<div class="my-courses-container">
 		<div class="my-courses-container">
 			<template
 				is="dom-repeat"
@@ -27,16 +31,16 @@
 					name="[[item.properties.name]]"
 					image-src="{{getCourseImageUrl(item.links)}}"
 					pinned="{{getPinnedState(item.entities)}}"></d2l-course-tile>
-				</template>
-			</div>
-
-			<a href="javascript:void(0);" id="all-courses-button" class="vui-small-text-2" alt="">View All Courses</a>
-
-			<d2l-all-courses-view
-				enrollments-url="[[enrollmentsUrl]]"
-				pinned-courses-entities="{{enrollmentsResponse.entities}}">
-			</d2l-all-courses-view>
+			</template>
 		</div>
+
+		<button id="all-courses-button" on-tap="openAllCoursesView">{{viewAllCourses}}</button>
+
+		<d2l-all-courses-view
+			enrollments-url="[[enrollmentsUrl]]"
+			pinned-courses-entities="{{enrollmentsResponse.entities}}"
+			locale="[[locale]]">
+		</d2l-all-courses-view>
 	</template>
 
 	<script>
@@ -60,9 +64,16 @@
 					return this._handleWindowResize.bind(this);
 				}
 			}
-		},
-		listeners: {
-			'all-courses-button.tap': 'openAllCoursesView'
+			},
+		observers: [
+			'_updateData(messages, locale)'
+		],
+		behaviors: [
+			Polymer.d2l.formatJSBehavior
+		],
+		ready : function () {
+			this.messages = this.$$('d2l-lang-terms').langTerms;
+			this._getTranslations();
 		},
 		attached: function () {
 			this._addThrottledEventListener('resize', this.windowResizeHandler);
@@ -92,6 +103,16 @@
 		},
 		openAllCoursesView: function () {
 			this.$$('d2l-all-courses-view').open();
+		},
+		_updateData: function(messages, locale) {
+			this.messages = messages;
+			this.locale = locale;
+			this._getTranslations();
+		},
+		_getTranslations: function() {
+			if(this.messages) {
+				this.viewAllCourses = this.format(this.getCultureTerm('viewAllCourses'), null);
+			}
 		},
 		_getPinnedCoursesUrl: function (enrollmentsUrl) {
 			return enrollmentsUrl + '?filter=pinned';

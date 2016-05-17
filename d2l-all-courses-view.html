@@ -4,207 +4,232 @@
 <link rel="import" href="d2l-course-tile.html">
 <link rel="import" href="../d2l-ajax-ui/d2l-ajax.html">
 <link rel="import" href="../vui-typography/typography.html">
+<link rel="import" href="d2l-formatjs.html">
+<link rel="import" href="d2l-lang-terms.html">
 
 <dom-module id="d2l-all-courses-view" class="vui-typography">
-        <template>
-		<style include="d2l-all-courses-styles"></style>
-		
-		<d2l-ajax
-			id="allEnrollmentsRequest"
-			on-response="allEnrollmentsOnResponse"
-			url="[[enrollmentsUrl]]"
-			headers='{ "Accept": "application/vnd.siren+json" }'>
-		</d2l-ajax>
+    <template>
+        <style include="d2l-all-courses-styles"></style>
+        <d2l-lang-terms></d2l-lang-terms>
 
-		<d2l-simple-overlay
-			id='all-courses-overlay'
-			title="All Courses">
-			
-			<div class="dialog-content">
-				<h3 class="header">Pinned<h3>
-				<div class="my-courses-container">
-					<template is="dom-repeat" items="[[pinnedCoursesEntities]]">
-					<d2l-course-tile
-							target="/d2l/home/[[item.properties.id]]"
-							name="[[item.properties.name]]"></d2l-course-tile>
-					</template>
-				</div>
-				<h3 class="header">Unpinned</h3>
-				<div class="my-courses-container">
-					<template is="dom-repeat" items="[[unpinnedCoursesEntities]]">
-					<d2l-course-tile
-							target="/d2l/home/[[item.properties.id]]"
-							name="[[item.properties.name]]"></d2l-course-tile>
-					</template>
-				</div>
-			</div>
-		</d2l-simple-overlay>
-	</template>
-	
-	<script>
-	Polymer({
-		is: 'd2l-all-courses-view',
-		properties: {
-			pinnedCoursesEntities: {
-				type: Array
-			},
-			unpinnedCoursesEntities: {
-				type: Array,
-				readOnly: true
-			},
-			allEnrollmentsEntities: {
-				type: Array,
-				readOnly: true
-			},
-			enrollmentsUrl: {
-				type: String
-			},
-			windowResizeHandler: {
-				type: Object,
-				readOnly: true,
-				value: function () {
-					return this._handleWindowResize.bind(this);
-				}
-			}
-		},
-		allEnrollmentsOnResponse: function (response) {
-			if (response.detail.status === 200) {
-				this._setAllEnrollmentsEntities(response.detail.xhr.response.entities);
-				this._filterUnpinnedCourses(this.pinnedCoursesEntities, this.allEnrollmentsEntities);
-				this._rescaleCourseTileRegions();
-			}
-		},
-		open: function() {
-				this._rescaleCourseTileRegions();
-				this.$.allEnrollmentsRequest.generateRequest();
-				this.$$('d2l-simple-overlay').open();
-		},
-		_isCourseUnpinned: function(pinnedCoursesEntities) {
-			return function(element) {
-				var isUnpinned = true;
-				
-				pinnedCoursesEntities.forEach(function(pinnedCourse) {
-					if(element.properties.id == pinnedCourse.properties.id) {
-						isUnpinned = false;
-						return;
-					}
-				});
-				
-				return isUnpinned;
-			}
-		},
-		_filterUnpinnedCourses: function(pinnedCoursesEntities, allCoursesEntities) {
-			if(pinnedCoursesEntities && allCoursesEntities) {
-				this._setUnpinnedCoursesEntities(
-					allCoursesEntities.filter(
-						this._isCourseUnpinned(pinnedCoursesEntities)
-					)
-				);
-			}
-		},
-		attached: function () {
-			this._addThrottledEventListener('resize', this.windowResizeHandler);
-		},
-		detached: function () {
-			window.removeEventListener('resize', this.windowResizeHandler);
-		},
-		_rescaleCourseTileRegions: function() {
-			var pinnedCoursesEntityCount = this.pinnedCoursesEntities ? this.pinnedCoursesEntities.length : 0;
-			var unpinnedCoursesEntityCount = this.unpinnedCoursesEntities ? this.unpinnedCoursesEntities.length : 0;
-			var itemCount = Math.max(pinnedCoursesEntityCount, unpinnedCoursesEntityCount);
-			
-			this._setupColumns(itemCount);
-		},
-		_calcNumColumns: function (width, itemCount) {
-			var numCols = 1;
+        <d2l-ajax
+        	id="allEnrollmentsRequest"
+        	on-response="allEnrollmentsOnResponse"
+        	url="[[enrollmentsUrl]]"
+        	headers='{ "Accept": "application/vnd.siren+json" }'>
+        </d2l-ajax>
 
-			if (width < 768) {
-				if (itemCount >= 4) {
-					numCols = 2;
-				}
-			} else if (width < 992) {
-				if (itemCount === 1 || itemCount === 2 || itemCount === 4) {
-					numCols = 2;
-				} else {
-					numCols = 3;
-				}
-			} else {
-				if (itemCount === 1 || itemCount === 2 || itemCount === 4) {
-					numCols = 2;
-				} else if (itemCount === 3 || itemCount === 5 || itemCount === 6) {
-					numCols = 3;
-				} else {
-					numCols = 4;
-				}
-			}
+        <d2l-simple-overlay
+        	id='all-courses-overlay'
+        	title={{allCourses}}>
 
-			return numCols;
+        	<div class="dialog-content">
+        		<h3 class="header">{{pinnedCourses}}<h3>
+        		<div class="my-courses-container">
+        			<template is="dom-repeat" items="[[pinnedCoursesEntities]]">
+        			<d2l-course-tile
+        					target="/d2l/home/[[item.properties.id]]"
+        					name="[[item.properties.name]]"></d2l-course-tile>
+        			</template>
+        		</div>
+        		<h3 class="header">{{unpinnedCourses}}</h3>
+        		<div class="my-courses-container">
+        			<template is="dom-repeat" items="[[unpinnedCoursesEntities]]">
+        			<d2l-course-tile
+        					target="/d2l/home/[[item.properties.id]]"
+        					name="[[item.properties.name]]"></d2l-course-tile>
+        			</template>
+        		</div>
+        	</div>
+        </d2l-simple-overlay>
+    </template>
+
+    <script>
+    Polymer({
+    	is: 'd2l-all-courses-view',
+    	properties: {
+    		pinnedCoursesEntities: {
+    			type: Array
+    		},
+    		unpinnedCoursesEntities: {
+    			type: Array,
+    			readOnly: true
+    		},
+    		allEnrollmentsEntities: {
+    			type: Array,
+    			readOnly: true
+    		},
+    		enrollmentsUrl: {
+    			type: String
+    		},
+    		windowResizeHandler: {
+    			type: Object,
+    			readOnly: true,
+    			value: function () {
+    				return this._handleWindowResize.bind(this);
+    			}
+    		}
+        },
+        observers: [
+            '_updateData(messages, locale)'
+        ],
+        behaviors: [
+            Polymer.d2l.formatJSBehavior
+        ],
+        ready : function () {
+			this.messages = this.$$('d2l-lang-terms').langTerms;
+            this._getTranslations();
 		},
-		_setupColumns: function (itemCount) {
-			var containers = Polymer.dom(this.root).querySelectorAll('.my-courses-container');
-			var colClasses = ['columns-2', 'columns-3', 'columns-4'];
-			var currentColClass = function (domNode) {
-					var foundClass = '';
-					colClasses.forEach(function (item) {
-							if (!foundClass && domNode.classList.contains(item)) {
-									foundClass = item;
-							}
-					});
-					return foundClass;
-				}
-                        
-			containers.forEach(function(container) {
-				var width = this._getAvailableWidth(container);
-				var numCols = this._calcNumColumns(width, itemCount);
-				var domNode = Polymer.dom(container);
-				var oldClassName = currentColClass(domNode);
+        allEnrollmentsOnResponse: function (response) {
+        	if (response.detail.status === 200) {
+        		this._setAllEnrollmentsEntities(response.detail.xhr.response.entities);
+        		this._filterUnpinnedCourses(this.pinnedCoursesEntities, this.allEnrollmentsEntities);
+        		this._rescaleCourseTileRegions();
+        	}
+        },
+        open: function() {
+        		this._rescaleCourseTileRegions();
+        		this.$.allEnrollmentsRequest.generateRequest();
+        		this.$$('d2l-simple-overlay').open();
+        },
+        _isCourseUnpinned: function(pinnedCoursesEntities) {
+        	return function(element) {
+        		var isUnpinned = true;
 
-				if (numCols > 1) {
-					var newClassName = 'columns-' + numCols;
+        		pinnedCoursesEntities.forEach(function(pinnedCourse) {
+        			if(element.properties.id == pinnedCourse.properties.id) {
+        				isUnpinned = false;
+        				return;
+        			}
+        		});
 
-					if (oldClassName !== newClassName) {
-							if (oldClassName) {
-								domNode.classList.remove(oldClassName);
-							}
-							domNode.classList.add(newClassName);
-					}
-				} else {
-					if (oldClassName) {
-						domNode.classList.remove(oldClassName);
-					}
-				}
-			}, this);
-		},
-		// This method will first try to get the available width from the passed in DOM node, but if the
-		// reported width is zero, it will walk the ancestor tree to find a node that has a width.
-		// The width will be zero if the element is hidden with display: none.
-		// If an ancestor node is used for the width, it may not be entirely accurate, but it should be
-		// fine for the purpose of creating a decent layout for a hidden widget.
-		_getAvailableWidth: function (node) {
-			var width = node.getBoundingClientRect().width;
+        		return isUnpinned;
+        	}
+        },
+    	_filterUnpinnedCourses: function(pinnedCoursesEntities, allCoursesEntities) {
+    		if(pinnedCoursesEntities && allCoursesEntities) {
+    			this._setUnpinnedCoursesEntities(
+    				allCoursesEntities.filter(
+    					this._isCourseUnpinned(pinnedCoursesEntities)
+    				)
+    			);
+    		}
+    	},
+    	attached: function () {
+    		this._addThrottledEventListener('resize', this.windowResizeHandler);
+    	},
+    	detached: function () {
+    		window.removeEventListener('resize', this.windowResizeHandler);
+    	},
+    	_rescaleCourseTileRegions: function() {
+    		var pinnedCoursesEntityCount = this.pinnedCoursesEntities ? this.pinnedCoursesEntities.length : 0;
+    		var unpinnedCoursesEntityCount = this.unpinnedCoursesEntities ? this.unpinnedCoursesEntities.length : 0;
+    		var itemCount = Math.max(pinnedCoursesEntityCount, unpinnedCoursesEntityCount);
 
-			if (width > 0) {
-				return width;
-			}
+    		this._setupColumns(itemCount);
+    	},
+    	_calcNumColumns: function (width, itemCount) {
+    		var numCols = 1;
 
-			if (!node.parentElement) {
-				return 0;
-			}
+    		if (width < 768) {
+    			if (itemCount >= 4) {
+    				numCols = 2;
+    			}
+    		} else if (width < 992) {
+    			if (itemCount === 1 || itemCount === 2 || itemCount === 4) {
+    				numCols = 2;
+    			} else {
+    				numCols = 3;
+    			}
+    		} else {
+    			if (itemCount === 1 || itemCount === 2 || itemCount === 4) {
+    				numCols = 2;
+    			} else if (itemCount === 3 || itemCount === 5 || itemCount === 6) {
+    				numCols = 3;
+    			} else {
+    				numCols = 4;
+    			}
+    		}
 
-			return this._getAvailableWidth(node.parentElement);
-		},
-		_handleWindowResize: function () {
-			this._rescaleCourseTileRegions();
-		},
-		_addThrottledEventListener: function (eventName, eventHandler) {
-			var timeout = false,
-				delay = 100;
+    		return numCols;
+    	},
+    	_setupColumns: function (itemCount) {
+    		var containers = Polymer.dom(this.root).querySelectorAll('.my-courses-container');
+    		var colClasses = ['columns-2', 'columns-3', 'columns-4'];
+    		var currentColClass = function (domNode) {
+    				var foundClass = '';
+    				colClasses.forEach(function (item) {
+    						if (!foundClass && domNode.classList.contains(item)) {
+    								foundClass = item;
+    						}
+    				});
+    				return foundClass;
+    			}
 
-			window.addEventListener(eventName, function () {
-				clearTimeout(timeout);
-				timeout = setTimeout(eventHandler, delay);
-			});
-		}
-	});
-	</script>
+    		containers.forEach(function(container) {
+    			var width = this._getAvailableWidth(container);
+    			var numCols = this._calcNumColumns(width, itemCount);
+    			var domNode = Polymer.dom(container);
+    			var oldClassName = currentColClass(domNode);
+
+    			if (numCols > 1) {
+    				var newClassName = 'columns-' + numCols;
+
+    				if (oldClassName !== newClassName) {
+    						if (oldClassName) {
+    							domNode.classList.remove(oldClassName);
+    						}
+    						domNode.classList.add(newClassName);
+    				}
+    			} else {
+    				if (oldClassName) {
+    					domNode.classList.remove(oldClassName);
+    				}
+    			}
+    		}, this);
+    	},
+    	// This method will first try to get the available width from the passed in DOM node, but if the
+    	// reported width is zero, it will walk the ancestor tree to find a node that has a width.
+    	// The width will be zero if the element is hidden with display: none.
+    	// If an ancestor node is used for the width, it may not be entirely accurate, but it should be
+    	// fine for the purpose of creating a decent layout for a hidden widget.
+    	_getAvailableWidth: function (node) {
+    		var width = node.getBoundingClientRect().width;
+
+    		if (width > 0) {
+    			return width;
+    		}
+
+    		if (!node.parentElement) {
+    			return 0;
+    		}
+
+    		return this._getAvailableWidth(node.parentElement);
+    	},
+    	_handleWindowResize: function () {
+    		this._rescaleCourseTileRegions();
+    	},
+    	_addThrottledEventListener: function (eventName, eventHandler) {
+    		var timeout = false,
+    			delay = 100;
+
+    		window.addEventListener(eventName, function () {
+    			clearTimeout(timeout);
+    			timeout = setTimeout(eventHandler, delay);
+    		});
+    	},
+        _updateData: function(messages, locale) {
+            this.messages = messages;
+        	this.locale = locale;
+        	this._getTranslations();
+        },
+        _getTranslations: function() {
+            if(this.messages) {
+                this.allCourses = this.format(this.getCultureTerm('allCourses'), null);
+            	this.pinnedCourses = this.format(this.getCultureTerm('pinnedCourses'), null);
+                this.unpinnedCourses = this.format(this.getCultureTerm('unpinnedCourses'), null);
+            }
+        }
+    });
+    </script>
 </dom-module>
