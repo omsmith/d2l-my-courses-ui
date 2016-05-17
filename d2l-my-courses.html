@@ -67,7 +67,7 @@
 		getCourseImageUrl: function (links) {
 			for (var i = 0; i < links.length; ++i) {
 				if (links[i].rel.indexOf('course-image') > -1) {
-					return links[i].href;
+					return links[i].href + '?width=768&height=1';
 				}
 			}
 		},
