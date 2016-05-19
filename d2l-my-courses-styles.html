@@ -3,7 +3,6 @@
 <link rel="import" href="d2l-course-tile-region-styles.html">
 
 <dom-module id="d2l-my-courses-styles">
-
 	<template>
 		<style include="vui-typography"></style>
 		<style include="d2l-course-tile-region-styles"></style>
@@ -26,12 +25,16 @@
 			font-size: 0.7rem;
 			font-weight: 700;
 			line-height: 1rem;
-			cursor: pointer;
 			margin-top: -15px;
 			display: block;
 			background: none;
 			border: none;
 			padding: 0;
+			cursor: pointer;
+		}
+
+		#all-courses-button:hover {
+			text-decoration: underline;
 		}
 
 		.header {
@@ -42,7 +45,6 @@
 			padding-top: 5px;
 			display: block;
 		}
-
 		</style>
 	</template>
 </dom-module>

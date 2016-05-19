@@ -18,10 +18,16 @@
 			background: none;
 			border: none;
 			margin: 0;
-			padding: 0;
+			padding: 0 0 0.2rem 0;
 			color: #72777a;
 			width: 24px;
 			height: 24px;
+		}
+
+		.close-button:focus, .close-button:hover {
+			border: 1px solid transparent;
+			border-color: var(--vui-color-pressicus);
+			border-radius: 0.3rem;
 		}
 
 		.pull-right {
@@ -37,6 +43,7 @@
 			height: calc(100vh - 100px);
 			max-height: calc(100vh - 100px);
 			overflow-y: scroll;
+			overflow-y: overlay;
 			-webkit-overflow-scrolling: touch;
 		}
 

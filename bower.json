@@ -34,7 +34,8 @@
     "iron-icon": "PolymerElements/iron-icon#^1.0.8",
     "iron-iconset-svg": "PolymerElements/iron-iconset-svg#^1.0.9",
     "neon-animation": "PolymerElements/neon-animation#^1.2.2",
-    "formatjs-element": "felixzapata/formatjs-element"
+    "vui-typography": "~3.1.0",
+    "vui-colors": "~1.0.1"
   },
   "devDependencies": {
     "web-component-tester": "^4.2.2"

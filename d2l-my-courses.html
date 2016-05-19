@@ -3,7 +3,6 @@
 <link rel="import" href="d2l-my-courses-styles.html">
 <link rel="import" href="d2l-course-tile.html">
 <link rel="import" href="d2l-all-courses-view.html">
-<link rel="import" href="d2l-simple-overlay.html">
 <link rel="import" href="d2l-formatjs-behavior.html">
 <link rel="import" href="d2l-lang-terms.html">
 
@@ -34,7 +33,7 @@
 			</template>
 		</div>
 
-		<button id="all-courses-button" on-tap="openAllCoursesView">{{viewAllCourses}}</button>
+		<button id="all-courses-button" on-tap="openAllCoursesView" aria-haspopup="true">{{viewAllCourses}}</button>
 
 		<d2l-all-courses-view
 			enrollments-url="[[enrollmentsUrl]]"

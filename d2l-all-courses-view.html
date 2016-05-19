@@ -4,7 +4,7 @@
 <link rel="import" href="d2l-course-tile.html">
 <link rel="import" href="../d2l-ajax-ui/d2l-ajax.html">
 <link rel="import" href="../vui-typography/typography.html">
-<link rel="import" href="d2l-formatjs.html">
+<link rel="import" href="d2l-formatjs-behavior.html">
 <link rel="import" href="d2l-lang-terms.html">
 
 <dom-module id="d2l-all-courses-view" class="vui-typography">
@@ -20,24 +20,28 @@
         </d2l-ajax>
 
         <d2l-simple-overlay
-        	id='all-courses-overlay'
-        	title={{allCourses}}>
+            id='all-courses-overlay'
+            title={{allCourses}}
+            with-backdrop
+            restore-focus-on-close>
 
         	<div class="dialog-content">
-        		<h3 class="header">{{pinnedCourses}}<h3>
-        		<div class="my-courses-container">
+        		<h3 class="header">{{pinnedCourses}}</h3>
+        		<div class="my-courses-container" role="region" aria-label="Pinned Courses">
         			<template is="dom-repeat" items="[[pinnedCoursesEntities]]">
-        			<d2l-course-tile
-        					target="/d2l/home/[[item.properties.id]]"
-        					name="[[item.properties.name]]"></d2l-course-tile>
+                        <d2l-course-tile
+                            target="/d2l/home/[[item.properties.id]]"
+                            name="[[item.properties.name]]">
+                        </d2l-course-tile>
         			</template>
         		</div>
         		<h3 class="header">{{unpinnedCourses}}</h3>
-        		<div class="my-courses-container">
+        		<div class="my-courses-container" role="region" aria-label="Unpinned Courses">
         			<template is="dom-repeat" items="[[unpinnedCoursesEntities]]">
-        			<d2l-course-tile
-        					target="/d2l/home/[[item.properties.id]]"
-        					name="[[item.properties.name]]"></d2l-course-tile>
+            			<d2l-course-tile
+            					target="/d2l/home/[[item.properties.id]]"
+            					name="[[item.properties.name]]">
+                        </d2l-course-tile>
         			</template>
         		</div>
         	</div>
@@ -77,6 +81,7 @@
             Polymer.d2l.formatJSBehavior
         ],
         ready : function () {
+            this.$$('d2l-simple-overlay').focusableNodesOverride = this.focusableNodesOverride;
 			this.messages = this.$$('d2l-lang-terms').langTerms;
             this._getTranslations();
 		},
@@ -229,6 +234,19 @@
             	this.pinnedCourses = this.format(this.getCultureTerm('pinnedCourses'), null);
                 this.unpinnedCourses = this.format(this.getCultureTerm('unpinnedCourses'), null);
             }
+        },
+        focusableNodesOverride: function() {
+            var courseTileFocusables = [];
+
+            this.getContentChildren().forEach(function(contentChild) {
+                var courseTiles = Polymer.dom(contentChild).querySelectorAll('d2l-course-tile');
+
+                [].forEach.call(courseTiles, function(courseTile) {
+                    Array.prototype.push.apply(courseTileFocusables, Polymer.dom(courseTile.root).querySelectorAll('a'));
+                })
+            });
+
+            return courseTileFocusables;
         }
     });
     </script>

@@ -4,7 +4,7 @@
 <dom-module id="d2l-course-tile">
 	<template>
 		<style include="d2l-course-tile-styles"></style>
-		
+
 		<a href="[[target]]" on-mouseover="showHoverMenu" on-mouseout="hideHoverMenu">
 			<div
 				class="course-image-container">
@@ -63,6 +63,8 @@
 				}
 			},
 			_pinnedChanged: function (pinned) {
+				this.setAttribute('role', 'link');
+
 				var pinImage = this.$$('.menu-item svg path'),
 					pinText = this.$$('.menu-item span');
 

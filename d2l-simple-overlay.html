@@ -13,7 +13,7 @@
 	<style include="d2l-simple-overlay-styles"></style>
 	<template>
 		<div class="max-width">
-			<button class="close-button pull-right" on-tap="handleClose" alt="Close Dialog">
+			<button class="close-button pull-right" on-tap="handleClose" alt=[[closeSimpleOverlayAltText]]>
 				<iron-icon icon="actions:close"></iron-icon>
 			</button>
 			<h2>{{title}}</h2>
@@ -59,7 +59,20 @@
 							}
 						};
 					}
+				},
+				focusableNodesOverride: {
+					type: Object,
+					value: null
+				},
+				_viewportContent: {
+					type: String
+				},
+				_restoreViewportContent: {
+					type: Boolean
 				}
+			},
+			created: function() {
+				this._updateBackdropStyle();
 			},
 			handleClose: function () {
 				this.close();
@@ -68,10 +81,21 @@
 				var width = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
 				return width < 768;
 			},
+			_updateBackdropStyle: function () {
+				var style = document.createElement('style', 'custom-style');
+				style.innerHTML = "iron-overlay-backdrop { --iron-overlay-backdrop-opacity: 0.0; }";
+				document.body.appendChild(style);
+			},
 			_renderOpened: function () {
 				this.cancelAnimation();
 
+				Polymer.dom(this.root).querySelector('.scrollable').scrollTop = 0;
+
 				if (this._isMobile()) {
+					var viewportTag = document.querySelector("meta[name=viewport]");
+					this._viewportContent = viewportTag.getAttribute('content');
+					this._restoreViewportContent = true;
+					viewportTag.setAttribute('content', this._viewportContent + ', user-scalable=no');
 					this.playAnimation('fromBottom');
 				} else {
 					this.playAnimation('fromTop');
@@ -88,11 +112,35 @@
 			},
 			_onNeonAnimationFinish: function () {
 				document.body.classList.toggle('d2l-shim-body-overflow', this.opened);
+
 				if (this.opened) {
 					this._finishRenderOpened();
+					this.__firstFocusableNode.focus();
 				} else {
+					if(this._restoreViewportContent) {
+						var viewportTag = document.querySelector("meta[name=viewport]");
+						viewportTag.setAttribute('content', this._viewportContent);
+						this._restoreViewportContent = false;
+					}
+
 					this._finishRenderClosed();
 				}
+			},
+			get _focusableNodes() {
+				var focusables;
+
+				if(this.focusableNodesOverride != null) {
+					focusables = this.focusableNodesOverride.call(this);
+				}
+				else {
+					focusables = Polymer.IronOverlayBehaviorImpl.__lookupGetter__("_focusableNodes").call(this);
+				}
+
+				var closeButtonElement = Polymer.dom(this.root).querySelector('.close-button');
+
+				focusables.push(closeButtonElement);
+
+				return focusables;
 			}
 		})
 	</script>
