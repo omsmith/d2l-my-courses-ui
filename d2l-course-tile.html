@@ -48,6 +48,9 @@
 					observer: '_pinnedChanged'
 				}
 			},
+			ready: function () {
+				this.setAttribute('role', 'link');
+			},
 			showHoverMenu: function() {
 				var hoverMenu = this.$$('.hover-menu');
 				Polymer.dom(hoverMenu).setAttribute('style', 'opacity: 1; margin-top: 10px;')
@@ -61,10 +64,8 @@
 				if (newValue) {
 					Polymer.dom(courseImage).setAttribute('style', 'background-image: url(' + newValue + ');');
 				}
-			},
+			},		
 			_pinnedChanged: function (pinned) {
-				this.setAttribute('role', 'link');
-
 				var pinImage = this.$$('.menu-item svg path'),
 					pinText = this.$$('.menu-item span');
 

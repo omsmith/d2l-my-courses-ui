@@ -27,18 +27,18 @@
 				items="[[enrollmentsResponse.entities]]">
 					<d2l-course-tile
 						target="/d2l/home/[[item.properties.id]]"
-					name="[[item.properties.name]]"
-					image-src="{{getCourseImageUrl(item.links)}}"
-					pinned="{{getPinnedState(item.entities)}}"></d2l-course-tile>
+						name="[[item.properties.name]]"
+						image-src="{{getCourseImageUrl(item.links)}}"
+						pinned="{{getPinnedState(item.entities)}}"></d2l-course-tile>
 			</template>
 		</div>
 
 		<button id="all-courses-button" on-tap="openAllCoursesView" aria-haspopup="true">{{viewAllCourses}}</button>
 
 		<d2l-all-courses-view
-			enrollments-url="[[enrollmentsUrl]]"
-			pinned-courses-entities="{{enrollmentsResponse.entities}}"
-			locale="[[locale]]">
+		enrollments-url="[[enrollmentsUrl]]"
+		pinned-courses-entities="{{enrollmentsResponse.entities}}"
+		locale="[[locale]]">
 		</d2l-all-courses-view>
 	</template>
 
@@ -63,7 +63,7 @@
 					return this._handleWindowResize.bind(this);
 				}
 			}
-			},
+		},
 		observers: [
 			'_updateData(messages, locale)'
 		],
@@ -199,7 +199,7 @@
 		},
 		_addThrottledEventListener: function (eventName, eventHandler) {
 			var timeout = false,
-				delay = 100;
+			delay = 100;
 
 			window.addEventListener(eventName, function () {
 				clearTimeout(timeout);
