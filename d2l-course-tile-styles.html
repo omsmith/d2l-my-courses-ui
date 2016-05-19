@@ -41,32 +41,30 @@
 			-webkit-box-orient: vertical;
 		}
 		.hover-menu {
-			visibility: hidden;
 			position: absolute;
 			top: 0;
 			left: 0;
+			opacity: 0;
+			margin-top: 0px;
+			transition: opacity 0.25s, margin-top 0.25s;
+			line-height: 20px;
+			font-size: 14px;
+			font-weight: 400;
+			letter-spacing: 0.3px;
 		}
 		.menu-item {
 			color: #FFFFFF;
-			background: #565A5C;
+			background: rgba(0,0,0,0.5);
 			border-radius: 5px;
-			padding-top: 5px;
-			padding-bottom: 5px;
-			padding-left: 10px;
-			padding-right: 10px;
+			padding: 10px 15px;
 			float: left;
 			margin-left: 10px;
-			margin-top: 10px;
 		}
 		.menu-item:hover {
 			background: #006FBF;
 		}
-		.menu-item img {
-			height: 20px;
+		.menu-item svg {
 			vertical-align: middle;
-		}
-		.menu-item span {
-			line-height: 20px;
 		}
 		</style>
 	</template>
