@@ -12,7 +12,7 @@
 					<img />
 				</div>
 				<div class="hover-menu">
-					<div class="menu-item">
+					<div class="menu-item" on-click="changePinState">
 						<svg width="10px" height="18px" viewBox="15 9 10 18" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
 							<path
 								stroke="none"
@@ -51,6 +51,15 @@
 			},
 			ready: function () {
 				this.setAttribute('role', 'link');
+			},
+			changePinState: function(e) {
+				// Prevent the click from triggering navigation to the course
+				e.preventDefault();
+				if (this.pinned) {
+					this.pinned = false;
+				} else {
+					this.pinned = true;
+				}
 			},
 			showHoverMenu: function() {
 				var hoverMenu = this.$$('.hover-menu');
