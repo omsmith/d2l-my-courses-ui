@@ -89,13 +89,10 @@
 		_renderOpened: function () {
 			this.cancelAnimation();
 
+			this._onNodesChange();
 			Polymer.dom(this.root).querySelector('.scrollable').scrollTop = 0;
 
 			if (this._isMobile()) {
-				var viewportTag = document.querySelector("meta[name=viewport]");
-				this._viewportContent = viewportTag.getAttribute('content');
-				this._restoreViewportContent = true;
-				viewportTag.setAttribute('content', this._viewportContent + ', user-scalable=no');
 				this.playAnimation('fromBottom');
 			} else {
 				this.playAnimation('fromTop');
@@ -117,12 +114,6 @@
 				this._finishRenderOpened();
 				this.__firstFocusableNode.focus();
 			} else {
-				if(this._restoreViewportContent) {
-					var viewportTag = document.querySelector("meta[name=viewport]");
-					viewportTag.setAttribute('content', this._viewportContent);
-					this._restoreViewportContent = false;
-				}
-
 				this._finishRenderClosed();
 			}
 		},
@@ -136,9 +127,7 @@
 				focusables = Polymer.IronOverlayBehaviorImpl.__lookupGetter__("_focusableNodes").call(this);
 			}
 
-			var closeButtonElement = Polymer.dom(this.root).querySelector('.close-button');
-
-			focusables.push(closeButtonElement);
+			focusables.push(Polymer.dom(this.root).querySelector('.close-button'));
 
 			return focusables;
 		}
