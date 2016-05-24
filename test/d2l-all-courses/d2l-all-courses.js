@@ -6,69 +6,109 @@ describe('smoke test', function() {
 	var ajaxElements;
 	var server;
 	var widget;
-	
+
 	var pinnedCoursesEntities = [{
+				entities: [{
+					class: [
+						"preferences",
+						"pinned"
+					]
+				}],
 				properties: {
 					name: 'Course 2',
 					id: 2
-				}
-			},
-			{
+				},
+				links: []
+			}, {
+				entities: [{
+					class: [
+						"preferences",
+						"pinned"
+					]
+				}],
 				properties: {
 					name: 'Course 4',
 					id: 4
-				}
+				},
+				links: []
 			}];
-			
+
 	var allEnrollmentsResponse = {
-			headers: { 
-				Authorization: 'Bearer PlaceholderToken' 
+			headers: {
+				Authorization: 'Bearer PlaceholderToken'
 			},
 			body: {
 				entities: [{
+					entities: [{
+						class: []
+					}],
 					properties: {
 						name: 'Course 1',
 						id: 1
-					}
-				},
-				{
+					},
+					links: []
+				}, {
+					entities: [{
+						class: [
+							"preferences",
+							"pinned"
+						]
+					}],
 					properties: {
 						name: 'Course 2',
 						id: 2
-					}
-				},
-				{
+					},
+					links: []
+				}, {
+					entities: [{
+						class: []
+					}],
 					properties: {
 						name: 'Course 3',
 						id: 3
-					}
-				},
-				{
+					},
+					links: []
+				}, {
+					entities: [{
+						class: [
+							"preferences",
+							"pinned"
+						]
+					}],
 					properties: {
 						name: 'Course 4',
 						id: 4
-					}
+					},
+					links: []
 				}]
 			}
 		};
-	
-	var unpinnedCoursesEntities = [{
-				properties: {
-					name: 'Course 1',
-					id: 1
-				}
+
+	var unpinnedCoursesEntities =
+		[{
+			entities: [{
+				class: []
+			}],
+			properties: {
+				name: 'Course 1',
+				id: 1
 			},
-			{
-				properties: {
-					name: 'Course 3',
-					id: 3
-				}
+			links: []
+		}, {
+			entities: [{
+				class: []
+			}],
+			properties: {
+				name: 'Course 3',
+				id: 3
+			},
+			links: []
 		}];
 
 	beforeEach(function () {
 		server = sinon.fakeServer.create();
 
-		widget = fixture('d2l-all-courses-view-fixture');
+		widget = fixture('d2l-all-courses-fixture');
 		ajaxElements = widget.getElementsByTagName('d2l-ajax');
 		for (var i = 0; i < ajaxElements.length; ++i) {
 			// Disable automatic triggering of requests by default
@@ -120,11 +160,11 @@ describe('smoke test', function() {
 	describe('filter', function () {
 		describe('filter calculations', function () {
 			it('Should result in only unpinned courses being returned', function () {
-				
+
 				var allEnrollmentsEntities = allEnrollmentsResponse.body.entities;
-				
+
 				widget._filterUnpinnedCourses(pinnedCoursesEntities, allEnrollmentsEntities);
-				
+
 				expect(widget.unpinnedCoursesEntities).to.deep.equal(unpinnedCoursesEntities);
 			});
 		});

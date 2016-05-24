@@ -1,0 +1,124 @@
+<link rel="import" href="../polymer/polymer.html">
+
+<script>
+	(function() {
+		'use strict';
+
+		Polymer.d2l = Polymer.d2l || new Object();
+
+		Polymer.d2l.CourseTileRegionBehavior = {
+			getCourseImageUrl: function (links) {
+				for (var i = 0; i < links.length; ++i) {
+					if (links[i].rel.indexOf('course-image') > -1) {
+						return links[i].href + '?width=768&height=1';
+					}
+				}
+			},
+			getPinnedState: function (entities) {
+				for (var i = 0; i < entities.length; ++i) {
+					if (entities[i].class.indexOf('preferences') > -1) {
+						return entities[i].class.indexOf('pinned') > -1;
+					}
+				}
+			},
+			get courseTileItemCount() {
+				throw "Must implement courseTileItemCount in behavior consumer";
+			},
+			_rescaleCourseTileRegions: function() {
+				var itemCount = this.courseTileItemCount;
+
+				this._setupColumns(itemCount);
+			},
+			_calcNumColumns: function (width, itemCount) {
+				var numCols = 1;
+
+				if (width < 768) {
+					if (itemCount >= 4) {
+						numCols = 2;
+					}
+				} else if (width < 992) {
+					if (itemCount === 1 || itemCount === 2 || itemCount === 4) {
+						numCols = 2;
+					} else {
+						numCols = 3;
+					}
+				} else {
+					if (itemCount === 1 || itemCount === 2 || itemCount === 4) {
+						numCols = 2;
+					} else if (itemCount === 3 || itemCount === 5 || itemCount === 6) {
+						numCols = 3;
+					} else {
+						numCols = 4;
+					}
+				}
+
+				return numCols;
+			},
+			_setupColumns: function (itemCount) {
+				var containers = Polymer.dom(this.root).querySelectorAll('.my-courses-container');
+				var colClasses = ['columns-2', 'columns-3', 'columns-4'];
+				var currentColClass = function (domNode) {
+						var foundClass = '';
+						colClasses.forEach(function (item) {
+								if (!foundClass && domNode.classList.contains(item)) {
+										foundClass = item;
+								}
+						});
+						return foundClass;
+					}
+
+				containers.forEach(function(container) {
+					var width = this._getAvailableWidth(container);
+					var numCols = this._calcNumColumns(width, itemCount);
+					var domNode = Polymer.dom(container);
+					var oldClassName = currentColClass(domNode);
+
+					if (numCols > 1) {
+						var newClassName = 'columns-' + numCols;
+
+						if (oldClassName !== newClassName) {
+								if (oldClassName) {
+									domNode.classList.remove(oldClassName);
+								}
+								domNode.classList.add(newClassName);
+						}
+					} else {
+						if (oldClassName) {
+							domNode.classList.remove(oldClassName);
+						}
+					}
+				}, this);
+			},
+			// This method will first try to get the available width from the passed in DOM node, but if the
+			// reported width is zero, it will walk the ancestor tree to find a node that has a width.
+			// The width will be zero if the element is hidden with display: none.
+			// If an ancestor node is used for the width, it may not be entirely accurate, but it should be
+			// fine for the purpose of creating a decent layout for a hidden widget.
+			_getAvailableWidth: function (node) {
+				var width = node.getBoundingClientRect().width;
+
+				if (width > 0) {
+					return width;
+				}
+
+				if (!node.parentElement) {
+					return 0;
+				}
+
+				return this._getAvailableWidth(node.parentElement);
+			},
+			_handleWindowResize: function () {
+				this._rescaleCourseTileRegions();
+			},
+			_addThrottledEventListener: function (eventName, eventHandler) {
+				var timeout = false,
+					delay = 100;
+
+				window.addEventListener(eventName, function () {
+					clearTimeout(timeout);
+					timeout = setTimeout(eventHandler, delay);
+				});
+			}
+		}
+	})();
+</script>

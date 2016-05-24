@@ -1,5 +1,4 @@
 <link rel="import" href="../polymer/polymer.html">
-<!--<link rel="import" href="../formatjs-element/formatjs-behavior.html">-->
 
 <script>
 (function() {
@@ -19,9 +18,6 @@
 		},
 		format: function(msg, values, language) {
 			language = language || this.locale;
-
-			// @TODO: Implement translation, once a suitable library/element is determined/created.
-			//return Polymer.formatJSBehavior.translate(msg, values, language);
 
 			return msg;
 		},
