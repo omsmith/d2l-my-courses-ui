@@ -49,7 +49,16 @@
 			left: 0;
 			right: 0;
 			margin: auto;
-			transition: filter 0.25s, -webkit-filter 0.25s;
+			transition: filter 0.25s, -webkit-filter 0.25s, transform 0.5s ease-in-out;
+			filter: contrast(1) saturate(1);
+			-webkit-filter: contrast(1) saturate(1);
+			transform: scale(1, 1);
+		}
+		.course-image img.hover {
+			transition: filter 0.25s, -webkit-filter 0.25s, transform 0.5s ease-in-out 0.5s;
+			filter: contrast(1.5) saturate(1.25);
+			-webkit-filter: contrast(1.5) saturate(1.25);
+			transform: scale(1.05, 1.05);
 		}
 
 		.course-text {
@@ -76,6 +85,10 @@
 			font-size: 14px;
 			font-weight: 400;
 			letter-spacing: 0.3px;
+		}
+		.hover-menu.hover {
+			opacity: 1;
+			margin-top: 10px;
 		}
 		.menu-item {
 			color: #FFFFFF;

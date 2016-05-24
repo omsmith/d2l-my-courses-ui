@@ -54,17 +54,17 @@
 			},
 			showHoverMenu: function() {
 				var hoverMenu = this.$$('.hover-menu');
-				Polymer.dom(hoverMenu).setAttribute('style', 'opacity: 1; margin-top: 10px;');
+				Polymer.dom(hoverMenu).classList.add('hover');
 
 				var courseImage = this.$$('.course-image img');
-				Polymer.dom(courseImage).setAttribute('style', 'filter: contrast(1.5) saturate(1.25); -webkit-filter: contrast(1.5) saturate(1.25);')
+				Polymer.dom(courseImage).classList.add('hover');
 			},
 			hideHoverMenu: function() {
 				var hoverMenu = this.$$('.hover-menu');
-				Polymer.dom(hoverMenu).setAttribute('style', 'opacity: 0; margin-top: 0px');
+				Polymer.dom(hoverMenu).classList.remove('hover');
 
 				var courseImage = this.$$('.course-image img');
-				Polymer.dom(courseImage).setAttribute('style', 'filter: contrast(1) saturate(1); -webkit-filter: contrast(1) saturate(1);')
+				Polymer.dom(courseImage).classList.remove('hover');
 			},
 			_imageSrcChanged: function (newValue) {
 				var courseImage = this.$$('.course-image img');
