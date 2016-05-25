@@ -4,9 +4,10 @@
 	(function() {
 		'use strict';
 
-		Polymer.d2l = Polymer.d2l || new Object();
+		Polymer.D2L = Polymer.D2L || {};
+		Polymer.D2L.MyCourses = Polymer.D2L.MyCourses || {};
 
-		Polymer.d2l.CourseTileRegionBehavior = {
+		Polymer.D2L.MyCourses.CourseTileRegionBehavior = {
 			getCourseImageUrl: function (links) {
 				for (var i = 0; i < links.length; ++i) {
 					if (links[i].rel.indexOf('course-image') > -1) {

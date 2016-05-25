@@ -1,0 +1,58 @@
+<link rel="import" href="../app-localize-behavior/app-localize-behavior.html">
+
+<script>
+(function() {
+	'use strict';
+
+	Polymer.D2L = Polymer.D2L || {};
+	Polymer.D2L.MyCourses = Polymer.D2L.MyCourses || {};
+
+	Polymer.D2L.MyCourses.LocalizeBehaviorImpl = {
+		properties: {
+			language: {
+				type: String,
+				computed: '_determineLanguage(locale, resources)'
+			},
+			locale: {
+				type: String,
+				value: 'en-US'
+			},
+			resources: {
+				value: function () {
+					var en = {
+						'viewAllCourses' : 'View All Courses',
+						'allCourses' : 'All Courses',
+						'pinnedCourses' : 'Pinned',
+						'unpinnedCourses' : 'Unpinned',
+						'closeSimpleOverlayAltText' : 'Close Dialog'
+					};
+
+					return {
+						'en': en
+					};
+				}
+			}
+		},
+		_determineLanguage: function (locale, resources) {
+			locale = locale.toLowerCase();
+
+			if (resources[locale]) {
+				return locale;
+			}
+
+			var langAndRegion = locale.split('-');
+
+			if (resources[langAndRegion[0]]) {
+				return langAndRegion[0];
+			}
+
+			return 'en';
+		}
+	};
+
+	Polymer.D2L.MyCourses.LocalizeBehavior = [
+		Polymer.AppLocalizeBehavior,
+		Polymer.D2L.MyCourses.LocalizeBehaviorImpl
+	];
+})();
+</script>
