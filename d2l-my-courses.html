@@ -19,14 +19,8 @@
 			last-response="{{enrollmentsResponse}}"></d2l-ajax>
 
 		<div class="my-courses-container">
-			<template
-				is="dom-repeat"
-				items="[[enrollmentsResponse.entities]]">
-					<d2l-course-tile
-						target="/d2l/home/[[item.properties.id]]"
-						name="[[item.properties.name]]"
-						image-src="{{getCourseImageUrl(item.links)}}"
-						pinned="{{getPinnedState(item.entities)}}"></d2l-course-tile>
+			<template is="dom-repeat" items="[[enrollmentsResponse.entities]]">
+				<d2l-course-tile enrollment="[[item]]"></d2l-course-tile>
 			</template>
 		</div>
 

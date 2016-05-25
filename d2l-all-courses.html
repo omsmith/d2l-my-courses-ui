@@ -1,9 +1,12 @@
 <link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../d2l-siren-parser/d2l-siren-parser.html">
+<link rel="import" href="../d2l-ajax/d2l-ajax.html">
+<link rel="import" href="../vui-typography/typography.html">
 <link rel="import" href="d2l-all-courses-styles.html">
 <link rel="import" href="d2l-simple-overlay.html">
 <link rel="import" href="d2l-course-tile.html">
-<link rel="import" href="../d2l-ajax/d2l-ajax.html">
-<link rel="import" href="../vui-typography/typography.html">
+<link rel="import" href="d2l-formatjs-behavior.html">
+<link rel="import" href="d2l-lang-terms.html">
 <link rel="import" href="d2l-course-tile-region-behavior.html">
 <link rel="import" href="localize-behavior.html">
 
@@ -28,23 +31,13 @@
 				<h3 class="header">{{localize('pinnedCourses')}}</h3>
 				<div class="my-courses-container" role="region">
 					<template is="dom-repeat" items="[[pinnedCoursesEntities]]">
-						<d2l-course-tile
-							target="/d2l/home/[[item.properties.id]]"
-							name="[[item.properties.name]]"
-							image-src="{{getCourseImageUrl(item.links)}}"
-							pinned="{{getPinnedState(item.entities)}}">
-						</d2l-course-tile>
+						<d2l-course-tile enrollment="[[item]]"></d2l-course-tile>
 					</template>
 				</div>
 				<h3 class="header">{{localize('unpinnedCourses')}}</h3>
 				<div class="my-courses-container" role="region">
 					<template is="dom-repeat" items="[[unpinnedCoursesEntities]]">
-						<d2l-course-tile
-								target="/d2l/home/[[item.properties.id]]"
-								name="[[item.properties.name]]"
-								image-src="{{getCourseImageUrl(item.links)}}"
-								pinned="{{getPinnedState(item.entities)}}">
-						</d2l-course-tile>
+						<d2l-course-tile enrollment="[[item]]"></d2l-course-tile>
 					</template>
 				</div>
 			</div>
@@ -101,14 +94,13 @@
 			},
 			_filterUnpinnedCourses: function(pinnedCoursesEntities, allCoursesEntities) {
 				if(pinnedCoursesEntities && allCoursesEntities) {
+					var parser = document.createElement('d2l-siren-parser');
 					this._setUnpinnedCoursesEntities(
 						allCoursesEntities.filter(
 							function(element) {
-								var isUnpinned = this.getPinnedState(element.entities) !== true;
-								return isUnpinned;
-							}.bind(this)
-						)
-					);
+								var entity = parser.parse(element);
+								return !entity.hasEntityByClass('pinned');
+							}.bind(this)));
 				}
 			},
 			attached: function () {

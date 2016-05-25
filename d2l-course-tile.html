@@ -1,11 +1,12 @@
 <link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../d2l-siren-parser/d2l-siren-parser.html">
 <link rel="import" href="d2l-course-tile-styles.html">
 
 <dom-module id="d2l-course-tile">
 	<template>
 		<style include="d2l-course-tile-styles"></style>
 
-		<a href="[[target]]" on-mouseover="showHoverMenu" on-mouseout="hideHoverMenu">
+		<a href="" on-mouseover="showHoverMenu" on-mouseout="hideHoverMenu">
 			<div
 				class="course-image-container">
 				<div class="course-image">
@@ -24,9 +25,7 @@
 					</div>
 				</div>
 			</div>
-			<div class="course-text">
-				[[name]]
-			</div>
+			<div class="course-text"></div>
 		</a>
 	</template>
 
@@ -34,19 +33,12 @@
 		Polymer({
 			is: 'd2l-course-tile',
 			properties: {
-				target: {
-					type: String
-				},
-				name: {
-					type: String
-				},
-				imageSrc: {
-					type: String,
-					observer: '_imageSrcChanged'
+				enrollment: {
+					type: Object,
+					observer: '_enrollmentChanged'
 				},
 				pinned: {
-					type: Boolean,
-					observer: '_pinnedChanged'
+					type: Boolean
 				}
 			},
 			ready: function () {
@@ -55,10 +47,18 @@
 			changePinState: function(e) {
 				// Prevent the click from triggering navigation to the course
 				e.preventDefault();
+
+				var pinImage = this.$$('.menu-item svg path'),
+					pinText = this.$$('.menu-item span');
+
 				if (this.pinned) {
 					this.pinned = false;
+					Polymer.dom(pinImage).setAttribute('d', 'M23,16 L23,11 C23.55,11 24,10.55 24,10 C24,9.45 23.55,9 23,9 L17,9 C16.45,9 16,9.45 16,10 C16,10.55 16.45,11 17,11 L17,16 C15.9,16 15,17.9 15,19 C15,19.55 15.45,20 16,20 L19,20 L19,24 L20,27 L21,24 L21,20 L24,20 C24.55,20 25,19.55 25,19 C25,17.9 24.1,16 23,16 L23,16 Z M19,17 L19,12 L19,12 L19,12 C19,11.448 19.448,11 20,11 C20.552,11 21,11.448 21,12 L21,12 L21,12 L21,17 L19,17 L19,17 Z');
+					Polymer.dom(pinText).textContent = 'Unpin';
 				} else {
 					this.pinned = true;
+					Polymer.dom(pinImage).setAttribute('d', 'M25,19 C25,19.55 24.55,20 24,20 L21,20 L21,24 L20,27 L19,24 L19,20 L16,20 C15.45,20 15,19.55 15,19 C15,17.9 15.9,16 17,16 L17,11 C16.45,11 16,10.55 16,10 C16,9.45 16.45,9 17,9 L23,9 C23.55,9 24,9.45 24,10 C24,10.55 23.55,11 23,11 L23,16 C24.1,16 25,17.9 25,19 L25,19 Z');
+					Polymer.dom(pinText).textContent = 'Pin';
 				}
 			},
 			showHoverMenu: function() {
@@ -75,22 +75,34 @@
 				var courseImage = this.$$('.course-image img');
 				Polymer.dom(courseImage).classList.remove('hover');
 			},
-			_imageSrcChanged: function (newValue) {
-				var courseImage = this.$$('.course-image img');
-				if (newValue) {
-					Polymer.dom(courseImage).setAttribute('src', newValue);
+			_enrollmentChanged: function (enrollment) {
+				var parser = document.createElement('d2l-siren-parser');
+				var entity = parser.parse(enrollment);
+
+				if (entity.hasLink('course-image')) {
+					var courseImageLink = entity.getLinkByRel('course-image');
+					var courseImage = this.$$('.course-image img');
+					Polymer.dom(courseImage).setAttribute('src', courseImageLink.href);
 				}
-			},
-			_pinnedChanged: function (pinned) {
+
+				var anchor = this.$$('a');
+				Polymer.dom(anchor).setAttribute('href', '/d2l/home/' + enrollment.properties.id);
+
+				var courseText = this.$$('.course-text');
+				Polymer.dom(courseText).innerHTML = enrollment.properties.name;
+
 				var pinImage = this.$$('.menu-item svg path'),
 					pinText = this.$$('.menu-item span');
 
-				if (pinned) {
+				var pinnedPrefs = entity.getSubEntitiesByClass('pinned');
+				if (pinnedPrefs.length > 0) {
 					Polymer.dom(pinImage).setAttribute('d', 'M23,16 L23,11 C23.55,11 24,10.55 24,10 C24,9.45 23.55,9 23,9 L17,9 C16.45,9 16,9.45 16,10 C16,10.55 16.45,11 17,11 L17,16 C15.9,16 15,17.9 15,19 C15,19.55 15.45,20 16,20 L19,20 L19,24 L20,27 L21,24 L21,20 L24,20 C24.55,20 25,19.55 25,19 C25,17.9 24.1,16 23,16 L23,16 Z M19,17 L19,12 L19,12 L19,12 C19,11.448 19.448,11 20,11 C20.552,11 21,11.448 21,12 L21,12 L21,12 L21,17 L19,17 L19,17 Z');
 					Polymer.dom(pinText).textContent = 'Unpin';
+					this.pinned = false;
 				} else {
 					Polymer.dom(pinImage).setAttribute('d', 'M25,19 C25,19.55 24.55,20 24,20 L21,20 L21,24 L20,27 L19,24 L19,20 L16,20 C15.45,20 15,19.55 15,19 C15,17.9 15.9,16 17,16 L17,11 C16.45,11 16,10.55 16,10 C16,9.45 16.45,9 17,9 L23,9 C23.55,9 24,9.45 24,10 C24,10.55 23.55,11 23,11 L23,16 C24.1,16 25,17.9 25,19 L25,19 Z');
 					Polymer.dom(pinText).textContent = 'Pin';
+					this.pinned = true;
 				}
 			}
 		});
