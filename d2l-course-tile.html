@@ -8,14 +8,14 @@
 	<template>
 		<style include="d2l-course-tile-styles"></style>
 
-		<a href="" on-mouseover="showHoverMenu" on-mouseout="hideHoverMenu">
+		<a href="" on-mouseover="hoverCourseTile" on-mouseout="unhoverCourseTile">
 			<div
 				class="course-image-container">
 				<div class="course-image">
 					<img />
 				</div>
 				<div class="hover-menu">
-					<div class="menu-item" on-click="changePinState">
+					<div class="menu-item" on-click="pinClickHandler">
 						<iron-icon class="menu-icon" icon="actions:pin"></iron-icon>
 						<span class="menu-text"></span>
 					</div>
@@ -34,37 +34,27 @@
 					observer: '_enrollmentChanged'
 				},
 				pinned: {
-					type: Boolean
+					type: Boolean,
+					observer: '_pinnedChanged'
 				}
 			},
 			ready: function () {
 				this.setAttribute('role', 'link');
 			},
-			changePinState: function(e) {
+			pinClickHandler: function(e) {
 				// Prevent the click from triggering navigation to the course
 				e.preventDefault();
 
-				var pinIcon = this.$$('.menu-item iron-icon'),
-					pinText = this.$$('.menu-item span');
-
-				if (this.pinned) {
-					this.pinned = false;
-					Polymer.dom(pinIcon).setAttribute('icon', 'actions:unpin');
-					Polymer.dom(pinText).textContent = 'Unpin';
-				} else {
-					this.pinned = true;
-					Polymer.dom(pinIcon).setAttribute('icon', 'actions:pin');
-					Polymer.dom(pinText).textContent = 'Pin';
-				}
+				this.pinned = !this.pinned;
 			},
-			showHoverMenu: function() {
+			hoverCourseTile: function() {
 				var hoverMenu = this.$$('.hover-menu');
 				Polymer.dom(hoverMenu).classList.add('hover');
 
 				var courseImage = this.$$('.course-image img');
 				Polymer.dom(courseImage).classList.add('hover');
 			},
-			hideHoverMenu: function() {
+			unhoverCourseTile: function() {
 				var hoverMenu = this.$$('.hover-menu');
 				Polymer.dom(hoverMenu).classList.remove('hover');
 
@@ -87,18 +77,19 @@
 				var courseText = this.$$('.course-text');
 				Polymer.dom(courseText).innerHTML = enrollment.properties.name;
 
+				var pinnedPrefs = entity.getSubEntitiesByClass('pinned');
+				this.pinned = pinnedPrefs.length > 0 ? true : false;
+			},
+			_pinnedChanged: function (pinned) {
 				var pinIcon = this.$$('.menu-item iron-icon.menu-icon'),
-					pinText = this.$$('.menu-item span.menu-text'),
-					pinnedPrefs = entity.getSubEntitiesByClass('pinned');
+					pinText = this.$$('.menu-item span.menu-text');
 
-				if (pinnedPrefs.length > 0) {
+				if (pinned) {
 					Polymer.dom(pinIcon).setAttribute('icon', 'actions:unpin');
 					Polymer.dom(pinText).textContent = 'Unpin';
-					this.pinned = false;
 				} else {
 					Polymer.dom(pinIcon).setAttribute('icon', 'actions:pin');
 					Polymer.dom(pinText).textContent = 'Pin';
-					this.pinned = true;
 				}
 			}
 		});
