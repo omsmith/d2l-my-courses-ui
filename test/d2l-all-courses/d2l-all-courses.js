@@ -9,6 +9,7 @@ describe('smoke test', function() {
 
 	var pinnedCoursesEntities = [{
 				entities: [{
+					rel: ['preferences'],
 					class: [
 						"preferences",
 						"pinned"
@@ -21,6 +22,7 @@ describe('smoke test', function() {
 				links: []
 			}, {
 				entities: [{
+					rel: ['preferences'],
 					class: [
 						"preferences",
 						"pinned"
@@ -40,6 +42,7 @@ describe('smoke test', function() {
 			body: {
 				entities: [{
 					entities: [{
+						rel: ['preferences'],
 						class: []
 					}],
 					properties: {
@@ -49,6 +52,7 @@ describe('smoke test', function() {
 					links: []
 				}, {
 					entities: [{
+						rel: ['preferences'],
 						class: [
 							"preferences",
 							"pinned"
@@ -61,6 +65,7 @@ describe('smoke test', function() {
 					links: []
 				}, {
 					entities: [{
+						rel: ['preferences'],
 						class: []
 					}],
 					properties: {
@@ -70,6 +75,7 @@ describe('smoke test', function() {
 					links: []
 				}, {
 					entities: [{
+						rel: ['preferences'],
 						class: [
 							"preferences",
 							"pinned"
@@ -87,6 +93,7 @@ describe('smoke test', function() {
 	var unpinnedCoursesEntities =
 		[{
 			entities: [{
+				rel: ['preferences'],
 				class: []
 			}],
 			properties: {
@@ -96,6 +103,7 @@ describe('smoke test', function() {
 			links: []
 		}, {
 			entities: [{
+				rel: ['preferences'],
 				class: []
 			}],
 			properties: {
