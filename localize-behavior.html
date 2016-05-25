@@ -15,7 +15,11 @@
 			},
 			locale: {
 				type: String,
-				value: 'en-US'
+				value: function () {
+					return document.documentElement.lang
+						|| document.documentElement.getAttribute('data-lang-default')
+						|| 'en-us';
+				}
 			},
 			resources: {
 				value: function () {
