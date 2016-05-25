@@ -1,0 +1,135 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../iron-overlay-behavior/iron-overlay-behavior.html">
+<link rel="import" href="../neon-animation/neon-animation-runner-behavior.html">
+<link rel="import" href="../neon-animation/animations/slide-from-bottom-animation.html">
+<link rel="import" href="../neon-animation/animations/slide-from-top-animation.html">
+<link rel="import" href="../neon-animation/animations/slide-down-animation.html">
+<link rel="import" href="../neon-animation/animations/slide-up-animation.html">
+<link rel="import" href="../iron-icon/iron-icon.html">
+<link rel="import" href="d2l-simple-overlay-styles.html">
+<link rel="import" href="icons.html">
+
+<dom-module id='d2l-simple-overlay'>
+	<style include="d2l-simple-overlay-styles"></style>
+	<template>
+		<div class="max-width">
+			<button class="close-button pull-right" on-tap="handleClose" alt=[[closeSimpleOverlayAltText]]>
+				<iron-icon icon="actions:close"></iron-icon>
+			</button>
+			<h2>{{title}}</h2>
+		</div>
+		<div class="scrollable">
+			<div class="max-width">
+				<content></content>
+			</div>
+		</div>
+	</template>
+	<script>
+	Polymer({
+		is: 'd2l-simple-overlay',
+		behaviors: [
+			Polymer.IronOverlayBehavior,
+			Polymer.NeonAnimationRunnerBehavior
+		],
+		listeners: {
+			'neon-animation-finish': '_onNeonAnimationFinish'
+		},
+		properties: {
+			title: {
+				type: String
+			},
+			animationConfig: {
+				value: function() {
+					return {
+						'fromBottom': {
+							name: 'slide-from-bottom-animation',
+							node: this
+						},
+						'fromTop': {
+							name: 'slide-from-top-animation',
+							node: this
+						},
+						'down': {
+							name: 'slide-down-animation',
+							node: this
+						},
+						'up': {
+							name: 'slide-up-animation',
+							node: this
+						}
+					};
+				}
+			},
+			focusableNodesOverride: {
+				type: Object,
+				value: null
+			},
+			_viewportContent: {
+				type: String
+			},
+			_restoreViewportContent: {
+				type: Boolean
+			}
+		},
+		created: function() {
+			this._updateBackdropStyle();
+		},
+		handleClose: function () {
+			this.close();
+		},
+		_isMobile: function () {
+			var width = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
+			return width < 768;
+		},
+		_updateBackdropStyle: function () {
+			var style = document.createElement('style', 'custom-style');
+			style.innerHTML = "iron-overlay-backdrop { --iron-overlay-backdrop-opacity: 0.0; }";
+			document.body.appendChild(style);
+		},
+		_renderOpened: function () {
+			this.cancelAnimation();
+
+			this._onNodesChange();
+			Polymer.dom(this.root).querySelector('.scrollable').scrollTop = 0;
+
+			if (this._isMobile()) {
+				this.playAnimation('fromBottom');
+			} else {
+				this.playAnimation('fromTop');
+			}
+		},
+		_renderClosed: function () {
+			this.cancelAnimation();
+
+			if (this._isMobile()) {
+				this.playAnimation('down');
+			} else {
+				this.playAnimation('up');
+			}
+		},
+		_onNeonAnimationFinish: function () {
+			document.body.classList.toggle('d2l-shim-body-overflow', this.opened);
+
+			if (this.opened) {
+				this._finishRenderOpened();
+			} else {
+				this._finishRenderClosed();
+			}
+		},
+		get _focusableNodes() {
+			var focusables;
+
+			if(this.focusableNodesOverride != null) {
+				focusables = this.focusableNodesOverride.call(this);
+			}
+			else {
+				focusables = Polymer.IronOverlayBehaviorImpl.__lookupGetter__("_focusableNodes").call(this);
+			}
+
+			focusables.push(Polymer.dom(this.root).querySelector('.close-button'));
+
+			return focusables;
+		}
+	})
+	</script>
+</dom-module>

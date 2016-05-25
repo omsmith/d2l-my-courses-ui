@@ -1,0 +1,159 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="d2l-all-courses-styles.html">
+<link rel="import" href="d2l-simple-overlay.html">
+<link rel="import" href="d2l-course-tile.html">
+<link rel="import" href="../d2l-ajax/d2l-ajax.html">
+<link rel="import" href="../vui-typography/typography.html">
+<link rel="import" href="d2l-formatjs-behavior.html">
+<link rel="import" href="d2l-lang-terms.html">
+<link rel="import" href="d2l-course-tile-region-behavior.html">
+
+<dom-module id="d2l-all-courses" class="vui-typography">
+	<template>
+		<style include="d2l-all-courses-styles"></style>
+		<d2l-lang-terms></d2l-lang-terms>
+
+		<d2l-ajax
+			id="allEnrollmentsRequest"
+			on-response="allEnrollmentsOnResponse"
+			url="[[enrollmentsUrl]]"
+			headers='{ "Accept": "application/vnd.siren+json" }'>
+		</d2l-ajax>
+
+		<d2l-simple-overlay
+			id='all-courses-overlay'
+			title={{allCourses}}
+			with-backdrop>
+
+			<div class="dialog-content">
+				<h3 class="header">{{pinnedCourses}}</h3>
+				<div class="my-courses-container" role="region" aria-label={{pinnedCoursesLabel}}>
+					<template is="dom-repeat" items="[[pinnedCoursesEntities]]">
+						<d2l-course-tile
+							target="/d2l/home/[[item.properties.id]]"
+							name="[[item.properties.name]]"
+							image-src="{{getCourseImageUrl(item.links)}}"
+							pinned="{{getPinnedState(item.entities)}}">
+						</d2l-course-tile>
+					</template>
+				</div>
+				<h3 class="header">{{unpinnedCourses}}</h3>
+				<div class="my-courses-container" role="region" aria-label={{unpinnedCoursesLabel}}>
+					<template is="dom-repeat" items="[[unpinnedCoursesEntities]]">
+						<d2l-course-tile
+								target="/d2l/home/[[item.properties.id]]"
+								name="[[item.properties.name]]"
+								image-src="{{getCourseImageUrl(item.links)}}"
+								pinned="{{getPinnedState(item.entities)}}">
+						</d2l-course-tile>
+					</template>
+				</div>
+			</div>
+		</d2l-simple-overlay>
+	</template>
+
+	<script>
+		Polymer({
+			is: 'd2l-all-courses',
+			properties: {
+				pinnedCoursesEntities: {
+					type: Array
+				},
+				unpinnedCoursesEntities: {
+					type: Array,
+					readOnly: true
+				},
+				allEnrollmentsEntities: {
+					type: Array,
+					readOnly: true
+				},
+				enrollmentsUrl: {
+					type: String
+				},
+				windowResizeHandler: {
+					type: Object,
+					readOnly: true,
+					value: function () {
+						return this._handleWindowResize.bind(this);
+					}
+				}
+			},
+			observers: [
+				'_updateData(messages, locale)'
+			],
+			behaviors: [
+				Polymer.d2l.CourseTileRegionBehavior,
+				Polymer.d2l.formatJSBehavior
+			],
+			ready : function () {
+				this.$$('d2l-simple-overlay').focusableNodesOverride = this.focusableNodesOverride;
+				this.messages = this.$$('d2l-lang-terms').langTerms;
+				this._getTranslations();
+			},
+			allEnrollmentsOnResponse: function (response) {
+				if (response.detail.status === 200) {
+					this._setAllEnrollmentsEntities(response.detail.xhr.response.entities);
+					this._filterUnpinnedCourses(this.pinnedCoursesEntities, this.allEnrollmentsEntities);
+					this._rescaleCourseTileRegions();
+				}
+			},
+			open: function() {
+					this._rescaleCourseTileRegions();
+					this.$.allEnrollmentsRequest.generateRequest();
+					this.$$('d2l-simple-overlay').open();
+			},
+			_filterUnpinnedCourses: function(pinnedCoursesEntities, allCoursesEntities) {
+				if(pinnedCoursesEntities && allCoursesEntities) {
+					this._setUnpinnedCoursesEntities(
+						allCoursesEntities.filter(
+							function(element) {
+								var isUnpinned = this.getPinnedState(element.entities) !== true;
+								return isUnpinned;
+							}.bind(this)
+						)
+					);
+				}
+			},
+			attached: function () {
+				this._addThrottledEventListener('resize', this.windowResizeHandler);
+			},
+			detached: function () {
+				window.removeEventListener('resize', this.windowResizeHandler);
+			},
+			get courseTileItemCount() {
+				var pinnedCoursesEntityCount = this.pinnedCoursesEntities ? this.pinnedCoursesEntities.length : 0;
+				var unpinnedCoursesEntityCount = this.unpinnedCoursesEntities ? this.unpinnedCoursesEntities.length : 0;
+				var itemCount = Math.max(pinnedCoursesEntityCount, unpinnedCoursesEntityCount);
+
+				return itemCount;
+			},
+			_updateData: function(messages, locale) {
+				this.messages = messages;
+				this.locale = locale;
+				this._getTranslations();
+			},
+			_getTranslations: function() {
+				if(this.messages) {
+					this.allCourses = this.format(this.getCultureTerm('allCourses'), null);
+					this.pinnedCourses = this.format(this.getCultureTerm('pinnedCourses'), null);
+					this.unpinnedCourses = this.format(this.getCultureTerm('unpinnedCourses'), null);
+					this.pinnedCoursesLabel = this.format(this.getCultureTerm('pinnedCoursesLabel'), null);
+					this.unpinnedCoursesLabel = this.format(this.getCultureTerm('unpinnedCoursesLabel'), null);
+				}
+			},
+			focusableNodesOverride: function() {
+				var courseTileFocusables = [];
+
+				this.getContentChildren().forEach(function(contentChild) {
+					var courseTiles = Polymer.dom(contentChild).querySelectorAll('d2l-course-tile');
+
+					[].forEach.call(courseTiles, function(courseTile) {
+						Array.prototype.push.apply(courseTileFocusables, Polymer.dom(courseTile.root).querySelectorAll('a'));
+					});
+				});
+
+				return courseTileFocusables;
+			}
+		});
+	</script>
+</dom-module>

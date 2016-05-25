@@ -47,6 +47,9 @@
 					observer: '_pinnedChanged'
 				}
 			},
+			ready: function () {
+				this.setAttribute('role', 'link');
+			},
 			showHoverMenu: function() {
 				var hoverMenu = this.$$('.hover-menu');
 				Polymer.dom(hoverMenu).setAttribute('style', 'opacity: 1; margin-top: 10px;')

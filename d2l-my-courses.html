@@ -2,10 +2,16 @@
 <link rel="import" href="../d2l-ajax/d2l-ajax.html">
 <link rel="import" href="d2l-my-courses-styles.html">
 <link rel="import" href="d2l-course-tile.html">
+<link rel="import" href="d2l-all-courses.html">
+<link rel="import" href="d2l-formatjs-behavior.html">
+<link rel="import" href="d2l-lang-terms.html">
+<link rel="import" href="d2l-course-tile-region-behavior.html">
 
 <dom-module id="d2l-my-courses">
 	<template>
 		<style include="d2l-my-courses-styles"></style>
+
+		<d2l-lang-terms></d2l-lang-terms>
 
 		<d2l-ajax
 			id="enrollmentsRequest"
@@ -19,159 +25,88 @@
 			<template
 				is="dom-repeat"
 				items="[[enrollmentsResponse.entities]]">
-				<d2l-course-tile
-					target="/d2l/home/[[item.properties.id]]"
-					name="[[item.properties.name]]"
-					image-src="{{getCourseImageUrl(item.links)}}"
-					pinned="{{getPinnedState(item.entities)}}"></d2l-course-tile>
+					<d2l-course-tile
+						target="/d2l/home/[[item.properties.id]]"
+						name="[[item.properties.name]]"
+						image-src="{{getCourseImageUrl(item.links)}}"
+						pinned="{{getPinnedState(item.entities)}}"></d2l-course-tile>
 			</template>
 		</div>
 
+		<button id="all-courses-button" on-tap="openAllCoursesView" aria-haspopup="true">{{viewAllCourses}}</button>
+
+		<d2l-all-courses
+			enrollments-url="[[enrollmentsUrl]]"
+			pinned-courses-entities="{{enrollmentsResponse.entities}}"
+			locale="[[locale]]">
+		</d2l-all-courses>
 	</template>
 
 	<script>
-	Polymer({
-		is: 'd2l-my-courses',
-		properties: {
-			enrollmentsResponse: {
-				type: Object,
-				readOnly: true
-			},
-			enrollmentsUrl: {
-				type: String
-			},
-			pinnedCoursesUrl: {
-				type: String,
-				readOnly: true,
-				computed: '_getPinnedCoursesUrl(enrollmentsUrl)'
-			},
-			windowResizeHandler: {
-				type: Object,
-				readOnly: true,
-				value: function () {
-					return this._handleWindowResize.bind(this);
-				}
-			}
-		},
-		attached: function () {
-			this._addThrottledEventListener('resize', this.windowResizeHandler);
-		},
-		detached: function () {
-			window.removeEventListener('resize', this.windowResizeHandler);
-		},
-		enrollmentsOnResponse: function (response) {
-			if (response.detail.status === 200) {
-				this._setupColumns(response.detail.xhr.response.entities.length);
-				this._setEnrollmentsResponse(response.detail.xhr.response);
-			}
-		},
-		getCourseImageUrl: function (links) {
-			for (var i = 0; i < links.length; ++i) {
-				if (links[i].rel.indexOf('course-image') > -1) {
-					return links[i].href + '?width=768&height=1';
-				}
-			}
-		},
-		getPinnedState: function (entities) {
-			for (var i = 0; i < entities.length; ++i) {
-				if (entities[i].class.indexOf('preferences') > -1) {
-					return entities[i].class.indexOf('pinned') > -1;
-				}
-			}
-		},
-		_getPinnedCoursesUrl: function (enrollmentsUrl) {
-			return enrollmentsUrl + '?filter=pinned';
-		},
-		_calcNumColumns: function (width, itemCount) {
-			var numCols = 1;
-
-			if (width < 768) {
-				if (itemCount >= 4) {
-					numCols = 2;
-				}
-			} else if (width < 992) {
-				if (itemCount === 1 || itemCount === 2 || itemCount === 4) {
-					numCols = 2;
-				} else {
-					numCols = 3;
-				}
-			} else {
-				if (itemCount === 1 || itemCount === 2 || itemCount === 4) {
-					numCols = 2;
-				} else if (itemCount === 3 || itemCount === 5 || itemCount === 6) {
-					numCols = 3;
-				} else {
-					numCols = 4;
-				}
-			}
-
-			return numCols;
-		},
-		_setupColumns: function (itemCount) {
-			var container = this.$$('.my-courses-container');
-			var width = this._getAvailableWidth(container);
-			var numCols = this._calcNumColumns(width, itemCount);
-			var colClasses = ['columns-2', 'columns-3', 'columns-4'];
-
-			var currentColClass = function (domNode) {
-				var foundClass = '';
-				colClasses.forEach(function (item) {
-					if (!foundClass && domNode.classList.contains(item)) {
-						foundClass = item;
+		Polymer({
+			is: 'd2l-my-courses',
+			properties: {
+				enrollmentsResponse: {
+					type: Object,
+					readOnly: true
+				},
+				enrollmentsUrl: {
+					type: String
+				},
+				pinnedCoursesUrl: {
+					computed: '_getPinnedCoursesUrl(enrollmentsUrl)'
+				},
+				windowResizeHandler: {
+					type: Object,
+					readOnly: true,
+					value: function () {
+						return this._handleWindowResize.bind(this);
 					}
-				});
-				return foundClass;
-			}
-
-			var domNode = Polymer.dom(container);
-			var oldClassName = currentColClass(domNode);
-
-			if (numCols > 1) {
-				var newClassName = 'columns-' + numCols;
-
-				if (oldClassName !== newClassName) {
-					if (oldClassName) {
-						domNode.classList.remove(oldClassName);
-					}
-					domNode.classList.add(newClassName);
 				}
-			} else {
-				if (oldClassName) {
-					domNode.classList.remove(oldClassName);
+			},
+			observers: [
+				'_updateData(messages, locale)'
+			],
+			behaviors: [
+				Polymer.d2l.CourseTileRegionBehavior,
+				Polymer.d2l.formatJSBehavior
+			],
+			ready: function () {
+				this.messages = this.$$('d2l-lang-terms').langTerms;
+				this._getTranslations();
+			},
+			attached: function () {
+				this._addThrottledEventListener('resize', this.windowResizeHandler);
+			},
+			detached: function () {
+				window.removeEventListener('resize', this.windowResizeHandler);
+			},
+			enrollmentsOnResponse: function (response) {
+				if (response.detail.status === 200) {
+					this._setupColumns(response.detail.xhr.response.entities.length);
+					this._setEnrollmentsResponse(response.detail.xhr.response);
 				}
+			},
+			openAllCoursesView: function () {
+				this.$$('d2l-all-courses').open();
+			},
+			_updateData: function(messages, locale) {
+				this.messages = messages;
+				this.locale = locale;
+				this._getTranslations();
+			},
+			_getTranslations: function() {
+				if(this.messages) {
+					this.viewAllCourses = this.format(this.getCultureTerm('viewAllCourses'), null);
+				}
+			},
+			_getPinnedCoursesUrl: function (enrollmentsUrl) {
+				return enrollmentsUrl + '?filter=pinned';
+			},
+			get courseTileItemCount() {
+				var itemCount = this.enrollmentsResponse ? this.enrollmentsResponse.entities.length : 0;
+				return itemCount;
 			}
-		},
-		// This method will first try to get the available width from the passed in DOM node, but if the
-		// reported width is zero, it will walk the ancestor tree to find a node that has a width.
-		// The width will be zero if the element is hidden with display: none.
-		// If an ancestor node is used for the width, it may not be entirely accurate, but it should be
-		// fine for the purpose of creating a decent layout for a hidden widget.
-		_getAvailableWidth: function (node) {
-			var width = node.getBoundingClientRect().width;
-
-			if (width > 0) {
-				return width;
-			}
-
-			if (!node.parentElement) {
-				return 0;
-			}
-
-			return this._getAvailableWidth(node.parentElement);
-		},
-		_handleWindowResize: function () {
-			var itemCount = this.enrollmentsResponse ? this.enrollmentsResponse.entities.length : 0;
-			this._setupColumns(itemCount);
-		},
-		_addThrottledEventListener: function (eventName, eventHandler) {
-			var timeout = false,
-				delay = 100;
-
-			window.addEventListener(eventName, function () {
-				clearTimeout(timeout);
-				timeout = setTimeout(eventHandler, delay);
-			});
-		}
-	});
+		});
 	</script>
 </dom-module>

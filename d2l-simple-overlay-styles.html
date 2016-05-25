@@ -1,0 +1,80 @@
+<link rel="import" href="../vui-colors/colors.html">
+
+<dom-module id="d2l-simple-overlay-styles">
+	<template>
+		<style>
+		:host {
+			background: white;
+			margin: 0;
+			padding: 0;
+			position: fixed;
+			top: 0;
+			left: 0;
+			height: 100%;
+			width: 100%;
+			border-top: 4px solid #003b71;
+			z-index: 1000;
+		}
+
+		.close-button {
+			background: none;
+			border: none;
+			margin: 0;
+			padding: 0 0 0.2rem 0;
+			color: var(--vui-color-tungsten);
+			width: 24px;
+			height: 24px;
+			cursor: pointer;
+		}
+
+		.close-button iron-icon {
+			border: 1px solid transparent;
+			padding: 8px;
+		}
+
+		.close-button:focus iron-icon, .close-button:hover iron-icon {
+			border-radius: 0.3rem;
+			border-color: var(--vui-color-pressicus);
+			color: var(--vui-color-celestuba);
+		}
+
+		.close-button * {
+			box-sizing: content-box;
+		}
+
+		.pull-right {
+			float: right;
+		}
+
+		iron-icon {
+			width: 12px;
+			height: 12px;
+		}
+
+		.scrollable {
+			height: calc(100vh - 100px);
+			max-height: calc(100vh - 100px);
+			overflow-y: scroll;
+			overflow-y: overlay;
+			-webkit-overflow-scrolling: touch;
+			border-top: 2px solid var(--vui-color-gypsum);
+			background: linear-gradient(to top, var(--vui-color-white), var(--vui-color-regolith));
+			padding-top: 25px;
+			background-size: 100% 350px;
+			background-repeat: repeat-x;
+		}
+
+		.max-width {
+			padding: 0 30px;
+			margin-left: auto;
+			margin-right: auto;
+			max-width: 1230px;
+		}
+
+		h2 {
+			@apply(--vui-heading-4);
+			font-size: 30px;
+		}
+		</style>
+	</template>
+</dom-module>
