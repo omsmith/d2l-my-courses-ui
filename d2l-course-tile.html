@@ -8,6 +8,15 @@
 	<template>
 		<style include="d2l-course-tile-styles"></style>
 
+		<d2l-ajax
+			id="updatePreferences"
+			url="[[_updatePreferencesUrl]]"
+			method="[[_updatePreferencesMethod]]"
+			body="[[_updatePreferencesBody]]"
+			headers='{ "Accept": "application/vnd.siren+json", "Content-Type": "application/json" }'
+			on-response="updatePreferencesOnResponse"
+			on-error="updatePreferencesOnError"></d2l-ajax>
+
 		<a href="" on-mouseover="hoverCourseTile" on-mouseout="unhoverCourseTile">
 			<div
 				class="course-image-container">
@@ -33,19 +42,58 @@
 					type: Object,
 					observer: '_enrollmentChanged'
 				},
-				pinned: {
+				_enrollmentEntity: {
+					type: Object,
+					observer: '_enrollmentEntityChanged'
+				},
+				_pinned: {
 					type: Boolean,
 					observer: '_pinnedChanged'
+				},
+				_updatePreferencesUrl: {
+					type: String
+				},
+				_updatePreferencesMethod: {
+					type: String
+				},
+				_updatePreferencesFields: {
+					type: String
+				},
+				_updatePreferencesBody: {
+					type: String
 				}
 			},
 			ready: function () {
 				this.setAttribute('role', 'link');
 			},
+			updatePreferencesOnResponse: function (response) {
+				if (response.detail.status === 200) {
+					var parser = document.createElement('d2l-siren-parser');
+					var preferencesEntity = parser.parse(response.detail.xhr.response);
+					this._pinned = preferencesEntity.properties.hasOwnProperty('pinDate');
+				}
+			},
+			updatePreferencesOnError: function (error) {
+				error.preventDefault();
+				error.stopPropagation();
+				this._pinned = this._enrollmentEntity.getSubEntitiesByRel('preferences')[0].properties.hasOwnProperty('pinDate');
+			},
 			pinClickHandler: function(e) {
 				// Prevent the click from triggering navigation to the course
 				e.preventDefault();
 
-				this.pinned = !this.pinned;
+				this._pinned = !this._pinned;
+
+				var updatePreferences = this.$$('#updatePreferences');
+
+				var updatePreferencesBody = {};
+				this._updatePreferencesFields.forEach(function(field) {
+					updatePreferencesBody[field.name] = field.value;
+				});
+				updatePreferencesBody.pinned = this._pinned;
+				this._updatePreferencesBody = JSON.stringify(updatePreferencesBody);
+
+				updatePreferences.generateRequest();
 			},
 			hoverCourseTile: function() {
 				var hoverMenu = this.$$('.hover-menu');
@@ -63,8 +111,9 @@
 			},
 			_enrollmentChanged: function (enrollment) {
 				var parser = document.createElement('d2l-siren-parser');
-				var entity = parser.parse(enrollment);
-
+				this._enrollmentEntity = parser.parse(enrollment);
+			},
+			_enrollmentEntityChanged: function (entity) {
 				if (entity.hasLink('course-image')) {
 					var courseImageLink = entity.getLinkByRel('course-image');
 					var courseImage = this.$$('.course-image img');
@@ -72,13 +121,18 @@
 				}
 
 				var anchor = this.$$('a');
-				Polymer.dom(anchor).setAttribute('href', '/d2l/home/' + enrollment.properties.id);
+				Polymer.dom(anchor).setAttribute('href', '/d2l/home/' + entity.properties.id);
 
 				var courseText = this.$$('.course-text');
-				Polymer.dom(courseText).innerHTML = enrollment.properties.name;
+				Polymer.dom(courseText).innerHTML = entity.properties.name;
 
-				var pinnedPrefs = entity.getSubEntitiesByClass('pinned');
-				this.pinned = pinnedPrefs.length > 0 ? true : false;
+				var preferencesEntity = entity.getSubEntitiesByRel('preferences')[0];
+				this._pinned = preferencesEntity.hasClass('pinned');
+
+				var updatePreferencesAction = preferencesEntity.getActionByName('update');
+				this._updatePreferencesUrl = updatePreferencesAction.href;
+				this._updatePreferencesMethod = updatePreferencesAction.method;
+				this._updatePreferencesFields = updatePreferencesAction.fields;
 			},
 			_pinnedChanged: function (pinned) {
 				var pinIcon = this.$$('.menu-item iron-icon.menu-icon'),
