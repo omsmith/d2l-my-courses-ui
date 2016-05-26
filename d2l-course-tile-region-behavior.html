@@ -25,10 +25,10 @@
 			get courseTileItemCount() {
 				throw "Must implement courseTileItemCount in behavior consumer";
 			},
-			_rescaleCourseTileRegions: function() {
+			_rescaleCourseTileRegions: function(forcedWidth) {
 				var itemCount = this.courseTileItemCount;
 
-				this._setupColumns(itemCount);
+				this._setupColumns(itemCount, forcedWidth);
 			},
 			_calcNumColumns: function (width, itemCount) {
 				var numCols = 1;
@@ -55,7 +55,7 @@
 
 				return numCols;
 			},
-			_setupColumns: function (itemCount) {
+			_setupColumns: function (itemCount, forcedWidth) {
 				var containers = Polymer.dom(this.root).querySelectorAll('.my-courses-container');
 				var colClasses = ['columns-2', 'columns-3', 'columns-4'];
 				var currentColClass = function (domNode) {
@@ -69,7 +69,7 @@
 					}
 
 				containers.forEach(function(container) {
-					var width = this._getAvailableWidth(container);
+					var width = forcedWidth || this._getAvailableWidth(container);
 					var numCols = this._calcNumColumns(width, itemCount);
 					var domNode = Polymer.dom(container);
 					var oldClassName = currentColClass(domNode);

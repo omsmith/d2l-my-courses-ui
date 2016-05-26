@@ -88,13 +88,16 @@
 				if (response.detail.status === 200) {
 					this._setAllEnrollmentsEntities(response.detail.xhr.response.entities);
 					this._filterUnpinnedCourses(this.pinnedCoursesEntities, this.allEnrollmentsEntities);
-					this._rescaleCourseTileRegions();
+					this._rescaleCourseTileRegions(this._getMyWidth());
 				}
 			},
 			open: function() {
-					this._rescaleCourseTileRegions();
-					this.$.allEnrollmentsRequest.generateRequest();
-					this.$$('d2l-simple-overlay').open();
+				this._rescaleCourseTileRegions(this._getMyWidth());
+				this.$.allEnrollmentsRequest.generateRequest();
+				this.$$('d2l-simple-overlay').open();
+			},
+			_getMyWidth: function () {
+				return this._getAvailableWidth(this.root.host);
 			},
 			_filterUnpinnedCourses: function(pinnedCoursesEntities, allCoursesEntities) {
 				if(pinnedCoursesEntities && allCoursesEntities) {
