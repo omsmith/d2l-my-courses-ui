@@ -10,7 +10,6 @@
 		<style include="d2l-course-tile-styles"></style>
 
 		<d2l-ajax
-			id="update-preferences"
 			url="[[_updatePreferencesUrl]]"
 			method="[[_updatePreferencesMethod]]"
 			body="[[_updatePreferencesBody]]"
@@ -18,7 +17,7 @@
 			on-response="updatePreferencesOnResponse"
 			on-error="updatePreferencesOnError"></d2l-ajax>
 
-		<a href="" on-mouseover="hoverCourseTile" on-mouseout="unhoverCourseTile">
+		<a href="[[_courseUrl]]" on-mouseover="hoverCourseTile" on-mouseout="unhoverCourseTile">
 			<div
 				class="course-image-container">
 				<div class="course-image">
@@ -47,6 +46,9 @@
 					type: Object,
 					observer: '_enrollmentEntityChanged'
 				},
+				_courseUrl: {
+					type: String
+				},
 				_pinned: {
 					type: Boolean,
 					observer: '_pinnedChanged'
@@ -72,6 +74,8 @@
 					var parser = document.createElement('d2l-siren-parser');
 					var preferencesEntity = parser.parse(response.detail.xhr.response);
 					this._pinned = preferencesEntity.properties.hasOwnProperty('pinDate');
+				} else {
+					this._pinned = this._enrollmentEntity.getSubEntitiesByRel('preferences')[0].properties.hasOwnProperty('pinDate');
 				}
 			},
 			updatePreferencesOnError: function (error) {
@@ -85,7 +89,7 @@
 
 				this._pinned = !this._pinned;
 
-				var updatePreferences = this.$$('#update-preferences');
+				var updatePreferences = this.$$('d2l-ajax');
 
 				var updatePreferencesBody = {};
 				this._updatePreferencesFields.forEach(function(field) {
@@ -121,8 +125,7 @@
 					Polymer.dom(courseImage).setAttribute('src', courseImageLink.href);
 				}
 
-				var anchor = this.$$('a');
-				Polymer.dom(anchor).setAttribute('href', '/d2l/home/' + entity.properties.id);
+				this._courseUrl = '/d2l/home/' + entity.properties.id;
 
 				var courseText = this.$$('.course-text');
 				Polymer.dom(courseText).innerHTML = entity.properties.name;
