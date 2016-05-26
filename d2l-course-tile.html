@@ -1,6 +1,7 @@
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../d2l-siren-parser/d2l-siren-parser.html">
 <link rel="import" href="../iron-icon/iron-icon.html">
+<link rel="import" href="../d2l-ajax/d2l-ajax.html">
 <link rel="import" href="d2l-course-tile-styles.html">
 <link rel="import" href="icons.html">
 
@@ -9,7 +10,7 @@
 		<style include="d2l-course-tile-styles"></style>
 
 		<d2l-ajax
-			id="updatePreferences"
+			id="update-preferences"
 			url="[[_updatePreferencesUrl]]"
 			method="[[_updatePreferencesMethod]]"
 			body="[[_updatePreferencesBody]]"
@@ -84,7 +85,7 @@
 
 				this._pinned = !this._pinned;
 
-				var updatePreferences = this.$$('#updatePreferences');
+				var updatePreferences = this.$$('#update-preferences');
 
 				var updatePreferencesBody = {};
 				this._updatePreferencesFields.forEach(function(field) {
@@ -130,9 +131,11 @@
 				this._pinned = preferencesEntity.hasClass('pinned');
 
 				var updatePreferencesAction = preferencesEntity.getActionByName('update');
-				this._updatePreferencesUrl = updatePreferencesAction.href;
-				this._updatePreferencesMethod = updatePreferencesAction.method;
-				this._updatePreferencesFields = updatePreferencesAction.fields;
+				if (updatePreferencesAction) {
+					this._updatePreferencesUrl = updatePreferencesAction.href;
+					this._updatePreferencesMethod = updatePreferencesAction.method;
+					this._updatePreferencesFields = updatePreferencesAction.fields;
+				}
 			},
 			_pinnedChanged: function (pinned) {
 				var pinIcon = this.$$('.menu-item iron-icon.menu-icon'),
