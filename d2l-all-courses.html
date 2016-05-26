@@ -4,14 +4,12 @@
 <link rel="import" href="d2l-course-tile.html">
 <link rel="import" href="../d2l-ajax/d2l-ajax.html">
 <link rel="import" href="../vui-typography/typography.html">
-<link rel="import" href="d2l-formatjs-behavior.html">
-<link rel="import" href="d2l-lang-terms.html">
 <link rel="import" href="d2l-course-tile-region-behavior.html">
+<link rel="import" href="localize-behavior.html">
 
 <dom-module id="d2l-all-courses" class="vui-typography">
 	<template>
 		<style include="d2l-all-courses-styles"></style>
-		<d2l-lang-terms></d2l-lang-terms>
 
 		<d2l-ajax
 			id="allEnrollmentsRequest"
@@ -22,12 +20,13 @@
 
 		<d2l-simple-overlay
 			id='all-courses-overlay'
-			title={{allCourses}}
+			title="{{localize('allCourses')}}"
+			locale="[[locale]]"
 			with-backdrop>
 
 			<div class="dialog-content">
-				<h3 class="header">{{pinnedCourses}}</h3>
-				<div class="my-courses-container" role="region" aria-label={{pinnedCoursesLabel}}>
+				<h3 class="header">{{localize('pinnedCourses')}}</h3>
+				<div class="my-courses-container" role="region">
 					<template is="dom-repeat" items="[[pinnedCoursesEntities]]">
 						<d2l-course-tile
 							target="/d2l/home/[[item.properties.id]]"
@@ -37,8 +36,8 @@
 						</d2l-course-tile>
 					</template>
 				</div>
-				<h3 class="header">{{unpinnedCourses}}</h3>
-				<div class="my-courses-container" role="region" aria-label={{unpinnedCoursesLabel}}>
+				<h3 class="header">{{localize('unpinnedCourses')}}</h3>
+				<div class="my-courses-container" role="region">
 					<template is="dom-repeat" items="[[unpinnedCoursesEntities]]">
 						<d2l-course-tile
 								target="/d2l/home/[[item.properties.id]]"
@@ -78,17 +77,12 @@
 					}
 				}
 			},
-			observers: [
-				'_updateData(messages, locale)'
-			],
 			behaviors: [
-				Polymer.d2l.CourseTileRegionBehavior,
-				Polymer.d2l.formatJSBehavior
+				Polymer.D2L.MyCourses.CourseTileRegionBehavior,
+				Polymer.D2L.MyCourses.LocalizeBehavior
 			],
 			ready : function () {
 				this.$$('d2l-simple-overlay').focusableNodesOverride = this.focusableNodesOverride;
-				this.messages = this.$$('d2l-lang-terms').langTerms;
-				this._getTranslations();
 			},
 			allEnrollmentsOnResponse: function (response) {
 				if (response.detail.status === 200) {
@@ -126,20 +120,6 @@
 				var itemCount = Math.max(pinnedCoursesEntityCount, unpinnedCoursesEntityCount);
 
 				return itemCount;
-			},
-			_updateData: function(messages, locale) {
-				this.messages = messages;
-				this.locale = locale;
-				this._getTranslations();
-			},
-			_getTranslations: function() {
-				if(this.messages) {
-					this.allCourses = this.format(this.getCultureTerm('allCourses'), null);
-					this.pinnedCourses = this.format(this.getCultureTerm('pinnedCourses'), null);
-					this.unpinnedCourses = this.format(this.getCultureTerm('unpinnedCourses'), null);
-					this.pinnedCoursesLabel = this.format(this.getCultureTerm('pinnedCoursesLabel'), null);
-					this.unpinnedCoursesLabel = this.format(this.getCultureTerm('unpinnedCoursesLabel'), null);
-				}
 			},
 			focusableNodesOverride: function() {
 				var courseTileFocusables = [];

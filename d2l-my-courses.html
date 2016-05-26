@@ -3,15 +3,12 @@
 <link rel="import" href="d2l-my-courses-styles.html">
 <link rel="import" href="d2l-course-tile.html">
 <link rel="import" href="d2l-all-courses.html">
-<link rel="import" href="d2l-formatjs-behavior.html">
-<link rel="import" href="d2l-lang-terms.html">
 <link rel="import" href="d2l-course-tile-region-behavior.html">
+<link rel="import" href="localize-behavior.html">
 
 <dom-module id="d2l-my-courses">
 	<template>
 		<style include="d2l-my-courses-styles"></style>
-
-		<d2l-lang-terms></d2l-lang-terms>
 
 		<d2l-ajax
 			id="enrollmentsRequest"
@@ -33,7 +30,7 @@
 			</template>
 		</div>
 
-		<button id="all-courses-button" on-tap="openAllCoursesView" aria-haspopup="true">{{viewAllCourses}}</button>
+		<button id="all-courses-button" on-tap="openAllCoursesView" aria-haspopup="true">{{localize('viewAllCourses')}}</button>
 
 		<d2l-all-courses
 			enrollments-url="[[enrollmentsUrl]]"
@@ -64,17 +61,10 @@
 					}
 				}
 			},
-			observers: [
-				'_updateData(messages, locale)'
-			],
 			behaviors: [
-				Polymer.d2l.CourseTileRegionBehavior,
-				Polymer.d2l.formatJSBehavior
+				Polymer.D2L.MyCourses.CourseTileRegionBehavior,
+				Polymer.D2L.MyCourses.LocalizeBehavior
 			],
-			ready: function () {
-				this.messages = this.$$('d2l-lang-terms').langTerms;
-				this._getTranslations();
-			},
 			attached: function () {
 				this._addThrottledEventListener('resize', this.windowResizeHandler);
 			},
@@ -89,16 +79,6 @@
 			},
 			openAllCoursesView: function () {
 				this.$$('d2l-all-courses').open();
-			},
-			_updateData: function(messages, locale) {
-				this.messages = messages;
-				this.locale = locale;
-				this._getTranslations();
-			},
-			_getTranslations: function() {
-				if(this.messages) {
-					this.viewAllCourses = this.format(this.getCultureTerm('viewAllCourses'), null);
-				}
 			},
 			_getPinnedCoursesUrl: function (enrollmentsUrl) {
 				return enrollmentsUrl + '?filter=pinned';
