@@ -2,9 +2,10 @@
 <link rel="import" href="../iron-overlay-behavior/iron-overlay-behavior.html">
 <link rel="import" href="../neon-animation/neon-animation-runner-behavior.html">
 <link rel="import" href="../neon-animation/animations/slide-from-bottom-animation.html">
-<link rel="import" href="../neon-animation/animations/slide-from-top-animation.html">
 <link rel="import" href="../neon-animation/animations/slide-down-animation.html">
-<link rel="import" href="../neon-animation/animations/slide-up-animation.html">
+<link rel="import" href="../neon-animation/animations/transform-animation.html">
+<link rel="import" href="../neon-animation/animations/fade-in-animation.html">
+<link rel="import" href="../neon-animation/animations/fade-out-animation.html">
 <link rel="import" href="../iron-icon/iron-icon.html">
 <link rel="import" href="d2l-simple-overlay-styles.html">
 <link rel="import" href="icons.html">
@@ -43,22 +44,32 @@
 			animationConfig: {
 				value: function() {
 					return {
-						'fromBottom': {
+						'mobileOpen': {
 							name: 'slide-from-bottom-animation',
 							node: this
 						},
-						'fromTop': {
-							name: 'slide-from-top-animation',
-							node: this
-						},
-						'down': {
+						'mobileClose': {
 							name: 'slide-down-animation',
 							node: this
 						},
-						'up': {
-							name: 'slide-up-animation',
+						'desktopOpen': [{
+							name: 'transform-animation',
+							transformFrom: 'scale(.95) translateY(-100px)',
+							transformTo: 'scale(1) translateY(0)',
 							node: this
-						}
+						}, {
+							name: 'fade-in-animation',
+							node: this
+						}],
+						'desktopClose': [{
+							name: 'transform-animation',
+							transformFrom: 'scale(1) translateY(0)',
+							transformTo: 'scale(.95) translateY(-100px)',
+							node: this
+						}, {
+							name: 'fade-out-animation',
+							node: this
+						}]
 					};
 				}
 			},
@@ -95,18 +106,18 @@
 			Polymer.dom(this.root).querySelector('.scrollable').scrollTop = 0;
 
 			if (this._isMobile()) {
-				this.playAnimation('fromBottom');
+				this.playAnimation('mobileOpen');
 			} else {
-				this.playAnimation('fromTop');
+				this.playAnimation('desktopOpen');
 			}
 		},
 		_renderClosed: function () {
 			this.cancelAnimation();
 
 			if (this._isMobile()) {
-				this.playAnimation('down');
+				this.playAnimation('mobileClose');
 			} else {
-				this.playAnimation('up');
+				this.playAnimation('desktopClose');
 			}
 		},
 		_onNeonAnimationFinish: function () {
