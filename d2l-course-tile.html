@@ -4,6 +4,7 @@
 <link rel="import" href="../d2l-ajax/d2l-ajax.html">
 <link rel="import" href="d2l-course-tile-styles.html">
 <link rel="import" href="icons.html">
+<link rel="import" href="localize-behavior.html">
 
 <dom-module id="d2l-course-tile">
 	<template>
@@ -26,7 +27,8 @@
 				<div class="hover-menu">
 					<div class="menu-item" on-click="pinClickHandler">
 						<iron-icon class="menu-icon" icon="actions:pin"></iron-icon>
-						<span class="menu-text"></span>
+						<span class="menu-text pin">{{localize('pin')}}</span>
+						<span class="menu-text unpin">{{localize('unpin')}}</span>
 					</div>
 				</div>
 			</div>
@@ -66,6 +68,9 @@
 					type: String
 				}
 			},
+			behaviors: [
+				Polymer.D2L.MyCourses.LocalizeBehavior
+			],
 			ready: function () {
 				this.setAttribute('role', 'link');
 			},
@@ -142,14 +147,17 @@
 			},
 			_pinnedChanged: function (pinned) {
 				var pinIcon = this.$$('.menu-item iron-icon.menu-icon'),
-					pinText = this.$$('.menu-item span.menu-text');
+					pinText = this.$$('.menu-item .menu-text.pin'),
+					unpinText = this.$$('.menu-item .menu-text.unpin');
 
 				if (pinned) {
 					Polymer.dom(pinIcon).setAttribute('icon', 'actions:unpin');
-					Polymer.dom(pinText).textContent = 'Unpin';
+					Polymer.dom(pinText).setAttribute('style', 'display: none');
+					Polymer.dom(unpinText).setAttribute('style', 'display: inline');
 				} else {
 					Polymer.dom(pinIcon).setAttribute('icon', 'actions:pin');
-					Polymer.dom(pinText).textContent = 'Pin';
+					Polymer.dom(pinText).setAttribute('style', 'display: inline');
+					Polymer.dom(unpinText).setAttribute('style', 'display: none');
 				}
 			}
 		});
