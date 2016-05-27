@@ -18,18 +18,18 @@
 			on-response="updatePreferencesOnResponse"
 			on-error="updatePreferencesOnError"></d2l-ajax>
 
-		<a href="[[_courseUrl]]" on-mouseover="hoverCourseTile" on-mouseout="unhoverCourseTile">
+		<a href="[[_courseUrl]]" on-mouseover="hoverCourseTile" on-mouseout="unhoverCourseTile" on-focus="hoverCourseTile" on-blur="unhoverCourseTile">
 			<div
 				class="course-image-container">
 				<div class="course-image">
 					<img />
 				</div>
 				<div class="hover-menu">
-					<div class="menu-item" on-click="pinClickHandler">
-						<iron-icon class="menu-icon" icon="actions:pin"></iron-icon>
+					<button class="menu-item" on-click="pinClickHandler" on-focus="hoverCourseTile" on-blur="unhoverCourseTile">
+						<iron-icon class="menu-icon" icon="actions:pin" aria-hidden="true"></iron-icon>
 						<span class="menu-text pin">{{localize('pin')}}</span>
 						<span class="menu-text unpin">{{localize('unpin')}}</span>
-					</div>
+					</button>
 				</div>
 			</div>
 			<div class="course-text"></div>
