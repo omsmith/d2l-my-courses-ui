@@ -73,8 +73,8 @@
 			},
 			enrollmentsOnResponse: function (response) {
 				if (response.detail.status === 200) {
-					this._setupColumns(response.detail.xhr.response.entities.length);
 					this._setEnrollmentsResponse(response.detail.xhr.response);
+					this._rescaleCourseTileRegions();
 				}
 			},
 			openAllCoursesView: function () {
