@@ -1,0 +1,227 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="d2l-menu-styles.html">
+
+<dom-module id="d2l-touch-menu">
+    <template>
+        <style include="d2l-menu-styles"></style>
+
+        <div id="long-press-menu">
+            <content></content>
+        </div>
+    </template>
+
+    <script>
+        Polymer({
+            is: 'd2l-touch-menu',
+            properties: {
+                touchTarget: {
+                    type: Object,
+                    observer: '_touchTargetChanged'
+                },
+                longPressDuration: {
+                    type: Number,
+                    value: 500
+                },
+                movementBuffer: {
+                    type: Number,
+                    value: 30
+                },
+                _menuItemInitialOffset: {
+                    type: Object
+                },
+                _timerID: {
+                    type: Number
+                },
+                _menuItem: {
+                    type: Object
+                },
+                _touchHandlers: {
+                    Type: Array,
+                    value: [{
+                        event: 'touchstart',
+                        handler: 'touchstartHandler'
+                    },  {
+                        event: 'touchend',
+                        handler:  'touchendHandler'
+                    }, {
+                        event: 'touchcancel',
+                        handler:  'touchcancelHandler'
+                    }, {
+                        event: 'touchmove',
+                        handler: 'touchmoveHandler'
+                    }]
+                },
+                _touchStartEventData: {
+                    type: Object
+                }
+            },
+            attached: function() {
+                if(this.touchTarget == null) {
+                    this.touchTarget = Polymer.dom(this).parentNode.host;
+                }
+
+                // Bind touch menu to menu items
+                var menuItems = Polymer.dom(this).querySelectorAll('d2l-touch-menu-item');
+
+                [].forEach.call(menuItems, function(menuItem) {
+                    menuItem._touchMenu = this;
+                }.bind(this));
+            },
+            touchstartHandler: function (e) {
+                // Stop the touch event from propagating past this, to avoid the OS' context menu from appearing
+                e.preventDefault();
+
+                // Capture data about original touch in case we need to generate a click later on
+                this._touchStartEventData = {
+                    originalTarget: Polymer.dom(e).path[0],
+                    timeStamp: e.timeStamp
+                };
+
+                // Only show the menu if it's tap+hold
+                this._timerID = setTimeout(this.openMenu.bind(this, e), this.longPressDuration);
+            },
+            touchmoveHandler: function (e) {
+                this._touchStartEventData = null;
+
+                // Add the hover class when the finger has moved near the menu item
+                var menuItem = Polymer.dom(this).querySelector('d2l-touch-menu-item'),
+                    newX = e.changedTouches[0].pageX,
+                    newY = e.changedTouches[0].pageY;
+
+                var rect = {
+                        top: this._menuItemInitialOffset.top,
+                        bottom: this._menuItemInitialOffset.top + menuItem.height + this.movementBuffer,
+                        left: this._menuItemInitialOffset.left,
+                        right: this._menuItemInitialOffset.left + menuItem.width
+                    };
+
+                var testPoint = {
+                        x: newX,
+                        y: newY
+                    };
+
+                var inRect = this._pointInRect(testPoint, rect);
+
+                menuItem.hoverState = inRect;
+            },
+            touchendHandler: function (e) {
+                // When finger is released, if the item is selected, then do the fancy animation
+                var menuItem = Polymer.dom(this).querySelector('d2l-touch-menu-item');
+                if (menuItem.hoverState === true) {
+                    menuItem.selected = true;
+
+                    // Fire an event for this menu item
+                    this.fire('touch-menu-item-selected', {element: menuItem, onSelect: menuItem.onSelect});
+                }
+
+                // If this would have otherwise been a tap event, bubble up click event from original touch target
+                if(this._touchStartEventData != null) {
+                    if(e.timeStamp - this._touchStartEventData.timeStamp < 250) {
+                        var event = new MouseEvent('click', {
+                            'bubbles': true,
+                            'cancelable': true
+                        });
+
+                        this._touchStartEventData.originalTarget.dispatchEvent(event);
+                    }
+                }
+
+                this.touchcancelHandler(e);
+            },
+            touchcancelHandler: function () {
+                this._touchStartEventData = null;
+
+                var menu = this.$$('#long-press-menu');
+
+                if(menu != null) {
+                    menu.style.visibility = 'hidden';
+                    clearTimeout(this._timerID);
+                    this.fire('touch-menu-closed', {element: menu});
+                }
+            },
+            openMenu: function (touchstartEvent) {
+                this._touchStartEventData = null;
+
+                this.listen(this.touchTarget, 'touchend', 'touchendHandler');
+
+                var touchData = {
+                    startX: touchstartEvent.changedTouches[0].pageX,
+                    startY: touchstartEvent.changedTouches[0].pageY,
+                    clientX: touchstartEvent.changedTouches[0].clientX,
+                    clientY: touchstartEvent.changedTouches[0].clientY
+                };
+
+                var menu = this.$$('#long-press-menu');
+
+                // Initial position of menu - if near the top of screen, show it below the initial tap
+                // TODO: Add positioning for side edges; should be total of 8 possible positions
+                var left = touchData.startX - (menu.offsetWidth / 2);
+                var top;
+
+                if ((touchData.clientY - menu.offsetHeight) <= 0) {
+                    // Set menu below finger
+                    top = touchData.startY;
+                } else {
+                    // Set menu above finger
+                    top = touchData.startY - menu.offsetHeight;
+                }
+
+                var myOffset = this.offset(Polymer.dom(this).parentNode.host);
+
+                // Un-hide the menu and slap it into position. Slappy slappy slappy.
+                menu.style.visibility = 'visible';
+                menu.style.left = (left - myOffset.left) + 'px';
+                menu.style.top = (top - myOffset.top) + 'px';
+
+                this.fire('touch-menu-opened', {element: menu});
+
+                // Required for touchmove calculations - offset changes as the menuItem grows via the transition,
+                // so to prevent class thrashing we base calculations off it's initial position
+                this._menuItemInitialOffset = this.offset(Polymer.dom(menu).parentNode.host.querySelector('d2l-touch-menu-item'));
+            },
+            _touchTargetChanged: function(newValue, oldValue) {
+                if(oldValue != null) {
+                    this._touchHandlers.forEach( function(handlerData) {
+                        this.unlisten(oldValue, handlerData.event, handlerData.handler);
+                    }.bind(this));
+                }
+
+                if(newValue != null) {
+                    this._touchHandlers.forEach( function(handlerData) {
+                        this.listen(newValue, handlerData.event, handlerData.handler);
+                    }.bind(this));
+                }
+            },
+            _pointInRect: function(point, rect) {
+                return (
+                    (point.y < rect.bottom)
+                    && (point.y > rect.top)
+                    && (point.x < rect.right)
+                    && (point.x > rect.left)
+                );
+            },
+            isWindow: function( obj ) {
+                return obj != null && obj === obj.window;
+            },
+            getWindow: function( elem ) {
+                return this.isWindow( elem ) ? elem : elem.nodeType === 9 && elem.defaultView;
+            },
+            offset: function( elem ) {
+                var docElem, win,
+                box = { top: 0, left: 0 },
+                doc = elem && elem.ownerDocument;
+
+                docElem = doc.documentElement;
+
+                if ( typeof elem.getBoundingClientRect !== typeof undefined ) {
+                    box = elem.getBoundingClientRect();
+                }
+                win = this.getWindow( doc );
+                return {
+                    top: box.top + win.pageYOffset - docElem.clientTop,
+                    left: box.left + win.pageXOffset - docElem.clientLeft
+                };
+            }
+        });
+    </script>
+</dom-module>

@@ -7,6 +7,15 @@
 		:host {
 			display: block;
 			@apply(--vui-font);
+			transition: 1.0s ease-in-out;
+			transform: scale(1.0);
+			-webkit-backface-visibility: hidden;
+		}
+
+		:host(.click-target-hover) {
+			transition: 0.3s ease-in-out;
+			transform: scale(1.05);
+			box-shadow: 2px 2px;
 		}
 		.tile-container {
 			position: relative;

@@ -1,0 +1,110 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="d2l-menu-styles.html">
+
+<dom-module id="d2l-touch-menu-item">
+    <template>
+        <style include="d2l-menu-styles"></style>
+
+        <div class="longpress-menu-item">
+          <div class="longpress-menu-item-text">{{_displayText}}</div>
+          <div class="longpress-menu-item-image-background">
+            <img class="longpress-menu-item-image" src$="{{resolveUrl(_displayBackgroundImage)}}">
+          </div>
+        </div>
+    </template>
+    <script>
+        Polymer({
+            is: 'd2l-touch-menu-item',
+            properties: {
+                backgroundImage: {
+                    type: String,
+                    observer: '_backgroundImageChanged'
+                },
+                text: {
+                    type: String,
+                    observer: '_textChanged'
+                },
+                selectionAction: {
+                    type: String
+                },
+                inTransition: {
+                    type: Boolean
+                },
+                hoverState: {
+                    type: Boolean,
+                    observer: '_hoverStateChanged'
+                },
+                _oldText: {
+                    type: String
+                },
+                _displayText: {
+                    type: String
+                },
+                _displayBackgroundImage: {
+                    type: String
+                },
+                _touchMenu: {
+                    type: Object
+                }
+            },
+            attached: function() {
+                this._updateDisplayData();
+            },
+            _hoverStateChanged: function(isHovered, wasHovered) {
+                this.toggleClass('longpress-menu-item-hover', isHovered, this.$$('.longpress-menu-item'));
+
+                if(isHovered && !wasHovered) {
+                    this.fire('touch-menu-item-hover-start', {element: this});
+                }
+                else if(wasHovered && !isHovered) {
+                    this.fire('touch-menu-item-hover-end', {element: this});
+                }
+            },
+            set selected(isSelected) {
+                this.toggleClass('selected', isSelected, this.$$('.longpress-menu-item'));
+
+                if(isSelected) {
+                    this.inTransition = true;
+                    this.listen(this.$$('.longpress-menu-item'), 'transitionend', 'transitionendHandler');
+
+                    if(this.selectionAction) {
+                        Polymer.dom(this._touchMenu).parentNode.host[this.selectionAction]();
+                    }
+                }
+            },
+            get selected() {
+                return this.$$('.longpress-menu-item').classList.contains('selected');
+            },
+            get width() {
+                return this.$$('.longpress-menu-item').clientWidth;
+            },
+            get height() {
+                return this.$$('.longpress-menu-item').clientHeight;
+            },
+            transitionendHandler: function () {
+                // Triggered by the end of the transition caused by adding 'selected' class
+                this.hoverState = false;
+                this.selected = false;
+                // Detach this event handler - otherwise the menu item's classes thrash
+                this.unlisten(this.$$('.longpress-menu-item'), 'transitionend', 'transitionendHandler');
+                this.inTransition = false;
+
+                this._updateDisplayData();
+            },
+            _textChanged: function(newValue) {
+                if(!this.inTransition) {
+                    this._displayText = newValue;
+                }
+            },
+            _backgroundImageChanged: function(newValue) {
+                if(this.inTransition === false) {
+                    this._displayBackgroundImage = newValue;
+                }
+            },
+            _updateDisplayData: function() {
+                this._displayText = this.text;
+                this._displayBackgroundImage = this.backgroundImage;
+            }
+        });
+    </script>
+</dom-module>
