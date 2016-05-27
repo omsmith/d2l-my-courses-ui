@@ -19,7 +19,12 @@ describe('smoke test', function() {
 					}],
 					entities: [{
 						rel: ['preferences'],
-						class: ['pinned']
+						class: ['pinned'],
+						actions: [{
+							name: 'update',
+							method: 'GET',
+							href: 'http://example.com'
+						}]
 					}]
 				}]
 			}

@@ -1,32 +1,38 @@
 <link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../d2l-siren-parser/d2l-siren-parser.html">
+<link rel="import" href="../iron-icon/iron-icon.html">
+<link rel="import" href="../d2l-ajax/d2l-ajax.html">
 <link rel="import" href="d2l-course-tile-styles.html">
+<link rel="import" href="icons.html">
+<link rel="import" href="localize-behavior.html">
 
 <dom-module id="d2l-course-tile">
 	<template>
 		<style include="d2l-course-tile-styles"></style>
 
-		<a href="[[target]]" on-mouseover="showHoverMenu" on-mouseout="hideHoverMenu">
+		<d2l-ajax
+			url="[[_updatePreferencesUrl]]"
+			method="[[_updatePreferencesMethod]]"
+			body="[[_updatePreferencesBody]]"
+			headers='{ "Accept": "application/vnd.siren+json", "Content-Type": "application/json" }'
+			on-response="updatePreferencesOnResponse"
+			on-error="updatePreferencesOnError"></d2l-ajax>
+
+		<a href="[[_courseUrl]]" on-mouseover="hoverCourseTile" on-mouseout="unhoverCourseTile" on-focus="hoverCourseTile" on-blur="unhoverCourseTile">
 			<div
 				class="course-image-container">
 				<div class="course-image">
 					<img />
 				</div>
 				<div class="hover-menu">
-					<div class="menu-item">
-						<svg width="10px" height="18px" viewBox="15 9 10 18" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-							<path
-								stroke="none"
-								fill="#FFFFFF"
-								fill-rule="evenodd">
-							</path>
-						</svg>
-						<span></span>
-					</div>
+					<button class="menu-item" on-click="pinClickHandler" on-focus="hoverCourseTile" on-blur="unhoverCourseTile">
+						<iron-icon class="menu-icon" icon="actions:pin" aria-hidden="true"></iron-icon>
+						<span class="menu-text pin">{{localize('pin')}}</span>
+						<span class="menu-text unpin">{{localize('unpin')}}</span>
+					</button>
 				</div>
 			</div>
-			<div class="course-text">
-				[[name]]
-			</div>
+			<div class="course-text"></div>
 		</a>
 	</template>
 
@@ -34,54 +40,124 @@
 		Polymer({
 			is: 'd2l-course-tile',
 			properties: {
-				target: {
+				enrollment: {
+					type: Object,
+					observer: '_enrollmentChanged'
+				},
+				_enrollmentEntity: {
+					type: Object,
+					observer: '_enrollmentEntityChanged'
+				},
+				_courseUrl: {
 					type: String
 				},
-				name: {
-					type: String
-				},
-				imageSrc: {
-					type: String,
-					observer: '_imageSrcChanged'
-				},
-				pinned: {
+				_pinned: {
 					type: Boolean,
 					observer: '_pinnedChanged'
+				},
+				_updatePreferencesUrl: {
+					type: String
+				},
+				_updatePreferencesMethod: {
+					type: String
+				},
+				_updatePreferencesFields: {
+					type: String
+				},
+				_updatePreferencesBody: {
+					type: String
 				}
 			},
+			behaviors: [
+				Polymer.D2L.MyCourses.LocalizeBehavior
+			],
 			ready: function () {
 				this.setAttribute('role', 'link');
 			},
-			showHoverMenu: function() {
+			updatePreferencesOnResponse: function (response) {
+				if (response.detail.status === 200) {
+					var parser = document.createElement('d2l-siren-parser');
+					var preferencesEntity = parser.parse(response.detail.xhr.response);
+					this._pinned = preferencesEntity.properties.hasOwnProperty('pinDate');
+				} else {
+					this._pinned = this._enrollmentEntity.getSubEntitiesByRel('preferences')[0].properties.hasOwnProperty('pinDate');
+				}
+			},
+			updatePreferencesOnError: function (error) {
+				error.preventDefault();
+				error.stopPropagation();
+				this._pinned = this._enrollmentEntity.getSubEntitiesByRel('preferences')[0].properties.hasOwnProperty('pinDate');
+			},
+			pinClickHandler: function(e) {
+				// Prevent the click from triggering navigation to the course
+				e.preventDefault();
+
+				this._pinned = !this._pinned;
+
+				var updatePreferences = this.$$('d2l-ajax');
+
+				var updatePreferencesBody = {};
+				this._updatePreferencesFields.forEach(function(field) {
+					updatePreferencesBody[field.name] = field.value;
+				});
+				updatePreferencesBody.pinned = this._pinned;
+				this._updatePreferencesBody = JSON.stringify(updatePreferencesBody);
+
+				updatePreferences.generateRequest();
+			},
+			hoverCourseTile: function() {
 				var hoverMenu = this.$$('.hover-menu');
 				Polymer.dom(hoverMenu).classList.add('hover');
 
 				var courseImage = this.$$('.course-image img');
 				Polymer.dom(courseImage).classList.add('hover');
 			},
-			hideHoverMenu: function() {
+			unhoverCourseTile: function() {
 				var hoverMenu = this.$$('.hover-menu');
 				Polymer.dom(hoverMenu).classList.remove('hover');
 
 				var courseImage = this.$$('.course-image img');
 				Polymer.dom(courseImage).classList.remove('hover');
 			},
-			_imageSrcChanged: function (newValue) {
-				var courseImage = this.$$('.course-image img');
-				if (newValue) {
-					Polymer.dom(courseImage).setAttribute('src', newValue);
+			_enrollmentChanged: function (enrollment) {
+				var parser = document.createElement('d2l-siren-parser');
+				this._enrollmentEntity = parser.parse(enrollment);
+			},
+			_enrollmentEntityChanged: function (entity) {
+				if (entity.hasLink('course-image')) {
+					var courseImageLink = entity.getLinkByRel('course-image');
+					var courseImage = this.$$('.course-image img');
+					Polymer.dom(courseImage).setAttribute('src', courseImageLink.href);
+				}
+
+				this._courseUrl = '/d2l/home/' + entity.properties.id;
+
+				var courseText = this.$$('.course-text');
+				Polymer.dom(courseText).innerHTML = entity.properties.name;
+
+				var preferencesEntity = entity.getSubEntitiesByRel('preferences')[0];
+				this._pinned = preferencesEntity.hasClass('pinned');
+
+				var updatePreferencesAction = preferencesEntity.getActionByName('update');
+				if (updatePreferencesAction) {
+					this._updatePreferencesUrl = updatePreferencesAction.href;
+					this._updatePreferencesMethod = updatePreferencesAction.method;
+					this._updatePreferencesFields = updatePreferencesAction.fields;
 				}
 			},
 			_pinnedChanged: function (pinned) {
-				var pinImage = this.$$('.menu-item svg path'),
-					pinText = this.$$('.menu-item span');
+				var pinIcon = this.$$('.menu-item iron-icon.menu-icon'),
+					pinText = this.$$('.menu-item .menu-text.pin'),
+					unpinText = this.$$('.menu-item .menu-text.unpin');
 
 				if (pinned) {
-					Polymer.dom(pinImage).setAttribute('d', 'M23,16 L23,11 C23.55,11 24,10.55 24,10 C24,9.45 23.55,9 23,9 L17,9 C16.45,9 16,9.45 16,10 C16,10.55 16.45,11 17,11 L17,16 C15.9,16 15,17.9 15,19 C15,19.55 15.45,20 16,20 L19,20 L19,24 L20,27 L21,24 L21,20 L24,20 C24.55,20 25,19.55 25,19 C25,17.9 24.1,16 23,16 L23,16 Z M19,17 L19,12 L19,12 L19,12 C19,11.448 19.448,11 20,11 C20.552,11 21,11.448 21,12 L21,12 L21,12 L21,17 L19,17 L19,17 Z');
-					Polymer.dom(pinText).textContent = 'Unpin';
+					Polymer.dom(pinIcon).setAttribute('icon', 'actions:unpin');
+					Polymer.dom(pinText).setAttribute('style', 'display: none');
+					Polymer.dom(unpinText).setAttribute('style', 'display: inline');
 				} else {
-					Polymer.dom(pinImage).setAttribute('d', 'M25,19 C25,19.55 24.55,20 24,20 L21,20 L21,24 L20,27 L19,24 L19,20 L16,20 C15.45,20 15,19.55 15,19 C15,17.9 15.9,16 17,16 L17,11 C16.45,11 16,10.55 16,10 C16,9.45 16.45,9 17,9 L23,9 C23.55,9 24,9.45 24,10 C24,10.55 23.55,11 23,11 L23,16 C24.1,16 25,17.9 25,19 L25,19 Z');
-					Polymer.dom(pinText).textContent = 'Pin';
+					Polymer.dom(pinIcon).setAttribute('icon', 'actions:pin');
+					Polymer.dom(pinText).setAttribute('style', 'display: inline');
+					Polymer.dom(unpinText).setAttribute('style', 'display: none');
 				}
 			}
 		});

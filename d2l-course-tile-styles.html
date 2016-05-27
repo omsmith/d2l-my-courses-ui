@@ -82,16 +82,20 @@
 		.menu-item {
 			color: #FFFFFF;
 			background: rgba(0,0,0,0.5);
+			border: none;
 			border-radius: 5px;
 			padding: 10px 15px;
 			float: left;
 			margin-left: 10px;
+			transition: color 0.1s, background 0.1s;
+			cursor: pointer;
+		}
+		.menu-item button.span {
+			display: none;
 		}
 		.menu-item:hover {
-			background: #006FBF;
-		}
-		.menu-item svg {
-			vertical-align: middle;
+			color: #000000;
+			background: rgba(255,255,255,0.5);
 		}
 		</style>
 	</template>

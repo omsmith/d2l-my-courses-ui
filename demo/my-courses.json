@@ -65,6 +65,11 @@
                   "name": "colour",
                   "type": "text",
                   "value": "#2299C9"
+                },
+                {
+                  "name": "pinned",
+                  "type": "checkbox",
+                  "value": true
                 }
               ]
             }
@@ -140,6 +145,11 @@
                   "name": "colour",
                   "type": "text",
                   "value": "#DA3C73"
+                },
+                {
+                  "name": "pinned",
+                  "type": "checkbox",
+                  "value": false
                 }
               ]
             }
@@ -221,6 +231,11 @@
                   "name": "colour",
                   "type": "text",
                   "value": "#1AAD82"
+                },
+                {
+                  "name": "pinned",
+                  "type": "checkbox",
+                  "value": false
                 }
               ]
             }
@@ -302,6 +317,11 @@
                   "name": "colour",
                   "type": "text",
                   "value": "#EC3653"
+                },
+                {
+                  "name": "pinned",
+                  "type": "checkbox",
+                  "value": false
                 }
               ]
             }
@@ -383,6 +403,11 @@
                   "name": "colour",
                   "type": "text",
                   "value": "#E99C28"
+                },
+                {
+                  "name": "pinned",
+                  "type": "checkbox",
+                  "value": false
                 }
               ]
             }
@@ -464,6 +489,11 @@
                   "name": "colour",
                   "type": "text",
                   "value": "#1AA9B6"
+                },
+                {
+                  "name": "pinned",
+                  "type": "checkbox",
+                  "value": false
                 }
               ]
             }
@@ -545,6 +575,11 @@
                   "name": "colour",
                   "type": "text",
                   "value": "#7E5AA3"
+                },
+                {
+                  "name": "pinned",
+                  "type": "checkbox",
+                  "value": false
                 }
               ]
             }
@@ -626,6 +661,11 @@
                   "name": "colour",
                   "type": "text",
                   "value": "#F06A31"
+                },
+                {
+                  "name": "pinned",
+                  "type": "checkbox",
+                  "value": false
                 }
               ]
             }
@@ -707,6 +747,11 @@
                   "name": "colour",
                   "type": "text",
                   "value": "#D468A6"
+                },
+                {
+                  "name": "pinned",
+                  "type": "checkbox",
+                  "value": false
                 }
               ]
             }
@@ -788,6 +833,11 @@
                   "name": "colour",
                   "type": "text",
                   "value": "#3571B5"
+                },
+                {
+                  "name": "pinned",
+                  "type": "checkbox",
+                  "value": false
                 }
               ]
             }
@@ -822,55 +872,6 @@
           ]
         }
       ]
-    },
-    {
-      "class": [
-        "active",
-        "pulse",
-        "organization"
-      ],
-      "rel": [
-        "enrollment"
-      ],
-      "properties": {
-        "name": "Pulse Team",
-        "code": "Pulse Team",
-        "id": "PulseTeam"
-      },
-      "entities": [
-        {
-          "class": [
-            "enrollment",
-            "preferences",
-            "colour"
-          ],
-          "rel": [
-            "preferences"
-          ],
-          "properties": {
-            "colour": "#4A90E2"
-          },
-          "entities": [],
-          "links": [
-            {
-              "rel": [
-                "self"
-              ],
-              "href": "http://localhost:3000/enrollments/PulseTeam/preferences"
-            }
-          ],
-          "actions": []
-        }
-      ],
-      "links": [
-        {
-          "rel": [
-            "self"
-          ],
-          "href": "http://localhost:3000/enrollments/PulseTeam"
-        }
-      ],
-      "actions": []
     }
   ],
   "links": [
