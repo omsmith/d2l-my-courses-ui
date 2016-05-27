@@ -71,14 +71,6 @@ describe('smoke test', function() {
 				done();
 			});
 		});
-
-		it('should have a read-only response object', function() {
-			widget._setEnrollmentsResponse('foo');
-
-			widget.enrollmentsResponse = 'bar';
-
-			expect(widget.enrollmentsResponse).to.equal('foo');
-		});
 	});
 
 	describe('layout', function () {
