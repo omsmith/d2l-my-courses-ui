@@ -13,10 +13,11 @@
 		<d2l-ajax
 			id="enrollmentsRequest"
 			auto
-			on-response="enrollmentsOnResponse"
 			url="[[pinnedCoursesUrl]]"
 			headers='{ "Accept": "application/vnd.siren+json" }'
-			last-response="{{enrollmentsResponse}}"></d2l-ajax>
+			on-response="enrollmentsOnResponse"
+			last-response="{{enrollmentsResponse}}">
+		</d2l-ajax>
 
 		<div class="my-courses-container">
 			<template is="dom-repeat" items="[[enrollmentsResponse.entities]]">
@@ -38,8 +39,7 @@
 			is: 'd2l-my-courses',
 			properties: {
 				enrollmentsResponse: {
-					type: Object,
-					readOnly: true
+					type: Object
 				},
 				enrollmentsUrl: {
 					type: String
@@ -65,11 +65,8 @@
 			detached: function () {
 				window.removeEventListener('resize', this.windowResizeHandler);
 			},
-			enrollmentsOnResponse: function (response) {
-				if (response.detail.status === 200) {
-					this._setEnrollmentsResponse(response.detail.xhr.response);
-					this._rescaleCourseTileRegions();
-				}
+			enrollmentsOnResponse: function () {
+				this._rescaleCourseTileRegions();
 			},
 			openAllCoursesView: function () {
 				this.$$('d2l-all-courses').open();

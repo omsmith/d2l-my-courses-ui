@@ -14,9 +14,10 @@
 
 		<d2l-ajax
 			id="allEnrollmentsRequest"
-			on-response="allEnrollmentsOnResponse"
 			url="[[enrollmentsUrl]]"
-			headers='{ "Accept": "application/vnd.siren+json" }'>
+			headers='{ "Accept": "application/vnd.siren+json" }'
+			on-response="allEnrollmentsOnResponse"
+			last-response="{{allEnrollmentsResponse}}">
 		</d2l-ajax>
 
 		<d2l-simple-overlay
@@ -57,6 +58,9 @@
 					type: Array,
 					readOnly: true
 				},
+				allEnrollmentsResponse: {
+					type: Object
+				},
 				enrollmentsUrl: {
 					type: String
 				},
@@ -77,7 +81,7 @@
 			},
 			allEnrollmentsOnResponse: function (response) {
 				if (response.detail.status === 200) {
-					this._setAllEnrollmentsEntities(response.detail.xhr.response.entities);
+					this._setAllEnrollmentsEntities(this.allEnrollmentsResponse.entities);
 					this._filterUnpinnedCourses(this.pinnedCoursesEntities, this.allEnrollmentsEntities);
 					this._rescaleCourseTileRegions(this._getOverlayWidth());
 				}

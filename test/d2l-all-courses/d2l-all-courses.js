@@ -150,8 +150,8 @@ describe('smoke test', function() {
 			ajaxElement.authToken = 'PlaceholderToken';
 			ajaxElement.generateRequest();
 
-			ajaxElement.addEventListener('response', function (response) {
-				expect(Array.isArray(response.detail.xhr.response.entities)).to.be.true;
+			ajaxElement.addEventListener('response', function () {
+				expect(Array.isArray(ajaxElement.lastResponse.entities)).to.be.true;
 				done();
 			});
 		});
