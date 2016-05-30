@@ -25,6 +25,8 @@
 			</template>
 		</div>
 
+		<div class="d2l-offscreen" aria-live="polite">{{ariaMessage}}</div>
+
 		<button id="all-courses-button" on-tap="openAllCoursesView" aria-haspopup="true">{{localize('viewAllCourses')}}</button>
 
 		<d2l-all-courses
@@ -38,6 +40,10 @@
 		Polymer({
 			is: 'd2l-my-courses',
 			properties: {
+				ariaMessage: {
+					type: String,
+					readOnly: true
+				},
 				enrollmentsResponse: {
 					type: Object
 				},
@@ -59,6 +65,10 @@
 				Polymer.D2L.MyCourses.CourseTileRegionBehavior,
 				Polymer.D2L.MyCourses.LocalizeBehavior
 			],
+			listeners: {
+				'course-pinned': '_onCoursePinned',
+				'course-unpinned': '_onCourseUnpinned'
+			},
 			attached: function () {
 				this._addThrottledEventListener('resize', this.windowResizeHandler);
 			},
@@ -77,6 +87,16 @@
 			get courseTileItemCount() {
 				var itemCount = this.enrollmentsResponse ? this.enrollmentsResponse.entities.length : 0;
 				return itemCount;
+			},
+			_onCoursePinned: function () {
+				this._ariaAnnounce(this.localize('pinActionResult'));
+			},
+			_onCourseUnpinned: function () {
+				this._ariaAnnounce(this.localize('unpinActionResult'));
+			},
+			_ariaAnnounce: function (message) {
+				this._setAriaMessage('');
+				this._setAriaMessage(message);
 			}
 		});
 	</script>

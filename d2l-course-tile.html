@@ -18,22 +18,35 @@
 			on-response="updatePreferencesOnResponse"
 			on-error="updatePreferencesOnError"></d2l-ajax>
 
-		<a href="[[_courseUrl]]" on-mouseover="hoverCourseTile" on-mouseout="unhoverCourseTile" on-focus="hoverCourseTile" on-blur="unhoverCourseTile">
-			<div
-				class="course-image-container">
-				<div class="course-image">
-					<img />
+		<div class="tile-container"
+			on-mouseover="hoverCourseTile"
+			on-mouseout="unhoverCourseTile">
+			<a href="[[_courseUrl]]"
+				on-focus="hoverCourseTile"
+				on-blur="unhoverCourseTile">
+				<div class="course-image-container">
+					<div class="course-image">
+						<img aria-hidden="true" />
+					</div>
 				</div>
-				<div class="hover-menu">
-					<button class="menu-item" on-click="pinClickHandler" on-focus="hoverCourseTile" on-blur="unhoverCourseTile">
-						<iron-icon class="menu-icon" icon="actions:pin" aria-hidden="true"></iron-icon>
-						<span class="menu-text pin">{{localize('pin')}}</span>
-						<span class="menu-text unpin">{{localize('unpin')}}</span>
-					</button>
-				</div>
+				<div class="course-text">{{_enrollmentEntity.properties.name}}</div>
+			</a>
+
+			<div class="hover-menu">
+				<button class="menu-item"
+					on-click="pinClickHandler"
+					on-focus="hoverCourseTile"
+					on-blur="unhoverCourseTile">
+					<iron-icon class="menu-icon" icon="actions:pin" aria-hidden="true"></iron-icon>
+					<span class="menu-text pin"
+						aria-label$="[[localize('pinCourse', 'course', _enrollmentEntity.properties.name)]]"
+						>{{localize('pin')}}</span>
+					<span class="menu-text unpin"
+						aria-label$="[[localize('unpinCourse', 'course', _enrollmentEntity.properties.name)]]"
+						>{{localize('unpin')}}</span>
+				</button>
 			</div>
-			<div class="course-text"></div>
-		</a>
+		</div>
 	</template>
 
 	<script>
@@ -104,6 +117,11 @@
 				this._updatePreferencesBody = JSON.stringify(updatePreferencesBody);
 
 				updatePreferences.generateRequest();
+
+				var eventName = this._pinned ? 'course-pinned' : 'course-unpinned';
+				this.fire(eventName, {
+					course: this._enrollmentEntity
+				});
 			},
 			hoverCourseTile: function() {
 				var hoverMenu = this.$$('.hover-menu');
@@ -113,11 +131,15 @@
 				Polymer.dom(courseImage).classList.add('hover');
 			},
 			unhoverCourseTile: function() {
-				var hoverMenu = this.$$('.hover-menu');
-				Polymer.dom(hoverMenu).classList.remove('hover');
+				var thingsWithMouseOver = Polymer.dom(this.root).querySelectorAll(':hover');
 
-				var courseImage = this.$$('.course-image img');
-				Polymer.dom(courseImage).classList.remove('hover');
+				if (thingsWithMouseOver.length === 0) {
+					var hoverMenu = this.$$('.hover-menu');
+					Polymer.dom(hoverMenu).classList.remove('hover');
+
+					var courseImage = this.$$('.course-image img');
+					Polymer.dom(courseImage).classList.remove('hover');
+				}
 			},
 			_enrollmentChanged: function (enrollment) {
 				var parser = document.createElement('d2l-siren-parser');
@@ -131,9 +153,6 @@
 				}
 
 				this._courseUrl = '/d2l/home/' + entity.properties.id;
-
-				var courseText = this.$$('.course-text');
-				Polymer.dom(courseText).innerHTML = entity.properties.name;
 
 				var preferencesEntity = entity.getSubEntitiesByRel('preferences')[0];
 				this._pinned = preferencesEntity.hasClass('pinned');

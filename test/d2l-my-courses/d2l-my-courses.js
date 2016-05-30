@@ -73,6 +73,20 @@ describe('smoke test', function() {
 		});
 	});
 
+	describe('A11Y', function () {
+		it('should announce when course is pinned', function () {
+			var event = new Event('course-pinned');
+			widget.dispatchEvent(event);
+			expect(widget.ariaMessage).to.equal('Your course has been pinned');
+		});
+
+		it('should announce when course is unpinned', function () {
+			var event = new Event('course-unpinned');
+			widget.dispatchEvent(event);
+			expect(widget.ariaMessage).to.equal('Your course has been unpinned');
+		});
+	});
+
 	describe('layout', function () {
 		describe('column calculations', function () {
 			it('should be correct according to the crazy design', function () {

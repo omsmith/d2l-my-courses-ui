@@ -68,6 +68,21 @@ describe('<d2l-course-tile>', function () {
 			expect(courseTile._updatePreferencesMethod).to.equal('PUT');
 			expect(courseTile._updatePreferencesFields).to.be.an.instanceof(Array).with.lengthOf(2);
 		});
+
+		it('should hide image from screen readers', function () {
+			var courseImage = courseTile.$$('.course-image img');
+			expect(courseImage.getAttribute('aria-hidden')).to.equal('true');
+		});
+
+		it('should have an aria-label for pin button', function () {
+			var pinButton = courseTile.$$('.menu-text.pin');
+			expect(pinButton.getAttribute('aria-label')).to.equal('Pin ' + enrollment.properties.name);
+		});
+
+		it('should have an aria-label for unpin button', function () {
+			var pinButton = courseTile.$$('.menu-text.unpin');
+			expect(pinButton.getAttribute('aria-label')).to.equal('Unpin ' + enrollment.properties.name);
+		});
 	});
 
 	describe('changing the pinned state', function () {
