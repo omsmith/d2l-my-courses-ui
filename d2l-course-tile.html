@@ -51,7 +51,13 @@
 		</div>
 
 		<d2l-touch-menu>
-			<d2l-touch-menu-item id="pin-touch-menu-item" text="{{localize('pin')}}" background-image="{{_pinBackgroundImage}}" selection-action="pinClickHandler"></d2l-touch-menu-item>
+			<d2l-touch-menu-item
+				id="pin-touch-menu-item"
+				text="{{localize('pin')}}"
+				background-image="{{_pinBackgroundImage}}"
+				selection-action="pinClickHandler"
+				action-description="[[localize('pinCourse', 'course', _enrollmentEntity.properties.name)]]">
+			</d2l-touch-menu-item>
 		</d2l-touch-menu>
 	</template>
 
@@ -103,7 +109,7 @@
 			behaviors: [
 				Polymer.D2L.MyCourses.LocalizeBehavior
 			],
-			ready: function() {
+			ready: function () {
 				this._touchMenu = this.$$('d2l-touch-menu');
 			},
 			attached: function () {
@@ -215,10 +221,12 @@
 					if(this._pinned) {
 						Polymer.dom(pinTouchMenuItem).setAttribute('text', this.localize('unpin'));
 						Polymer.dom(pinTouchMenuItem).setAttribute('background-image', this._unpinBackgroundImage);
+						Polymer.dom(pinTouchMenuItem).setAttribute('action-description', this.localize('unpinCourse', 'course', this._enrollmentEntity.properties.name));
 					}
 					else {
 						Polymer.dom(pinTouchMenuItem).setAttribute('text', this.localize('pin'));
 						Polymer.dom(pinTouchMenuItem).setAttribute('background-image', this._pinBackgroundImage);
+						Polymer.dom(pinTouchMenuItem).setAttribute('action-description', this.localize('pinCourse', 'course', this._enrollmentEntity.properties.name));
 					}
 				}
 			}

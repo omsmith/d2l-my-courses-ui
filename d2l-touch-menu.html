@@ -226,12 +226,15 @@
 
                         if ((touchData.clientY - menuItem.height) > 0) {
                             // Set menu above finger
-                            menuItemOffset.y = -(menuItem.height + 30);
+                            menuItemOffset.y = -(menuItem.height + 50);
                         }
 
                         menuItem.visible = true;
                         menuItem.offset = menuItemOffset;
-                        menuItem.touchRegion = this._offset(menuItem);
+                        menuItem.touchRegion = {
+                            left: left + menuItemOffset.x,
+                            top: top + menuItemOffset.y
+                        };
                     }.bind(this));
 
                     this.visible = true;

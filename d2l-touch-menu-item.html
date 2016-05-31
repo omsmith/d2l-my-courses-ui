@@ -1,7 +1,7 @@
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="d2l-touch-menu-item-styles.html">
 
-<dom-module id="d2l-touch-menu-item" aria-hidden="true">
+<dom-module id="d2l-touch-menu-item">
     <template>
         <style include="d2l-touch-menu-item-styles"></style>
 
@@ -11,6 +11,8 @@
             <img class="longpress-menu-item-image" src$="{{resolveUrl(_displayBackgroundImage)}}">
           </div>
         </div>
+
+        <div class="d2l-offscreen" aria-live="assertive">{{ariaMessage}}</div>
     </template>
     <script>
         Polymer({
@@ -41,6 +43,9 @@
                     type: Object,
                     observer: '_offsetChanged'
                 },
+                actionDescription: {
+                    type: String
+                },
                 _menuItem: {
                     type: Object
                 },
@@ -54,7 +59,8 @@
                     type: String
                 },
                 _touchMenu: {
-                    type: Object
+                    type: Object,
+                    observer: '_initialize'
                 },
                 _visible: {
                     type: Boolean,
@@ -65,24 +71,17 @@
                 },
                 _wasAttached: {
                     type: Boolean
+                },
+                ariaMessage: {
+                    type: String,
+                    readOnly: true
                 }
             },
             ready: function() {
                 this._menuItem = this.$$('.longpress-menu-item');
             },
             attached: function() {
-                if(!this._wasAttached) {
-                    this._wasAttached = true;
-                    this.visible = false;
-
-                    var host = Polymer.dom(this._touchMenu).parentNode.host;
-
-                    if(this.selectionAction) {
-                        this.selectionActionFunc = (host[this.selectionAction]).bind(host);
-                    }
-
-                    this._updateDisplayData();
-                }
+                this._initialize();
             },
             _hoverStateChanged: function(isHovered, wasHovered) {
                 this.toggleClass('longpress-menu-item-hover', isHovered, this._menuItem);
@@ -90,8 +89,12 @@
                 if(isHovered !== wasHovered) {
                     var eventName = 'start';
 
-                    if(!isHovered) {
+                    if(isHovered && this.actionDescription) {
+                        this._ariaAnnounce(this.actionDescription);
+                    }
+                    else) {
                         eventName = 'end'
+                        this._ariaAnnounce("");
                     }
 
                     this.fire('touch-menu-item-hover-' + eventName, {element: this});
@@ -170,6 +173,24 @@
                     && (point.x < rect.right)
                     && (point.x > rect.left)
                 );
+            },
+            _initialize: function() {
+                if(!this._wasAttached && this._touchMenu) {
+                    this._wasAttached = true;
+                    this.visible = false;
+
+                    var host = Polymer.dom(this._touchMenu).parentNode.host;
+
+                    if(this.selectionAction) {
+                        this.selectionActionFunc = (host[this.selectionAction]).bind(host);
+                    }
+
+                    this._updateDisplayData();
+                }
+            },
+            _ariaAnnounce: function (message) {
+                this._setAriaMessage('');
+                this._setAriaMessage(message);
             }
         });
     </script>
