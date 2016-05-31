@@ -11,3 +11,12 @@ main {
 	overflow: hidden;
 	position: fixed;
 }
+
+.d2l-offscreen {
+	word-wrap: normal !important;
+	position: absolute !important;
+	left: -10000px;
+	overflow: hidden;
+	width: 1px;
+	height: 1px;
+}

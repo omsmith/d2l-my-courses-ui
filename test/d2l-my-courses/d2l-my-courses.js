@@ -28,6 +28,11 @@ describe('smoke test', function() {
 					}]
 				}]
 			}
+		},
+		courseEntity = {
+			properties: {
+				name: 'Test Name'
+			}
 		};
 
 	beforeEach(function () {
@@ -70,6 +75,28 @@ describe('smoke test', function() {
 				expect(Array.isArray(widget.enrollmentsResponse.entities)).to.be.true;
 				done();
 			});
+		});
+	});
+
+	describe('A11Y', function () {
+		it('should announce when course is pinned', function () {
+			var event = new CustomEvent('course-pinned', {
+				detail: {
+					course: courseEntity
+				}
+			});
+			widget.dispatchEvent(event);
+			expect(widget.ariaMessage).to.equal(courseEntity.properties.name + ' has been pinned');
+		});
+
+		it('should announce when course is unpinned', function () {
+			var event = new CustomEvent('course-unpinned', {
+				detail: {
+					course: courseEntity
+				}
+			});
+			widget.dispatchEvent(event);
+			expect(widget.ariaMessage).to.equal(courseEntity.properties.name + ' has been unpinned');
 		});
 	});
 
