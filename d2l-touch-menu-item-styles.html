@@ -1,51 +1,28 @@
-<dom-module id="d2l-menu-styles">
+<dom-module id="d2l-touch-menu-item-styles">
 	<template>
 		<style>
-		#long-press-menu {
-			display: inline-block;
-			font-size: 3em;
-			padding-bottom: 0.2em;
-			padding-top: 0.2em;
-			position: absolute;
-			visibility: hidden;
+		:host {
 			z-index: 1000;
+			position: relative;
+			-webkit-user-select: none;
+			-webkit-touch-callout: none;
+			pointer-events: none;
+			-webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+			-moz-tap-highlight-color: rgba(0, 0, 0, 0);
+			tap-highlight-color: rgba(0, 0, 0, 0);
 		}
 
 		.longpress-menu-item {
-			transition: 0.3s ease-in-out;
 			text-align: center;
 			-webkit-backface-visibility: hidden;
-		}
-
-/*
-		.click-target-hover {
-			transition: 0.3s ease-in-out;
-			transform: scale(1.1);
-			-webkit-backface-visibility: hidden;
-		}
-
-		.click-target-hover .course-image-container {
-			box-shadow: 0 0 5px 0;
-			transition: 0.3s ease-in-out;
-			transform: scale(1.1);
-			-webkit-backface-visibility: hidden;
-		}
-
-		.click-target-hover .course-text {
-			transform-origin: 0% -100%;
-			transition: 0.3s ease-in-out;
-			transform: scale(1.1);
-			-webkit-backface-visibility: hidden;
-		}
-*/
-		.longpress-menu-item-hover {
-			transform: scale(1.2) translateY(-0.5em);
+			position: relative;
 		}
 
 		.longpress-menu-item-hover div {
 			background-color: #006FBF;
 			transition: 0.3s ease-in-out;
-			-webkit-backface-visibility: hidden;
+			transform: scale(1.2) translateY(-1.0em);
+			opacity: 1.0;
 		}
 
 		.longpress-menu-item-image-background {
@@ -55,12 +32,14 @@
 			box-sizing: border-box;
 			height: 1.5em;
 			width: 1.5em;
+			transition: 0.3s ease-in-out;
 		}
 
 		.longpress-menu-item-image {
 			height: 1em;
 			width: 0.5em;
 			transform: translateY(0.15em);
+			transition: 0.3s ease-in-out;
 		}
 
 		.longpress-menu-item-text {
@@ -80,25 +59,27 @@
 			transition: 0.3s ease-in-out;
 			width: 80%;
 			-webkit-backface-visibility: hidden;
+			position: relative;
 		}
 
 		.longpress-menu-item-hover .longpress-menu-item-text {
 			opacity: 1;
+			transform: scale(1.2) translateY(-4.0em);
 		}
 
 		.selected div {
-			transform: scale(1.5);
+			transform: scale(1.5) translateY(-1.0em);
 			transition: 0.3s ease-in-out;
 			opacity: 0;
 			-webkit-backface-visibility: hidden;
 		}
 
 		.selected .longpress-menu-item-text {
-			transform: scale(1.5);
+			transform: scale(1.5) translateY(-4.0em);
 			transition: 0.3s ease-in-out;
 			opacity: 0;
 			-webkit-backface-visibility: hidden;
 		}
-		</style>
-	</template>
+    </style>
+  </template>
 </dom-module>

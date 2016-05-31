@@ -1,9 +1,9 @@
 <link rel="import" href="../polymer/polymer.html">
-<link rel="import" href="d2l-menu-styles.html">
+<link rel="import" href="d2l-touch-menu-item-styles.html">
 
-<dom-module id="d2l-touch-menu-item">
+<dom-module id="d2l-touch-menu-item" aria-hidden="true">
     <template>
-        <style include="d2l-menu-styles"></style>
+        <style include="d2l-touch-menu-item-styles"></style>
 
         <div class="longpress-menu-item">
           <div class="longpress-menu-item-text">{{_displayText}}</div>
@@ -27,12 +27,22 @@
                 selectionAction: {
                     type: String
                 },
+                selectionActionFunc: {
+                    type: Object
+                },
                 inTransition: {
                     type: Boolean
                 },
                 hoverState: {
                     type: Boolean,
                     observer: '_hoverStateChanged'
+                },
+                offset: {
+                    type: Object,
+                    observer: '_offsetChanged'
+                },
+                _menuItem: {
+                    type: Object
                 },
                 _oldText: {
                     type: String
@@ -45,49 +55,70 @@
                 },
                 _touchMenu: {
                     type: Object
+                },
+                _visible: {
+                    type: Boolean,
+                    readOnly: true
+                },
+                touchRegion: {
+                    type: Object
                 }
             },
+            ready: function() {
+                this._menuItem = this.$$('.longpress-menu-item');
+            },
             attached: function() {
+                this.visible = false;
+
+                if(!this.selectionActionFunc) {
+                    this.selectionActionFunc = Polymer.dom(this._touchMenu).parentNode.host[this.selectionAction];
+                }
+
                 this._updateDisplayData();
             },
             _hoverStateChanged: function(isHovered, wasHovered) {
-                this.toggleClass('longpress-menu-item-hover', isHovered, this.$$('.longpress-menu-item'));
+                this.toggleClass('longpress-menu-item-hover', isHovered, this._menuItem);
 
-                if(isHovered && !wasHovered) {
-                    this.fire('touch-menu-item-hover-start', {element: this});
-                }
-                else if(wasHovered && !isHovered) {
-                    this.fire('touch-menu-item-hover-end', {element: this});
+                if(isHovered !== wasHovered) {
+                    var eventName = 'start';
+
+                    if(!isHovered) {
+                        eventName = 'end'
+                    }
+
+                    this.fire('touch-menu-item-hover-' + eventName, {element: this});
                 }
             },
             set selected(isSelected) {
-                this.toggleClass('selected', isSelected, this.$$('.longpress-menu-item'));
+                this.toggleClass('selected', isSelected, this._menuItem);
 
                 if(isSelected) {
                     this.inTransition = true;
-                    this.listen(this.$$('.longpress-menu-item'), 'transitionend', 'transitionendHandler');
+                    this.listen(this._menuItem, 'transitionend', 'transitionendHandler');
 
-                    if(this.selectionAction) {
-                        Polymer.dom(this._touchMenu).parentNode.host[this.selectionAction]();
+                    if(this.selectionActionFunc) {
+                        this.selectionActionFunc();
                     }
                 }
             },
             get selected() {
-                return this.$$('.longpress-menu-item').classList.contains('selected');
+                return this._menuItem.classList.contains('selected');
             },
             get width() {
-                return this.$$('.longpress-menu-item').clientWidth;
+                return this._menuItem.clientWidth;
             },
             get height() {
-                return this.$$('.longpress-menu-item').clientHeight;
+                return this._menuItem.clientHeight;
             },
             transitionendHandler: function () {
                 // Triggered by the end of the transition caused by adding 'selected' class
+                this.inTransition = false;
                 this.hoverState = false;
                 this.selected = false;
+                this.visible = false;
                 // Detach this event handler - otherwise the menu item's classes thrash
-                this.unlisten(this.$$('.longpress-menu-item'), 'transitionend', 'transitionendHandler');
-                this.inTransition = false;
+                this.unlisten(this._menuItem, 'transitionend', 'transitionendHandler');
+                this._touchMenu.clearItemSelected();
 
                 this._updateDisplayData();
             },
@@ -97,13 +128,40 @@
                 }
             },
             _backgroundImageChanged: function(newValue) {
-                if(this.inTransition === false) {
+                if(!this.inTransition) {
                     this._displayBackgroundImage = newValue;
                 }
             },
             _updateDisplayData: function() {
                 this._displayText = this.text;
                 this._displayBackgroundImage = this.backgroundImage;
+            },
+            _offsetChanged: function(newOffset) {
+                this.style.left = newOffset.x + 'px';
+                this.style.top = newOffset.y + 'px';
+            },
+            get visible() {
+                return this._visible;
+            },
+            set visible(isVisible) {
+                if(!this.inTransition) {
+                    this._menuItem.style.opacity = isVisible ? '1.0' : '0.0';
+                }
+            },
+            pointInTouchRegion: function(point) {
+                var rect = {
+                    top: this.touchRegion.top,
+                    bottom: this.touchRegion.top + this.height,
+                    left: this.touchRegion.left,
+                    right: this.touchRegion.left + this.width
+                };
+
+                return (
+                    (point.y < rect.bottom)
+                    && (point.y > rect.top)
+                    && (point.x < rect.right)
+                    && (point.x > rect.left)
+                );
             }
         });
     </script>

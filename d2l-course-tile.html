@@ -7,12 +7,10 @@
 <link rel="import" href="localize-behavior.html">
 <link rel="import" href="d2l-touch-menu.html">
 <link rel="import" href="d2l-touch-menu-item.html">
-<link rel="import" href="d2l-menu-styles.html">
 
 <dom-module id="d2l-course-tile">
 	<template>
 		<style include="d2l-course-tile-styles"></style>
-		<style include="d2l-menu-styles"></style>
 
 		<d2l-ajax
 			url="[[_updatePreferencesUrl]]"
@@ -53,7 +51,7 @@
 		</div>
 
 		<d2l-touch-menu>
-			<d2l-touch-menu-item text={{pinText}} background-image={{backgroundImage}} selection-action="onPinAction"></d2l-touch-menu-item>
+			<d2l-touch-menu-item id="pin-touch-menu-item" text="{{localize('pin')}}" background-image="{{_pinBackgroundImage}}" selection-action="pinClickHandler"></d2l-touch-menu-item>
 		</d2l-touch-menu>
 	</template>
 
@@ -76,11 +74,6 @@
 					type: Boolean,
 					observer: '_pinnedChanged'
 				},
-				pinText: {
-					type: String,
-					notify: true,
-					value: 'Pin'
-				},
 				_updatePreferencesUrl: {
 					type: String
 				},
@@ -92,10 +85,6 @@
 				},
 				_updatePreferencesBody: {
 					type: String
-				},
-				backgroundImage: {
-					type: String,
-					notify: true
 				},
 				_pinBackgroundImage: {
 					type: String,
@@ -111,10 +100,12 @@
 			behaviors: [
 				Polymer.D2L.MyCourses.LocalizeBehavior
 			],
+			listeners: {
+				'touch-menu-item-hover-start': 'onTouchMenuItemHoverStart',
+				'touch-menu-item-hover-end': 'onTouchMenuItemHoverEnd'
+			},
 			attached: function () {
 				this.setAttribute('role', 'link');
-
-				this._updateDisplayData(this.pinned);
 			},
 			updatePreferencesOnResponse: function (response) {
 				if (response.detail.status === 200) {
@@ -132,7 +123,9 @@
 			},
 			pinClickHandler: function(e) {
 				// Prevent the click from triggering navigation to the course
-				e.preventDefault();
+				if(e) {
+					e.preventDefault();
+				}
 
 				this._pinned = !this._pinned;
 
@@ -197,35 +190,28 @@
 			_pinnedChanged: function (pinned) {
 				var pinIcon = this.$$('.menu-item iron-icon.menu-icon'),
 					pinText = this.$$('.menu-item .menu-text.pin'),
-					unpinText = this.$$('.menu-item .menu-text.unpin');
+					unpinText = this.$$('.menu-item .menu-text.unpin'),
+					pinTouchMenuItem = this.$$('#pin-touch-menu-item');
 
 				if (pinned) {
-					this.pinText = 'Unpin';
 					Polymer.dom(pinIcon).setAttribute('icon', 'actions:unpin');
 					Polymer.dom(pinText).setAttribute('style', 'display: none');
 					Polymer.dom(unpinText).setAttribute('style', 'display: inline');
+					Polymer.dom(pinTouchMenuItem).setAttribute('text', this.localize('unpin'));
+					Polymer.dom(pinTouchMenuItem).setAttribute('background-image', this._unpinBackgroundImage);
 				} else {
 					Polymer.dom(pinIcon).setAttribute('icon', 'actions:pin');
 					Polymer.dom(pinText).setAttribute('style', 'display: inline');
 					Polymer.dom(unpinText).setAttribute('style', 'display: none');
-					this.pinText = 'Pin';
-				}
-
-				Polymer.dom(pinText).textContent = this.pinText;
-				this._updateDisplayData(pinned);
-			},
-			_updateDisplayData: function(pinned) {
-				if(pinned) {
-					this.backgroundImage = this._unpinBackgroundImage;
-					this.pinText = 'Unpin'
-				}
-				else {
-					this.backgroundImage = this._pinBackgroundImage;
-					this.pinText = 'Pin';
+					Polymer.dom(pinTouchMenuItem).setAttribute('text', this.localize('pin'));
+					Polymer.dom(pinTouchMenuItem).setAttribute('background-image', this._pinBackgroundImage);
 				}
 			},
-			onPinAction: function () {
-				// Placeholder; action to be called on pin/unpin menu action
+			onTouchMenuItemHoverStart: function() {
+				// Placeholder; called on menu item hover start
+			},
+			onTouchMenuItemHoverEnd: function() {
+				// Placeholder; called on menu item hover end
 			}
 		});
 	</script>
