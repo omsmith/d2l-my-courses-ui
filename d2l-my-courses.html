@@ -88,11 +88,11 @@
 				var itemCount = this.enrollmentsResponse ? this.enrollmentsResponse.entities.length : 0;
 				return itemCount;
 			},
-			_onCoursePinned: function () {
-				this._ariaAnnounce(this.localize('pinActionResult'));
+			_onCoursePinned: function (e) {
+				this._ariaAnnounce(this.localize('pinActionResult', 'course', e.detail.course.properties.name));
 			},
-			_onCourseUnpinned: function () {
-				this._ariaAnnounce(this.localize('unpinActionResult'));
+			_onCourseUnpinned: function (e) {
+				this._ariaAnnounce(this.localize('unpinActionResult', 'course', e.detail.course.properties.name));
 			},
 			_ariaAnnounce: function (message) {
 				this._setAriaMessage('');
