@@ -20,7 +20,7 @@
 
 		<div class="tile-container"
 			on-mouseover="hoverCourseTile"
-			on-mouseout="unhoverCourseTile">
+			on-mouseout="onTileMouseOut">
 			<a href="[[_courseUrl]]"
 				on-focus="hoverCourseTile"
 				on-blur="unhoverCourseTile">
@@ -130,16 +130,17 @@
 				var courseImage = this.$$('.course-image img');
 				Polymer.dom(courseImage).classList.add('hover');
 			},
-			unhoverCourseTile: function() {
-				var thingsWithMouseOver = Polymer.dom(this.root).querySelectorAll(':hover');
-
-				if (thingsWithMouseOver.length === 0) {
+			unhoverCourseTile: function(force) {
+				if (force === true || Polymer.dom(this.root).querySelectorAll(':hover').length === 0) {
 					var hoverMenu = this.$$('.hover-menu');
 					Polymer.dom(hoverMenu).classList.remove('hover');
 
 					var courseImage = this.$$('.course-image img');
 					Polymer.dom(courseImage).classList.remove('hover');
 				}
+			},
+			onTileMouseOut: function () {
+				this.unhoverCourseTile(true);
 			},
 			_enrollmentChanged: function (enrollment) {
 				var parser = document.createElement('d2l-siren-parser');
