@@ -73,7 +73,10 @@
                 }
             },
             listeners: {
-                'contextmenu': 'contextMenuHandler'
+                'contextmenu': 'contextMenuHandler',
+                'touch-menu-item-hover-start' : 'menuItemEventHandler',
+                'touch-menu-item-hover-end' : 'menuItemEventHandler',
+                'touch-menu-item-selected' : 'menuItemEventHandler'
             },
             attached: function() {
                 if(!this._wasAttached) {
@@ -89,7 +92,8 @@
                     }
 
                     // We need to catch contextmenu events both directly from this element, and separetly from the touch target,
-                    // as each will be the target of that event under different circumstances (typically, the element will catch )
+                    // as each will be the target of that event under different circumstances (typically, this element will be the target
+                    // when there is no active scroll event, and the touch target will be the event target when there is a scroll event)
                     this.listen(this.touchTarget, 'contextmenu', 'contextMenuHandler');
 
                     // Bind touch menu to menu items
@@ -114,16 +118,12 @@
             touchmoveHandler: function (e) {
                 this._touchStartEventData = null;
 
-                // Add the hover class when the finger has moved near the menu item
-                var touchPoint = {
-                    x: e.changedTouches[0].pageX,
-                    y: e.changedTouches[0].pageY
-                };
-
                 if(this.visible) {
-                    this._menuItems.forEach(function(menuItem) {
-                        menuItem.hoverState = menuItem.pointInTouchRegion(touchPoint);
-                    }.bind(this));
+                    // Add the hover class when the finger has moved near the menu item
+                    var touchPoint = {
+                        x: e.changedTouches[0].pageX,
+                        y: e.changedTouches[0].pageY
+                    };
 
                     //If we can cancel the pending move, do so, so we don't scroll the page while attempting to navigate the menu.
                     if(e.cancelable)
@@ -138,6 +138,10 @@
                         //seems to come with its own issues..
                         this.touchendHandler();
                     }
+
+                    this._menuItems.forEach(function(menuItem) {
+                        menuItem.hoverState = menuItem.pointInTouchRegion(touchPoint);
+                    }.bind(this));
                 }
             },
             touchendHandler: function (e) {
@@ -185,7 +189,7 @@
                 this._preventOpen = false;
 
                 this.unlisten(window, 'scroll', 'scrollHandler');
-                this.fire('touch-menu-closed', {element: this._menu});
+                this.fire('touch-menu-closed', {element: this}, {node: this._owner});
             },
             openMenu: function (touchstartEvent) {
                 this._touchStartEventData = null;
@@ -231,7 +235,7 @@
                     }.bind(this));
 
                     this.visible = true;
-                    this.fire('touch-menu-opened', {element: this});
+                    this.fire('touch-menu-opened', {element: this}, {node: this._owner});
                 }
             },
             _touchTargetChanged: function(newValue, oldValue) {
@@ -287,6 +291,10 @@
 
                 //Only one scroll event needs to be received per touchstart event
                 this.unlisten(window, 'scroll', 'scrollHandler');
+            },
+            menuItemEventHandler: function(e){
+                e.stopPropagation();
+                this.fire(e.type, e.detail, {node: this._owner});
             }
         });
     </script>

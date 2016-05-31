@@ -62,19 +62,27 @@
                 },
                 touchRegion: {
                     type: Object
+                },
+                _wasAttached: {
+                    type: Boolean
                 }
             },
             ready: function() {
                 this._menuItem = this.$$('.longpress-menu-item');
             },
             attached: function() {
-                this.visible = false;
+                if(!this._wasAttached) {
+                    this._wasAttached = true;
+                    this.visible = false;
 
-                if(!this.selectionActionFunc) {
-                    this.selectionActionFunc = Polymer.dom(this._touchMenu).parentNode.host[this.selectionAction];
+                    var host = Polymer.dom(this._touchMenu).parentNode.host;
+
+                    if(this.selectionAction) {
+                        this.selectionActionFunc = (host[this.selectionAction]).bind(host);
+                    }
+
+                    this._updateDisplayData();
                 }
-
-                this._updateDisplayData();
             },
             _hoverStateChanged: function(isHovered, wasHovered) {
                 this.toggleClass('longpress-menu-item-hover', isHovered, this._menuItem);
@@ -97,7 +105,7 @@
                     this.listen(this._menuItem, 'transitionend', 'transitionendHandler');
 
                     if(this.selectionActionFunc) {
-                        this.selectionActionFunc();
+                        this.async(this.selectionActionFunc);
                     }
                 }
             },
