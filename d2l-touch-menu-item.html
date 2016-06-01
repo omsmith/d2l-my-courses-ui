@@ -6,10 +6,11 @@
         <style include="d2l-touch-menu-item-styles"></style>
 
         <div class="longpress-menu-item">
-          <div class="longpress-menu-item-text">{{_displayText}}</div>
-          <div class="longpress-menu-item-image-background">
-            <img class="longpress-menu-item-image" src$="{{resolveUrl(_displayBackgroundImage)}}">
-          </div>
+            <div class="longpress-menu-item-text">{{_displayText}}</div>
+
+            <div class="longpress-menu-item-image-background">
+                <img class="longpress-menu-item-image" src$="{{resolveUrl(_displayBackgroundImage)}}">
+            </div>
         </div>
 
         <div class="d2l-offscreen" aria-live="assertive">{{ariaMessage}}</div>
@@ -26,10 +27,10 @@
                     type: String,
                     observer: '_textChanged'
                 },
-                selectionAction: {
+                selectionHandler: {
                     type: String
                 },
-                selectionActionFunc: {
+                selectionHandlerFunc: {
                     type: Object
                 },
                 inTransition: {
@@ -49,9 +50,6 @@
                 _menuItem: {
                     type: Object
                 },
-                _oldText: {
-                    type: String
-                },
                 _displayText: {
                     type: String
                 },
@@ -62,20 +60,23 @@
                     type: Object,
                     observer: '_initialize'
                 },
-                _visible: {
-                    type: Boolean,
-                    readOnly: true
-                },
                 touchRegion: {
                     type: Object
-                },
-                _wasAttached: {
-                    type: Boolean
                 },
                 ariaMessage: {
                     type: String,
                     readOnly: true
-                }
+                },
+                _hostNode: {
+                    type: Object
+                },
+                _initialized: {
+                    type: Boolean
+                },
+                _visible: {
+                    type: Boolean,
+                    readOnly: true
+                },
             },
             ready: function() {
                 this._menuItem = this.$$('.longpress-menu-item');
@@ -92,9 +93,9 @@
                     if(isHovered && this.actionDescription) {
                         this._ariaAnnounce(this.actionDescription);
                     }
-                    else) {
+                    else {
                         eventName = 'end'
-                        this._ariaAnnounce("");
+                        this._ariaAnnounce('');
                     }
 
                     this.fire('touch-menu-item-hover-' + eventName, {element: this});
@@ -107,8 +108,8 @@
                     this.inTransition = true;
                     this.listen(this._menuItem, 'transitionend', 'transitionendHandler');
 
-                    if(this.selectionActionFunc) {
-                        this.async(this.selectionActionFunc);
+                    if(this.selectionHandlerFunc) {
+                        this.async(this.selectionHandlerFunc);
                     }
                 }
             },
@@ -175,14 +176,18 @@
                 );
             },
             _initialize: function() {
-                if(!this._wasAttached && this._touchMenu) {
-                    this._wasAttached = true;
+                if(!this._initialized && this._touchMenu) {
+                    this._initialized = true;
                     this.visible = false;
 
-                    var host = Polymer.dom(this._touchMenu).parentNode.host;
+                    var host = this._getHostNode();
 
-                    if(this.selectionAction) {
-                        this.selectionActionFunc = (host[this.selectionAction]).bind(host);
+                    if(this.selectionHandler) {
+                        if( !host[this.selectionHandler] || (typeof host[this.selectionHandler] != 'function') ) {
+                            throw this.selectionHandler + ' is not a function';
+                        }
+
+                        this.selectionHandlerFunc = (host[this.selectionHandler]).bind(host);
                     }
 
                     this._updateDisplayData();
@@ -191,6 +196,13 @@
             _ariaAnnounce: function (message) {
                 this._setAriaMessage('');
                 this._setAriaMessage(message);
+            },
+            _getHostNode: function () {
+                if(!this._hostNode) {
+                    this._hostNode = Polymer.dom(this._touchMenu).parentNode.host;
+                }
+
+                return this._hostNode;
             }
         });
     </script>

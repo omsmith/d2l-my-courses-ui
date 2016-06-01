@@ -62,7 +62,7 @@
                 _owner: {
                     type: Object
                 },
-                _wasAttached: {
+                __initialized: {
                     type: Boolean
                 },
                 _itemSelected: {
@@ -79,9 +79,9 @@
                 'touch-menu-item-selected' : 'menuItemEventHandler'
             },
             attached: function() {
-                if(!this._wasAttached) {
+                if(!this._initialized) {
                     // Only run once, as attaching to body will cause this to be called again
-                    this._wasAttached = true;
+                    this._initialized = true;
                     this._owner = this.parentNode;
                     this._host = Polymer.dom(this).parentNode.host;
                     this._menu = this.$$('#long-press-menu');
@@ -208,7 +208,6 @@
                     // TODO: Add positioning for side edges; should be total of 8 possible positions
                     var left = touchData.startX;
                     var top = touchData.startY;
-                    var myOffset = this._offset(this._host);
 
                     this._menu.style.opacity = '1.0';
                     this._menu.style.left = left + 'px';
@@ -253,31 +252,6 @@
                         this.listen(newValue, handlerData.event, handlerData.handler);
                     }.bind(this));
                 }
-            },
-            _getWindow: function( elem ) {
-                var retWindow = elem;
-
-                if( (elem == null) || (elem !== elem.window)) {
-                    retWindow =  (elem.nodeType === Node.DOCUMENT_NODE) && elem.defaultView;
-                }
-
-                return retWindow;
-            },
-            _offset: function( elem ) {
-                var docElem, win,
-                box = { top: 0, left: 0 },
-                doc = elem && elem.ownerDocument;
-
-                docElem = doc.documentElement;
-
-                if ( typeof elem.getBoundingClientRect !== typeof undefined ) {
-                    box = elem.getBoundingClientRect();
-                }
-                win = this._getWindow( doc );
-                return {
-                    top: box.top + win.pageYOffset - docElem.clientTop,
-                    left: box.left + win.pageXOffset - docElem.clientLeft
-                };
             },
             clearItemSelected: function() {
                 if(this._itemSelected) {

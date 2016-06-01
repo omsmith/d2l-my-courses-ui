@@ -23,7 +23,7 @@
 		<div class="tile-container"
 			on-mouseover="hoverCourseTile"
 			on-mouseout="onTileMouseOut">
-			<a href="[[_courseUrl]]"
+			<a href="[[_courseUrl]]" class="no-tap-interaction"
 				on-focus="hoverCourseTile"
 				on-blur="unhoverCourseTile">
 				<div class="course-image-container">
@@ -35,7 +35,7 @@
 			</a>
 
 			<div class="hover-menu">
-				<button class="menu-item"
+				<button class="menu-item no-tap-interaction"
 					on-click="pinClickHandler"
 					on-focus="hoverCourseTile"
 					on-blur="unhoverCourseTile">
@@ -55,7 +55,7 @@
 				id="pin-touch-menu-item"
 				text="{{localize('pin')}}"
 				background-image="{{_pinBackgroundImage}}"
-				selection-action="pinClickHandler"
+				selection-handler="pinClickHandler"
 				action-description="[[localize('pinCourse', 'course', _enrollmentEntity.properties.name)]]">
 			</d2l-touch-menu-item>
 		</d2l-touch-menu>
