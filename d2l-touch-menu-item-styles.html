@@ -9,11 +9,11 @@
 			-webkit-tap-highlight-color: rgba(0, 0, 0, 0);
 			-moz-tap-highlight-color: rgba(0, 0, 0, 0);
 			tap-highlight-color: rgba(0, 0, 0, 0);
+			-webkit-backface-visibility: hidden;
 		}
 
 		.longpress-menu-item {
 			text-align: center;
-			-webkit-backface-visibility: hidden;
 			position: relative;
 		}
 
@@ -39,6 +39,7 @@
 			width: 0.5em;
 			transform: translateY(0.15em);
 			transition: 0.3s ease-in-out;
+			-webkit-backface-visibility: hidden;
 		}
 
 		.longpress-menu-item-text {
@@ -70,14 +71,12 @@
 			transform: scale(1.5) translateY(-1.0em);
 			transition: 0.3s ease-in-out;
 			opacity: 0;
-			-webkit-backface-visibility: hidden;
 		}
 
 		.selected .longpress-menu-item-text {
 			transform: scale(1.5) translateY(-4.0em);
 			transition: 0.3s ease-in-out;
 			opacity: 0;
-			-webkit-backface-visibility: hidden;
 		}
     </style>
   </template>

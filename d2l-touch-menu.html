@@ -62,7 +62,7 @@
                 _owner: {
                     type: Object
                 },
-                __initialized: {
+                _initialized: {
                     type: Boolean
                 },
                 _itemSelected: {
@@ -126,8 +126,7 @@
                     };
 
                     //If we can cancel the pending move, do so, so we don't scroll the page while attempting to navigate the menu.
-                    if(e.cancelable)
-                    {
+                    if(e.cancelable) {
                         e.preventDefault();
                         e.stopPropagation();
                     }
@@ -263,7 +262,7 @@
             contextMenuHandler: function(e) {
                 e.preventDefault();
             },
-            scrollHandler: function(e) {
+            scrollHandler: function() {
                 this._preventOpen = true;
 
                 //Only one scroll event needs to be received per touchstart event
@@ -271,6 +270,8 @@
             },
             menuItemEventHandler: function(e){
                 e.stopPropagation();
+
+                // Redirect to original parent
                 this.fire(e.type, e.detail, {node: this._owner});
             }
         });

@@ -215,8 +215,8 @@
 				this._updateTouchMenu();
 			},
 			_updateTouchMenu: function() {
-				if(this._touchMenu) {
-					pinTouchMenuItem = this._touchMenu.querySelector('#pin-touch-menu-item');
+				if(this._touchMenu && this._enrollmentEntity) {
+					var pinTouchMenuItem = this._touchMenu.querySelector('#pin-touch-menu-item');
 
 					if(this._pinned) {
 						Polymer.dom(pinTouchMenuItem).setAttribute('text', this.localize('unpin'));
