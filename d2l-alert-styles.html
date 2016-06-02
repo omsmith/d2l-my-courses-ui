@@ -1,0 +1,36 @@
+<link rel="import" href="../vui-typography/typography.html">
+<link rel="import" href="../vui-colors/colors.html">
+
+<dom-module id="d2l-alert-styles">
+	<template>
+		<style include="vui-typography"></style>
+		<style>
+		:host {
+			@apply(--vui-font);
+			display: block;
+			font-family: 'Lato-Regular', sans-serif;
+			font-size: 0.7em;
+		}
+		.message-wrapper {
+			position: relative;
+			border: 1px solid var(--vui-color-gypsum);
+			border-radius: 3px;
+			padding: 16px 16px 16px 20px;
+		}
+		.message-highlight {
+			position: absolute;
+			top: 0;
+			left: 0;
+			bottom: 0;
+			width: 6px;
+			background-color: #1598cb;
+			border-top-left-radius: 3px;
+			border-bottom-left-radius: 3px;
+			border-top-right-radius: 0;
+			border-bottom-right-radius: 0;
+			margin: -1px;
+		}
+		/* TODO: make this work for LTR */
+		</style>
+	</template>
+</dom-module>

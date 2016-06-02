@@ -5,6 +5,17 @@ describe('smoke test', function() {
 		ajaxElements,
 		server,
 		widget,
+		emptyResponse = {
+			headers: { },
+			body: {
+				class: ["enrollments"],
+				rel: ["enrollments"],
+				links: [],
+				actions: [],
+				properties: {},
+				entities: []
+			}
+		},
 		enrollmentsResponse = {
 			headers: { },
 			body: {
@@ -40,10 +51,6 @@ describe('smoke test', function() {
 
 		widget = fixture('d2l-my-courses-fixture');
 		ajaxElements = widget.getElementsByTagName('d2l-ajax');
-		for (var i = 0; i < ajaxElements.length; ++i) {
-			// Disable automatic triggering of requests by default
-			ajaxElements[i].auto = false;
-		}
 	});
 
 	afterEach(function () {
@@ -54,10 +61,13 @@ describe('smoke test', function() {
 		expect(widget).to.exist;
 	});
 
-	describe('Enrollments request', function () {
+	describe('Enrollments requests', function () {
 		beforeEach(function () {
 			ajaxElement = ajaxElements[0];
 			server.respondImmediately = true;
+		});
+
+		it('should send a request for pinned courses', function (done) {
 			server.respondWith(
 				'GET',
 				widget.pinnedCoursesUrl,
@@ -65,14 +75,42 @@ describe('smoke test', function() {
 					expect(req.requestHeaders['accept']).to.equal('application/vnd.siren+json');
 					req.respond(200, enrollmentsResponse.headers, JSON.stringify(enrollmentsResponse.body));
 				});
-		});
 
-		it('should send an enrollments request for pinned courses', function (done) {
 			ajaxElement.generateRequest();
 
 			setTimeout(function() {
-				expect(widget.enrollmentsResponse).to.be.defined;
-				expect(Array.isArray(widget.enrollmentsResponse.entities)).to.be.true;
+				expect(widget.pinnedCoursesResponse).to.not.be.undefined;
+				expect(Array.isArray(widget.pinnedCoursesResponse.entities)).to.be.true;
+				done();
+			});
+		});
+
+		it('should send a request for all courses if there are no pinned courses', function (done) {
+			server.respondWith(
+				'GET',
+				widget.pinnedCoursesUrl,
+				function (req) {
+					expect(req.requestHeaders['accept']).to.equal('application/vnd.siren+json');
+					req.respond(200, emptyResponse.headers, JSON.stringify(emptyResponse.body));
+				});
+
+			server.respondWith(
+				'GET',
+				widget.enrollmentsUrl,
+				function (req) {
+					expect(req.requestHeaders['accept']).to.equal('application/vnd.siren+json');
+					req.respond(200, emptyResponse.headers, JSON.stringify(emptyResponse.body));
+				});
+
+			ajaxElement.generateRequest();
+
+			setTimeout(function() {
+				expect(widget.pinnedCoursesResponse).to.not.be.undefined;
+				expect(Array.isArray(widget.pinnedCoursesResponse.entities)).to.be.true;
+				expect(widget.allCoursesResponse).to.not.be.undefined;
+				expect(Array.isArray(widget.allCoursesResponse.entities)).to.be.true;
+				expect(widget.hasCourses).to.equal(false);
+				expect(widget.alertMessage).to.not.be.undefined;
 				done();
 			});
 		});

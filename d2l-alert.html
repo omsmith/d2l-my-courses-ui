@@ -1,0 +1,33 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="d2l-alert-styles.html">
+
+<dom-module id="d2l-alert">
+	<template>
+		<style include="d2l-alert-styles"></style>
+
+		<div class="message-wrapper" hidden$="{{_hideAlert}}">
+			<div class="message-highlight"></div>
+			<content></content>
+		</div>
+	</template>
+	<script>
+		Polymer({
+			is: 'd2l-alert',
+			properties: {
+				visible: {
+					type: Object,
+					value: function () {
+						return false;
+					}
+				},
+				_hideAlert: {
+					type: Boolean,
+					computed: '_checkAlertIsHidden(visible)'
+				}
+			},
+			_checkAlertIsHidden: function (isVisible) {
+				return !isVisible;
+			}
+		});
+	</script>
+</dom-module>
