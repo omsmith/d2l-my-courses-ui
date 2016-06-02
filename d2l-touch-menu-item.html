@@ -13,7 +13,7 @@
             </div>
         </div>
 
-        <div class="d2l-offscreen" aria-live="assertive">{{ariaMessage}}</div>
+        <div class="d2l-offscreen" aria-live="polite">{{ariaMessage}}</div>
     </template>
     <script>
         Polymer({
@@ -29,9 +29,6 @@
                 },
                 selectionHandler: {
                     type: String
-                },
-                selectionHandlerFunc: {
-                    type: Object
                 },
                 inTransition: {
                     type: Boolean
@@ -56,10 +53,6 @@
                 _displayBackgroundImage: {
                     type: String
                 },
-                _touchMenu: {
-                    type: Object,
-                    observer: '_initialize'
-                },
                 touchRegion: {
                     type: Object
                 },
@@ -69,36 +62,22 @@
                 },
                 _hostNode: {
                     type: Object
-                },
-                _initialized: {
-                    type: Boolean
-                },
-                _visible: {
-                    type: Boolean,
-                    readOnly: true
                 }
             },
             ready: function() {
                 this._menuItem = this.$$('.longpress-menu-item');
-            },
-            attached: function() {
-                this._initialize();
+                this._updateDisplayData();
             },
             _hoverStateChanged: function(isHovered, wasHovered) {
                 this.toggleClass('longpress-menu-item-hover', isHovered, this._menuItem);
 
                 if(isHovered !== wasHovered) {
-                    var eventName = 'start';
-
                     if(isHovered && this.actionDescription) {
                         this._ariaAnnounce(this.actionDescription);
                     }
                     else {
-                        eventName = 'end'
                         this._ariaAnnounce('');
                     }
-
-                    this.fire('touch-menu-item-hover-' + eventName, {element: this});
                 }
             },
             set selected(isSelected) {
@@ -107,10 +86,6 @@
                 if(isSelected) {
                     this.inTransition = true;
                     this.listen(this._menuItem, 'transitionend', 'transitionendHandler');
-
-                    if(this.selectionHandlerFunc) {
-                        this.async(this.selectionHandlerFunc);
-                    }
                 }
             },
             get selected() {
@@ -127,10 +102,8 @@
                 this.inTransition = false;
                 this.hoverState = false;
                 this.selected = false;
-                this.visible = false;
                 // Detach this event handler - otherwise the menu item's classes thrash
                 this.unlisten(this._menuItem, 'transitionend', 'transitionendHandler');
-                this._touchMenu.clearItemSelected();
 
                 this._updateDisplayData();
             },
@@ -152,14 +125,6 @@
                 this.style.left = newOffset.x + 'px';
                 this.style.top = newOffset.y + 'px';
             },
-            get visible() {
-                return this._visible;
-            },
-            set visible(isVisible) {
-                if(!this.inTransition) {
-                    this._menuItem.style.opacity = isVisible ? '1.0' : '0.0';
-                }
-            },
             pointInTouchRegion: function(point) {
                 var rect = {
                     top: this.touchRegion.top,
@@ -175,34 +140,9 @@
                     && (point.x > rect.left)
                 );
             },
-            _initialize: function() {
-                if(!this._initialized && this._touchMenu) {
-                    this._initialized = true;
-                    this.visible = false;
-
-                    var host = this._getHostNode();
-
-                    if(this.selectionHandler) {
-                        if( !host[this.selectionHandler] || (typeof host[this.selectionHandler] != 'function') ) {
-                            throw this.selectionHandler + ' is not a function';
-                        }
-
-                        this.selectionHandlerFunc = (host[this.selectionHandler]).bind(host);
-                    }
-
-                    this._updateDisplayData();
-                }
-            },
             _ariaAnnounce: function (message) {
                 this._setAriaMessage('');
                 this._setAriaMessage(message);
-            },
-            _getHostNode: function () {
-                if(!this._hostNode) {
-                    this._hostNode = Polymer.dom(this._touchMenu).parentNode.host;
-                }
-
-                return this._hostNode;
             }
         });
     </script>

@@ -5,7 +5,7 @@
     <template>
         <style include="d2l-touch-menu-styles"></style>
 
-        <div id="long-press-menu">
+        <div class="long-press-menu">
             <content></content>
         </div>
     </template>
@@ -25,11 +25,13 @@
                 _menuItemInitialOffset: {
                     type: Object
                 },
-                visible: {
-                    type: Boolean
+                menuOpen: {
+                    type: Boolean,
+                    observer: '_onMenuOpenChanged'
                 },
                 _timerID: {
-                    type: Number
+                    type: Number,
+                    value: null
                 },
                 _touchHandlers: {
                     Type: Array,
@@ -64,19 +66,14 @@
                 },
                 _initialized: {
                     type: Boolean
-                },
-                _itemSelected: {
-                    type: Boolean
-                },
-                _preventOpen: {
-                    type: Boolean
                 }
             },
             listeners: {
-                'contextmenu': 'contextMenuHandler',
-                'touch-menu-item-hover-start' : 'menuItemEventHandler',
-                'touch-menu-item-hover-end' : 'menuItemEventHandler',
-                'touch-menu-item-selected' : 'menuItemEventHandler'
+                'contextmenu': 'contextMenuHandler'
+            },
+            ready: function() {
+                this._menu = this.$$('.long-press-menu');
+                this._menuItems = [].slice.call(Polymer.dom(this).querySelectorAll('d2l-touch-menu-item'));
             },
             attached: function() {
                 if(!this._initialized) {
@@ -84,8 +81,6 @@
                     this._initialized = true;
                     this._owner = this.parentNode;
                     this._host = Polymer.dom(this).parentNode.host;
-                    this._menu = this.$$('#long-press-menu');
-                    this._menuItems = [].slice.call(Polymer.dom(this).querySelectorAll('d2l-touch-menu-item'));
 
                     if(this.touchTarget == null) {
                         this.touchTarget = this._host;
@@ -95,11 +90,6 @@
                     // as each will be the target of that event under different circumstances (typically, this element will be the target
                     // when there is no active scroll event, and the touch target will be the event target when there is a scroll event)
                     this.listen(this.touchTarget, 'contextmenu', 'contextMenuHandler');
-
-                    // Bind touch menu to menu items
-                    this._menuItems.forEach(function(menuItem) {
-                        menuItem._touchMenu = this;
-                    }.bind(this), false);
                 }
             },
             touchstartHandler: function (e) {
@@ -109,20 +99,16 @@
                     timeStamp: e.timeStamp
                 };
 
-                //Install scroll handler which will prevent menu from opening if scroll performed before menu opens
-                this.listen(window, 'scroll', 'scrollHandler');
-
                 // Only show the menu if it's tap+hold
                 this._timerID = setTimeout(this.openMenu.bind(this, e), this.longPressDuration);
             },
             touchmoveHandler: function (e) {
                 this._touchStartEventData = null;
 
-                if(this.visible) {
-                    // Add the hover class when the finger has moved near the menu item
+                if(this.menuOpen) {
                     var touchPoint = {
-                        x: e.changedTouches[0].pageX,
-                        y: e.changedTouches[0].pageY
+                        x: e.changedTouches[0].clientX,
+                        y: e.changedTouches[0].clientY
                     };
 
                     //If we can cancel the pending move, do so, so we don't scroll the page while attempting to navigate the menu.
@@ -131,16 +117,15 @@
                         e.stopPropagation();
                     }
                     else {
-                        //Otherwise, terminate the touch (though this shouldn't be visible at this point anyway, as the scroll handler should prevent
-                        //the menu from opening during uncancelable scrolls)
-                        //@TODO: We could set the document body overflow property to 'hidden' here (or in general) to prevent scrolling, but that
-                        //seems to come with its own issues..
+                        //Otherwise, terminate the touch (though this shouldn't be visible at this point anyway
                         this.touchendHandler();
                     }
 
                     this._menuItems.forEach(function(menuItem) {
                         menuItem.hoverState = menuItem.pointInTouchRegion(touchPoint);
                     }.bind(this));
+                } else {
+                    this._cancelMenu();
                 }
             },
             touchendHandler: function (e) {
@@ -148,23 +133,23 @@
                 this._menuItems.forEach(function(menuItem) {
                     if (menuItem.hoverState === true) {
                         menuItem.selected = true;
-                        this._itemSelected = true;
 
-                        // Fire an event for this menu item
-                        this.fire('touch-menu-item-selected', {element: menuItem});
+                        if(menuItem.selectionHandler) {
+                            this.async(this._host[menuItem.selectionHandler].bind(this._host));
+                        }
                     }
                 }.bind(this));
 
                 // If this would have otherwise been a tap event, bubble up click event from original touch target
                 if(this._touchStartEventData != null) {
                     if(e.timeStamp - this._touchStartEventData.timeStamp < 250) {
-                        var event =
+                        var newEvent =
                             new MouseEvent('click', {
                                 'bubbles': true,
                                 'cancelable': true
                             });
 
-                        this._touchStartEventData.originalTarget.dispatchEvent(event);
+                        this._touchStartEventData.originalTarget.dispatchEvent(newEvent);
                     }
                 }
 
@@ -173,71 +158,51 @@
             touchcancelHandler: function () {
                 this._touchStartEventData = null;
 
-                clearTimeout(this._timerID);
+                this._cancelMenu();
 
-                this._menuItems.forEach(function(menuItem) {
-                    menuItem.visible = false;
-                });
-
-                //If no item was selected, we can reparent immediately
-                if(!this._itemSelected) {
-                    Polymer.dom(this._owner).appendChild(this);
-                    this.visible = false;
-                }
-
-                this._preventOpen = false;
-
-                this.unlisten(window, 'scroll', 'scrollHandler');
-                this.fire('touch-menu-closed', {element: this}, {node: this._owner});
+                this.menuOpen = false;
             },
             openMenu: function (touchstartEvent) {
                 this._touchStartEventData = null;
 
                 this.listen(this.touchTarget, 'touchend', 'touchendHandler');
 
-                if(!this._preventOpen) {
-                    var touchData = {
-                        startX: touchstartEvent.changedTouches[0].pageX,
-                        startY: touchstartEvent.changedTouches[0].pageY,
-                        clientX: touchstartEvent.changedTouches[0].clientX,
-                        clientY: touchstartEvent.changedTouches[0].clientY
+                var touchData = {
+                    startX: touchstartEvent.changedTouches[0].pageX,
+                    startY: touchstartEvent.changedTouches[0].pageY,
+                    clientX: touchstartEvent.changedTouches[0].clientX,
+                    clientY: touchstartEvent.changedTouches[0].clientY
+                };
+
+                // Initial position of menu - if near the top of screen, show it below the initial tap
+                // TODO: Add positioning for side edges; should be total of 8 possible positions
+                var left = touchData.clientX;
+                var top = touchData.clientY;
+
+                this._menu.style.left = left + 'px';
+                this._menu.style.top = top + 'px';
+
+                // By default, set menu below finger
+                // @TODO: Layout only currently works for single item, but that's all we care about for now
+                this._menuItems.forEach( function(menuItem) {
+                    var menuItemOffset = {
+                        x: -(menuItem.width / 2),
+                        y: 0
+                    }
+
+                    if ((touchData.clientY - menuItem.height) > 0) {
+                        // Set menu above finger
+                        menuItemOffset.y = -(menuItem.height + 50);
+                    }
+
+                    menuItem.offset = menuItemOffset;
+                    menuItem.touchRegion = {
+                        left: left + menuItemOffset.x,
+                        top: top + menuItemOffset.y
                     };
+                }.bind(this));
 
-                    // Initial position of menu - if near the top of screen, show it below the initial tap
-                    // TODO: Add positioning for side edges; should be total of 8 possible positions
-                    var left = touchData.startX;
-                    var top = touchData.startY;
-
-                    this._menu.style.opacity = '1.0';
-                    this._menu.style.left = left + 'px';
-                    this._menu.style.top = top + 'px';
-
-                    Polymer.dom(document.body).appendChild(this);
-
-                    // By default, set menu below finger
-                    // @TODO: Layout only currently works for single item, but that's all we care about for now
-                    this._menuItems.forEach( function(menuItem) {
-                        var menuItemOffset = {
-                            x: -(menuItem.width / 2),
-                            y: 0
-                        }
-
-                        if ((touchData.clientY - menuItem.height) > 0) {
-                            // Set menu above finger
-                            menuItemOffset.y = -(menuItem.height + 50);
-                        }
-
-                        menuItem.visible = true;
-                        menuItem.offset = menuItemOffset;
-                        menuItem.touchRegion = {
-                            left: left + menuItemOffset.x,
-                            top: top + menuItemOffset.y
-                        };
-                    }.bind(this));
-
-                    this.visible = true;
-                    this.fire('touch-menu-opened', {element: this}, {node: this._owner});
-                }
+                this.menuOpen = true;
             },
             _touchTargetChanged: function(newValue, oldValue) {
                 if(oldValue != null) {
@@ -252,27 +217,17 @@
                     }.bind(this));
                 }
             },
-            clearItemSelected: function() {
-                if(this._itemSelected) {
-                    this._itemSelected = false;
-                    this.visible = false;
-                    Polymer.dom(this._owner).appendChild(this);
-                }
-            },
             contextMenuHandler: function(e) {
                 e.preventDefault();
             },
-            scrollHandler: function() {
-                this._preventOpen = true;
-
-                //Only one scroll event needs to be received per touchstart event
-                this.unlisten(window, 'scroll', 'scrollHandler');
+            _cancelMenu: function() {
+                if(this._timerID) {
+                    clearTimeout(this._timerID);
+                }
+                this._timerID = null;
             },
-            menuItemEventHandler: function(e){
-                e.stopPropagation();
-
-                // Redirect to original parent
-                this.fire(e.type, e.detail, {node: this._owner});
+            _onMenuOpenChanged: function(openMenu) {
+                this._menu.style.visibility = openMenu ? 'visible' : 'hidden';
             }
         });
     </script>

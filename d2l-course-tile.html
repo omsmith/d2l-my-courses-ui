@@ -34,7 +34,7 @@
 				<div class="course-text">{{_enrollmentEntity.properties.name}}</div>
 			</a>
 
-			<div class="hover-menu">
+			<div class="hover-menu no-tap-interaction">
 				<button class="menu-item no-tap-interaction"
 					on-click="pinClickHandler"
 					on-focus="hoverCourseTile"
@@ -52,7 +52,6 @@
 
 		<d2l-touch-menu>
 			<d2l-touch-menu-item
-				id="pin-touch-menu-item"
 				text="{{localize('pin')}}"
 				background-image="{{_pinBackgroundImage}}"
 				selection-handler="pinClickHandler"
@@ -101,21 +100,13 @@
 					type: String,
 					readOnly: true,
 					value: "data:image/png;base64,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"
-				},
-				_touchMenu: {
-					type: Object
 				}
 			},
 			behaviors: [
 				Polymer.D2L.MyCourses.LocalizeBehavior
 			],
-			ready: function () {
-				this._touchMenu = this.$$('d2l-touch-menu');
-			},
-			attached: function () {
+			created: function () {
 				this.setAttribute('role', 'link');
-
-				this._updateTouchMenu();
 			},
 			updatePreferencesOnResponse: function (response) {
 				if (response.detail.status === 200) {
@@ -200,34 +191,23 @@
 			_pinnedChanged: function (pinned) {
 				var pinIcon = this.$$('.menu-item iron-icon.menu-icon'),
 					pinText = this.$$('.menu-item .menu-text.pin'),
-					unpinText = this.$$('.menu-item .menu-text.unpin');
+					unpinText = this.$$('.menu-item .menu-text.unpin'),
+					pinTouchMenuItem = this.$$('d2l-touch-menu-item');
 
 				if (pinned) {
 					Polymer.dom(pinIcon).setAttribute('icon', 'actions:unpin');
 					Polymer.dom(pinText).setAttribute('style', 'display: none');
 					Polymer.dom(unpinText).setAttribute('style', 'display: inline');
+					Polymer.dom(pinTouchMenuItem).setAttribute('text', this.localize('unpin'));
+					Polymer.dom(pinTouchMenuItem).setAttribute('background-image', this._unpinBackgroundImage);
+					Polymer.dom(pinTouchMenuItem).setAttribute('action-description', this.localize('unpinCourse', 'course', this._enrollmentEntity.properties.name));
 				} else {
 					Polymer.dom(pinIcon).setAttribute('icon', 'actions:pin');
 					Polymer.dom(pinText).setAttribute('style', 'display: inline');
 					Polymer.dom(unpinText).setAttribute('style', 'display: none');
-				}
-
-				this._updateTouchMenu();
-			},
-			_updateTouchMenu: function() {
-				if(this._touchMenu && this._enrollmentEntity) {
-					var pinTouchMenuItem = this._touchMenu.querySelector('#pin-touch-menu-item');
-
-					if(this._pinned) {
-						Polymer.dom(pinTouchMenuItem).setAttribute('text', this.localize('unpin'));
-						Polymer.dom(pinTouchMenuItem).setAttribute('background-image', this._unpinBackgroundImage);
-						Polymer.dom(pinTouchMenuItem).setAttribute('action-description', this.localize('unpinCourse', 'course', this._enrollmentEntity.properties.name));
-					}
-					else {
-						Polymer.dom(pinTouchMenuItem).setAttribute('text', this.localize('pin'));
-						Polymer.dom(pinTouchMenuItem).setAttribute('background-image', this._pinBackgroundImage);
-						Polymer.dom(pinTouchMenuItem).setAttribute('action-description', this.localize('pinCourse', 'course', this._enrollmentEntity.properties.name));
-					}
+					Polymer.dom(pinTouchMenuItem).setAttribute('text', this.localize('pin'));
+					Polymer.dom(pinTouchMenuItem).setAttribute('background-image', this._pinBackgroundImage);
+					Polymer.dom(pinTouchMenuItem).setAttribute('action-description', this.localize('pinCourse', 'course', this._enrollmentEntity.properties.name));
 				}
 			}
 		});

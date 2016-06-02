@@ -15,13 +15,12 @@
 		.longpress-menu-item {
 			text-align: center;
 			position: relative;
+			visibility: inherit;
 		}
 
 		.longpress-menu-item-hover div {
 			background-color: #006FBF;
-			transition: 0.3s ease-in-out;
 			transform: scale(1.2) translateY(-1.0em);
-			opacity: 1.0;
 		}
 
 		.longpress-menu-item-image-background {
@@ -38,7 +37,6 @@
 			height: 1em;
 			width: 0.5em;
 			transform: translateY(0.15em);
-			transition: 0.3s ease-in-out;
 			-webkit-backface-visibility: hidden;
 		}
 
@@ -56,10 +54,10 @@
 			padding-bottom: 0.1em;
 			opacity: 0;
 			text-align: center;
-			transition: 0.3s ease-in-out;
 			width: 80%;
 			-webkit-backface-visibility: hidden;
 			position: relative;
+			transition: 0.3s ease-in-out;
 		}
 
 		.longpress-menu-item-hover .longpress-menu-item-text {
