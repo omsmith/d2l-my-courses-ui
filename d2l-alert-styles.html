@@ -30,7 +30,14 @@
 			border-bottom-right-radius: 0;
 			margin: -1px;
 		}
-		/* TODO: make this work for LTR */
+		:host-context([dir='rtl']) .message-highlight {
+			left: auto;
+			right: 0;
+			border-top-left-radius: 0;
+			border-bottom-left-radius: 0;
+			border-top-right-radius: 3px;
+			border-bottom-right-radius: 3px;
+		}
 		</style>
 	</template>
 </dom-module>
