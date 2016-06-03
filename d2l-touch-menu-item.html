@@ -1,5 +1,7 @@
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="d2l-touch-menu-item-styles.html">
+<link rel="import" href="../iron-icon/iron-icon.html">
+<link rel="import" href="../d2l-icons-ui/d2l-icons.html">
 
 <dom-module id="d2l-touch-menu-item">
     <template>
@@ -9,7 +11,7 @@
             <div class="longpress-menu-item-text">{{_displayText}}</div>
 
             <div class="longpress-menu-item-image-background">
-                <img class="longpress-menu-item-image" src$="{{resolveUrl(_displayBackgroundImage)}}">
+                <iron-icon class="longpress-menu-item-image" icon="{{_displayBackgroundImage}}" aria-hidden="true"></iron-icon>
             </div>
         </div>
 

@@ -45,7 +45,7 @@
 
 		<div class="d2l-offscreen" aria-live="polite">{{ariaMessage}}</div>
 
-		<button id="all-courses-button"
+		<button class="all-courses-button"
 			hidden$="{{!hasCourses}}"
 			on-tap="openAllCoursesView"
 			aria-haspopup="true">
@@ -118,7 +118,7 @@
 			onPinnedCoursesResponse: function (response) {
 				if (response.detail.status === 200) {
 					this._rescaleCourseTileRegions();
-					
+
 					if (this.courseTileItemCount === 0) {
 						this.$.allCoursesRequest.generateRequest();
 					} else {

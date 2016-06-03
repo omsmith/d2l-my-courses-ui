@@ -1,6 +1,8 @@
+<link rel="import" href="../vui-colors/colors.html">
+
 <dom-module id="d2l-touch-menu-item-styles">
 	<template>
-		<style>
+		<style include="vui-colors">
 		:host {
 			z-index: 1000;
 			position: relative;
@@ -19,12 +21,12 @@
 		}
 
 		.longpress-menu-item-hover div {
-			background-color: #006FBF;
+			background-color: var(--vui-color-celestine);
 			transform: scale(1.2) translateY(-1.0em);
 		}
 
 		.longpress-menu-item-image-background {
-			background-color: #B9C2D0;
+			background-color: var(--vui-color-pressicus);
 			border-radius: 50%;
 			border: 0.1em solid white;
 			box-sizing: border-box;
@@ -34,14 +36,15 @@
 		}
 
 		.longpress-menu-item-image {
-			height: 1em;
-			width: 0.5em;
-			transform: translateY(0.15em);
+			--iron-icon-width: 0.87em;
+			--iron-icon-height: 0.87em;
+			--iron-icon-fill-color: var(--vui-color-white);
+			transform: translateY(-0.15em);
 			-webkit-backface-visibility: hidden;
 		}
 
 		.longpress-menu-item-text {
-			background-color: #B9C2D0;
+			background-color: var(--vui-color-pressicus);
 			border: 0.1em solid white;
 			border-radius: 0.25em;
 			box-sizing: border-box;
@@ -76,6 +79,6 @@
 			transition: 0.3s ease-in-out;
 			opacity: 0;
 		}
-    </style>
-  </template>
+		</style>
+	</template>
 </dom-module>
