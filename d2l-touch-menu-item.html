@@ -1,0 +1,151 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="d2l-touch-menu-item-styles.html">
+<link rel="import" href="../iron-icon/iron-icon.html">
+<link rel="import" href="../d2l-icons-ui/d2l-icons.html">
+
+<dom-module id="d2l-touch-menu-item">
+    <template>
+        <style include="d2l-touch-menu-item-styles"></style>
+
+        <div class="longpress-menu-item">
+            <div class="longpress-menu-item-text">{{_displayText}}</div>
+
+            <div class="longpress-menu-item-image-background">
+                <iron-icon class="longpress-menu-item-image" icon="{{_displayBackgroundImage}}" aria-hidden="true"></iron-icon>
+            </div>
+        </div>
+
+        <div class="d2l-offscreen" aria-live="polite">{{ariaMessage}}</div>
+    </template>
+    <script>
+        Polymer({
+            is: 'd2l-touch-menu-item',
+            properties: {
+                backgroundImage: {
+                    type: String,
+                    observer: '_backgroundImageChanged'
+                },
+                text: {
+                    type: String,
+                    observer: '_textChanged'
+                },
+                selectionHandler: {
+                    type: String
+                },
+                inTransition: {
+                    type: Boolean
+                },
+                hoverState: {
+                    type: Boolean,
+                    observer: '_hoverStateChanged'
+                },
+                offset: {
+                    type: Object,
+                    observer: '_offsetChanged'
+                },
+                actionDescription: {
+                    type: String
+                },
+                _menuItem: {
+                    type: Object
+                },
+                _displayText: {
+                    type: String
+                },
+                _displayBackgroundImage: {
+                    type: String
+                },
+                touchRegion: {
+                    type: Object
+                },
+                ariaMessage: {
+                    type: String,
+                    readOnly: true
+                },
+                _hostNode: {
+                    type: Object
+                }
+            },
+            ready: function() {
+                this._menuItem = this.$$('.longpress-menu-item');
+                this._updateDisplayData();
+            },
+            _hoverStateChanged: function(isHovered, wasHovered) {
+                this.toggleClass('longpress-menu-item-hover', isHovered, this._menuItem);
+
+                if(isHovered !== wasHovered) {
+                    if(isHovered && this.actionDescription) {
+                        this._ariaAnnounce(this.actionDescription);
+                    }
+                    else {
+                        this._ariaAnnounce('');
+                    }
+                }
+            },
+            set selected(isSelected) {
+                this.toggleClass('selected', isSelected, this._menuItem);
+
+                if(isSelected) {
+                    this.inTransition = true;
+                    this.listen(this._menuItem, 'transitionend', 'transitionendHandler');
+                }
+            },
+            get selected() {
+                return this._menuItem.classList.contains('selected');
+            },
+            get width() {
+                return this._menuItem.clientWidth;
+            },
+            get height() {
+                return this._menuItem.clientHeight;
+            },
+            transitionendHandler: function () {
+                // Triggered by the end of the transition caused by adding 'selected' class
+                this.inTransition = false;
+                this.hoverState = false;
+                this.selected = false;
+                // Detach this event handler - otherwise the menu item's classes thrash
+                this.unlisten(this._menuItem, 'transitionend', 'transitionendHandler');
+
+                this._updateDisplayData();
+            },
+            _textChanged: function(newValue) {
+                if(!this.inTransition) {
+                    this._displayText = newValue;
+                }
+            },
+            _backgroundImageChanged: function(newValue) {
+                if(!this.inTransition) {
+                    this._displayBackgroundImage = newValue;
+                }
+            },
+            _updateDisplayData: function() {
+                this._displayText = this.text;
+                this._displayBackgroundImage = this.backgroundImage;
+            },
+            _offsetChanged: function(newOffset) {
+                this.style.left = newOffset.x + 'px';
+                this.style.top = newOffset.y + 'px';
+            },
+            pointInTouchRegion: function(point) {
+                var rect = {
+                    top: this.touchRegion.top,
+                    bottom: this.touchRegion.top + this.height,
+                    left: this.touchRegion.left,
+                    right: this.touchRegion.left + this.width
+                };
+
+                return (
+                    (point.y < rect.bottom)
+                    && (point.y > rect.top)
+                    && (point.x < rect.right)
+                    && (point.x > rect.left)
+                );
+            },
+            _ariaAnnounce: function (message) {
+                this._setAriaMessage('');
+                this._setAriaMessage(message);
+            }
+        });
+    </script>
+</dom-module>
