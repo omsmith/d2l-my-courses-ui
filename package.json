@@ -11,7 +11,7 @@
     "test": "npm run test:lint:js && npm run test:lint:wc && wct",
     "test:lint:js": "eslint test/ --ext .js,.html && eslint *.html",
     "test:lint:wc": "polylint",
-    "test:no-lint": "wct -p"
+    "test:no-lint": "wct --skip-plugin sauce -p"
   },
   "config": {
     "frauPublisher": {

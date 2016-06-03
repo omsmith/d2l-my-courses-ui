@@ -4,10 +4,16 @@ node_js:
 sudo: false
 addons:
   firefox: "47.0.1"
+  sauce_connect:
+    username:
+      secure: yN/xQWi11Qn78JoUOcQjG1BRNtvH8vb2lvyr4ORT4A1J6F5CR5VkB+i1oUWgQALVGAgvhW+N9jifFXmFAlGTaq0aXE8ReLmiOI89EguQzywubJJs2EZ/hKqfA1LuRXaUJRlygzu4RyYMBSb6IIRYRl1D2G9fQpL2j70gXadUJH/Jh4zxA1quK6gZd/sInfB3LZNk3+TWnsapeYsea9A4CoWwPJmZLERmAspntAac9If441jwJRREQ53r/FiYq1VTgsjtwW0tCIdT7k5Buet7/X7SsigGxDmUdQqJ3TQM48kr2rs0Uq7L1P4RGMmLSPGUSPnEeSuXuKqrjMjDLzPmWQz7wtawmbfBcqK5nl3u7bNY5S6A5fhttrfFidUVV4e0hKsS7U0RD8UT9x74en6QGD4wcnwi1ydZwBTDJrVYccidEt7qBxkmz3qyhpb1DCnCFgbULlgw5QaDP+8ZKo3gL+opMyT1U8NE8Plxa+yDKlIPoEvHYgVcJRzk4/LbE2D+D9Liiu/HBAM/d1bx7DknkRsSvTuWOfXAE7xYa3RKAaqsQVseSavTcdMiU/mHFIs/6KuEDgIEhQM296NUUQpWdP2IhnwLP6kDRqKK0xaIPJqnu6o4pkZPi0PhjEsN5OI/wA1+Ah9Wpy0e4XKye2Wu+G92pqyKN9Y+Sk9jQvL35q8=
+    access_key:
+      secure: jWaIp47npzuW4sB0c7gNGWGfECQbJnX04uofEyECQIX84R6op/UyF8yLhsQFZe1onZlMTD6QR26QmyaCAzpSwwXOJqC+KsrRkxBtvYTZ+NijazORjJyxJ+bMA+tUGksMflWHt+Gu6nCUDocCsiKUAGdBr8xDQAQwjSwqho0TIFedjslBJKZNtiqUn15ezI3k6fahLdmE6xG/W/9xDHU6YoiR7n8z/tlJSvWRkrtctDQUv8pkqCHjH+AIkbT2fQoqxX7GunZHG85WxaJazxf07HOseOqjhWHcSN08tVmnPsXRFVvF8Fs49XklcyowFKEE7a6ItUuRvDrzh75FBAeoDwYRmwGMs7nTK2rINEl0mCm0NR+diXvFr+7x+3KWU3aMSf8IntPG6je5iLtllqph4qJ1FCmehyq6VEwA21kxYHyLzSkF+Z7CNYkF7P+l2EQrqwuKRsRdQ+DBYLcU89YaWG/p/XU63MOCRbc12mQrXz7OcgwQVkg8vQOB+CeVVTM0OLTVHa8nRu/yvNHtCZNY3Xb9HLo4+jh1pt0X9JKYFUimqioboSP+9giUeYKtyXwN81umHtYZDW1xoROPQUxxkRS3c1lV3Q+zqxVzgIttwEE75UaJ7V8BiojQ3U3sIvo4uOo+llcdQG8kCS1CE9OT4l0sXNeBedtLlC7DHi0oDAg=
 before_script:
 - npm run test:lint:js && npm run test:lint:wc
 script:
-- xvfb-run wct
+- xvfb-run wct --skip-plugin sauce
+- if [ "${TRAVIS_PULL_REQUEST}" = "false" ]; then wct --skip-plugin local; fi
 after_success:
 - '[ "$TRAVIS_SECURE_ENV_VARS" = "true" ] && [ "x$TRAVIS_TAG" != "x" ] && npm run publish:cdn'
 env:
