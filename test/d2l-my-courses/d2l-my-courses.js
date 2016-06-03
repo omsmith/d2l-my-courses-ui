@@ -1,30 +1,76 @@
 /* global describe, it, beforeEach, afterEach, fixture, expect, sinon */
 
 describe('smoke test', function() {
-	var ajaxElement,
-		ajaxElements,
-		server,
+	var server,
 		widget,
-		enrollmentsResponse = {
+		emptyResponse = {
 			headers: { },
 			body: {
+				class: ["enrollments"],
+				rel: ["enrollments"],
+				links: [],
+				actions: [],
+				properties: {},
+				entities: []
+			}
+		},
+		enrollmentsResponseWithOrgOnly = {
+			headers: { },
+			body: {
+				class: ["enrollments"],
+				rel: ["enrollments"],
+				links: [],
+				actions: [],
+				properties: {},
 				entities: [{
+					class: ["organization"],
+					rel: ["enrollment"],
 					properties: {
 						name: 'Test Name',
 						id: 'TestName'
 					},
-					links: [{
-						rel: ['course-image'],
-						href: 'http://example.com'
-					}],
+					links: [],
+					actions: [],
 					entities: [{
 						rel: ['preferences'],
-						class: ['pinned'],
-						actions: [{
-							name: 'update',
-							method: 'GET',
-							href: 'http://example.com'
-						}]
+						actions: []
+					}]
+				}]
+			}
+		},
+		enrollmentsResponseWithCourse = {
+			headers: { },
+			body: {
+				class: ["enrollments"],
+				rel: ["enrollments"],
+				links: [],
+				actions: [],
+				properties: {},
+				entities: [{
+					class: ["organization"],
+					rel: ["enrollment"],
+					properties: {
+						name: 'Test Name',
+						id: 'TestName'
+					},
+					links: [],
+					actions: [],
+					entities: [{
+						rel: ['preferences'],
+						actions: []
+					}]
+				}, {
+					class: ["course-offering"],
+					rel: ["enrollment"],
+					properties: {
+						name: 'Test Name',
+						id: 'TestName'
+					},
+					links: [],
+					actions: [],
+					entities: [{
+						rel: ['preferences'],
+						actions: []
 					}]
 				}]
 			}
@@ -37,13 +83,9 @@ describe('smoke test', function() {
 
 	beforeEach(function () {
 		server = sinon.fakeServer.create();
+		server.respondImmediately = true;
 
 		widget = fixture('d2l-my-courses-fixture');
-		ajaxElements = widget.getElementsByTagName('d2l-ajax');
-		for (var i = 0; i < ajaxElements.length; ++i) {
-			// Disable automatic triggering of requests by default
-			ajaxElements[i].auto = false;
-		}
 	});
 
 	afterEach(function () {
@@ -54,25 +96,97 @@ describe('smoke test', function() {
 		expect(widget).to.exist;
 	});
 
-	describe('Enrollments request', function () {
-		beforeEach(function () {
-			ajaxElement = ajaxElements[0];
-			server.respondImmediately = true;
+	describe('Enrollments requests', function () {
+		it('should send a request for pinned courses', function (done) {
 			server.respondWith(
 				'GET',
 				widget.pinnedCoursesUrl,
 				function (req) {
 					expect(req.requestHeaders['accept']).to.equal('application/vnd.siren+json');
-					req.respond(200, enrollmentsResponse.headers, JSON.stringify(enrollmentsResponse.body));
+					req.respond(200, emptyResponse.headers, JSON.stringify(emptyResponse.body));
 				});
+
+			widget.$.pinnedCoursesRequest.generateRequest();
+
+			widget.$.pinnedCoursesRequest.addEventListener('response', function () {
+				expect(widget.pinnedCoursesResponse).to.not.be.undefined;
+				expect(Array.isArray(widget.pinnedCoursesResponse.entities)).to.be.true;
+				done();
+			});
 		});
 
-		it('should send an enrollments request for pinned courses', function (done) {
-			ajaxElement.generateRequest();
+		it('should send a request for all courses if there are no pinned courses', function (done) {
+			server.respondWith(
+				'GET',
+				widget.pinnedCoursesUrl,
+				function (req) {
+					expect(req.requestHeaders['accept']).to.equal('application/vnd.siren+json');
+					req.respond(200, emptyResponse.headers, JSON.stringify(emptyResponse.body));
+				});
 
-			setTimeout(function() {
-				expect(widget.enrollmentsResponse).to.be.defined;
-				expect(Array.isArray(widget.enrollmentsResponse.entities)).to.be.true;
+			server.respondWith(
+				'GET',
+				widget.enrollmentsUrl,
+				function (req) {
+					expect(req.requestHeaders['accept']).to.equal('application/vnd.siren+json');
+					req.respond(200, emptyResponse.headers, JSON.stringify(emptyResponse.body));
+				});
+
+			widget.$.pinnedCoursesRequest.generateRequest();
+
+			widget.$.allCoursesRequest.addEventListener('response', function() {
+				expect(widget.allCoursesResponse).to.not.be.undefined;
+				expect(Array.isArray(widget.allCoursesResponse.entities)).to.be.true;
+				done();
+			});
+		});
+	});
+
+	describe('Empty states', function () {
+		it('should display appropriate message when no enrolled courses', function (done) {
+			server.respondWith(
+				'GET',
+				widget.pinnedCoursesUrl,
+				function (req) {
+					req.respond(200, emptyResponse.headers, JSON.stringify(emptyResponse.body));
+				});
+
+			server.respondWith(
+				'GET',
+				widget.enrollmentsUrl,
+				function (req) {
+					req.respond(200, enrollmentsResponseWithOrgOnly.headers, JSON.stringify(enrollmentsResponseWithOrgOnly.body));
+				});
+
+			widget.$.pinnedCoursesRequest.generateRequest();
+
+			widget.$.allCoursesRequest.addEventListener('response', function() {
+				expect(widget.hasCourses).to.equal(false);
+				expect(widget.alertMessage).to.equal('Your courses aren\'t quite ready. Please check back soon.');
+				done();
+			});
+		});
+
+		it('should display appropriate message when no pinned courses', function (done) {
+			server.respondWith(
+				'GET',
+				widget.pinnedCoursesUrl,
+				function (req) {
+					req.respond(200, emptyResponse.headers, JSON.stringify(emptyResponse.body));
+				});
+
+			server.respondWith(
+				'GET',
+				widget.enrollmentsUrl,
+				function (req) {
+					req.respond(200, enrollmentsResponseWithCourse.headers, JSON.stringify(enrollmentsResponseWithCourse.body));
+				});
+
+			widget.$.pinnedCoursesRequest.generateRequest();
+
+			widget.$.allCoursesRequest.addEventListener('response', function() {
+				expect(widget.hasCourses).to.equal(true);
+				expect(widget.alertMessage).to.equal('You don\'t have any pinned courses. Pin your favorite courses to make them easier to find.');
 				done();
 			});
 		});

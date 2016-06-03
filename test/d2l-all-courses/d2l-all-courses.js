@@ -118,10 +118,6 @@ describe('smoke test', function() {
 
 		widget = fixture('d2l-all-courses-fixture');
 		ajaxElements = widget.getElementsByTagName('d2l-ajax');
-		for (var i = 0; i < ajaxElements.length; ++i) {
-			// Disable automatic triggering of requests by default
-			ajaxElements[i].auto = false;
-		}
 	});
 
 	afterEach(function () {

@@ -28,11 +28,15 @@
 
 			<div class="dialog-content">
 				<h3 class="header">{{localize('pinnedCourses')}}</h3>
+				<d2l-alert visible="{{hasPinnedCourses}}">
+					{{localize('noPinnedCoursesMessage')}}
+				</d2l-alert>
 				<div class="my-courses-container" role="region">
 					<template is="dom-repeat" items="[[pinnedCoursesEntities]]">
 						<d2l-course-tile enrollment="[[item]]"></d2l-course-tile>
 					</template>
 				</div>
+
 				<h3 class="header">{{localize('unpinnedCourses')}}</h3>
 				<div class="my-courses-container" role="region">
 					<template is="dom-repeat" items="[[unpinnedCoursesEntities]]">
@@ -47,6 +51,10 @@
 		Polymer({
 			is: 'd2l-all-courses',
 			properties: {
+				hasPinnedCourses: {
+					type: Boolean,
+					computed: '_isEmpty(pinnedCoursesEntities)'
+				},
 				pinnedCoursesEntities: {
 					type: Array
 				},
@@ -130,6 +138,9 @@
 				});
 
 				return courseTileFocusables;
+			},
+			_isEmpty: function (list) {
+				return !list || list.length === 0;
 			}
 		});
 	</script>
