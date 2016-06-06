@@ -1,6 +1,6 @@
 {
   "name": "d2l-my-courses",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Brightspace My Courses homepage widget",
   "private": true,
   "scripts": {
