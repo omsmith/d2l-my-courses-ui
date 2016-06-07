@@ -151,14 +151,6 @@ describe('smoke test', function() {
 				done();
 			});
 		});
-
-		it('Should have a read-only response object', function() {
-			widget._setAllEnrollmentsEntities(['foo']);
-
-			widget.allEnrollmentsEntities = ['bar'];
-
-			expect(widget.allEnrollmentsEntities[0]).to.equal('foo');
-		});
 	});
 
 	describe('filter', function() {
