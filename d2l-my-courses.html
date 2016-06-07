@@ -93,7 +93,7 @@
 				windowResizeHandler: {
 					type: Object,
 					readOnly: true,
-					value: function () {
+					value: function() {
 						return this._handleWindowResize.bind(this);
 					}
 				}
@@ -106,16 +106,16 @@
 				'course-pinned': '_onCoursePinned',
 				'course-unpinned': '_onCourseUnpinned'
 			},
-			attached: function () {
+			attached: function() {
 				this._addThrottledEventListener('resize', this.windowResizeHandler);
 				if (!this.delayLoad) {
 					this.$.pinnedCoursesRequest.generateRequest();
 				}
 			},
-			detached: function () {
+			detached: function() {
 				window.removeEventListener('resize', this.windowResizeHandler);
 			},
-			onPinnedCoursesResponse: function (response) {
+			onPinnedCoursesResponse: function(response) {
 				if (response.detail.status === 200) {
 					this._rescaleCourseTileRegions();
 
@@ -126,7 +126,7 @@
 					}
 				}
 			},
-			onAllCoursesResponse: function () {
+			onAllCoursesResponse: function() {
 				if (this.allCoursesResponse) {
 					var parser = document.createElement('d2l-siren-parser'),
 						allCoursesEntity = parser.parse(this.allCoursesResponse),
@@ -142,28 +142,28 @@
 					}
 				}
 			},
-			refreshPage: function () {
+			refreshPage: function() {
 				document.location.reload(true);
 			},
-			openAllCoursesView: function (e) {
+			openAllCoursesView: function(e) {
 				e.preventDefault();
 				e.stopPropagation();
 				this.$$('d2l-all-courses').open();
 			},
-			_getPinnedCoursesUrl: function (enrollmentsUrl) {
+			_getPinnedCoursesUrl: function(enrollmentsUrl) {
 				return enrollmentsUrl + '?filter=pinned';
 			},
 			get courseTileItemCount() {
 				var itemCount = this.pinnedCoursesResponse ? this.pinnedCoursesResponse.entities.length : 0;
 				return itemCount;
 			},
-			_onCoursePinned: function (e) {
+			_onCoursePinned: function(e) {
 				this._ariaAnnounce(this.localize('pinActionResult', 'course', e.detail.course.properties.name));
 			},
-			_onCourseUnpinned: function (e) {
+			_onCourseUnpinned: function(e) {
 				this._ariaAnnounce(this.localize('unpinActionResult', 'course', e.detail.course.properties.name));
 			},
-			_ariaAnnounce: function (message) {
+			_ariaAnnounce: function(message) {
 				this._setAriaMessage('');
 				this._setAriaMessage(message);
 			}

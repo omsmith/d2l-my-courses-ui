@@ -1,13 +1,15 @@
 /* global describe, it, beforeEach, afterEach, fixture, expect, sinon */
 
+'use strict';
+
 describe('smoke test', function() {
 	var server,
 		widget,
 		emptyResponse = {
 			headers: { },
 			body: {
-				class: ["enrollments"],
-				rel: ["enrollments"],
+				class: ['enrollments'],
+				rel: ['enrollments'],
 				links: [],
 				actions: [],
 				properties: {},
@@ -17,14 +19,14 @@ describe('smoke test', function() {
 		enrollmentsResponseWithOrgOnly = {
 			headers: { },
 			body: {
-				class: ["enrollments"],
-				rel: ["enrollments"],
+				class: ['enrollments'],
+				rel: ['enrollments'],
 				links: [],
 				actions: [],
 				properties: {},
 				entities: [{
-					class: ["organization"],
-					rel: ["enrollment"],
+					class: ['organization'],
+					rel: ['enrollment'],
 					properties: {
 						name: 'Test Name',
 						id: 'TestName'
@@ -41,14 +43,14 @@ describe('smoke test', function() {
 		enrollmentsResponseWithCourse = {
 			headers: { },
 			body: {
-				class: ["enrollments"],
-				rel: ["enrollments"],
+				class: ['enrollments'],
+				rel: ['enrollments'],
 				links: [],
 				actions: [],
 				properties: {},
 				entities: [{
-					class: ["organization"],
-					rel: ["enrollment"],
+					class: ['organization'],
+					rel: ['enrollment'],
 					properties: {
 						name: 'Test Name',
 						id: 'TestName'
@@ -60,8 +62,8 @@ describe('smoke test', function() {
 						actions: []
 					}]
 				}, {
-					class: ["course-offering"],
-					rel: ["enrollment"],
+					class: ['course-offering'],
+					rel: ['enrollment'],
 					properties: {
 						name: 'Test Name',
 						id: 'TestName'
@@ -81,45 +83,45 @@ describe('smoke test', function() {
 			}
 		};
 
-	beforeEach(function () {
+	beforeEach(function() {
 		server = sinon.fakeServer.create();
 		server.respondImmediately = true;
 
 		widget = fixture('d2l-my-courses-fixture');
 	});
 
-	afterEach(function () {
+	afterEach(function() {
 		server.restore();
 	});
 
-	it('should load', function () {
+	it('should load', function() {
 		expect(widget).to.exist;
 	});
 
-	describe('Enrollments requests', function () {
-		it('should send a request for pinned courses', function (done) {
+	describe('Enrollments requests', function() {
+		it('should send a request for pinned courses', function(done) {
 			server.respondWith(
 				'GET',
 				widget.pinnedCoursesUrl,
-				function (req) {
+				function(req) {
 					expect(req.requestHeaders['accept']).to.equal('application/vnd.siren+json');
 					req.respond(200, emptyResponse.headers, JSON.stringify(emptyResponse.body));
 				});
 
 			widget.$.pinnedCoursesRequest.generateRequest();
 
-			widget.$.pinnedCoursesRequest.addEventListener('response', function () {
+			widget.$.pinnedCoursesRequest.addEventListener('response', function() {
 				expect(widget.pinnedCoursesResponse).to.not.be.undefined;
 				expect(Array.isArray(widget.pinnedCoursesResponse.entities)).to.be.true;
 				done();
 			});
 		});
 
-		it('should send a request for all courses if there are no pinned courses', function (done) {
+		it('should send a request for all courses if there are no pinned courses', function(done) {
 			server.respondWith(
 				'GET',
 				widget.pinnedCoursesUrl,
-				function (req) {
+				function(req) {
 					expect(req.requestHeaders['accept']).to.equal('application/vnd.siren+json');
 					req.respond(200, emptyResponse.headers, JSON.stringify(emptyResponse.body));
 				});
@@ -127,7 +129,7 @@ describe('smoke test', function() {
 			server.respondWith(
 				'GET',
 				widget.enrollmentsUrl,
-				function (req) {
+				function(req) {
 					expect(req.requestHeaders['accept']).to.equal('application/vnd.siren+json');
 					req.respond(200, emptyResponse.headers, JSON.stringify(emptyResponse.body));
 				});
@@ -142,19 +144,19 @@ describe('smoke test', function() {
 		});
 	});
 
-	describe('Empty states', function () {
-		it('should display appropriate message when no enrolled courses', function (done) {
+	describe('Empty states', function() {
+		it('should display appropriate message when no enrolled courses', function(done) {
 			server.respondWith(
 				'GET',
 				widget.pinnedCoursesUrl,
-				function (req) {
+				function(req) {
 					req.respond(200, emptyResponse.headers, JSON.stringify(emptyResponse.body));
 				});
 
 			server.respondWith(
 				'GET',
 				widget.enrollmentsUrl,
-				function (req) {
+				function(req) {
 					req.respond(200, enrollmentsResponseWithOrgOnly.headers, JSON.stringify(enrollmentsResponseWithOrgOnly.body));
 				});
 
@@ -167,18 +169,18 @@ describe('smoke test', function() {
 			});
 		});
 
-		it('should display appropriate message when no pinned courses', function (done) {
+		it('should display appropriate message when no pinned courses', function(done) {
 			server.respondWith(
 				'GET',
 				widget.pinnedCoursesUrl,
-				function (req) {
+				function(req) {
 					req.respond(200, emptyResponse.headers, JSON.stringify(emptyResponse.body));
 				});
 
 			server.respondWith(
 				'GET',
 				widget.enrollmentsUrl,
-				function (req) {
+				function(req) {
 					req.respond(200, enrollmentsResponseWithCourse.headers, JSON.stringify(enrollmentsResponseWithCourse.body));
 				});
 
@@ -192,8 +194,8 @@ describe('smoke test', function() {
 		});
 	});
 
-	describe('A11Y', function () {
-		it('should announce when course is pinned', function () {
+	describe('A11Y', function() {
+		it('should announce when course is pinned', function() {
 			var event = new CustomEvent('course-pinned', {
 				detail: {
 					course: courseEntity
@@ -203,7 +205,7 @@ describe('smoke test', function() {
 			expect(widget.ariaMessage).to.equal(courseEntity.properties.name + ' has been pinned');
 		});
 
-		it('should announce when course is unpinned', function () {
+		it('should announce when course is unpinned', function() {
 			var event = new CustomEvent('course-unpinned', {
 				detail: {
 					course: courseEntity
@@ -214,9 +216,9 @@ describe('smoke test', function() {
 		});
 	});
 
-	describe('layout', function () {
-		describe('column calculations', function () {
-			it('should be correct according to the crazy design', function () {
+	describe('layout', function() {
+		describe('column calculations', function() {
+			it('should be correct according to the crazy design', function() {
 				[{
 					width: 767,
 					itemCount: 0,
@@ -286,7 +288,7 @@ describe('smoke test', function() {
 					itemCount: 7,
 					expectedColumns: 4
 				}]
-				.forEach(function (scenario) {
+				.forEach(function(scenario) {
 					var description = 'width: ' + scenario.width + '; itemCount: ' + scenario.itemCount;
 					var numberOfColumns = widget._calcNumColumns(scenario.width, scenario.itemCount);
 					expect(numberOfColumns, description).to.equal(scenario.expectedColumns);

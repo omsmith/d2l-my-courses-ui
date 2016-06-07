@@ -75,7 +75,7 @@
 				windowResizeHandler: {
 					type: Object,
 					readOnly: true,
-					value: function () {
+					value: function() {
 						return this._handleWindowResize.bind(this);
 					}
 				}
@@ -84,10 +84,10 @@
 				Polymer.D2L.MyCourses.CourseTileRegionBehavior,
 				Polymer.D2L.MyCourses.LocalizeBehavior
 			],
-			ready : function () {
+			ready : function() {
 				this.$$('d2l-simple-overlay').focusableNodesOverride = this.focusableNodesOverride;
 			},
-			allEnrollmentsOnResponse: function (response) {
+			allEnrollmentsOnResponse: function(response) {
 				if (response.detail.status === 200) {
 					this._setAllEnrollmentsEntities(this.allEnrollmentsResponse.entities);
 					this._filterUnpinnedCourses(this.pinnedCoursesEntities, this.allEnrollmentsEntities);
@@ -99,11 +99,11 @@
 				this.$$('d2l-simple-overlay').open();
 				this._rescaleCourseTileRegions(this._getOverlayWidth());
 			},
-			_getOverlayWidth: function () {
+			_getOverlayWidth: function() {
 				return this._getAvailableWidth(this.$$('d2l-simple-overlay'));
 			},
 			_filterUnpinnedCourses: function(pinnedCoursesEntities, allCoursesEntities) {
-				if(pinnedCoursesEntities && allCoursesEntities) {
+				if (pinnedCoursesEntities && allCoursesEntities) {
 					var parser = document.createElement('d2l-siren-parser');
 					this._setUnpinnedCoursesEntities(
 						allCoursesEntities.filter(
@@ -113,10 +113,10 @@
 							}.bind(this)));
 				}
 			},
-			attached: function () {
+			attached: function() {
 				this._addThrottledEventListener('resize', this.windowResizeHandler);
 			},
-			detached: function () {
+			detached: function() {
 				window.removeEventListener('resize', this.windowResizeHandler);
 			},
 			get courseTileItemCount() {
@@ -139,7 +139,7 @@
 
 				return courseTileFocusables;
 			},
-			_isEmpty: function (list) {
+			_isEmpty: function(list) {
 				return !list || list.length === 0;
 			}
 		});
