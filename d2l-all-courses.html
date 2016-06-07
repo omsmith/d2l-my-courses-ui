@@ -15,10 +15,9 @@
 
 		<d2l-ajax
 			id="allEnrollmentsRequest"
-			url="[[enrollmentsUrl]]"
+			url="{{effectiveEnrollmentsUrl()}}"
 			headers='{ "Accept": "application/vnd.siren+json" }'
-			on-response="allEnrollmentsOnResponse"
-			last-response="{{_allEnrollmentsResponse}}">
+			on-response="allEnrollmentsOnResponse">
 		</d2l-ajax>
 
 		<d2l-simple-overlay
@@ -29,7 +28,7 @@
 
 			<div class="dialog-content">
 				<h3 class="d2l-heading-3">{{localize('pinnedCourses')}}</h3>
-				<d2l-alert visible="{{_hasPinnedCourses}}">
+				<d2l-alert visible="{{!_hasPinnedCourses}}">
 					{{localize('noPinnedCoursesMessage')}}
 				</d2l-alert>
 				<div class="my-courses-container" role="region">
@@ -59,25 +58,21 @@
 			is: 'd2l-all-courses',
 			properties: {
 				pinnedCoursesEntities: {
-					type: Array
+					type: Array,
+					notify: true
 				},
 				unpinnedCoursesEntities: {
 					type: Array,
-					readOnly: true
+					notify: true
 				},
-				allEnrollmentsEntities: {
-					type: Array,
-					readOnly: true
+				testEnrollmentsUrl: {
+					type: String
 				},
 				enrollmentsUrl: {
 					type: String
 				},
-				_allEnrollmentsResponse: {
-					type: Object
-				},
 				_hasPinnedCourses: {
-					type: Boolean,
-					computed: '_isEmpty(pinnedCoursesEntities)'
+					type: Boolean
 				},
 				_windowResizeHandler: {
 					type: Object,
@@ -92,13 +87,29 @@
 				Polymer.D2L.MyCourses.LocalizeBehavior,
 				Polymer.D2L.MyCourses.InteractionDetectionBehavior
 			],
+			observers: [
+				'_onPinnedCoursesEntitiesChanged(pinnedCoursesEntities.*)'
+			],
 			ready : function() {
 				this.$$('d2l-simple-overlay').focusableNodesOverride = this.focusableNodesOverride;
 			},
 			allEnrollmentsOnResponse: function(response) {
 				if (response.detail.status === 200) {
-					this._setAllEnrollmentsEntities(this._allEnrollmentsResponse.entities);
-					this._filterUnpinnedCourses(this.pinnedCoursesEntities, this.allEnrollmentsEntities);
+					var parser = document.createElement('d2l-siren-parser');
+					var allCoursesEntities = parser.parse(response.detail.xhr.response).getSubEntitiesByClass('course-offering');
+
+					// Get unpinned courses
+					var unpinnedCourseFilter = function(parser) {
+						return function(element) {
+							return !parser.parse(element).hasEntityByClass('pinned');
+						}
+					};
+
+					this.set(
+						'unpinnedCoursesEntities',
+						allCoursesEntities.filter(unpinnedCourseFilter(parser))
+					);
+
 					this._rescaleCourseTileRegions(this._getOverlayWidth());
 				}
 			},
@@ -106,23 +117,13 @@
 				return item.class.indexOf('inactive') === -1;
 			},
 			open: function() {
+				this.$.allEnrollmentsRequest.url = this.effectiveEnrollmentsUrl();
 				this.$.allEnrollmentsRequest.generateRequest();
 				this.$$('d2l-simple-overlay').open();
 				this._rescaleCourseTileRegions(this._getOverlayWidth());
 			},
 			_getOverlayWidth: function() {
 				return this._getAvailableWidth(this.$$('d2l-simple-overlay'));
-			},
-			_filterUnpinnedCourses: function(pinnedCoursesEntities, allCoursesEntities) {
-				if (pinnedCoursesEntities && allCoursesEntities) {
-					var parser = document.createElement('d2l-siren-parser');
-					this._setUnpinnedCoursesEntities(
-						allCoursesEntities.filter(
-							function(element) {
-								var entity = parser.parse(element);
-								return !entity.hasEntityByClass('pinned');
-							}.bind(this)));
-				}
 			},
 			attached: function() {
 				this._addThrottledEventListener('resize', this._windowResizeHandler);
@@ -158,6 +159,16 @@
 			},
 			_isEmpty: function(list) {
 				return !list || list.length === 0;
+			},
+			effectiveEnrollmentsUrl: function() {
+				if (!this.testEnrollmentsUrl) {
+					return this.enrollmentsUrl;
+				} else {
+					return this.testEnrollmentsUrl;
+				}
+			},
+			_onPinnedCoursesEntitiesChanged: function(newArray) {
+				this._hasPinnedCourses = !newArray.base || newArray.base.length > 0;
 			}
 		});
 	</script>

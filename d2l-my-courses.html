@@ -27,8 +27,7 @@
 			id="allCoursesRequest"
 			url="[[enrollmentsUrl]]"
 			headers='{ "Accept": "application/vnd.siren+json" }'
-			on-response="onAllCoursesResponse"
-			last-response="{{_allCoursesResponse}}">
+			on-response="onAllCoursesResponse">
 		</d2l-ajax>
 
 		<d2l-alert visible="{{_alertMessage}}">
@@ -40,7 +39,7 @@
 		</d2l-alert>
 
 		<div class="my-courses-container">
-			<template is="dom-repeat" filter="isActive" items="[[_pinnedCoursesResponse.entities]]">
+			<template is="dom-repeat" filter=isActive items="[[pinnedCoursesEntities]]">
 				<d2l-course-tile
 					enrollment="[[item]]"
 					hover-enabled="[[_hoverInteractionEnabled]]"
@@ -60,7 +59,9 @@
 
 		<d2l-all-courses
 			enrollments-url="[[enrollmentsUrl]]"
-			pinned-courses-entities="{{_pinnedCoursesResponse.entities}}"
+			test-enrollments-url=[[testEnrollmentsUrl]]
+			pinned-courses-entities="{{pinnedCoursesEntities}}"
+			unpinned-courses-entities="{{unpinnedCoursesEntities}}"
 			locale="[[locale]]">
 		</d2l-all-courses>
 	</template>
@@ -80,6 +81,15 @@
 				enrollmentsUrl: {
 					type: String
 				},
+				testEnrollmentsUrl: {
+					type: String
+				},
+				pinnedCoursesEntities: {
+					type: Array
+				},
+				unpinnedCoursesEntities: {
+					type: Array
+				},
 				_alertMessage: {
 					type: String
 				},
@@ -87,14 +97,12 @@
 					type: Boolean,
 					value: false
 				},
-				_allCoursesResponse: {
-					type: Object
-				},
-				_pinnedCoursesResponse: {
-					type: Object
-				},
 				_pinnedCoursesUrl: {
+					type: String,
 					computed: '_getPinnedCoursesUrl(enrollmentsUrl)'
+				},
+				allEnrollmentsUrl: {
+					type: String
 				},
 				_windowResizeHandler: {
 					type: Object,
@@ -127,29 +135,34 @@
 			},
 			onPinnedCoursesResponse: function(response) {
 				if (response.detail.status === 200) {
-					this._rescaleCourseTileRegions();
-
-					if (this.courseTileItemCount === 0) {
-						this.$.allCoursesRequest.generateRequest();
-					} else {
-						this._hasCourses = true;
-					}
+					var parser = document.createElement('d2l-siren-parser');
+					var allEnrollments = parser.parse(response.detail.xhr.response);
+					this.pinnedCoursesEntities = allEnrollments.getSubEntitiesByClass('course-offering');
+					this._updateCourses();
 				}
 			},
-			onAllCoursesResponse: function() {
-				if (this._allCoursesResponse) {
-					var parser = document.createElement('d2l-siren-parser'),
-						allCoursesEntity = parser.parse(this._allCoursesResponse),
-						courses = allCoursesEntity.getSubEntitiesByClass('course-offering');
+			onAllCoursesResponse: function(response) {
+				if (response.detail.status === 200) {
+					var parser = document.createElement('d2l-siren-parser');
+					var allEnrollments = parser.parse(response.detail.xhr.response);
+					var allCourses = allEnrollments.getSubEntitiesByClass('course-offering');
 
-					if (courses.length === 0) {
-						this._alertMessage = this.localize('noCoursesMessage');
-					} else {
-						// Assuming that the only reason this request was made was
-						// because there were no pinned courses.
-						this._hasCourses = true;
-						this._alertMessage = this.localize('noPinnedCoursesMessage');
+					var newPinnedCourses = [];
+					var newUnpinnedCourses = [];
+
+					for(var i = 0; i < allCourses.length; i++) {
+						if(parser.parse(allCourses[i]).hasEntityByClass('pinned')) {
+							newPinnedCourses.push(allCourses[i]);
+						} else {
+							newUnpinnedCourses.push(allCourses[i]);
+						}
 					}
+
+					this.set('pinnedCoursesEntities', newPinnedCourses);
+					this.set('unpinnedCoursesEntities', newUnpinnedCourses);
+
+					this._updateNoCoursesAlert();
+					this._rescaleCourseTileRegions();
 				}
 			},
 			refreshPage: function() {
@@ -164,21 +177,93 @@
 				return enrollmentsUrl + '?filter=pinned';
 			},
 			get courseTileItemCount() {
-				var itemCount = this._pinnedCoursesResponse
-					? this._pinnedCoursesResponse.entities.filter(function(item) {
+				var itemCount = this.pinnedCoursesEntities
+					? this.pinnedCoursesEntities.filter(function(item) {
 						return item.class.indexOf('inactive') === -1;
 					}).length : 0;
 				return itemCount;
 			},
 			_onCoursePinned: function(e) {
 				this._ariaAnnounce(this.localize('pinActionResult', 'course', e.detail.course.properties.name));
+
+				this._pinCourse(e.detail.course);
 			},
 			_onCourseUnpinned: function(e) {
 				this._ariaAnnounce(this.localize('unpinActionResult', 'course', e.detail.course.properties.name));
+
+				this._unpinCourse(e.detail.course);
+			},
+			_pinCourse: function(course){
+				// Remove course from unpinned list, add to pinned
+				for (var index = 0; index < this.unpinnedCoursesEntities.length; index++) {
+					if (this.unpinnedCoursesEntities[index].properties.id == course.properties.id) {
+						var foundCourse = this.unpinnedCoursesEntities[index];
+						this._setCoursePinned(foundCourse, true);
+						this.push('pinnedCoursesEntities', foundCourse);
+						this.splice('unpinnedCoursesEntities', index, 1);
+						break;
+					}
+				}
+
+				this._updateNoCoursesAlert();
+				this._rescaleCourseTileRegions();
+			},
+			_unpinCourse: function(course) {
+				// Remove course from pinned list, add to unpinned
+				for (var index = 0; index < this.pinnedCoursesEntities.length; index++) {
+					if (this.pinnedCoursesEntities[index].properties.id == course.properties.id) {
+						var foundCourse = this.pinnedCoursesEntities[index];
+						this._setCoursePinned(foundCourse, false);
+						this.splice('pinnedCoursesEntities', index, 1);
+						this.push('unpinnedCoursesEntities', foundCourse);
+						break;
+					}
+				}
+
+				this._updateNoCoursesAlert();
+				this._rescaleCourseTileRegions();
 			},
 			_ariaAnnounce: function(message) {
 				this._setAriaMessage('');
 				this._setAriaMessage(message);
+			},
+			_updateCourses: function() {
+				this._rescaleCourseTileRegions();
+
+				if (this.courseTileItemCount === 0) {
+					this.$.allCoursesRequest.generateRequest();
+				} else {
+					this._hasCourses = true;
+				}
+			},
+			_setCoursePinned: function(entity, isPinned) {
+				var modEntity = entity.entities[0];
+
+				if(isPinned) {
+					modEntity.properties.pinDate = Date.now();
+					modEntity.class.push("pinned");
+				} else {
+					modEntity.properties.pinDate = undefined;
+					modEntity.class.splice(modEntity.class.indexOf("pinned"), 1);
+				}
+			},
+			_updateNoCoursesAlert: function() {
+				var hasCourses = true;
+				this._alertMessage = null;
+
+				if( this.pinnedCoursesEntities.length === 0) {
+					if (this.unpinnedCoursesEntities) {
+						hasCourses = this.unpinnedCoursesEntities.length > 0;
+					}
+
+					if(hasCourses) {
+						this._alertMessage = this.localize('noPinnedCoursesMessage');
+					} else {
+						this._alertMessage = this.localize('noCoursesMessage');
+					}
+				}
+
+				this._hasCourses = hasCourses;
 			}
 		});
 	</script>

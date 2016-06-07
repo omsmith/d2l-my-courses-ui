@@ -237,6 +237,17 @@ describe('smoke test', function() {
 	});
 
 	describe('A11Y', function() {
+		beforeEach(function() {
+			stub('d2l-my-courses', {
+				_pinCourse: function() {
+					console.log('_pinCourse called');
+				},
+				_unpinCourse: function() {
+					console.log('_unpinCourse called');
+				}
+			});
+		});
+
 		it('should announce when course is pinned', function() {
 			var event = new CustomEvent('course-pinned', {
 				detail: {
