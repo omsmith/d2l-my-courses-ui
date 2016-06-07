@@ -1,7 +1,10 @@
 {
   "plugins": {
     "local": {
-      "browsers": ["firefox"]
+      "browsers": [{
+        "browserName": "firefox",
+        "version": "46"
+      }]
     },
     "sauce": {
       "disabled": true,
