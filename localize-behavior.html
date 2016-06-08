@@ -15,14 +15,14 @@
 			},
 			locale: {
 				type: String,
-				value: function () {
+				value: function() {
 					return document.documentElement.lang
 						|| document.documentElement.getAttribute('data-lang-default')
 						|| 'en-us';
 				}
 			},
 			resources: {
-				value: function () {
+				value: function() {
 					var en = {
 						'viewAllCourses' : 'View All Courses',
 						'allCourses' : 'All Courses',
@@ -46,7 +46,7 @@
 				}
 			}
 		},
-		_determineLanguage: function (locale, resources) {
+		_determineLanguage: function(locale, resources) {
 			locale = locale.toLowerCase();
 
 			if (resources[locale]) {

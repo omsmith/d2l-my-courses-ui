@@ -87,19 +87,19 @@
 		created: function() {
 			this._updateBackdropStyle();
 		},
-		handleClose: function () {
+		handleClose: function() {
 			this.close();
 		},
-		_isMobile: function () {
+		_isMobile: function() {
 			var width = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
 			return width < 768;
 		},
-		_updateBackdropStyle: function () {
+		_updateBackdropStyle: function() {
 			var style = document.createElement('style', 'custom-style');
-			style.innerHTML = "iron-overlay-backdrop { --iron-overlay-backdrop-opacity: 0.0; }";
+			style.innerHTML = 'iron-overlay-backdrop { --iron-overlay-backdrop-opacity: 0.0; }';
 			document.body.appendChild(style);
 		},
-		_renderOpened: function () {
+		_renderOpened: function() {
 			this.cancelAnimation();
 
 			this._onNodesChange();
@@ -111,7 +111,7 @@
 				this.playAnimation('desktopOpen');
 			}
 		},
-		_renderClosed: function () {
+		_renderClosed: function() {
 			this.cancelAnimation();
 
 			if (this._isMobile()) {
@@ -120,7 +120,7 @@
 				this.playAnimation('desktopClose');
 			}
 		},
-		_onNeonAnimationFinish: function () {
+		_onNeonAnimationFinish: function() {
 			document.body.classList.toggle('d2l-shim-body-overflow', this.opened);
 
 			if (this.opened) {
@@ -132,17 +132,16 @@
 		get _focusableNodes() {
 			var focusables;
 
-			if(this.focusableNodesOverride != null) {
+			if (this.focusableNodesOverride !== null) {
 				focusables = this.focusableNodesOverride.call(this);
-			}
-			else {
-				focusables = Polymer.IronOverlayBehaviorImpl.__lookupGetter__("_focusableNodes").call(this);
+			} else {
+				focusables = Polymer.IronOverlayBehaviorImpl.__lookupGetter__('_focusableNodes').call(this);
 			}
 
 			focusables.push(Polymer.dom(this.root).querySelector('.close-button'));
 
 			return focusables;
 		}
-	})
+	});
 	</script>
 </dom-module>

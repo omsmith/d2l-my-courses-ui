@@ -95,10 +95,10 @@
 			behaviors: [
 				Polymer.D2L.MyCourses.LocalizeBehavior
 			],
-			created: function () {
+			created: function() {
 				this.setAttribute('role', 'link');
 			},
-			updatePreferencesOnResponse: function (response) {
+			updatePreferencesOnResponse: function(response) {
 				if (response.detail.status === 200) {
 					var parser = document.createElement('d2l-siren-parser');
 					var preferencesEntity = parser.parse(response.detail.xhr.response);
@@ -107,14 +107,14 @@
 					this._pinned = this._enrollmentEntity.getSubEntitiesByRel('preferences')[0].properties.hasOwnProperty('pinDate');
 				}
 			},
-			updatePreferencesOnError: function (error) {
+			updatePreferencesOnError: function(error) {
 				error.preventDefault();
 				error.stopPropagation();
 				this._pinned = this._enrollmentEntity.getSubEntitiesByRel('preferences')[0].properties.hasOwnProperty('pinDate');
 			},
 			pinClickHandler: function(e) {
 				// Prevent the click from triggering navigation to the course
-				if(e != null) {
+				if (e) {
 					e.preventDefault();
 				}
 
@@ -152,14 +152,14 @@
 					Polymer.dom(courseImage).classList.remove('hover');
 				}
 			},
-			onTileMouseOut: function () {
+			onTileMouseOut: function() {
 				this.unhoverCourseTile(true);
 			},
-			_enrollmentChanged: function (enrollment) {
+			_enrollmentChanged: function(enrollment) {
 				var parser = document.createElement('d2l-siren-parser');
 				this._enrollmentEntity = parser.parse(enrollment);
 			},
-			_enrollmentEntityChanged: function (entity) {
+			_enrollmentEntityChanged: function(entity) {
 				if (entity.hasLink('course-image')) {
 					var courseImageLink = entity.getLinkByRel('course-image');
 					var courseImage = this.$$('.course-image img');
@@ -178,7 +178,7 @@
 					this._updatePreferencesFields = updatePreferencesAction.fields;
 				}
 			},
-			_pinnedChanged: function (pinned) {
+			_pinnedChanged: function(pinned) {
 				var pinIcon = this.$$('.menu-item iron-icon.menu-icon'),
 					pinText = this.$$('.menu-item .menu-text.pin'),
 					unpinText = this.$$('.menu-item .menu-text.unpin'),

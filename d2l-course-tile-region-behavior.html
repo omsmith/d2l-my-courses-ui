@@ -9,14 +9,14 @@
 
 		Polymer.D2L.MyCourses.CourseTileRegionBehavior = {
 			get courseTileItemCount() {
-				throw "Must implement courseTileItemCount in behavior consumer";
+				throw 'Must implement courseTileItemCount in behavior consumer';
 			},
 			_rescaleCourseTileRegions: function(forcedWidth) {
 				var itemCount = this.courseTileItemCount;
 
 				this._setupColumns(itemCount, forcedWidth);
 			},
-			_calcNumColumns: function (width, itemCount) {
+			_calcNumColumns: function(width, itemCount) {
 				var numCols = 1;
 
 				if (width < 768) {
@@ -41,18 +41,18 @@
 
 				return numCols;
 			},
-			_setupColumns: function (itemCount, forcedWidth) {
+			_setupColumns: function(itemCount, forcedWidth) {
 				var containers = Polymer.dom(this.root).querySelectorAll('.my-courses-container');
 				var colClasses = ['columns-2', 'columns-3', 'columns-4'];
-				var currentColClass = function (domNode) {
-						var foundClass = '';
-						colClasses.forEach(function (item) {
-								if (!foundClass && domNode.classList.contains(item)) {
-										foundClass = item;
-								}
-						});
-						return foundClass;
-					}
+				var currentColClass = function(domNode) {
+					var foundClass = '';
+					colClasses.forEach(function(item) {
+						if (!foundClass && domNode.classList.contains(item)) {
+							foundClass = item;
+						}
+					});
+					return foundClass;
+				};
 
 				containers.forEach(function(container) {
 					var width = forcedWidth || this._getAvailableWidth(container);
@@ -64,10 +64,10 @@
 						var newClassName = 'columns-' + numCols;
 
 						if (oldClassName !== newClassName) {
-								if (oldClassName) {
-									domNode.classList.remove(oldClassName);
-								}
-								domNode.classList.add(newClassName);
+							if (oldClassName) {
+								domNode.classList.remove(oldClassName);
+							}
+							domNode.classList.add(newClassName);
 						}
 					} else {
 						if (oldClassName) {
@@ -81,7 +81,7 @@
 			// The width will be zero if the element is hidden with display: none.
 			// If an ancestor node is used for the width, it may not be entirely accurate, but it should be
 			// fine for the purpose of creating a decent layout for a hidden widget.
-			_getAvailableWidth: function (node) {
+			_getAvailableWidth: function(node) {
 				var width = node.getBoundingClientRect().width;
 
 				if (width > 0) {
@@ -94,18 +94,18 @@
 
 				return this._getAvailableWidth(node.parentElement);
 			},
-			_handleWindowResize: function () {
+			_handleWindowResize: function() {
 				this._rescaleCourseTileRegions();
 			},
-			_addThrottledEventListener: function (eventName, eventHandler) {
+			_addThrottledEventListener: function(eventName, eventHandler) {
 				var timeout = false,
 					delay = 100;
 
-				window.addEventListener(eventName, function () {
+				window.addEventListener(eventName, function() {
 					clearTimeout(timeout);
 					timeout = setTimeout(eventHandler, delay);
 				});
 			}
-		}
+		};
 	})();
 </script>

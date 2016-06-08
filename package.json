@@ -9,9 +9,8 @@
     "postinstall": "bower install",
     "publish:cdn": "npm run build -s && frau-publisher",
     "serve": "polyserve",
-    "test:lint:js": "eslint test/ --ext .js",
-    "test:lint:html": "eslint *.html",
-    "test": "npm run test:lint:js && npm run test:lint:html && wct",
+    "test:lint": "eslint test/ --ext .js,.html && eslint *.html",
+    "test": "npm run test:lint && wct",
     "test:no-lint": "wct -p"
   },
   "config": {
@@ -45,6 +44,7 @@
   "devDependencies": {
     "bower": "^1.7.7",
     "eslint": "^2.4.0",
+    "eslint-config-brightspace": "^0.2.1",
     "eslint-plugin-html": "^1.4.0",
     "frau-publisher": "^2.5.3",
     "polyserve": "^0.7.1",
