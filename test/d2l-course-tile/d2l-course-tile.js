@@ -110,9 +110,9 @@ describe('<d2l-course-tile>', function () {
 			var pinIcon = courseTile.$$('.menu-item iron-icon.menu-icon');
 
 			courseTile._pinned = false;
-			expect(pinIcon.icon).to.equal('vui-tier1:pin-filled');
+			expect(pinIcon.icon).to.equal('d2l-tier1:pin-filled');
 			courseTile._pinned = true;
-			expect(pinIcon.icon).to.equal('vui-tier1:pin-hollow');
+			expect(pinIcon.icon).to.equal('d2l-tier1:pin-hollow');
 		});
 
 		it('should call the pinning API', function (done) {

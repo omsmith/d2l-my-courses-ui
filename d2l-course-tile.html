@@ -39,7 +39,7 @@
 					on-click="pinClickHandler"
 					on-focus="hoverCourseTile"
 					on-blur="unhoverCourseTile">
-					<iron-icon class="menu-icon" icon="vui-tier1:pin-filled" aria-hidden="true"></iron-icon>
+					<iron-icon class="menu-icon" icon="d2l-tier1:pin-filled" aria-hidden="true"></iron-icon>
 					<span class="menu-text pin"
 						aria-label$="[[localize('pinCourse', 'course', _enrollmentEntity.properties.name)]]"
 						>{{localize('pin')}}</span>
@@ -53,7 +53,7 @@
 		<d2l-touch-menu>
 			<d2l-touch-menu-item
 				text="{{localize('pin')}}"
-				background-image="vui-tier1:pin-filled"
+				background-image="d2l-tier1:pin-filled"
 				selection-handler="pinClickHandler"
 				action-description="[[localize('pinCourse', 'course', _enrollmentEntity.properties.name)]]">
 			</d2l-touch-menu-item>
@@ -185,18 +185,18 @@
 					pinTouchMenuItem = this.$$('d2l-touch-menu-item');
 
 				if (pinned) {
-					Polymer.dom(pinIcon).setAttribute('icon', 'vui-tier1:pin-hollow');
+					Polymer.dom(pinIcon).setAttribute('icon', 'd2l-tier1:pin-hollow');
 					Polymer.dom(pinText).setAttribute('style', 'display: none');
 					Polymer.dom(unpinText).setAttribute('style', 'display: inline');
 					Polymer.dom(pinTouchMenuItem).setAttribute('text', this.localize('unpin'));
-					Polymer.dom(pinTouchMenuItem).setAttribute('background-image', 'vui-tier1:pin-hollow');
+					Polymer.dom(pinTouchMenuItem).setAttribute('background-image', 'd2l-tier1:pin-hollow');
 					Polymer.dom(pinTouchMenuItem).setAttribute('action-description', this.localize('unpinCourse', 'course', this._enrollmentEntity.properties.name));
 				} else {
-					Polymer.dom(pinIcon).setAttribute('icon', 'vui-tier1:pin-filled');
+					Polymer.dom(pinIcon).setAttribute('icon', 'd2l-tier1:pin-filled');
 					Polymer.dom(pinText).setAttribute('style', 'display: inline');
 					Polymer.dom(unpinText).setAttribute('style', 'display: none');
 					Polymer.dom(pinTouchMenuItem).setAttribute('text', this.localize('pin'));
-					Polymer.dom(pinTouchMenuItem).setAttribute('background-image', 'vui-tier1:pin-filled');
+					Polymer.dom(pinTouchMenuItem).setAttribute('background-image', 'd2l-tier1:pin-filled');
 					Polymer.dom(pinTouchMenuItem).setAttribute('action-description', this.localize('pinCourse', 'course', this._enrollmentEntity.properties.name));
 				}
 			}
