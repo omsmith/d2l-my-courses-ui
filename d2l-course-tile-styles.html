@@ -1,15 +1,15 @@
 <link rel="import" href="../vui-colors/colors.html">
+<link rel="import" href="../vui-typography/small-text.html">
 
 <dom-module id="d2l-course-tile-styles">
 	<template>
 		<style include="vui-colors"></style>
+		<style include="vui-small-text"></style>
 		<style>
 		:host {
 			display: block;
-			@apply(--vui-font);
 			-webkit-backface-visibility: hidden;
 		}
-
 		.tile-container {
 			position: relative;
 		}
@@ -32,7 +32,7 @@
 			bottom: 0;
 			border-top-left-radius: 10px;
 			border-top-right-radius: 10px;
-			background: #B9C2D0;
+			background: var(--vui-color-pressicus);
 			overflow: hidden;
 			z-index: 0;
 		}
@@ -52,13 +52,15 @@
 			transform: scale(1.1);
 		}
 		.course-text {
-			@apply(--vui-heading-4);
 			width: 100%;
 			max-height: 75px;
 			overflow: hidden;
 			position: relative;
 			margin-top: 0.4em;
 			margin-bottom: 1.9em;
+			/* overrides to vui-heading-4 */
+			font-weight: 400;
+			/* end overrides */
 			/* ellipses for long text */
 			display: -webkit-box;
 			-webkit-line-clamp: 2;
@@ -98,8 +100,11 @@
 			background: rgba(0,0,0,0.7);
 		}
 		.menu-text {
+			@apply(--vui-small-text);
+			/* overrides to vui-small-text */
 			font-size: 14px;
-			vertical-align: middle;
+			color: rgba(255,255,255,1);
+			/* end overrides */
 		}
 		.no-tap-interaction {
 			-webkit-touch-callout: none;
