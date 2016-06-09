@@ -21,19 +21,16 @@
 		Polymer({
 			is: 'd2l-touch-menu-item',
 			properties: {
+				actionDescription: {
+					type: String
+				},
+				ariaMessage: {
+					type: String,
+					readOnly: true
+				},
 				backgroundImage: {
 					type: String,
 					observer: '_backgroundImageChanged'
-				},
-				text: {
-					type: String,
-					observer: '_textChanged'
-				},
-				selectionHandler: {
-					type: String
-				},
-				inTransition: {
-					type: Boolean
 				},
 				hoverState: {
 					type: Boolean,
@@ -43,8 +40,18 @@
 					type: Object,
 					observer: '_offsetChanged'
 				},
-				actionDescription: {
+				selectionHandler: {
 					type: String
+				},
+				text: {
+					type: String,
+					observer: '_textChanged'
+				},
+				touchRegion: {
+					type: Object
+				},
+				_inTransition: {
+					type: Boolean
 				},
 				_menuItem: {
 					type: Object
@@ -55,13 +62,6 @@
 				_displayBackgroundImage: {
 					type: String
 				},
-				touchRegion: {
-					type: Object
-				},
-				ariaMessage: {
-					type: String,
-					readOnly: true
-				},
 				_hostNode: {
 					type: Object
 				}
@@ -70,22 +70,11 @@
 				this._menuItem = this.$$('.longpress-menu-item');
 				this._updateDisplayData();
 			},
-			_hoverStateChanged: function(isHovered, wasHovered) {
-				this.toggleClass('longpress-menu-item-hover', isHovered, this._menuItem);
-
-				if (isHovered !== wasHovered) {
-					if (isHovered && this.actionDescription) {
-						this._ariaAnnounce(this.actionDescription);
-					} else {
-						this._ariaAnnounce('');
-					}
-				}
-			},
 			set selected(isSelected) {
 				this.toggleClass('selected', isSelected, this._menuItem);
 
 				if (isSelected) {
-					this.inTransition = true;
+					this._inTransition = true;
 					this.listen(this._menuItem, 'transitionend', 'transitionendHandler');
 				}
 			},
@@ -97,34 +86,6 @@
 			},
 			get height() {
 				return this._menuItem.clientHeight;
-			},
-			transitionendHandler: function() {
-				// Triggered by the end of the transition caused by adding 'selected' class
-				this.inTransition = false;
-				this.hoverState = false;
-				this.selected = false;
-				// Detach this event handler - otherwise the menu item's classes thrash
-				this.unlisten(this._menuItem, 'transitionend', 'transitionendHandler');
-
-				this._updateDisplayData();
-			},
-			_textChanged: function(newValue) {
-				if (!this.inTransition) {
-					this._displayText = newValue;
-				}
-			},
-			_backgroundImageChanged: function(newValue) {
-				if (!this.inTransition) {
-					this._displayBackgroundImage = newValue;
-				}
-			},
-			_updateDisplayData: function() {
-				this._displayText = this.text;
-				this._displayBackgroundImage = this.backgroundImage;
-			},
-			_offsetChanged: function(newOffset) {
-				this.style.left = newOffset.x + 'px';
-				this.style.top = newOffset.y + 'px';
 			},
 			pointInTouchRegion: function(point) {
 				var rect = {
@@ -140,6 +101,45 @@
 					&& (point.x < rect.right)
 					&& (point.x > rect.left)
 				);
+			},
+			transitionendHandler: function() {
+				// Triggered by the end of the transition caused by adding 'selected' class
+				this._inTransition = false;
+				this.hoverState = false;
+				this.selected = false;
+				// Detach this event handler - otherwise the menu item's classes thrash
+				this.unlisten(this._menuItem, 'transitionend', 'transitionendHandler');
+
+				this._updateDisplayData();
+			},
+			_hoverStateChanged: function(isHovered, wasHovered) {
+				this.toggleClass('longpress-menu-item-hover', isHovered, this._menuItem);
+
+				if (isHovered !== wasHovered) {
+					if (isHovered && this.actionDescription) {
+						this._ariaAnnounce(this.actionDescription);
+					} else {
+						this._ariaAnnounce('');
+					}
+				}
+			},
+			_textChanged: function(newValue) {
+				if (!this._inTransition) {
+					this._displayText = newValue;
+				}
+			},
+			_backgroundImageChanged: function(newValue) {
+				if (!this._inTransition) {
+					this._displayBackgroundImage = newValue;
+				}
+			},
+			_updateDisplayData: function() {
+				this._displayText = this.text;
+				this._displayBackgroundImage = this.backgroundImage;
+			},
+			_offsetChanged: function(newOffset) {
+				this.style.left = newOffset.x + 'px';
+				this.style.top = newOffset.y + 'px';
 			},
 			_ariaAnnounce: function(message) {
 				this._setAriaMessage('');

@@ -14,18 +14,18 @@
 		Polymer({
 			is: 'd2l-touch-menu',
 			properties: {
-				touchTarget: {
+				_touchTarget: {
 					type: Object,
 					observer: '_touchTargetChanged'
 				},
-				longPressDuration: {
+				_longPressDuration: {
 					type: Number,
 					value: 500
 				},
 				_menuItemInitialOffset: {
 					type: Object
 				},
-				menuOpen: {
+				_menuOpen: {
 					type: Boolean,
 					observer: '_onMenuOpenChanged'
 				},
@@ -82,14 +82,14 @@
 					this._owner = this.parentNode;
 					this._host = Polymer.dom(this).parentNode.host;
 
-					if (!this.touchTarget) {
-						this.touchTarget = this._host;
+					if (!this._touchTarget) {
+						this._touchTarget = this._host;
 					}
 
 					// We need to catch contextmenu events both directly from this element, and separetly from the touch target,
 					// as each will be the target of that event under different circumstances (typically, this element will be the target
 					// when there is no active scroll event, and the touch target will be the event target when there is a scroll event)
-					this.listen(this.touchTarget, 'contextmenu', 'contextMenuHandler');
+					this.listen(this._touchTarget, 'contextmenu', 'contextMenuHandler');
 				}
 			},
 			touchstartHandler: function(e) {
@@ -100,12 +100,12 @@
 				};
 
 				// Only show the menu if it's tap+hold
-				this._timerID = setTimeout(this.openMenu.bind(this, e), this.longPressDuration);
+				this._timerID = setTimeout(this.openMenu.bind(this, e), this._longPressDuration);
 			},
 			touchmoveHandler: function(e) {
 				this._touchStartEventData = null;
 
-				if (this.menuOpen) {
+				if (this._menuOpen) {
 					var touchPoint = {
 						x: e.changedTouches[0].clientX,
 						y: e.changedTouches[0].clientY
@@ -159,12 +159,12 @@
 
 				this._cancelMenu();
 
-				this.menuOpen = false;
+				this._menuOpen = false;
 			},
 			openMenu: function(touchstartEvent) {
 				this._touchStartEventData = null;
 
-				this.listen(this.touchTarget, 'touchend', 'touchendHandler');
+				this.listen(this._touchTarget, 'touchend', 'touchendHandler');
 
 				var touchData = {
 					startX: touchstartEvent.changedTouches[0].pageX,
@@ -201,7 +201,7 @@
 					};
 				}.bind(this));
 
-				this.menuOpen = true;
+				this._menuOpen = true;
 			},
 			_touchTargetChanged: function(newValue, oldValue) {
 				if (oldValue !== null) {
