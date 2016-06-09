@@ -1,57 +1,42 @@
 <link rel="import" href="../vui-colors/colors.html">
+<link rel="import" href="../vui-typography/small-text.html">
 <link rel="import" href="d2l-course-tile-region-styles.html">
 
 <dom-module id="d2l-my-courses-styles">
 	<template>
 		<style include="vui-colors"></style>
+		<style include="vui-small-text"></style>
 		<style include="d2l-course-tile-region-styles"></style>
 		<style>
 		:host {
-			@apply(--vui-font);
 			display: block;
-			font-family: 'Lato-Regular', sans-serif;
-			letter-spacing: 1px;
-			color: var(--vui-color-ferrite);
 		}
-
+		:focus {
+			text-decoration: underline;
+		}
 		@media not all and (hover: hover) {
 			:host {
 				-webkit-user-select: none;
 				user-select: none;
 			}
  		}
-
-		:focus {
-			text-decoration: underline;
-		}
-
 		.all-courses-button {
+			@apply(--vui-small-text);
+			/* overrides to vui-small-text */
 			color: var(--vui-color-celestine);
-			font-family: inherit;
-			font-size: 0.7rem;
-			font-weight: 700;
-			line-height: 1rem;
+			margin: 0;
 			margin-top: -10px;
+			font-weight: 700;
+			/* end overrides */
 			display: block;
 			background: none;
 			border: none;
 			padding: 0;
 			cursor: pointer;
 			position: relative;
-			z-index: 1;
 		}
-
 		.all-courses-button:hover {
 			text-decoration: underline;
-		}
-
-		.header {
-			font-family: 'Lato';
-			font-size: 1em;
-			letter-spacing: 0.035em;
-			color: var(--vui-color-celestine);
-			padding-top: 5px;
-			display: block;
 		}
 		d2l-alert {
 			margin-bottom: 30px;
