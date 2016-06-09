@@ -39,7 +39,7 @@
     "app-localize-behavior": "PolymerElements/app-localize-behavior#^0.9.0",
     "d2l-siren-parser": "git://github.com/Brightspace/d2l-siren-parser-ui.git#^1.0.0",
     "vui-link": "^2.1.0",
-    "d2l-icons": "^2.0.0"
+    "d2l-icons": "^2.0.2"
   },
   "devDependencies": {
     "web-component-tester": "^4.2.2"
