@@ -64,6 +64,12 @@
 				},
 				_hostNode: {
 					type: Object
+				},
+				_selected: {
+					type: Boolean
+				},
+				_visible: {
+					type: Boolean
 				}
 			},
 			ready: function() {
@@ -71,15 +77,19 @@
 				this._updateDisplayData();
 			},
 			set selected(isSelected) {
+				this._selected = isSelected;
 				this.toggleClass('selected', isSelected, this._menuItem);
 
 				if (isSelected) {
 					this._inTransition = true;
 					this.listen(this._menuItem, 'transitionend', 'transitionendHandler');
+				} else {
+					// Not selected implied not visible
+					this.visible = false;
 				}
 			},
 			get selected() {
-				return this._menuItem.classList.contains('selected');
+				return this._selected;
 			},
 			get width() {
 				return this._menuItem.clientWidth;
@@ -107,6 +117,7 @@
 				this._inTransition = false;
 				this.hoverState = false;
 				this.selected = false;
+				this.visible = false;
 				// Detach this event handler - otherwise the menu item's classes thrash
 				this.unlisten(this._menuItem, 'transitionend', 'transitionendHandler');
 
@@ -144,6 +155,15 @@
 			_ariaAnnounce: function(message) {
 				this._setAriaMessage('');
 				this._setAriaMessage(message);
+			},
+			set visible(isVisible) {
+				if (!this._selected) {
+					this._visible = isVisible;
+					this.toggleClass('visible', isVisible, this._menuItem);
+				}
+			},
+			get visible() {
+				return this._visible;
 			}
 		});
 	</script>
