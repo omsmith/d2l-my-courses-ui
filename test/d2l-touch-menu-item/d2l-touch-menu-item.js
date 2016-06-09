@@ -27,14 +27,14 @@ describe('<d2l-touch-menu-item>', function() {
 		});
 
 		it('should not update its image during transitions', function() {
-			touchMenuItem.inTransition = true;
+			touchMenuItem._inTransition = true;
 			touchMenuItem.text = newDisplayText;
 
 			expect(touchMenuItem._displayText).to.equal('originalText');
 		});
 
 		it('should not update its display image during transitions', function() {
-			touchMenuItem.inTransition = true;
+			touchMenuItem._inTransition = true;
 			touchMenuItem.backgroundImage = newImageName;
 
 			expect(touchMenuItem._displayBackgroundImage).to.equal('originalImage');

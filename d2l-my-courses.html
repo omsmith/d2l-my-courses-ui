@@ -15,10 +15,10 @@
 
 		<d2l-ajax
 			id="pinnedCoursesRequest"
-			url="[[pinnedCoursesUrl]]"
+			url="[[_pinnedCoursesUrl]]"
 			headers='{ "Accept": "application/vnd.siren+json" }'
 			on-response="onPinnedCoursesResponse"
-			last-response="{{pinnedCoursesResponse}}">
+			last-response="{{_pinnedCoursesResponse}}">
 		</d2l-ajax>
 
 		<d2l-ajax
@@ -26,19 +26,19 @@
 			url="[[enrollmentsUrl]]"
 			headers='{ "Accept": "application/vnd.siren+json" }'
 			on-response="onAllCoursesResponse"
-			last-response="{{allCoursesResponse}}">
+			last-response="{{_allCoursesResponse}}">
 		</d2l-ajax>
 
-		<d2l-alert visible="{{alertMessage}}">
-			{{alertMessage}}
+		<d2l-alert visible="{{_alertMessage}}">
+			{{_alertMessage}}
 			<a is="vui-link"
 				href="Javascript:void(0);"
-				hidden$="{{hasCourses}}"
+				hidden$="{{_hasCourses}}"
 				on-tap="refreshPage">{{localize('refresh')}}</a>
 		</d2l-alert>
 
 		<div class="my-courses-container">
-			<template is="dom-repeat" items="[[pinnedCoursesResponse.entities]]">
+			<template is="dom-repeat" items="[[_pinnedCoursesResponse.entities]]">
 				<d2l-course-tile enrollment="[[item]]"></d2l-course-tile>
 			</template>
 		</div>
@@ -46,7 +46,7 @@
 		<div class="d2l-offscreen" aria-live="polite">{{ariaMessage}}</div>
 
 		<button class="all-courses-button"
-			hidden$="{{!hasCourses}}"
+			hidden$="{{!_hasCourses}}"
 			on-tap="openAllCoursesView"
 			aria-haspopup="true">
 			{{localize('viewAllCourses')}}
@@ -54,7 +54,7 @@
 
 		<d2l-all-courses
 			enrollments-url="[[enrollmentsUrl]]"
-			pinned-courses-entities="{{pinnedCoursesResponse.entities}}"
+			pinned-courses-entities="{{_pinnedCoursesResponse.entities}}"
 			locale="[[locale]]">
 		</d2l-all-courses>
 	</template>
@@ -63,34 +63,34 @@
 		Polymer({
 			is: 'd2l-my-courses',
 			properties: {
-				delayLoad: {
-					type: Boolean,
-					value: false
-				},
 				ariaMessage: {
 					type: String,
 					readOnly: true
 				},
-				alertMessage: {
-					type: String
-				},
-				hasCourses: {
+				delayLoad: {
 					type: Boolean,
 					value: false
-				},
-				allCoursesResponse: {
-					type: Object
-				},
-				pinnedCoursesResponse: {
-					type: Object
 				},
 				enrollmentsUrl: {
 					type: String
 				},
-				pinnedCoursesUrl: {
+				_alertMessage: {
+					type: String
+				},
+				_hasCourses: {
+					type: Boolean,
+					value: false
+				},
+				_allCoursesResponse: {
+					type: Object
+				},
+				_pinnedCoursesResponse: {
+					type: Object
+				},
+				_pinnedCoursesUrl: {
 					computed: '_getPinnedCoursesUrl(enrollmentsUrl)'
 				},
-				windowResizeHandler: {
+				_windowResizeHandler: {
 					type: Object,
 					readOnly: true,
 					value: function() {
@@ -107,13 +107,13 @@
 				'course-unpinned': '_onCourseUnpinned'
 			},
 			attached: function() {
-				this._addThrottledEventListener('resize', this.windowResizeHandler);
+				this._addThrottledEventListener('resize', this._windowResizeHandler);
 				if (!this.delayLoad) {
 					this.$.pinnedCoursesRequest.generateRequest();
 				}
 			},
 			detached: function() {
-				window.removeEventListener('resize', this.windowResizeHandler);
+				window.removeEventListener('resize', this._windowResizeHandler);
 			},
 			onPinnedCoursesResponse: function(response) {
 				if (response.detail.status === 200) {
@@ -122,23 +122,23 @@
 					if (this.courseTileItemCount === 0) {
 						this.$.allCoursesRequest.generateRequest();
 					} else {
-						this.hasCourses = true;
+						this._hasCourses = true;
 					}
 				}
 			},
 			onAllCoursesResponse: function() {
-				if (this.allCoursesResponse) {
+				if (this._allCoursesResponse) {
 					var parser = document.createElement('d2l-siren-parser'),
-						allCoursesEntity = parser.parse(this.allCoursesResponse),
+						allCoursesEntity = parser.parse(this._allCoursesResponse),
 						courses = allCoursesEntity.getSubEntitiesByClass('course-offering');
 
 					if (courses.length === 0) {
-						this.alertMessage = this.localize('noCoursesMessage');
+						this._alertMessage = this.localize('noCoursesMessage');
 					} else {
 						// Assuming that the only reason this request was made was
 						// because there were no pinned courses.
-						this.hasCourses = true;
-						this.alertMessage = this.localize('noPinnedCoursesMessage');
+						this._hasCourses = true;
+						this._alertMessage = this.localize('noPinnedCoursesMessage');
 					}
 				}
 			},
@@ -154,7 +154,7 @@
 				return enrollmentsUrl + '?filter=pinned';
 			},
 			get courseTileItemCount() {
-				var itemCount = this.pinnedCoursesResponse ? this.pinnedCoursesResponse.entities.length : 0;
+				var itemCount = this._pinnedCoursesResponse ? this._pinnedCoursesResponse.entities.length : 0;
 				return itemCount;
 			},
 			_onCoursePinned: function(e) {

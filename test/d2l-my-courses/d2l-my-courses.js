@@ -111,8 +111,8 @@ describe('smoke test', function() {
 			widget.$.pinnedCoursesRequest.generateRequest();
 
 			widget.$.pinnedCoursesRequest.addEventListener('response', function() {
-				expect(widget.pinnedCoursesResponse).to.not.be.undefined;
-				expect(Array.isArray(widget.pinnedCoursesResponse.entities)).to.be.true;
+				expect(widget._pinnedCoursesResponse).to.not.be.undefined;
+				expect(Array.isArray(widget._pinnedCoursesResponse.entities)).to.be.true;
 				done();
 			});
 		});
@@ -137,8 +137,8 @@ describe('smoke test', function() {
 			widget.$.pinnedCoursesRequest.generateRequest();
 
 			widget.$.allCoursesRequest.addEventListener('response', function() {
-				expect(widget.allCoursesResponse).to.not.be.undefined;
-				expect(Array.isArray(widget.allCoursesResponse.entities)).to.be.true;
+				expect(widget._allCoursesResponse).to.not.be.undefined;
+				expect(Array.isArray(widget._allCoursesResponse.entities)).to.be.true;
 				done();
 			});
 		});
@@ -163,8 +163,8 @@ describe('smoke test', function() {
 			widget.$.pinnedCoursesRequest.generateRequest();
 
 			widget.$.allCoursesRequest.addEventListener('response', function() {
-				expect(widget.hasCourses).to.equal(false);
-				expect(widget.alertMessage).to.equal('Your courses aren\'t quite ready. Please check back soon.');
+				expect(widget._hasCourses).to.equal(false);
+				expect(widget._alertMessage).to.equal('Your courses aren\'t quite ready. Please check back soon.');
 				done();
 			});
 		});
@@ -187,8 +187,8 @@ describe('smoke test', function() {
 			widget.$.pinnedCoursesRequest.generateRequest();
 
 			widget.$.allCoursesRequest.addEventListener('response', function() {
-				expect(widget.hasCourses).to.equal(true);
-				expect(widget.alertMessage).to.equal('You don\'t have any pinned courses. Pin your favorite courses to make them easier to find.');
+				expect(widget._hasCourses).to.equal(true);
+				expect(widget._alertMessage).to.equal('You don\'t have any pinned courses. Pin your favorite courses to make them easier to find.');
 				done();
 			});
 		});
