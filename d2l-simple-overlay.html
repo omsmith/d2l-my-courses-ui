@@ -11,14 +11,14 @@
 <link rel="import" href="icons.html">
 <link rel="import" href="localize-behavior.html">
 
-<dom-module id='d2l-simple-overlay'>
+<dom-module id="d2l-simple-overlay">
 	<style include="d2l-simple-overlay-styles"></style>
 	<template>
 		<div class="max-width">
 			<button class="close-button pull-right" on-tap="handleClose" alt$="{{localize('closeSimpleOverlayAltText')}}">
 				<iron-icon icon="actions:close"></iron-icon>
 			</button>
-			<h2>{{title}}</h2>
+			<h2 class="vui-heading-2">{{title}}</h2>
 		</div>
 		<div class="scrollable">
 			<div class="max-width">
