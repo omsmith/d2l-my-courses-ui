@@ -65,6 +65,10 @@
 				_hostNode: {
 					type: Object
 				},
+				touchRadiusPadding: {
+					type: Number,
+					value: 30
+				},
 				_selected: {
 					type: Boolean
 				},
@@ -99,10 +103,10 @@
 			},
 			pointInTouchRegion: function(point) {
 				var rect = {
-					top: this.touchRegion.top,
-					bottom: this.touchRegion.top + this.height,
-					left: this.touchRegion.left,
-					right: this.touchRegion.left + this.width
+					top: this.touchRegion.top - this.touchRadiusPadding,
+					bottom: this.touchRegion.top + this.height + this.touchRadiusPadding,
+					left: this.touchRegion.left - this.touchRadiusPadding,
+					right: this.touchRegion.left + this.width + this.touchRadiusPadding
 				};
 
 				return (
