@@ -1,14 +1,14 @@
 <link rel="import" href="../vui-colors/colors.html">
+<link rel="import" href="../vui-typography/small-text.html">
 
 <dom-module id="d2l-alert-styles">
 	<template>
 		<style include="vui-colors"></style>
+		<style include="vui-small-text"></style>
 		<style>
 		:host {
-			@apply(--vui-font);
+			@apply(--vui-small-text);
 			display: block;
-			font-family: 'Lato-Regular', sans-serif;
-			font-size: 0.7em;
 		}
 		.message-wrapper {
 			position: relative;
