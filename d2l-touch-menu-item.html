@@ -65,7 +65,7 @@
 				_hostNode: {
 					type: Object
 				},
-				touchRadiusPadding: {
+				_touchRadiusPadding: {
 					type: Number,
 					value: 30
 				},
@@ -103,10 +103,10 @@
 			},
 			pointInTouchRegion: function(point) {
 				var rect = {
-					top: this.touchRegion.top - this.touchRadiusPadding,
-					bottom: this.touchRegion.top + this.height + this.touchRadiusPadding,
-					left: this.touchRegion.left - this.touchRadiusPadding,
-					right: this.touchRegion.left + this.width + this.touchRadiusPadding
+					top: this.touchRegion.top - this._touchRadiusPadding,
+					bottom: this.touchRegion.top + this.height + this._touchRadiusPadding,
+					left: this.touchRegion.left - this._touchRadiusPadding,
+					right: this.touchRegion.left + this.width + this._touchRadiusPadding
 				};
 
 				return (
