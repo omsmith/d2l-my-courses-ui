@@ -47,15 +47,11 @@
 			bottom: 0;
 			margin: auto;
 			transition: filter 0.25s, -webkit-filter 0.25s, transform 0.5s ease-in-out;
-			filter: contrast(1) saturate(1);
-			-webkit-filter: contrast(1) saturate(1);
-			transform: scale(1, 1);
 		}
 		.course-image img.hover {
-			transition: filter 0.25s, -webkit-filter 0.25s, transform 0.5s ease-in-out;
 			filter: contrast(1.15) saturate(1.15);
 			-webkit-filter: contrast(1.15) saturate(1.15);
-			transform: scale(1.05, 1.05);
+			transform: scale(1.1);
 		}
 		.course-text {
 			@apply(--vui-heading-4);
@@ -78,7 +74,6 @@
 			margin-top: 0px;
 			transition: opacity 0.25s, margin-top 0.25s;
 			line-height: 20px;
-			font-size: 14px;
 			font-weight: 400;
 			letter-spacing: 0.3px;
 		}
@@ -87,21 +82,26 @@
 			margin-top: 10px;
 		}
 		.menu-item {
-			color: #FFFFFF;
+			color: rgba(255,255,255,1);
 			background: rgba(0,0,0,0.5);
 			border: none;
 			border-radius: 5px;
 			padding: 10px 15px;
 			float: left;
 			margin-left: 10px;
-			transition: color 0.1s, background 0.1s;
+			transition: color 0.5s, background 0.5s;
 			cursor: pointer;
 		}
 		.menu-item button.span {
 			display: none;
 		}
 		.menu-item:hover, .menu-item:focus {
+			color: rgba(255,255,255,0.8);
 			background: rgba(0,0,0,0.7);
+		}
+		.menu-text {
+			font-size: 14px;
+			vertical-align: middle;
 		}
 		.no-tap-interaction {
 			-webkit-user-select: none;
