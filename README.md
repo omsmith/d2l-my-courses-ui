@@ -2,14 +2,6 @@
 
 The UI for the My Courses homepage widget in the LE.
 
-## Components
-
-`d2l-my-courses` is made up of several web components all working together. The
-intent behind this design is that each component can be used more or less
-independently. If there is a need, these components could be broken out into
-their own repositories/release schedule, but for now they are all contained
-within this repo.
-
 ## Building
 
 Install dependencies via NPM:
@@ -30,6 +22,59 @@ This will start a local server using polyserve
 
 The demo app can be visited at:
 > http://localhost:8080/components/d2l-my-courses/demo/index.html
+
+## Components
+
+`d2l-my-courses` is made up of several web components all working together. The
+intent behind this design is that each component can be used more or less
+independently. If there is a need, these components could be broken out into
+their own repositories/release schedule, but for now they are all contained
+within this repo.
+
+### d2l-alert
+
+The `d2l-alert` is intended to be used for highlighted blocks of informational
+text.
+
+Properties:
+
+- `visible`: Defines whether alert is visible. Can be a truthy value, or a
+function that returns a truthy value.
+
+Demo:
+> http://localhost:8080/components/d2l-my-courses/demo/d2l-alert-demo.html
+
+### d2l-simple-overlay
+
+The `d2l-simple-overlay` is a popover window that can be used to display any
+content. It uses [iron-overlay](https://github.com/PolymerElements/iron-overlay-behavior)
+and various [neon](https://elements.polymer-project.org/browse?package=neon-elements)
+behaviours and elements. The overlay supports using different animations
+and transitions for desktop and mobile.
+
+Properties:
+
+- `title` _String_: Title that appears at the top of the overlay
+- `animationConfig` _function_: Defines transformations for open/close
+animations. See the `neon` docs for more information.
+
+Demo:
+> http://localhost:8080/components/d2l-my-courses/demo/d2l-simple-overlay-demo.html
+
+### d2l-all-courses
+
+The `d2l-all-courses` component uses the `d2l-simple-overlay` to display a
+user's pinned and unpinned courses.
+
+Properties:
+
+- `pinnedCoursesEntities` _Object_: entities representing pinned courses
+- `enrollmentsUrl` _String_: URL to use to fetch enrollments
+- `allEnrollmentsEntities` _Object_ (optional): if these enrollment entities
+are present, no request will be done to fetch all of a user's enrollments
+
+Demo:
+> http://localhost:8080/components/d2l-my-courses/demo/d2l-all-courses-demo.html
 
 ## `user-info-api` Integration
 
@@ -79,16 +124,7 @@ npm test
 
 ## Publishing & Releasing
 
-To publish a numbered "release" version, follow steps below.
-
-```BASH
-$ # npm help 1 version
-$ # npm help 7 semver
-$ git checkout master
-$ git pull
-$ npm version [major|minor|patch|premajor|preminor|prepatch|prerelease] -m "chore(version) bump %s"
-$ git push origin master --tags
-```
+To publish a numbered "release" version, use the "Draft a new release" tool on GitHub.
 
 ## Contributing
 Contributions are welcome, please submit a pull request!
