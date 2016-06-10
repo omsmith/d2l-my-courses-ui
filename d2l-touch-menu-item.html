@@ -64,6 +64,16 @@
 				},
 				_hostNode: {
 					type: Object
+				},
+				_touchRadiusPadding: {
+					type: Number,
+					value: 30
+				},
+				_selected: {
+					type: Boolean
+				},
+				_visible: {
+					type: Boolean
 				}
 			},
 			ready: function() {
@@ -71,15 +81,19 @@
 				this._updateDisplayData();
 			},
 			set selected(isSelected) {
+				this._selected = isSelected;
 				this.toggleClass('selected', isSelected, this._menuItem);
 
 				if (isSelected) {
 					this._inTransition = true;
 					this.listen(this._menuItem, 'transitionend', 'transitionendHandler');
+				} else {
+					// Not selected implied not visible
+					this.visible = false;
 				}
 			},
 			get selected() {
-				return this._menuItem.classList.contains('selected');
+				return this._selected;
 			},
 			get width() {
 				return this._menuItem.clientWidth;
@@ -89,10 +103,10 @@
 			},
 			pointInTouchRegion: function(point) {
 				var rect = {
-					top: this.touchRegion.top,
-					bottom: this.touchRegion.top + this.height,
-					left: this.touchRegion.left,
-					right: this.touchRegion.left + this.width
+					top: this.touchRegion.top - this._touchRadiusPadding,
+					bottom: this.touchRegion.top + this.height + this._touchRadiusPadding,
+					left: this.touchRegion.left - this._touchRadiusPadding,
+					right: this.touchRegion.left + this.width + this._touchRadiusPadding
 				};
 
 				return (
@@ -107,6 +121,7 @@
 				this._inTransition = false;
 				this.hoverState = false;
 				this.selected = false;
+				this.visible = false;
 				// Detach this event handler - otherwise the menu item's classes thrash
 				this.unlisten(this._menuItem, 'transitionend', 'transitionendHandler');
 
@@ -144,6 +159,15 @@
 			_ariaAnnounce: function(message) {
 				this._setAriaMessage('');
 				this._setAriaMessage(message);
+			},
+			set visible(isVisible) {
+				if (!this._selected) {
+					this._visible = isVisible;
+					this.toggleClass('visible', isVisible, this._menuItem);
+				}
+			},
+			get visible() {
+				return this._visible;
 			}
 		});
 	</script>
