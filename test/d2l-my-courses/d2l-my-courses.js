@@ -16,6 +16,30 @@ describe('smoke test', function() {
 				entities: []
 			}
 		},
+		enrollmentsResponseInactiveCourse = {
+			headers: { },
+			body: {
+				class: ['enrollments'],
+				rel: ['enrollments'],
+				links: [],
+				actions: [],
+				properties: {},
+				entities: [{
+					class: ['course-offering', 'inactive'],
+					rel: ['enrollment'],
+					properties: {
+						name: 'Test Name',
+						id: 'TestName'
+					},
+					links: [],
+					actions: [],
+					entities: [{
+						rel: ['preferences'],
+						actions: []
+					}]
+				}]
+			}
+		},
 		enrollmentsResponseWithOrgOnly = {
 			headers: { },
 			body: {
@@ -96,6 +120,24 @@ describe('smoke test', function() {
 
 	it('should load', function() {
 		expect(widget).to.exist;
+	});
+
+	describe('Inactive courses', function() {
+		it('should not display inactive courses', function(done) {
+			server.respondWith(
+				'GET',
+				widget.pinnedCoursesUrl,
+				function(req) {
+					req.respond(200, enrollmentsResponseInactiveCourse.headers, JSON.stringify(enrollmentsResponseInactiveCourse.body));
+				});
+
+			widget.$.pinnedCoursesRequest.generateRequest();
+
+			widget.$.pinnedCoursesRequest.addEventListener('response', function() {
+				expect(widget.courseTileItemCount).to.equal(0);
+				done();
+			});
+		});
 	});
 
 	describe('Enrollments requests', function() {
