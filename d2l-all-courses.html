@@ -32,7 +32,7 @@
 					{{localize('noPinnedCoursesMessage')}}
 				</d2l-alert>
 				<div class="my-courses-container" role="region">
-					<template is="dom-repeat" filter=isActive items="[[pinnedCoursesEntities]]">
+					<template is="dom-repeat" filter="isActive" items="[[pinnedCoursesEntities]]">
 						<d2l-course-tile enrollment="[[item]]"></d2l-course-tile>
 					</template>
 				</div>
