@@ -7,6 +7,7 @@
 <link rel="import" href="d2l-course-tile.html">
 <link rel="import" href="d2l-course-tile-region-behavior.html">
 <link rel="import" href="localize-behavior.html">
+<link rel="import" href="d2l-interaction-detection-behavior.html">
 
 <dom-module id="d2l-all-courses" class="vui-typography">
 	<template>
@@ -33,14 +34,20 @@
 				</d2l-alert>
 				<div class="my-courses-container" role="region">
 					<template is="dom-repeat" filter="isActive" items="[[pinnedCoursesEntities]]">
-						<d2l-course-tile enrollment="[[item]]"></d2l-course-tile>
+						<d2l-course-tile
+							enrollment="[[item]]"
+							hover-enabled="[[_hoverInteractionEnabled]]"
+							touch-enabled="[[_touchInteractionEnabled]]"></d2l-course-tile>
 					</template>
 				</div>
 
 				<h3 class="header">{{localize('unpinnedCourses')}}</h3>
 				<div class="my-courses-container" role="region">
 					<template is="dom-repeat" items="[[unpinnedCoursesEntities]]">
-						<d2l-course-tile enrollment="[[item]]"></d2l-course-tile>
+						<d2l-course-tile
+							enrollment="[[item]]"
+							hover-enabled="[[_hoverInteractionEnabled]]"
+							touch-enabled="[[_touchInteractionEnabled]]"></d2l-course-tile>
 					</template>
 				</div>
 			</div>
@@ -82,7 +89,8 @@
 			},
 			behaviors: [
 				Polymer.D2L.MyCourses.CourseTileRegionBehavior,
-				Polymer.D2L.MyCourses.LocalizeBehavior
+				Polymer.D2L.MyCourses.LocalizeBehavior,
+				Polymer.D2L.MyCourses.InteractionDetectionBehavior
 			],
 			ready : function() {
 				this.$$('d2l-simple-overlay').focusableNodesOverride = this.focusableNodesOverride;

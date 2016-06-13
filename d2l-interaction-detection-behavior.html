@@ -1,0 +1,34 @@
+<link rel="import" href="../polymer/polymer.html">
+
+<script>
+	(function() {
+		'use strict';
+
+		Polymer.D2L = Polymer.D2L || {};
+		Polymer.D2L.MyCourses = Polymer.D2L.MyCourses || {};
+
+		Polymer.D2L.MyCourses.InteractionDetectionBehavior = {
+			properties: {
+				_hoverInteractionEnabled: {
+					type: Boolean,
+					value: true
+				},
+				_touchInteractionEnabled: {
+					type: Boolean,
+					value: false
+				}
+			},
+			ready: function() {
+				if (window.matchMedia) {
+					var touchQuery = window.matchMedia('not all and (hover: hover)');
+					touchQuery.addListener(this._touchQueryListener.bind(this));
+					this._touchQueryListener(touchQuery);
+				}
+			},
+			_touchQueryListener: function(query) {
+				this._touchInteractionEnabled = query.matches && ('ontouchstart' in window);
+				this._hoverInteractionEnabled = !this._touchInteractionEnabled;
+			}
+		};
+	})();
+</script>
