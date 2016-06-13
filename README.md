@@ -76,6 +76,26 @@ are present, no request will be done to fetch all of a user's enrollments
 Demo:
 > http://localhost:8080/components/d2l-my-courses/demo/d2l-all-courses-demo.html
 
+### d2l-touch-menu
+
+The `d2l-touch-menu` is simply a container for `d2l-touch-menu-item`s. See the
+`d2l-touch-menu-item` demo for usage.
+
+### d2l-touch-menu-item
+
+The `d2l-touch-menu` is a long-press menu that is used on mobile, and can
+contain one or more `d2l-touch-menu-item`s.
+
+Properties:
+
+- `actionDescription` _String_: used for A11Y offscreen description
+- `backgroundImage` _String_: an icon to use for the menu item
+- `text` _String_: Text to display on menu item
+- `selectionHandler` _String_: Callback for when menu item is selected
+
+Demo:
+> http://localhost:8080/components/d2l-my-courses/demo/d2l-touch-menu-item-demo.html
+
 ## `user-info-api` Integration
 
 The My Courses widget pulls data from an instance of the User Info Service to
