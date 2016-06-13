@@ -38,7 +38,7 @@
 		</d2l-alert>
 
 		<div class="my-courses-container">
-			<template is="dom-repeat" items="[[_pinnedCoursesResponse.entities]]">
+			<template is="dom-repeat" filter="isActive" items="[[_pinnedCoursesResponse.entities]]">
 				<d2l-course-tile enrollment="[[item]]"></d2l-course-tile>
 			</template>
 		</div>
@@ -115,6 +115,9 @@
 			detached: function() {
 				window.removeEventListener('resize', this._windowResizeHandler);
 			},
+			isActive: function(item) {
+				return item.class.indexOf('inactive') === -1;
+			},
 			onPinnedCoursesResponse: function(response) {
 				if (response.detail.status === 200) {
 					this._rescaleCourseTileRegions();
@@ -154,7 +157,10 @@
 				return enrollmentsUrl + '?filter=pinned';
 			},
 			get courseTileItemCount() {
-				var itemCount = this._pinnedCoursesResponse ? this._pinnedCoursesResponse.entities.length : 0;
+				var itemCount = this._pinnedCoursesResponse
+					? this._pinnedCoursesResponse.entities.filter(function(item) {
+						return item.class.indexOf('inactive') === -1;
+					}).length : 0;
 				return itemCount;
 			},
 			_onCoursePinned: function(e) {
