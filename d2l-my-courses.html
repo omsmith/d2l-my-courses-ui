@@ -9,6 +9,7 @@
 <link rel="import" href="d2l-all-courses.html">
 <link rel="import" href="d2l-course-tile-region-behavior.html">
 <link rel="import" href="localize-behavior.html">
+<link rel="import" href="d2l-interaction-detection-behavior.html">
 
 <dom-module id="d2l-my-courses">
 	<template>
@@ -40,7 +41,11 @@
 
 		<div class="my-courses-container">
 			<template is="dom-repeat" filter="isActive" items="[[_pinnedCoursesResponse.entities]]">
-				<d2l-course-tile enrollment="[[item]]"></d2l-course-tile>
+				<d2l-course-tile
+					enrollment="[[item]]"
+					hover-enabled="[[_hoverInteractionEnabled]]"
+					touch-enabled="[[_touchInteractionEnabled]]">
+				</d2l-course-tile>
 			</template>
 		</div>
 
@@ -101,7 +106,8 @@
 			},
 			behaviors: [
 				Polymer.D2L.MyCourses.CourseTileRegionBehavior,
-				Polymer.D2L.MyCourses.LocalizeBehavior
+				Polymer.D2L.MyCourses.LocalizeBehavior,
+				Polymer.D2L.MyCourses.InteractionDetectionBehavior
 			],
 			listeners: {
 				'course-pinned': '_onCoursePinned',

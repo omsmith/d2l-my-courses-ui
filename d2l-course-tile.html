@@ -50,7 +50,7 @@
 			</div>
 		</div>
 
-		<d2l-touch-menu>
+		<d2l-touch-menu enabled="[[touchEnabled]]">
 			<d2l-touch-menu-item
 				text="{{localize('pin')}}"
 				background-image="d2l-tier1:pin-filled"
@@ -67,6 +67,14 @@
 				enrollment: {
 					type: Object,
 					observer: '_enrollmentChanged'
+				},
+				hoverEnabled: {
+					type: Boolean,
+					value: true
+				},
+				touchEnabled: {
+					type: Boolean,
+					value: true
 				},
 				_enrollmentEntity: {
 					type: Object,
@@ -137,11 +145,13 @@
 				});
 			},
 			hoverCourseTile: function() {
-				var hoverMenu = this.$$('.hover-menu');
-				Polymer.dom(hoverMenu).classList.add('hover');
+				if (this.hoverEnabled) {
+					var hoverMenu = this.$$('.hover-menu');
+					Polymer.dom(hoverMenu).classList.add('hover');
 
-				var courseImage = this.$$('.course-image img');
-				Polymer.dom(courseImage).classList.add('hover');
+					var courseImage = this.$$('.course-image img');
+					Polymer.dom(courseImage).classList.add('hover');
+				}
 			},
 			unhoverCourseTile: function(force) {
 				if (force === true || Polymer.dom(this.root).querySelectorAll(':hover').length === 0) {

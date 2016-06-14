@@ -14,6 +14,9 @@
 		Polymer({
 			is: 'd2l-touch-menu',
 			properties: {
+				enabled: {
+					type: Boolean
+				},
 				_touchTarget: {
 					type: Object,
 					observer: '_touchTargetChanged'
@@ -29,7 +32,11 @@
 					type: Boolean,
 					observer: '_onMenuOpenChanged'
 				},
-				_timerID: {
+				_openMenuTimerID: {
+					type: Number,
+					value: null
+				},
+				_enableClicksTimerID: {
 					type: Number,
 					value: null
 				},
@@ -47,10 +54,10 @@
 					}, {
 						event: 'touchmove',
 						handler: 'touchmoveHandler'
+					}, {
+						event: 'click',
+						handler: 'clickHandler'
 					}]
-				},
-				_touchStartEventData: {
-					type: Object
 				},
 				_host: {
 					type: Object
@@ -66,6 +73,9 @@
 				},
 				_initialized: {
 					type: Boolean
+				},
+				_cancelClicks: {
+					type: Boolean
 				}
 			},
 			listeners: {
@@ -76,7 +86,7 @@
 				this._menuItems = [].slice.call(Polymer.dom(this).querySelectorAll('d2l-touch-menu-item'));
 			},
 			attached: function() {
-				if (!this._initialized) {
+				if (this.enabled && !this._initialized) {
 					// Only run once, as attaching to body will cause this to be called again
 					this._initialized = true;
 					this._owner = this.parentNode;
@@ -95,18 +105,10 @@
 			touchstartHandler: function(e) {
 				e.stopPropagation();
 
-				// Capture data about original touch in case we need to generate a click later on
-				this._touchStartEventData = {
-					originalTarget: Polymer.dom(e).path[0],
-					timeStamp: e.timeStamp
-				};
-
 				// Only show the menu if it's tap+hold
-				this._timerID = setTimeout(this.openMenu.bind(this, e), this._longPressDuration);
+				this._openMenuTimerID = setTimeout(this.openMenu.bind(this, e), this._longPressDuration);
 			},
 			touchmoveHandler: function(e) {
-				this._touchStartEventData = null;
-
 				if (this._menuOpen) {
 					var touchPoint = {
 						x: e.changedTouches[0].clientX,
@@ -127,7 +129,7 @@
 						menuItem.hoverState = menuItem.pointInTouchRegion(touchPoint);
 					}.bind(this));
 				} else {
-					this._cancelMenu();
+					clearTimeout(this._openMenuTimerID);
 				}
 			},
 			touchendHandler: function(e) {
@@ -142,30 +144,14 @@
 					}
 				}.bind(this));
 
-				// If this would have otherwise been a tap event, bubble up click event from original touch target
-				if (this._touchStartEventData !== null) {
-					if (e.timeStamp - this._touchStartEventData.timeStamp < 250) {
-						var newEvent = new MouseEvent('click', {
-							'bubbles': true,
-							'cancelable': true
-						});
-
-						this._touchStartEventData.originalTarget.dispatchEvent(newEvent);
-					}
-				}
-
 				this.touchcancelHandler(e);
 			},
 			touchcancelHandler: function() {
-				this._touchStartEventData = null;
-
-				this._cancelMenu();
+				clearTimeout(this._openMenuTimerID);
 
 				this._menuOpen = false;
 			},
 			openMenu: function(touchstartEvent) {
-				this._touchStartEventData = null;
-
 				this.listen(this._touchTarget, 'touchend', 'touchendHandler');
 
 				var touchData = {
@@ -251,18 +237,30 @@
 			contextMenuHandler: function(e) {
 				e.preventDefault();
 			},
-			_cancelMenu: function() {
-				if (this._timerID) {
-					clearTimeout(this._timerID);
-				}
-				this._timerID = null;
-			},
 			_onMenuOpenChanged: function(openMenu) {
 				this._menu.style.visibility = openMenu ? 'visible' : 'hidden';
+
+				if (openMenu) {
+					this._cancelClicks = true;
+				} else {
+					// iOS will send delayed click on long press completion, so we need to slightly delay re-enabling clicks
+					this._enableClicksTimerID = setTimeout(this._enableClicks.bind(this), 100);
+				}
 
 				this._menuItems.forEach(function(menuItem) {
 					menuItem.visible = openMenu;
 				}.bind(this));
+			},
+			clickHandler: function(e) {
+				if (this._cancelClicks) {
+					e.preventDefault();
+					this._enableClicks();
+				}
+			},
+			_enableClicks: function() {
+				this._cancelClicks = false;
+				clearTimeout(this._enableClicksTimerID);
+				this._enableClicksTimerID = null;
 			}
 		});
 	</script>
