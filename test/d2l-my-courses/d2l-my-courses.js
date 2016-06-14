@@ -126,7 +126,7 @@ describe('smoke test', function() {
 		it('should not display inactive courses', function(done) {
 			server.respondWith(
 				'GET',
-				widget.pinnedCoursesUrl,
+				widget._pinnedCoursesUrl,
 				function(req) {
 					req.respond(200, enrollmentsResponseInactiveCourse.headers, JSON.stringify(enrollmentsResponseInactiveCourse.body));
 				});
@@ -144,7 +144,7 @@ describe('smoke test', function() {
 		it('should send a request for pinned courses', function(done) {
 			server.respondWith(
 				'GET',
-				widget.pinnedCoursesUrl,
+				widget._pinnedCoursesUrl,
 				function(req) {
 					expect(req.requestHeaders['accept']).to.equal('application/vnd.siren+json');
 					req.respond(200, emptyResponse.headers, JSON.stringify(emptyResponse.body));
@@ -162,7 +162,7 @@ describe('smoke test', function() {
 		it('should send a request for all courses if there are no pinned courses', function(done) {
 			server.respondWith(
 				'GET',
-				widget.pinnedCoursesUrl,
+				widget._pinnedCoursesUrl,
 				function(req) {
 					expect(req.requestHeaders['accept']).to.equal('application/vnd.siren+json');
 					req.respond(200, emptyResponse.headers, JSON.stringify(emptyResponse.body));
@@ -176,11 +176,13 @@ describe('smoke test', function() {
 					req.respond(200, emptyResponse.headers, JSON.stringify(emptyResponse.body));
 				});
 
+			var allCoursesResponseSpy =  sinon.spy(widget, 'onAllCoursesResponse');
+
 			widget.$.pinnedCoursesRequest.generateRequest();
 
 			widget.$.allCoursesRequest.addEventListener('response', function() {
-				expect(widget._allCoursesResponse).to.not.be.undefined;
-				expect(Array.isArray(widget._allCoursesResponse.entities)).to.be.true;
+				expect(allCoursesResponseSpy.called);
+				widget.onAllCoursesResponse.restore();
 				done();
 			});
 		});
@@ -190,7 +192,7 @@ describe('smoke test', function() {
 		it('should display appropriate message when no enrolled courses', function(done) {
 			server.respondWith(
 				'GET',
-				widget.pinnedCoursesUrl,
+				widget._pinnedCoursesUrl,
 				function(req) {
 					req.respond(200, emptyResponse.headers, JSON.stringify(emptyResponse.body));
 				});
@@ -214,7 +216,7 @@ describe('smoke test', function() {
 		it('should display appropriate message when no pinned courses', function(done) {
 			server.respondWith(
 				'GET',
-				widget.pinnedCoursesUrl,
+				widget._pinnedCoursesUrl,
 				function(req) {
 					req.respond(200, emptyResponse.headers, JSON.stringify(emptyResponse.body));
 				});
@@ -237,17 +239,6 @@ describe('smoke test', function() {
 	});
 
 	describe('A11Y', function() {
-		beforeEach(function() {
-			stub('d2l-my-courses', {
-				_pinCourse: function() {
-					console.log('_pinCourse called');
-				},
-				_unpinCourse: function() {
-					console.log('_unpinCourse called');
-				}
-			});
-		});
-
 		it('should announce when course is pinned', function() {
 			var event = new CustomEvent('course-pinned', {
 				detail: {

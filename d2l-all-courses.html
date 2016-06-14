@@ -32,7 +32,7 @@
 					{{localize('noPinnedCoursesMessage')}}
 				</d2l-alert>
 				<div class="my-courses-container" role="region">
-					<template is="dom-repeat" filter="isActive" items="[[pinnedCoursesEntities]]">
+					<template is="dom-repeat" items="[[pinnedCoursesEntities]]">
 						<d2l-course-tile
 							enrollment="[[item]]"
 							hover-enabled="[[_hoverInteractionEnabled]]"
@@ -98,16 +98,10 @@
 					var parser = document.createElement('d2l-siren-parser');
 					var allCoursesEntities = parser.parse(response.detail.xhr.response).getSubEntitiesByClass('course-offering');
 
-					// Get unpinned courses
-					var unpinnedCourseFilter = function(parser) {
-						return function(element) {
-							return !parser.parse(element).hasEntityByClass('pinned');
-						}
-					};
-
-					this.set(
-						'unpinnedCoursesEntities',
-						allCoursesEntities.filter(unpinnedCourseFilter(parser))
+					this.set('unpinnedCoursesEntities',
+						allCoursesEntities.filter(function(item) {
+							return !item.hasEntityByClass('pinned') && item.class.indexOf('inactive') === -1;
+						})
 					);
 
 					this._rescaleCourseTileRegions(this._getOverlayWidth());
@@ -132,14 +126,8 @@
 				window.removeEventListener('resize', this._windowResizeHandler);
 			},
 			get courseTileItemCount() {
-				var pinnedCoursesEntityCount = this.pinnedCoursesEntities
-					? this.pinnedCoursesEntities.filter(function(item) {
-						return item.class.indexOf('inactive') === -1;
-					}).length : 0;
-				var unpinnedCoursesEntityCount = this.unpinnedCoursesEntities
-					? this.unpinnedCoursesEntities.filter(function(item) {
-						return item.class.indexOf('inactive') === -1;
-					}).length : 0;
+				var pinnedCoursesEntityCount = this.pinnedCoursesEntities ? this.pinnedCoursesEntities.length : 0;
+				var unpinnedCoursesEntityCount = this.unpinnedCoursesEntities ? this.unpinnedCoursesEntities.length : 0;
 				var itemCount = Math.max(pinnedCoursesEntityCount, unpinnedCoursesEntityCount);
 
 				return itemCount;

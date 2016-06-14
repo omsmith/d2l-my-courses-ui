@@ -102,12 +102,11 @@
 					this.listen(this._touchTarget, 'contextmenu', 'contextMenuHandler');
 				}
 			},
-			touchstartHandler: function (e) {
-
+			touchstartHandler: function(e) {
 				// Only show the menu if it's tap+hold
 				this._openMenuTimerID = setTimeout(this.openMenu.bind(this, e), this._longPressDuration);
 			},
-			touchmoveHandler: function (e) {
+			touchmoveHandler: function(e) {
 				if (this._menuOpen) {
 					var touchPoint = {
 						x: e.changedTouches[0].clientX,
@@ -131,7 +130,7 @@
 					clearTimeout(this._openMenuTimerID);
 				}
 			},
-			touchendHandler: function (e) {
+			touchendHandler: function(e) {
 				// When finger is released, if the item is selected, then do the fancy animation
 				this._menuItems.forEach(function(menuItem) {
 					if (menuItem.hoverState === true) {
@@ -143,15 +142,14 @@
 					}
 				}.bind(this));
 
-							new MouseEvent('click', {
 				this.touchcancelHandler(e);
 			},
-			touchcancelHandler: function () {
+			touchcancelHandler: function() {
 				clearTimeout(this._openMenuTimerID);
 
 				this._menuOpen = false;
 			},
-			openMenu: function (touchstartEvent) {
+			openMenu: function(touchstartEvent) {
 				this.listen(this._touchTarget, 'touchend', 'touchendHandler');
 
 				var touchData = {

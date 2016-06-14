@@ -117,7 +117,7 @@
 					&& (point.x > rect.left)
 				);
 			},
-			transitionendHandler: function () {
+			transitionendHandler: function() {
 				// Triggered by the end of the transition caused by adding 'selected' class
 				this._inTransition = false;
 				this.hoverState = false;
@@ -157,7 +157,7 @@
 				this.style.left = newOffset.x + 'px';
 				this.style.top = newOffset.y + 'px';
 			},
-			_ariaAnnounce: function (message) {
+			_ariaAnnounce: function(message) {
 				this._setAriaMessage('');
 				this._setAriaMessage(message);
 			},
