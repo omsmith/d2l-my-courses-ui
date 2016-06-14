@@ -1,5 +1,6 @@
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../d2l-ajax/d2l-ajax.html">
+<link rel="import" href="../d2l-offscreen/d2l-offscreen.html">
 <link rel="import" href="../d2l-siren-parser/d2l-siren-parser.html">
 <link rel="import" href="../vui-link/link.html">
 <link rel="import" href="d2l-my-courses-styles.html">
@@ -43,7 +44,7 @@
 			</template>
 		</div>
 
-		<div class="d2l-offscreen" aria-live="polite">{{ariaMessage}}</div>
+		<d2l-offscreen aria-live="polite">{{ariaMessage}}</d2l-offscreen>
 
 		<button class="all-courses-button"
 			hidden$="{{!_hasCourses}}"
