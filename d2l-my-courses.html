@@ -2,7 +2,7 @@
 <link rel="import" href="../d2l-ajax/d2l-ajax.html">
 <link rel="import" href="../d2l-offscreen/d2l-offscreen.html">
 <link rel="import" href="../d2l-siren-parser/d2l-siren-parser.html">
-<link rel="import" href="../vui-link/link.html">
+<link rel="import" href="../d2l-link/d2l-link.html">
 <link rel="import" href="d2l-my-courses-styles.html">
 <link rel="import" href="d2l-alert.html">
 <link rel="import" href="d2l-course-tile.html">
@@ -33,7 +33,7 @@
 
 		<d2l-alert visible="{{_alertMessage}}">
 			{{_alertMessage}}
-			<a is="vui-link"
+			<a is="d2l-link"
 				href="Javascript:void(0);"
 				hidden$="{{_hasCourses}}"
 				on-tap="refreshPage">{{localize('refresh')}}</a>

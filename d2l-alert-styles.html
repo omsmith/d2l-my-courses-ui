@@ -1,18 +1,18 @@
-<link rel="import" href="../vui-colors/colors.html">
-<link rel="import" href="../vui-typography/small-text.html">
+<link rel="import" href="../d2l-colors/d2l-colors.html">
+<link rel="import" href="../d2l-typography/d2l-typography-shared-styles.html">
 
 <dom-module id="d2l-alert-styles">
 	<template>
-		<style include="vui-colors"></style>
-		<style include="vui-small-text"></style>
+		<style include="d2l-colors"></style>
+		<style include="d2l-typography-shared-styles"></style>
 		<style>
 		:host {
-			@apply(--vui-small-text);
+			@apply(--d2l-small-text);
 			display: block;
 		}
 		.message-wrapper {
 			position: relative;
-			border: 1px solid var(--vui-color-gypsum);
+			border: 1px solid var(--d2l-color-gypsum);
 			border-radius: 3px;
 			padding: 16px 16px 16px 20px;
 		}
