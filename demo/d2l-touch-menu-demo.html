@@ -3,7 +3,7 @@
 	<head>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
-		<title>d2l-touch-menu-item demo</title>
+		<title>d2l-touch-menu demo</title>
 		<script src="../../webcomponentsjs/webcomponents-lite.js"></script>
 		<script>
 			window.Polymer = {
@@ -20,7 +20,7 @@
 	</head>
 	<body unresolved class="vui-typography">
 		<main>
-			<h1>d2l-touch-menu-item demo</h1>
+			<h1>d2l-touch-menu demo</h1>
 			<script>
 				function xHandler() {
 					alert('You selected the X');
@@ -41,7 +41,7 @@
 					touch-action: pan-x pan-y;
 				}
 			</style>
-			<div class="no-tap-interaction" id="menu-div">
+			<div class="no-tap-interaction" id="menu-parent">
 				Long press me!
 				<d2l-touch-menu id="menu">
 					<d2l-touch-menu-item
@@ -54,9 +54,15 @@
 				</d2l-touch-menu>
 			</div>
 			<script>
-				var menuDiv = document.getElementById('menu-div');
+				// This is some trickery required for the demo. In normal usage,
+				// this would not be required.
+				var menuParent = document.getElementById('menu-parent');
 				var menu = document.getElementById('menu');
-				menu._touchTarget = menuDiv;
+				var menuItem = document.getElementById('menu-item');
+
+				menu._host = menuParent;
+				menu._host[menuItem.selectionHandler] = xHandler;
+				menu._touchTarget = menuParent;
 			</script>
 		</main>
 	</body>

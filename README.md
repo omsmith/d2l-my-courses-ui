@@ -20,7 +20,7 @@ npm run serve
 
 This will start a local server using polyserve
 
-The demo app can be visited at:
+The demos can be found at:
 > http://localhost:8080/components/d2l-my-courses/demo/index.html
 
 ## Components
@@ -41,9 +41,6 @@ Properties:
 - `visible`: Defines whether alert is visible. Can be a truthy value, or a
 function that returns a truthy value.
 
-Demo:
-> http://localhost:8080/components/d2l-my-courses/demo/d2l-alert-demo.html
-
 ### d2l-simple-overlay
 
 The `d2l-simple-overlay` is a popover window that can be used to display any
@@ -58,9 +55,6 @@ Properties:
 - `animationConfig` _function_: Defines transformations for open/close
 animations. See the `neon` docs for more information.
 
-Demo:
-> http://localhost:8080/components/d2l-my-courses/demo/d2l-simple-overlay-demo.html
-
 ### d2l-all-courses
 
 The `d2l-all-courses` component uses the `d2l-simple-overlay` to display a
@@ -72,9 +66,6 @@ Properties:
 - `enrollmentsUrl` _String_: URL to use to fetch enrollments
 - `allEnrollmentsEntities` _Object_ (optional): if these enrollment entities
 are present, no request will be done to fetch all of a user's enrollments
-
-Demo:
-> http://localhost:8080/components/d2l-my-courses/demo/d2l-all-courses-demo.html
 
 ### d2l-touch-menu
 
@@ -92,9 +83,6 @@ Properties:
 - `backgroundImage` _String_: an icon to use for the menu item
 - `text` _String_: Text to display on menu item
 - `selectionHandler` _String_: Callback for when menu item is selected
-
-Demo:
-> http://localhost:8080/components/d2l-my-courses/demo/d2l-touch-menu-item-demo.html
 
 ## `user-info-api` Integration
 
