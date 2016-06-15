@@ -316,7 +316,7 @@ describe('smoke test', function() {
 				}, {
 					width: 992,
 					itemCount: 4,
-					expectedColumns: 2
+					expectedColumns: 4
 				}, {
 					width: 992,
 					itemCount: 5,
