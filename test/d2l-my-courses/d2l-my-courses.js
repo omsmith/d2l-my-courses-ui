@@ -86,7 +86,7 @@ describe('smoke test', function() {
 						actions: []
 					}]
 				}, {
-					class: ['course-offering'],
+					class: ['course-offering', 'active'],
 					rel: ['enrollment'],
 					properties: {
 						name: 'Test Name',

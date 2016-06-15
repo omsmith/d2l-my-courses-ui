@@ -15,7 +15,7 @@
 
 		<d2l-ajax
 			id="allEnrollmentsRequest"
-			url="{{effectiveEnrollmentsUrl()}}"
+			url="[[enrollmentsUrl]]"
 			headers='{ "Accept": "application/vnd.siren+json" }'
 			on-response="allEnrollmentsOnResponse">
 		</d2l-ajax>
@@ -59,27 +59,19 @@
 			properties: {
 				pinnedCoursesEntities: {
 					type: Array,
+					value: [],
 					notify: true
 				},
 				unpinnedCoursesEntities: {
 					type: Array,
+					value: [],
 					notify: true
-				},
-				testEnrollmentsUrl: {
-					type: String
 				},
 				enrollmentsUrl: {
 					type: String
 				},
 				_hasPinnedCourses: {
 					type: Boolean
-				},
-				_windowResizeHandler: {
-					type: Object,
-					readOnly: true,
-					value: function() {
-						return this._handleWindowResize.bind(this);
-					}
 				}
 			},
 			behaviors: [
@@ -90,28 +82,35 @@
 			observers: [
 				'_onPinnedCoursesEntitiesChanged(pinnedCoursesEntities.*)'
 			],
-			ready : function() {
+			ready: function() {
 				this.$$('d2l-simple-overlay').focusableNodesOverride = this.focusableNodesOverride;
 			},
 			allEnrollmentsOnResponse: function(response) {
 				if (response.detail.status === 200) {
 					var parser = document.createElement('d2l-siren-parser');
-					var allCoursesEntities = parser.parse(response.detail.xhr.response).getSubEntitiesByClass('course-offering');
+					var allEnrollments = parser.parse(response.detail.xhr.response);
+					var allCourses = allEnrollments.getSubEntitiesByClass('course-offering');
 
-					this.set('unpinnedCoursesEntities',
-						allCoursesEntities.filter(function(item) {
-							return !item.hasEntityByClass('pinned') && item.class.indexOf('inactive') === -1;
-						})
-					);
+					var newPinnedCourses = [];
+					var newUnpinnedCourses = [];
+
+					for (var i = 0; i < allCourses.length; i++) {
+						if (allCourses[i].hasClass('active')) {
+							if (allCourses[i].hasEntityByClass('pinned')) {
+								newPinnedCourses.push(allCourses[i]);
+							} else {
+								newUnpinnedCourses.push(allCourses[i]);
+							}
+						}
+					}
+
+					this.set('pinnedCoursesEntities', newPinnedCourses);
+					this.set('unpinnedCoursesEntities', newUnpinnedCourses);
 
 					this._rescaleCourseTileRegions(this._getOverlayWidth());
 				}
 			},
-			isActive: function(item) {
-				return item.class.indexOf('inactive') === -1;
-			},
 			open: function() {
-				this.$.allEnrollmentsRequest.url = this.effectiveEnrollmentsUrl();
 				this.$.allEnrollmentsRequest.generateRequest();
 				this.$$('d2l-simple-overlay').open();
 				this._rescaleCourseTileRegions(this._getOverlayWidth());
@@ -119,16 +118,8 @@
 			_getOverlayWidth: function() {
 				return this._getAvailableWidth(this.$$('d2l-simple-overlay'));
 			},
-			attached: function() {
-				this._addThrottledEventListener('resize', this._windowResizeHandler);
-			},
-			detached: function() {
-				window.removeEventListener('resize', this._windowResizeHandler);
-			},
 			get courseTileItemCount() {
-				var pinnedCoursesEntityCount = this.pinnedCoursesEntities ? this.pinnedCoursesEntities.length : 0;
-				var unpinnedCoursesEntityCount = this.unpinnedCoursesEntities ? this.unpinnedCoursesEntities.length : 0;
-				var itemCount = Math.max(pinnedCoursesEntityCount, unpinnedCoursesEntityCount);
+				var itemCount = Math.max(this.pinnedCoursesEntities.length, this.unpinnedCoursesEntities.length);
 
 				return itemCount;
 			},
@@ -147,13 +138,6 @@
 			},
 			_isEmpty: function(list) {
 				return !list || list.length === 0;
-			},
-			effectiveEnrollmentsUrl: function() {
-				if (!this.testEnrollmentsUrl) {
-					return this.enrollmentsUrl;
-				} else {
-					return this.testEnrollmentsUrl;
-				}
 			},
 			_onPinnedCoursesEntitiesChanged: function(newArray) {
 				this._hasPinnedCourses = !newArray.base || newArray.base.length > 0;

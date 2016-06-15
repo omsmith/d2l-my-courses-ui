@@ -8,6 +8,21 @@
 		Polymer.D2L.MyCourses = Polymer.D2L.MyCourses || {};
 
 		Polymer.D2L.MyCourses.CourseTileRegionBehavior = {
+			properties: {
+				_windowResizeHandler: {
+					type: Object,
+					readOnly: true,
+					value: function() {
+						return this._handleWindowResize.bind(this);
+					}
+				}
+			},
+			attached: function() {
+				this._addThrottledEventListener('resize', this._windowResizeHandler);
+			},
+			detached: function() {
+				window.removeEventListener('resize', this._windowResizeHandler);
+			},
 			get courseTileItemCount() {
 				throw 'Must implement courseTileItemCount in behavior consumer';
 			},

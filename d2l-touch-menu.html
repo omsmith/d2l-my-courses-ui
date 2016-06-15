@@ -103,6 +103,8 @@
 				}
 			},
 			touchstartHandler: function(e) {
+				e.stopPropagation();
+
 				// Only show the menu if it's tap+hold
 				this._openMenuTimerID = setTimeout(this.openMenu.bind(this, e), this._longPressDuration);
 			},
