@@ -1,11 +1,11 @@
-<link rel="import" href="../vui-colors/colors.html">
-<link rel="import" href="../vui-typography/small-text.html">
+<link rel="import" href="../d2l-colors/d2l-colors.html">
+<link rel="import" href="../d2l-typography/d2l-typography-shared-styles.html">
 <link rel="import" href="d2l-course-tile-region-styles.html">
 
 <dom-module id="d2l-my-courses-styles">
 	<template>
-		<style include="vui-colors"></style>
-		<style include="vui-small-text"></style>
+		<style include="d2l-colors"></style>
+		<style include="d2l-typography-shared-styles"></style>
 		<style include="d2l-course-tile-region-styles"></style>
 		<style>
 		:host {
@@ -21,9 +21,9 @@
 			}
  		}
 		.all-courses-button {
-			@apply(--vui-small-text);
-			/* overrides to vui-small-text */
-			color: var(--vui-color-celestine);
+			@apply(--d2l-small-text);
+			/* overrides to d2l-small-text */
+			color: var(--d2l-color-celestine);
 			margin: 0;
 			margin-top: -10px;
 			font-weight: 700;

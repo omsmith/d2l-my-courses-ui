@@ -1,10 +1,10 @@
-<link rel="import" href="../vui-colors/colors.html">
-<link rel="import" href="../vui-typography/small-text.html">
+<link rel="import" href="../d2l-colors/d2l-colors.html">
+<link rel="import" href="../d2l-typography/d2l-typography-shared-styles.html">
 
 <dom-module id="d2l-touch-menu-item-styles">
 	<template>
-		<style include="vui-colors"></style>
-		<style include="vui-small-text"></style>
+		<style include="d2l-colors"></style>
+		<style include="d2l-typography-shared-styles"></style>
 		<style>
 		:host {
 			z-index: 1000;
@@ -54,7 +54,7 @@
 		.longpress-menu-item-image {
 			--iron-icon-width: 0.58em;
 			--iron-icon-height: 0.58em;
-			fill: var(--vui-color-ferrite);
+			fill: var(--d2l-color-ferrite);
 			-webkit-backface-visibility: hidden;
 			-webkit-transition: fill 0.3s ease-in-out;
 			transition: fill 0.3s ease-in-out;
@@ -63,7 +63,7 @@
 		}
 
 		.longpress-menu-item-image-background {
-			background-color: var(--vui-color-white);
+			background-color: var(--d2l-color-white);
 			border-radius: 50%;
 			box-sizing: border-box;
 			height: 1em;
@@ -76,11 +76,11 @@
 		}
 
 		.longpress-menu-item-text {
-			@apply(--vui-small-text);
-			/* vui-small-text overrides */
-			color: var(--vui-color-white);
+			@apply(--d2l-small-text);
+			/* d2l-small-text overrides */
+			color: var(--d2l-color-white);
 			/* end overrides */
-			background-color: var(--vui-color-pressicus);
+			background-color: var(--d2l-color-pressicus);
 			border-radius: 0.25em;
 			box-sizing: border-box;
 			display: inline-block;
@@ -99,14 +99,14 @@
 
 		.visible.longpress-menu-item-hover .longpress-menu-item-image-background,
 		.visible.longpress-menu-item-hover .longpress-menu-item-text {
-			background-color: var(--vui-color-celestine);
+			background-color: var(--d2l-color-celestine);
 			opacity: 1.0;
 			-webkit-transition: 0.3s ease-in-out;
 			transition: 0.3s ease-in-out;
 		}
 
 		.longpress-menu-item-hover .longpress-menu-item-image {
-			fill: var(--vui-color-white);
+			fill: var(--d2l-color-white);
 			-webkit-transition: 0.3s ease-in-out;
 			transition: fill 0.3s ease-in-out;
 		}

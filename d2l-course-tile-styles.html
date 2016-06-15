@@ -1,10 +1,10 @@
-<link rel="import" href="../vui-colors/colors.html">
-<link rel="import" href="../vui-typography/small-text.html">
+<link rel="import" href="../d2l-colors/d2l-colors.html">
+<link rel="import" href="../d2l-typography/d2l-typography-shared-styles.html">
 
 <dom-module id="d2l-course-tile-styles">
 	<template>
-		<style include="vui-colors"></style>
-		<style include="vui-small-text"></style>
+		<style include="d2l-colors"></style>
+		<style include="d2l-typography-shared-styles"></style>
 		<style>
 		:host {
 			display: block;
@@ -32,7 +32,7 @@
 			bottom: 0;
 			border-top-left-radius: 10px;
 			border-top-right-radius: 10px;
-			background: var(--vui-color-pressicus);
+			background: var(--d2l-color-pressicus);
 			overflow: hidden;
 			z-index: 0;
 		}
@@ -58,7 +58,7 @@
 			position: relative;
 			margin-top: 0.4em;
 			margin-bottom: 1.9em;
-			/* overrides to vui-heading-4 */
+			/* overrides to d2l-heading-4 */
 			font-weight: 400;
 			/* end overrides */
 			/* ellipses for long text */
@@ -100,8 +100,8 @@
 			background: rgba(0,0,0,0.7);
 		}
 		.menu-text {
-			@apply(--vui-small-text);
-			/* overrides to vui-small-text */
+			@apply(--d2l-small-text);
+			/* overrides to d2l-small-text */
 			font-size: 14px;
 			color: rgba(255,255,255,1);
 			/* end overrides */

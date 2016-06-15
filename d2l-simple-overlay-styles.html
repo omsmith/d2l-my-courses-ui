@@ -1,8 +1,8 @@
-<link rel="import" href="../vui-colors/colors.html">
+<link rel="import" href="../d2l-colors/d2l-colors.html">
 
 <dom-module id="d2l-simple-overlay-styles">
 	<template>
-		<style include="vui-colors"></style>
+		<style include="d2l-colors"></style>
 		<style>
 		:host {
 			background: white;
@@ -26,7 +26,7 @@
 			border: none;
 			margin: 0;
 			padding: 0 0 0.2rem 0;
-			color: var(--vui-color-tungsten);
+			color: var(--d2l-color-tungsten);
 			width: 24px;
 			height: 24px;
 			cursor: pointer;
@@ -39,8 +39,8 @@
 
 		.close-button:focus iron-icon, .close-button:hover iron-icon {
 			border-radius: 0.3rem;
-			border-color: var(--vui-color-pressicus);
-			color: var(--vui-color-celestuba);
+			border-color: var(--d2l-color-pressicus);
+			color: var(--d2l-color-celestuba);
 		}
 
 		.close-button * {
@@ -65,8 +65,8 @@
 			overflow-y: scroll;
 			overflow-y: overlay;
 			-webkit-overflow-scrolling: touch;
-			border-top: 2px solid var(--vui-color-gypsum);
-			background: linear-gradient(to top, var(--vui-color-white), var(--vui-color-regolith));
+			border-top: 2px solid var(--d2l-color-gypsum);
+			background: linear-gradient(to top, var(--d2l-color-white), var(--d2l-color-regolith));
 			padding-top: 25px;
 			background-size: 100% 350px;
 			background-repeat: repeat-x;
@@ -80,7 +80,7 @@
 		}
 
 		h2 {
-			/* overrides to vui-heading-2 */
+			/* overrides to d2l-heading-2 */
 			font-weight: 400;
 			font-size: 30px;
 			margin-top: 30px;
