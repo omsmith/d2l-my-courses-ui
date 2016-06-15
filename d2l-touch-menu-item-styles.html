@@ -1,9 +1,10 @@
-<link rel="import" href="../vui-typography/typography.html">
 <link rel="import" href="../vui-colors/colors.html">
+<link rel="import" href="../vui-typography/small-text.html">
 
 <dom-module id="d2l-touch-menu-item-styles">
 	<template>
 		<style include="vui-colors"></style>
+		<style include="vui-small-text"></style>
 		<style>
 		:host {
 			z-index: 1000;
@@ -75,17 +76,18 @@
 		}
 
 		.longpress-menu-item-text {
-			@apply(--vui-font);
+			@apply(--vui-small-text);
+			/* vui-small-text overrides */
+			color: var(--vui-color-white);
+			/* end overrides */
 			background-color: var(--vui-color-pressicus);
 			border-radius: 0.25em;
 			box-sizing: border-box;
-			color: var(--vui-color-white);
 			display: inline-block;
 			width: 80%;
 			left: 10%;
 			right: 90%;
 			top: -45%;
-			font-size: 0.23em;
 			padding-top: 0.1em;
 			padding-bottom: 0.1em;
 			opacity: 0;
