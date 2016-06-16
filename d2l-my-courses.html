@@ -43,7 +43,8 @@
 				<d2l-course-tile
 					enrollment="[[item]]"
 					hover-enabled="[[_hoverInteractionEnabled]]"
-					touch-enabled="[[_touchInteractionEnabled]]">
+					touch-enabled="[[_touchInteractionEnabled]]"
+					dynamic-insert="[[item.dynamicInsert]]">
 				</d2l-course-tile>
 			</template>
 		</div>
@@ -107,7 +108,9 @@
 			],
 			listeners: {
 				'course-pinned': '_onCoursePinned',
-				'course-unpinned': '_onCourseUnpinned'
+				'course-unpinned': '_onCourseUnpinned',
+				'unpin-animation-complete': '_onCourseUnpinAnimationComplete',
+				'pin-animation-complete': '_onCoursePinAnimationComplete'
 			},
 			attached: function() {
 				if (!this.delayLoad) {
@@ -177,13 +180,15 @@
 			},
 			_onCoursePinned: function(e) {
 				this._ariaAnnounce(this.localize('pinActionResult', 'course', e.detail.course.properties.name));
-
-				this._pinCourse(e.detail.course);
 			},
 			_onCourseUnpinned: function(e) {
 				this._ariaAnnounce(this.localize('unpinActionResult', 'course', e.detail.course.properties.name));
-
+			},
+			_onCourseUnpinAnimationComplete: function(e) {
 				this._unpinCourse(e.detail.course);
+			},
+			_onCoursePinAnimationComplete: function(e) {
+				this._pinCourse(e.detail.course);
 			},
 			_pinCourse: function(course) {
 				// Remove course from unpinned list, add to pinned
@@ -191,7 +196,8 @@
 					if (this.unpinnedCoursesEntities[index].properties.id === course.properties.id) {
 						var foundCourse = this.unpinnedCoursesEntities[index];
 						this._setCoursePinned(foundCourse, true);
-						this.push('pinnedCoursesEntities', foundCourse);
+						foundCourse.dynamicInsert = true;
+						this.unshift('pinnedCoursesEntities', foundCourse);
 						this.splice('unpinnedCoursesEntities', index, 1);
 						break;
 					}
@@ -205,8 +211,9 @@
 					if (this.pinnedCoursesEntities[index].properties.id === course.properties.id) {
 						var foundCourse = this.pinnedCoursesEntities[index];
 						this._setCoursePinned(foundCourse, false);
+						foundCourse.dynamicInsert = true;
 						this.splice('pinnedCoursesEntities', index, 1);
-						this.push('unpinnedCoursesEntities', foundCourse);
+						this.unshift('unpinnedCoursesEntities', foundCourse);
 						break;
 					}
 				}

@@ -37,8 +37,10 @@
 			<div class="hover-menu no-tap-interaction">
 				<button class="menu-item no-tap-interaction"
 					on-click="pinClickHandler"
-					on-focus="hoverCourseTile"
-					on-blur="unhoverCourseTile">
+					on-focus="hoverUnpinButton"
+					on-blur="unhoverUnpinButton"
+					on-mouseout="unhoverUnpinButton"
+					on-mouseover="hoverUnpinButton">
 					<iron-icon class="menu-icon" icon="d2l-tier1:pin-filled" aria-hidden="true"></iron-icon>
 					<span class="menu-text pin"
 						aria-label$="[[localize('pinCourse', 'course', _enrollmentEntity.properties.name)]]"
@@ -55,7 +57,8 @@
 				text="{{localize('pin')}}"
 				background-image="d2l-tier1:pin-filled"
 				selection-handler="pinClickHandler"
-				action-description="[[localize('pinCourse', 'course', _enrollmentEntity.properties.name)]]">
+				action-description="[[localize('pinCourse', 'course', _enrollmentEntity.properties.name)]]"
+				hover-event="unpin-hover">
 			</d2l-touch-menu-item>
 		</d2l-touch-menu>
 	</template>
@@ -73,6 +76,10 @@
 					value: true
 				},
 				touchEnabled: {
+					type: Boolean,
+					value: true
+				},
+				dynamicInsert: {
 					type: Boolean,
 					value: true
 				},
@@ -103,8 +110,26 @@
 			behaviors: [
 				Polymer.D2L.MyCourses.LocalizeBehavior
 			],
+			listeners: {
+				'unpin-hover': '_onUnpinHover',
+				'animationend': '_onAnimationComplete'
+			},
 			created: function() {
 				this.setAttribute('role', 'link');
+			},
+			ready: function() {
+				if (this.dynamicInsert) {
+					var tileContainer = this.$$('.tile-container');
+					this.toggleClass('dynamic-insert-start', true, tileContainer);
+					this.dynamicInsert = false;
+
+					setTimeout(
+						function() {
+							this.toggleClass('dynamic-insert-start', false, tileContainer);
+						}.bind(this),
+						600
+					);
+				}
 			},
 			updatePreferencesOnResponse: function(response) {
 				if (response.detail.status === 200) {
@@ -143,6 +168,13 @@
 				this.fire(eventName, {
 					course: this._enrollmentEntity
 				});
+
+				this.pinAnimationInProgress = true;
+				var tileContainer = this.$$('.tile-container');
+				this.toggleClass('unpin-hovered', false, tileContainer);
+				this.toggleClass('unpin', true, tileContainer);
+
+				this.lastPinAction = this._pinned;
 			},
 			hoverCourseTile: function() {
 				if (this.hoverEnabled) {
@@ -154,13 +186,23 @@
 				}
 			},
 			unhoverCourseTile: function(force) {
-				if (force === true || Polymer.dom(this.root).querySelectorAll(':hover').length === 0) {
+				if ((force === true || Polymer.dom(this.root).querySelectorAll(':hover').length === 0) &&
+					!this.pinAnimationInProgress) {
 					var hoverMenu = this.$$('.hover-menu');
 					Polymer.dom(hoverMenu).classList.remove('hover');
 
 					var courseImage = this.$$('.course-image img');
 					Polymer.dom(courseImage).classList.remove('hover');
 				}
+			},
+			hoverUnpinButton: function() {
+				this._onUnpinHover({detail: {hoverState: true}});
+
+				this.hoverCourseTile();
+			},
+			unhoverUnpinButton: function() {
+				this._onUnpinHover({detail: {hoverState: false}});
+				this.unhoverCourseTile();
 			},
 			onTileMouseOut: function() {
 				this.unhoverCourseTile(true);
@@ -209,7 +251,19 @@
 					Polymer.dom(pinTouchMenuItem).setAttribute('background-image', 'd2l-tier1:pin-filled');
 					Polymer.dom(pinTouchMenuItem).setAttribute('action-description', this.localize('pinCourse', 'course', this._enrollmentEntity.properties.name));
 				}
-			}
+			},
+			_onUnpinHover: function(e) {
+				var courseTile = this.$$('.tile-container');
+				this.toggleClass('unpin-hovered', e.detail.hoverState, courseTile);
+			},
+			_onAnimationComplete: function(e) {
+				if (e.animationName.includes('scale-and-fade-out')) {
+					var pinEventName = this.lastPinAction ? 'pin-animation-complete' : 'unpin-animation-complete';
+					this.fire(pinEventName, {course: this._enrollmentEntity});
+				}
+			},
+			pinAnimationInProgress: false,
+			lastPinAction: false
 		});
 	</script>
 </dom-module>
