@@ -70,6 +70,10 @@
 				enrollmentsUrl: {
 					type: String
 				},
+				fetchEnrollments: {
+					type: Boolean,
+					value: true
+				},
 				_hasPinnedCourses: {
 					type: Boolean
 				}
@@ -106,12 +110,15 @@
 
 					this.set('pinnedCoursesEntities', newPinnedCourses);
 					this.set('unpinnedCoursesEntities', newUnpinnedCourses);
+					this.fetchEnrollments = false;
 
 					this._rescaleCourseTileRegions(this._getOverlayWidth());
 				}
 			},
 			open: function() {
-				this.$.allEnrollmentsRequest.generateRequest();
+				if (this.fetchEnrollments) {
+					this.$.allEnrollmentsRequest.generateRequest();
+				}
 				this.$$('d2l-simple-overlay').open();
 				this._rescaleCourseTileRegions(this._getOverlayWidth());
 			},

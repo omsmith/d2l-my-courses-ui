@@ -154,6 +154,9 @@
 					this.set('pinnedCoursesEntities', newPinnedCourses);
 					this.set('unpinnedCoursesEntities', newUnpinnedCourses);
 
+					// Since we've already fetched all enrollments, prevent All Courses from doing so
+					this.$$('d2l-all-courses').fetchEnrollments = false;
+
 					this._updateAlertMessage();
 					this._rescaleCourseTileRegions();
 				}
