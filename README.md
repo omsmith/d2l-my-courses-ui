@@ -20,12 +20,75 @@ npm run serve
 
 This will start a local server using polyserve
 
-The demo app can be visited at:
+The demos can be found at:
 > http://localhost:8080/components/d2l-my-courses/demo/index.html
+
+## Components
+
+`d2l-my-courses` is made up of several web components all working together. The
+intent behind this design is that each component can be used more or less
+independently. If there is a need, these components could be broken out into
+their own repositories/release schedule, but for now they are all contained
+within this repo.
+
+### d2l-alert
+
+The `d2l-alert` is intended to be used for highlighted blocks of informational
+text.
+
+Properties:
+
+- `visible`: Defines whether alert is visible. Can be a truthy value, or a
+function that returns a truthy value.
+
+### d2l-simple-overlay
+
+The `d2l-simple-overlay` is a popover window that can be used to display any
+content. It uses [iron-overlay](https://github.com/PolymerElements/iron-overlay-behavior)
+and various [neon](https://elements.polymer-project.org/browse?package=neon-elements)
+behaviours and elements. The overlay supports using different animations
+and transitions for desktop and mobile.
+
+Properties:
+
+- `title` _String_: Title that appears at the top of the overlay
+- `animationConfig` _function_: Defines transformations for open/close
+animations. See the `neon` docs for more information.
+
+### d2l-all-courses
+
+The `d2l-all-courses` component uses the `d2l-simple-overlay` to display a
+user's pinned and unpinned courses.
+
+Properties:
+
+- `pinnedCoursesEntities` _Object_: entities representing pinned courses
+- `enrollmentsUrl` _String_: URL to use to fetch enrollments
+- `allEnrollmentsEntities` _Object_ (optional): if these enrollment entities
+are present, no request will be done to fetch all of a user's enrollments
+
+### d2l-touch-menu
+
+The `d2l-touch-menu` is simply a container for `d2l-touch-menu-item`s. See the
+`d2l-touch-menu-item` demo for usage.
+
+### d2l-touch-menu-item
+
+The `d2l-touch-menu` is a long-press menu that is used on mobile, and can
+contain one or more `d2l-touch-menu-item`s.
+
+Properties:
+
+- `actionDescription` _String_: used for A11Y offscreen description
+- `backgroundImage` _String_: an icon to use for the menu item
+- `text` _String_: Text to display on menu item
+- `selectionHandler` _String_: Callback for when menu item is selected
 
 ## `user-info-api` Integration
 
-The My Courses widget pulls data from an instance of the User Info Service to get the enrollments for a user. This functionality is currently in a beta-ish state, as doing so more cleanly would require the widget to be running hosted on the LMS. As it stands now, some changes are required to the LMS to enable CORS headers on all requests for this approach to work.
+The My Courses widget pulls data from an instance of the User Info Service to
+get the enrollments for a user. This is intended as a temporary solution, and
+will be changed in the future.
 
 ## Local Testing
 
@@ -51,15 +114,17 @@ to link to the local d2l-my-courses-ui project
 
 5) Build and run brightspace-integration (will have to be rebuilt on any changes to d2l-my-courses-ui)
 
-Note: On Windows, there exists an issue with relative paths, which will prevent web-component-shards from completing successfully without modifying vulcanize to not use path.posix. See: https://github.com/Polymer/vulcanize/issues/338
-
-Under Windows, uou will likely also run into a problem in brightspace-integration where web-component-shards will fail due to the 'tmp' directory not being able to be deleted, preventing 'npm run serve' from succeeding. A simple workaround is to run the contents of the npm 'serve' script directly after building, and removing the tmp directory manually.
+Under Windows, you will likely also run into a problem in brightspace-integration
+where web-component-shards will fail due to the 'tmp' directory not being able
+to be deleted, preventing 'npm run serve' from succeeding. A simple workaround
+is to run the contents of the npm 'serve' script directly after building, and
+removing the tmp directory manually.
 
 ## Unit Tests
 
 The unit tests are built and run using [web-component-tester](https://github.com/Polymer/web-component-tester).
 
-To run unit tests and perform linting, run:
+To lint and run unit tests, run:
 
 ```shell
 npm test
@@ -67,22 +132,14 @@ npm test
 
 ## Publishing & Releasing
 
-To publish a numbered "release" version, follow steps below.
-
-### Bump version ###
-
-```BASH
-$ # npm help 1 version
-$ # npm help 7 semver
-$ npm version [major|minor|patch|premajor|preminor|prepatch|prerelease] -m "chore(version) bump %s"
-$ git push upstream master
-$ git push upstream master --tags
-```
+To publish a numbered "release" version, use the "Draft a new release" tool on GitHub.
 
 ## Contributing
 Contributions are welcome, please submit a pull request!
 
-> Note: To contribute, please create a branch in this repo instead of a fork. We are using [Sauce Labs](https://saucelabs.com/) in our CI builds which don't work in PRs from forks. Thanks!
+> Note: To contribute, please create a branch in this repo instead of a fork.
+We are using [Sauce Labs](https://saucelabs.com/) in our CI builds which don't
+work in PRs from forks. Thanks!
 
 ### Code Style
 
