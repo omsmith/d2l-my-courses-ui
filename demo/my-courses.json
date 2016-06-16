@@ -8,7 +8,7 @@
     "enrollments"
   ],
   "properties": {
-    "total": 11,
+    "total": 4,
     "pagingInfo": {
       "pageSize": 100,
       "currentPage": 1,
@@ -118,7 +118,8 @@
           "class": [
             "enrollment",
             "preferences",
-            "colour"
+            "colour",
+            "pinned"
           ],
           "rel": [
             "preferences"
@@ -149,7 +150,7 @@
                 {
                   "name": "pinned",
                   "type": "checkbox",
-                  "value": false
+                  "value": true
                 }
               ]
             }
@@ -204,7 +205,8 @@
           "class": [
             "enrollment",
             "preferences",
-            "colour"
+            "colour",
+            "pinned"
           ],
           "rel": [
             "preferences"
@@ -235,7 +237,7 @@
                 {
                   "name": "pinned",
                   "type": "checkbox",
-                  "value": false
+                  "value": true
                 }
               ]
             }
@@ -290,13 +292,15 @@
           "class": [
             "enrollment",
             "preferences",
-            "colour"
+            "colour",
+            "pinned"
           ],
           "rel": [
             "preferences"
           ],
           "properties": {
-            "colour": "#EC3653"
+            "colour": "#EC3653",
+            "pinDate": "2016-01-01T00:00:00.000Z"
           },
           "entities": [],
           "links": [
@@ -321,7 +325,7 @@
                 {
                   "name": "pinned",
                   "type": "checkbox",
-                  "value": false
+                  "value": true
                 }
               ]
             }
@@ -352,522 +356,6 @@
               "name": "name",
               "type": "text",
               "value": "Labour Relations"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "class": [
-        "active",
-        "valence",
-        "course-offering"
-      ],
-      "rel": [
-        "enrollment"
-      ],
-      "properties": {
-        "name": "K12 - Content",
-        "code": "K12-1",
-        "id": "123062"
-      },
-      "entities": [
-        {
-          "class": [
-            "enrollment",
-            "preferences",
-            "colour"
-          ],
-          "rel": [
-            "preferences"
-          ],
-          "properties": {
-            "colour": "#E99C28"
-          },
-          "entities": [],
-          "links": [
-            {
-              "rel": [
-                "self"
-              ],
-              "href": "http://localhost:3000/enrollments/123062/preferences"
-            }
-          ],
-          "actions": [
-            {
-              "name": "update",
-              "method": "PUT",
-              "href": "http://localhost:3000/enrollments/123062/preferences",
-              "fields": [
-                {
-                  "name": "colour",
-                  "type": "text",
-                  "value": "#E99C28"
-                },
-                {
-                  "name": "pinned",
-                  "type": "checkbox",
-                  "value": false
-                }
-              ]
-            }
-          ]
-        }
-      ],
-      "links": [
-        {
-          "rel": [
-            "self"
-          ],
-          "href": "http://localhost:3000/enrollments/123062"
-        },
-        {
-          "rel": [
-            "course-image"
-          ],
-          "href": "http://lorempixel.com/400/200/"
-        }
-      ],
-      "actions": [
-        {
-          "name": "update-name",
-          "method": "PUT",
-          "href": "http://localhost:3000/enrollments/123062",
-          "fields": [
-            {
-              "name": "name",
-              "type": "text",
-              "value": "K12 - Content"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "class": [
-        "active",
-        "valence",
-        "course-offering"
-      ],
-      "rel": [
-        "enrollment"
-      ],
-      "properties": {
-        "name": "Evolutionary Psychology",
-        "code": "PSYCH361",
-        "id": "123063"
-      },
-      "entities": [
-        {
-          "class": [
-            "enrollment",
-            "preferences",
-            "colour"
-          ],
-          "rel": [
-            "preferences"
-          ],
-          "properties": {
-            "colour": "#1AA9B6"
-          },
-          "entities": [],
-          "links": [
-            {
-              "rel": [
-                "self"
-              ],
-              "href": "http://localhost:3000/enrollments/123063/preferences"
-            }
-          ],
-          "actions": [
-            {
-              "name": "update",
-              "method": "PUT",
-              "href": "http://localhost:3000/enrollments/123063/preferences",
-              "fields": [
-                {
-                  "name": "colour",
-                  "type": "text",
-                  "value": "#1AA9B6"
-                },
-                {
-                  "name": "pinned",
-                  "type": "checkbox",
-                  "value": false
-                }
-              ]
-            }
-          ]
-        }
-      ],
-      "links": [
-        {
-          "rel": [
-            "self"
-          ],
-          "href": "http://localhost:3000/enrollments/123063"
-        },
-        {
-          "rel": [
-            "course-image"
-          ],
-          "href": "http://lorempixel.com/400/200/"
-        }
-      ],
-      "actions": [
-        {
-          "name": "update-name",
-          "method": "PUT",
-          "href": "http://localhost:3000/enrollments/123063",
-          "fields": [
-            {
-              "name": "name",
-              "type": "text",
-              "value": "Evolutionary Psychology"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "class": [
-        "active",
-        "valence",
-        "course-offering"
-      ],
-      "rel": [
-        "enrollment"
-      ],
-      "properties": {
-        "name": "Rock 'n' Roll and U.S. History",
-        "code": "HIST105",
-        "id": "123064"
-      },
-      "entities": [
-        {
-          "class": [
-            "enrollment",
-            "preferences",
-            "colour"
-          ],
-          "rel": [
-            "preferences"
-          ],
-          "properties": {
-            "colour": "#7E5AA3"
-          },
-          "entities": [],
-          "links": [
-            {
-              "rel": [
-                "self"
-              ],
-              "href": "http://localhost:3000/enrollments/123064/preferences"
-            }
-          ],
-          "actions": [
-            {
-              "name": "update",
-              "method": "PUT",
-              "href": "http://localhost:3000/enrollments/123064/preferences",
-              "fields": [
-                {
-                  "name": "colour",
-                  "type": "text",
-                  "value": "#7E5AA3"
-                },
-                {
-                  "name": "pinned",
-                  "type": "checkbox",
-                  "value": false
-                }
-              ]
-            }
-          ]
-        }
-      ],
-      "links": [
-        {
-          "rel": [
-            "self"
-          ],
-          "href": "http://localhost:3000/enrollments/123064"
-        },
-        {
-          "rel": [
-            "course-image"
-          ],
-          "href": "http://lorempixel.com/400/200/"
-        }
-      ],
-      "actions": [
-        {
-          "name": "update-name",
-          "method": "PUT",
-          "href": "http://localhost:3000/enrollments/123064",
-          "fields": [
-            {
-              "name": "name",
-              "type": "text",
-              "value": "Rock 'n' Roll and U.S. History"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "class": [
-        "active",
-        "valence",
-        "course-offering"
-      ],
-      "rel": [
-        "enrollment"
-      ],
-      "properties": {
-        "name": "LTI Data",
-        "code": "LTI",
-        "id": "123065"
-      },
-      "entities": [
-        {
-          "class": [
-            "enrollment",
-            "preferences",
-            "colour"
-          ],
-          "rel": [
-            "preferences"
-          ],
-          "properties": {
-            "colour": "#F06A31"
-          },
-          "entities": [],
-          "links": [
-            {
-              "rel": [
-                "self"
-              ],
-              "href": "http://localhost:3000/enrollments/123065/preferences"
-            }
-          ],
-          "actions": [
-            {
-              "name": "update",
-              "method": "PUT",
-              "href": "http://localhost:3000/enrollments/123065/preferences",
-              "fields": [
-                {
-                  "name": "colour",
-                  "type": "text",
-                  "value": "#F06A31"
-                },
-                {
-                  "name": "pinned",
-                  "type": "checkbox",
-                  "value": false
-                }
-              ]
-            }
-          ]
-        }
-      ],
-      "links": [
-        {
-          "rel": [
-            "self"
-          ],
-          "href": "http://localhost:3000/enrollments/123065"
-        },
-        {
-          "rel": [
-            "course-image"
-          ],
-          "href": "http://lorempixel.com/400/200/"
-        }
-      ],
-      "actions": [
-        {
-          "name": "update-name",
-          "method": "PUT",
-          "href": "http://localhost:3000/enrollments/123065",
-          "fields": [
-            {
-              "name": "name",
-              "type": "text",
-              "value": "LTI Data"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "class": [
-        "active",
-        "valence",
-        "course-offering"
-      ],
-      "rel": [
-        "enrollment"
-      ],
-      "properties": {
-        "name": "Course Plugins",
-        "code": "Course-Plugin",
-        "id": "123066"
-      },
-      "entities": [
-        {
-          "class": [
-            "enrollment",
-            "preferences",
-            "colour"
-          ],
-          "rel": [
-            "preferences"
-          ],
-          "properties": {
-            "colour": "#D468A6"
-          },
-          "entities": [],
-          "links": [
-            {
-              "rel": [
-                "self"
-              ],
-              "href": "http://localhost:3000/enrollments/123066/preferences"
-            }
-          ],
-          "actions": [
-            {
-              "name": "update",
-              "method": "PUT",
-              "href": "http://localhost:3000/enrollments/123066/preferences",
-              "fields": [
-                {
-                  "name": "colour",
-                  "type": "text",
-                  "value": "#D468A6"
-                },
-                {
-                  "name": "pinned",
-                  "type": "checkbox",
-                  "value": false
-                }
-              ]
-            }
-          ]
-        }
-      ],
-      "links": [
-        {
-          "rel": [
-            "self"
-          ],
-          "href": "http://localhost:3000/enrollments/123066"
-        },
-        {
-          "rel": [
-            "course-image"
-          ],
-          "href": "http://lorempixel.com/400/200/"
-        }
-      ],
-      "actions": [
-        {
-          "name": "update-name",
-          "method": "PUT",
-          "href": "http://localhost:3000/enrollments/123066",
-          "fields": [
-            {
-              "name": "name",
-              "type": "text",
-              "value": "Course Plugins"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "class": [
-        "active",
-        "valence",
-        "course-offering"
-      ],
-      "rel": [
-        "enrollment"
-      ],
-      "properties": {
-        "name": "Brightspace Content UI by Type",
-        "code": "BS-CUI-T",
-        "id": "123067"
-      },
-      "entities": [
-        {
-          "class": [
-            "enrollment",
-            "preferences",
-            "colour"
-          ],
-          "rel": [
-            "preferences"
-          ],
-          "properties": {
-            "colour": "#3571B5"
-          },
-          "entities": [],
-          "links": [
-            {
-              "rel": [
-                "self"
-              ],
-              "href": "http://localhost:3000/enrollments/123067/preferences"
-            }
-          ],
-          "actions": [
-            {
-              "name": "update",
-              "method": "PUT",
-              "href": "http://localhost:3000/enrollments/123067/preferences",
-              "fields": [
-                {
-                  "name": "colour",
-                  "type": "text",
-                  "value": "#3571B5"
-                },
-                {
-                  "name": "pinned",
-                  "type": "checkbox",
-                  "value": false
-                }
-              ]
-            }
-          ]
-        }
-      ],
-      "links": [
-        {
-          "rel": [
-            "self"
-          ],
-          "href": "http://localhost:3000/enrollments/123067"
-        },
-        {
-          "rel": [
-            "course-image"
-          ],
-          "href": "http://lorempixel.com/400/200/"
-        }
-      ],
-      "actions": [
-        {
-          "name": "update-name",
-          "method": "PUT",
-          "href": "http://localhost:3000/enrollments/123067",
-          "fields": [
-            {
-              "name": "name",
-              "type": "text",
-              "value": "Brightspace Content UI by Type"
             }
           ]
         }

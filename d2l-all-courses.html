@@ -17,8 +17,7 @@
 			id="allEnrollmentsRequest"
 			url="[[enrollmentsUrl]]"
 			headers='{ "Accept": "application/vnd.siren+json" }'
-			on-response="allEnrollmentsOnResponse"
-			last-response="{{_allEnrollmentsResponse}}">
+			on-response="allEnrollmentsOnResponse">
 		</d2l-ajax>
 
 		<d2l-simple-overlay
@@ -29,11 +28,11 @@
 
 			<div class="dialog-content">
 				<h3 class="d2l-heading-3">{{localize('pinnedCourses')}}</h3>
-				<d2l-alert visible="{{_hasPinnedCourses}}">
+				<d2l-alert visible="{{!_hasPinnedCourses}}">
 					{{localize('noPinnedCoursesMessage')}}
 				</d2l-alert>
 				<div class="my-courses-container" role="region">
-					<template is="dom-repeat" filter="isActive" items="[[pinnedCoursesEntities]]">
+					<template is="dom-repeat" items="[[pinnedCoursesEntities]]">
 						<d2l-course-tile
 							enrollment="[[item]]"
 							hover-enabled="[[_hoverInteractionEnabled]]"
@@ -59,32 +58,24 @@
 			is: 'd2l-all-courses',
 			properties: {
 				pinnedCoursesEntities: {
-					type: Array
+					type: Array,
+					value: [],
+					notify: true
 				},
 				unpinnedCoursesEntities: {
 					type: Array,
-					readOnly: true
-				},
-				allEnrollmentsEntities: {
-					type: Array,
-					readOnly: true
+					value: [],
+					notify: true
 				},
 				enrollmentsUrl: {
 					type: String
 				},
-				_allEnrollmentsResponse: {
-					type: Object
+				fetchEnrollments: {
+					type: Boolean,
+					value: true
 				},
 				_hasPinnedCourses: {
-					type: Boolean,
-					computed: '_isEmpty(pinnedCoursesEntities)'
-				},
-				_windowResizeHandler: {
-					type: Object,
-					readOnly: true,
-					value: function() {
-						return this._handleWindowResize.bind(this);
-					}
+					type: Boolean
 				}
 			},
 			behaviors: [
@@ -92,54 +83,50 @@
 				Polymer.D2L.MyCourses.LocalizeBehavior,
 				Polymer.D2L.MyCourses.InteractionDetectionBehavior
 			],
-			ready : function() {
+			observers: [
+				'_onPinnedCoursesEntitiesChanged(pinnedCoursesEntities.*)'
+			],
+			ready: function() {
 				this.$$('d2l-simple-overlay').focusableNodesOverride = this.focusableNodesOverride;
 			},
 			allEnrollmentsOnResponse: function(response) {
 				if (response.detail.status === 200) {
-					this._setAllEnrollmentsEntities(this._allEnrollmentsResponse.entities);
-					this._filterUnpinnedCourses(this.pinnedCoursesEntities, this.allEnrollmentsEntities);
+					var parser = document.createElement('d2l-siren-parser');
+					var allEnrollments = parser.parse(response.detail.xhr.response);
+					var allCourses = allEnrollments.getSubEntitiesByClass('course-offering');
+
+					var newPinnedCourses = [];
+					var newUnpinnedCourses = [];
+
+					for (var i = 0; i < allCourses.length; i++) {
+						if (allCourses[i].hasClass('active')) {
+							if (allCourses[i].hasEntityByClass('pinned')) {
+								newPinnedCourses.push(allCourses[i]);
+							} else {
+								newUnpinnedCourses.push(allCourses[i]);
+							}
+						}
+					}
+
+					this.set('pinnedCoursesEntities', newPinnedCourses);
+					this.set('unpinnedCoursesEntities', newUnpinnedCourses);
+					this.fetchEnrollments = false;
+
 					this._rescaleCourseTileRegions(this._getOverlayWidth());
 				}
 			},
-			isActive: function(item) {
-				return item.class.indexOf('inactive') === -1;
-			},
 			open: function() {
-				this.$.allEnrollmentsRequest.generateRequest();
+				if (this.fetchEnrollments) {
+					this.$.allEnrollmentsRequest.generateRequest();
+				}
 				this.$$('d2l-simple-overlay').open();
 				this._rescaleCourseTileRegions(this._getOverlayWidth());
 			},
 			_getOverlayWidth: function() {
 				return this._getAvailableWidth(this.$$('d2l-simple-overlay'));
 			},
-			_filterUnpinnedCourses: function(pinnedCoursesEntities, allCoursesEntities) {
-				if (pinnedCoursesEntities && allCoursesEntities) {
-					var parser = document.createElement('d2l-siren-parser');
-					this._setUnpinnedCoursesEntities(
-						allCoursesEntities.filter(
-							function(element) {
-								var entity = parser.parse(element);
-								return !entity.hasEntityByClass('pinned');
-							}.bind(this)));
-				}
-			},
-			attached: function() {
-				this._addThrottledEventListener('resize', this._windowResizeHandler);
-			},
-			detached: function() {
-				window.removeEventListener('resize', this._windowResizeHandler);
-			},
 			get courseTileItemCount() {
-				var pinnedCoursesEntityCount = this.pinnedCoursesEntities
-					? this.pinnedCoursesEntities.filter(function(item) {
-						return item.class.indexOf('inactive') === -1;
-					}).length : 0;
-				var unpinnedCoursesEntityCount = this.unpinnedCoursesEntities
-					? this.unpinnedCoursesEntities.filter(function(item) {
-						return item.class.indexOf('inactive') === -1;
-					}).length : 0;
-				var itemCount = Math.max(pinnedCoursesEntityCount, unpinnedCoursesEntityCount);
+				var itemCount = Math.max(this.pinnedCoursesEntities.length, this.unpinnedCoursesEntities.length);
 
 				return itemCount;
 			},
@@ -158,6 +145,9 @@
 			},
 			_isEmpty: function(list) {
 				return !list || list.length === 0;
+			},
+			_onPinnedCoursesEntitiesChanged: function(newArray) {
+				this._hasPinnedCourses = !newArray.base || newArray.base.length > 0;
 			}
 		});
 	</script>

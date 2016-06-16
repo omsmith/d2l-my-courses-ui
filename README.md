@@ -62,15 +62,20 @@ user's pinned and unpinned courses.
 
 Properties:
 
-- `pinnedCoursesEntities` _Object_: entities representing pinned courses
+- `pinnedCoursesEntities` _Array_: entities representing pinned courses
+- `unpinnedCoursesEntities` _Array_: entities representing unpinned courses
+- `fetchEnrollments` _Boolean_ (optional): If true (default), component will fetch all enrollments
+on open, if it has not already done so
 - `enrollmentsUrl` _String_: URL to use to fetch enrollments
-- `allEnrollmentsEntities` _Object_ (optional): if these enrollment entities
-are present, no request will be done to fetch all of a user's enrollments
 
 ### d2l-touch-menu
 
 The `d2l-touch-menu` is simply a container for `d2l-touch-menu-item`s. See the
 `d2l-touch-menu-item` demo for usage.
+
+Properties:
+
+- `enabled` _Boolean_: if true (default), touch menu is enabled
 
 ### d2l-touch-menu-item
 
@@ -113,12 +118,7 @@ bower link d2l-my-courses-ui
 to link to the local d2l-my-courses-ui project
 
 5) Build and run brightspace-integration (will have to be rebuilt on any changes to d2l-my-courses-ui)
-
-Under Windows, you will likely also run into a problem in brightspace-integration
-where web-component-shards will fail due to the 'tmp' directory not being able
-to be deleted, preventing 'npm run serve' from succeeding. A simple workaround
-is to run the contents of the npm 'serve' script directly after building, and
-removing the tmp directory manually.
+--*Note: If on Windows, you must remove the tmp directory manually prior to building, if it exists.
 
 ## Unit Tests
 
