@@ -196,6 +196,8 @@
 						break;
 					}
 				}
+
+				this._updateAlertMessage();
 			},
 			_unpinCourse: function(course) {
 				// Remove course from pinned list, add to unpinned
@@ -208,6 +210,8 @@
 						break;
 					}
 				}
+
+				this._updateAlertMessage();
 			},
 			_setCoursePinned: function(entity, isPinned) {
 				var modEntity = entity.entities[0];
