@@ -79,9 +79,9 @@
 					type: Boolean,
 					value: true
 				},
-				dynamicInsert: {
+				animateInsertion: {
 					type: Boolean,
-					value: true
+					value: false
 				},
 				_enrollmentEntity: {
 					type: Object,
@@ -117,18 +117,10 @@
 			created: function() {
 				this.setAttribute('role', 'link');
 			},
-			ready: function() {
-				if (this.dynamicInsert) {
+			attached: function() {
+				if (this.animateInsertion) {
 					var tileContainer = this.$$('.tile-container');
-					this.toggleClass('dynamic-insert-start', true, tileContainer);
-					this.dynamicInsert = false;
-
-					setTimeout(
-						function() {
-							this.toggleClass('dynamic-insert-start', false, tileContainer);
-						}.bind(this),
-						600
-					);
+					this.toggleClass('animate-insertion', true, tileContainer);
 				}
 			},
 			updatePreferencesOnResponse: function(response) {
@@ -260,6 +252,9 @@
 				if (e.animationName.includes('scale-and-fade-out')) {
 					var pinEventName = this.lastPinAction ? 'pin-animation-complete' : 'unpin-animation-complete';
 					this.fire(pinEventName, {course: this._enrollmentEntity});
+				} else if (e.animationName.includes('scale-and-fade-in')) {
+					var tileContainer = this.$$('.tile-container');
+					this.toggleClass('animate-insertion', false, tileContainer);
 				}
 			},
 			pinAnimationInProgress: false,

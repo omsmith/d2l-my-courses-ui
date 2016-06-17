@@ -10,6 +10,7 @@
 <link rel="import" href="d2l-course-tile-region-behavior.html">
 <link rel="import" href="localize-behavior.html">
 <link rel="import" href="d2l-interaction-detection-behavior.html">
+<link rel="import" href="d2l-course-management-behavior.html">
 
 <dom-module id="d2l-my-courses">
 	<template>
@@ -44,7 +45,7 @@
 					enrollment="[[item]]"
 					hover-enabled="[[_hoverInteractionEnabled]]"
 					touch-enabled="[[_touchInteractionEnabled]]"
-					dynamic-insert="[[item.dynamicInsert]]">
+					animate-insertion="[[shouldAnimateInsertion(item.properties.id)]]">
 				</d2l-course-tile>
 			</template>
 		</div>
@@ -104,14 +105,9 @@
 			behaviors: [
 				Polymer.D2L.MyCourses.CourseTileRegionBehavior,
 				Polymer.D2L.MyCourses.LocalizeBehavior,
-				Polymer.D2L.MyCourses.InteractionDetectionBehavior
+				Polymer.D2L.MyCourses.InteractionDetectionBehavior,
+				Polymer.D2L.MyCourses.CourseManagementBehavior
 			],
-			listeners: {
-				'course-pinned': '_onCoursePinned',
-				'course-unpinned': '_onCourseUnpinned',
-				'unpin-animation-complete': '_onCourseUnpinAnimationComplete',
-				'pin-animation-complete': '_onCoursePinAnimationComplete'
-			},
 			attached: function() {
 				if (!this.delayLoad) {
 					this.$.pinnedCoursesRequest.generateRequest();
@@ -119,13 +115,7 @@
 			},
 			onPinnedCoursesResponse: function(response) {
 				if (response.detail.status === 200) {
-					var parser = document.createElement('d2l-siren-parser');
-					var allEnrollments = parser.parse(response.detail.xhr.response);
-					var allCourses = allEnrollments.getSubEntitiesByClass('course-offering');
-
-					this.set('pinnedCoursesEntities', allCourses.filter(function(item) {
-						return item.hasClass('active');
-					}));
+					this.setPinnedCoursesFromResponse(response);
 
 					if (this.pinnedCoursesEntities.length === 0) {
 						this.$.allCoursesRequest.generateRequest();
@@ -137,25 +127,7 @@
 			},
 			onAllCoursesResponse: function(response) {
 				if (response.detail.status === 200) {
-					var parser = document.createElement('d2l-siren-parser');
-					var allEnrollments = parser.parse(response.detail.xhr.response);
-					var allCourses = allEnrollments.getSubEntitiesByClass('course-offering');
-
-					var newPinnedCourses = [];
-					var newUnpinnedCourses = [];
-
-					for (var i = 0; i < allCourses.length; i++) {
-						if (allCourses[i].hasClass('active')) {
-							if (allCourses[i].hasEntityByClass('pinned')) {
-								newPinnedCourses.push(allCourses[i]);
-							} else {
-								newUnpinnedCourses.push(allCourses[i]);
-							}
-						}
-					}
-
-					this.set('pinnedCoursesEntities', newPinnedCourses);
-					this.set('unpinnedCoursesEntities', newUnpinnedCourses);
+					this.setAllCoursesFromResponse(response);
 
 					// Since we've already fetched all enrollments, prevent All Courses from doing so
 					this.$$('d2l-all-courses').fetchEnrollments = false;
@@ -184,52 +156,11 @@
 			_onCourseUnpinned: function(e) {
 				this._ariaAnnounce(this.localize('unpinActionResult', 'course', e.detail.course.properties.name));
 			},
-			_onCourseUnpinAnimationComplete: function(e) {
-				this._unpinCourse(e.detail.course);
-			},
-			_onCoursePinAnimationComplete: function(e) {
-				this._pinCourse(e.detail.course);
-			},
-			_pinCourse: function(course) {
-				// Remove course from unpinned list, add to pinned
-				for (var index = 0; index < this.unpinnedCoursesEntities.length; index++) {
-					if (this.unpinnedCoursesEntities[index].properties.id === course.properties.id) {
-						var foundCourse = this.unpinnedCoursesEntities[index];
-						this._setCoursePinned(foundCourse, true);
-						foundCourse.dynamicInsert = true;
-						this.unshift('pinnedCoursesEntities', foundCourse);
-						this.splice('unpinnedCoursesEntities', index, 1);
-						break;
-					}
-				}
-
+			onCoursePinAnimationComplete: function() {
 				this._updateAlertMessage();
 			},
-			_unpinCourse: function(course) {
-				// Remove course from pinned list, add to unpinned
-				for (var index = 0; index < this.pinnedCoursesEntities.length; index++) {
-					if (this.pinnedCoursesEntities[index].properties.id === course.properties.id) {
-						var foundCourse = this.pinnedCoursesEntities[index];
-						this._setCoursePinned(foundCourse, false);
-						foundCourse.dynamicInsert = true;
-						this.splice('pinnedCoursesEntities', index, 1);
-						this.unshift('unpinnedCoursesEntities', foundCourse);
-						break;
-					}
-				}
-
+			onCourseUnpinAnimationComplete: function() {
 				this._updateAlertMessage();
-			},
-			_setCoursePinned: function(entity, isPinned) {
-				var modEntity = entity.entities[0];
-
-				if (isPinned) {
-					modEntity.properties.pinDate = new Date().toISOString();
-					modEntity.class.push('pinned');
-				} else {
-					modEntity.properties.pinDate = undefined;
-					modEntity.class.splice(modEntity.class.indexOf('pinned'), 1);
-				}
 			},
 			_ariaAnnounce: function(message) {
 				this._setAriaMessage('');

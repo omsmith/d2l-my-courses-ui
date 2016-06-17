@@ -1,0 +1,133 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../d2l-siren-parser/d2l-siren-parser.html">
+
+<script>
+	(function() {
+		'use strict';
+
+		Polymer.D2L = Polymer.D2L || {};
+		Polymer.D2L.MyCourses = Polymer.D2L.MyCourses || {};
+
+		Polymer.D2L.MyCourses.CourseManagementBehavior = {
+			properties: {
+				pinnedCoursesEntities: {
+					type: Array,
+					value: [],
+					notify: true
+				},
+				unpinnedCoursesEntities: {
+					type: Array,
+					value: [],
+					notify: true
+				}
+			},
+			listeners: {
+				'course-pinned': '_onCoursePinned',
+				'course-unpinned': '_onCourseUnpinned',
+				'pin-animation-complete': '_onCoursePinAnimationComplete',
+				'unpin-animation-complete': '_onCourseUnpinAnimationComplete'
+			},
+			setPinnedCoursesFromResponse: function(response) {
+				var parser = document.createElement('d2l-siren-parser');
+				var allEnrollments = parser.parse(response.detail.xhr.response);
+				var allCourses = allEnrollments.getSubEntitiesByClass('course-offering');
+
+				this.set('pinnedCoursesEntities', allCourses.filter(function(item) {
+					return item.hasClass('active');
+				}));
+			},
+			setAllCoursesFromResponse: function(response) {
+				var parser = document.createElement('d2l-siren-parser');
+				var allEnrollments = parser.parse(response.detail.xhr.response);
+				var allCourses = allEnrollments.getSubEntitiesByClass('course-offering');
+
+				var newPinnedCourses = [];
+				var newUnpinnedCourses = [];
+
+				for (var i = 0; i < allCourses.length; i++) {
+					if (allCourses[i].hasClass('active')) {
+						if (allCourses[i].hasEntityByClass('pinned')) {
+							newPinnedCourses.push(allCourses[i]);
+						} else {
+							newUnpinnedCourses.push(allCourses[i]);
+						}
+					}
+				}
+
+				this.set('pinnedCoursesEntities', newPinnedCourses);
+				this.set('unpinnedCoursesEntities', newUnpinnedCourses);
+			},
+			_onCoursePinned: function() {
+				//nop
+			},
+			_onCourseUnpinned: function() {
+				//nop
+			},
+			_onCoursePinAnimationComplete: function(e) {
+				this._pinCourse(e.detail.course);
+
+				if (typeof this.onCoursePinAnimationComplete === 'function') {
+					this.onCoursePinAnimationComplete(e);
+				}
+
+				e.stopPropagation();
+			},
+			_onCourseUnpinAnimationComplete: function(e) {
+				this._unpinCourse(e.detail.course);
+
+				if (typeof this.onCourseUnpinAnimationComplete === 'function') {
+					this.onCourseUnpinAnimationComplete(e);
+				}
+
+				e.stopPropagation();
+			},
+			shouldAnimateInsertion: function(courseID) {
+				if (courseID === this.pinnedCourseID) {
+					this.pinnedCourseID = null;
+					return true;
+				}
+
+				return false;
+			},
+			_pinCourse: function(course) {
+				// Remove course from unpinned list, add to pinned
+				for (var index = 0; index < this.unpinnedCoursesEntities.length; index++) {
+					if (this.unpinnedCoursesEntities[index].properties.id === course.properties.id) {
+						var foundCourse = this.unpinnedCoursesEntities[index];
+						this._setCoursePinned(foundCourse, true);
+						this.pinnedCourseID = course.properties.id;
+						this.unshift('pinnedCoursesEntities', foundCourse);
+						this.splice('unpinnedCoursesEntities', index, 1);
+						break;
+					}
+				}
+			},
+			_unpinCourse: function(course) {
+				// Remove course from pinned list, add to unpinned
+				for (var index = 0; index < this.pinnedCoursesEntities.length; index++) {
+					if (this.pinnedCoursesEntities[index].properties.id === course.properties.id) {
+						var foundCourse = this.pinnedCoursesEntities[index];
+						this._setCoursePinned(foundCourse, false);
+						this.pinnedCourseID = course.properties.id;
+						this.splice('pinnedCoursesEntities', index, 1);
+						this.unshift('unpinnedCoursesEntities', foundCourse);
+						break;
+					}
+				}
+			},
+			_setCoursePinned: function(entity, isPinned) {
+				var modEntity = entity.entities[0];
+
+				if (isPinned) {
+					modEntity.properties.pinDate = new Date().toISOString();
+					modEntity.class.push('pinned');
+				} else {
+					modEntity.properties.pinDate = undefined;
+					modEntity.class.splice(modEntity.class.indexOf('pinned'), 1);
+				}
+			},
+			pinnedCourseID: null /* ID of the course in current pin animation; Bad because you can pin more than one course more quickly than it can animate..
+									But, that will be a problem when the tile-slide animation comes in anyway.. Still, should have per-entity flag */
+		};
+	})();
+</script>
