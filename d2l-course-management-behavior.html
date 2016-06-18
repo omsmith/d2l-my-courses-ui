@@ -27,18 +27,18 @@
 				'pin-animation-complete': '_onCoursePinAnimationComplete',
 				'unpin-animation-complete': '_onCourseUnpinAnimationComplete'
 			},
-			setPinnedCoursesFromResponse: function(response) {
+			setPinnedCoursesFromSirenResponse: function(response) {
 				var parser = document.createElement('d2l-siren-parser');
-				var allEnrollments = parser.parse(response.detail.xhr.response);
+				var allEnrollments = parser.parse(response);
 				var allCourses = allEnrollments.getSubEntitiesByClass('course-offering');
 
 				this.set('pinnedCoursesEntities', allCourses.filter(function(item) {
 					return item.hasClass('active');
 				}));
 			},
-			setAllCoursesFromResponse: function(response) {
+			setAllCoursesFromSirenResponse: function(response) {
 				var parser = document.createElement('d2l-siren-parser');
-				var allEnrollments = parser.parse(response.detail.xhr.response);
+				var allEnrollments = parser.parse(response);
 				var allCourses = allEnrollments.getSubEntitiesByClass('course-offering');
 
 				var newPinnedCourses = [];
@@ -57,26 +57,30 @@
 				this.set('pinnedCoursesEntities', newPinnedCourses);
 				this.set('unpinnedCoursesEntities', newUnpinnedCourses);
 			},
-			_onCoursePinned: function() {
-				//nop
+			_onCoursePinned: function(e) {
+				if(typeof this.onPinCourseSelected === 'function') {
+					this.onPinCourseSelected(e);
+				}
 			},
-			_onCourseUnpinned: function() {
-				//nop
+			_onCourseUnpinned: function(e) {
+				if(typeof this.onUnpinCourseSelected === 'function') {
+					this.onUnpinCourseSelected(e);
+				}
 			},
 			_onCoursePinAnimationComplete: function(e) {
-				this._pinCourse(e.detail.course);
+				this._moveCourseToPinnedList(e.detail.course);
 
-				if (typeof this.onCoursePinAnimationComplete === 'function') {
-					this.onCoursePinAnimationComplete(e);
+				if (typeof this.onPinCourseComplete === 'function') {
+					this.onPinCourseComplete(e);
 				}
 
 				e.stopPropagation();
 			},
 			_onCourseUnpinAnimationComplete: function(e) {
-				this._unpinCourse(e.detail.course);
+				this._moveCourseToUnpinnedList(e.detail.course);
 
-				if (typeof this.onCourseUnpinAnimationComplete === 'function') {
-					this.onCourseUnpinAnimationComplete(e);
+				if (typeof this.onUnpinCourseComplete === 'function') {
+					this.onUnpinCourseComplete(e);
 				}
 
 				e.stopPropagation();
@@ -89,12 +93,12 @@
 
 				return false;
 			},
-			_pinCourse: function(course) {
+			_moveCourseToPinnedList: function(course) {
 				// Remove course from unpinned list, add to pinned
 				for (var index = 0; index < this.unpinnedCoursesEntities.length; index++) {
 					if (this.unpinnedCoursesEntities[index].properties.id === course.properties.id) {
 						var foundCourse = this.unpinnedCoursesEntities[index];
-						this._setCoursePinned(foundCourse, true);
+						this._setEnrollmentPinData(foundCourse, true);
 						this.pinnedCourseID = course.properties.id;
 						this.unshift('pinnedCoursesEntities', foundCourse);
 						this.splice('unpinnedCoursesEntities', index, 1);
@@ -102,12 +106,12 @@
 					}
 				}
 			},
-			_unpinCourse: function(course) {
+			_moveCourseToUnpinnedList: function(course) {
 				// Remove course from pinned list, add to unpinned
 				for (var index = 0; index < this.pinnedCoursesEntities.length; index++) {
 					if (this.pinnedCoursesEntities[index].properties.id === course.properties.id) {
 						var foundCourse = this.pinnedCoursesEntities[index];
-						this._setCoursePinned(foundCourse, false);
+						this._setEnrollmentPinData(foundCourse, false);
 						this.pinnedCourseID = course.properties.id;
 						this.splice('pinnedCoursesEntities', index, 1);
 						this.unshift('unpinnedCoursesEntities', foundCourse);
@@ -115,7 +119,7 @@
 					}
 				}
 			},
-			_setCoursePinned: function(entity, isPinned) {
+			_setEnrollmentPinData: function(entity, isPinned) {
 				var modEntity = entity.entities[0];
 
 				if (isPinned) {

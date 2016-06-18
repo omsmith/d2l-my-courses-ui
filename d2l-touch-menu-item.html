@@ -41,7 +41,10 @@
 					type: Object,
 					observer: '_offsetChanged'
 				},
-				selectionHandler: {
+				hoverEvent: {
+					type: String
+				},
+				selectionEvent: {
 					type: String
 				},
 				text: {
@@ -50,9 +53,6 @@
 				},
 				touchRegion: {
 					type: Object
-				},
-				hoverEvent: {
-					type: String
 				},
 				selectionEvent: {
 					type: String
@@ -146,7 +146,7 @@
 						this._ariaAnnounce('');
 					}
 
-					if (this.hoverEvent) {
+					if (this.hoverEvent && !this.selected) {
 						this.fire(this.hoverEvent, {hoverState: isHovered, element: this._touchTarget});
 					}
 				}

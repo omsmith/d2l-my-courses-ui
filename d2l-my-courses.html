@@ -115,7 +115,7 @@
 			},
 			onPinnedCoursesResponse: function(response) {
 				if (response.detail.status === 200) {
-					this.setPinnedCoursesFromResponse(response);
+					this.setPinnedCoursesFromSirenResponse(response.detail.xhr.response);
 
 					if (this.pinnedCoursesEntities.length === 0) {
 						this.$.allCoursesRequest.generateRequest();
@@ -127,7 +127,7 @@
 			},
 			onAllCoursesResponse: function(response) {
 				if (response.detail.status === 200) {
-					this.setAllCoursesFromResponse(response);
+					this.setAllCoursesFromSirenResponse(response.detail.xhr.response);
 
 					// Since we've already fetched all enrollments, prevent All Courses from doing so
 					this.$$('d2l-all-courses').fetchEnrollments = false;
@@ -150,16 +150,16 @@
 			get courseTileItemCount() {
 				return this.pinnedCoursesEntities.length;
 			},
-			_onCoursePinned: function(e) {
+			onPinCourseSelected: function(e) {
 				this._ariaAnnounce(this.localize('pinActionResult', 'course', e.detail.course.properties.name));
 			},
-			_onCourseUnpinned: function(e) {
+			onUnpinCourseUnpinned: function(e) {
 				this._ariaAnnounce(this.localize('unpinActionResult', 'course', e.detail.course.properties.name));
 			},
-			onCoursePinAnimationComplete: function() {
+			onPinCourseComplete: function() {
 				this._updateAlertMessage();
 			},
-			onCourseUnpinAnimationComplete: function() {
+			onUnpinCourseComplete: function() {
 				this._updateAlertMessage();
 			},
 			_ariaAnnounce: function(message) {

@@ -22,8 +22,17 @@
 		<main>
 			<h1>d2l-touch-menu demo</h1>
 			<script>
-				function xHandler() {
-					alert('You selected the X');
+				function xHovered(e) {
+					document.getElementById('alert-text').className = e.detail.hoverState ? 'hovered' : '';
+				}
+
+				function xSelected() {
+					var alertText = document.getElementById('alert-text');
+					alertText.className = 'selected';
+
+					setTimeout(function() {
+						this.className = '';
+					}.bind(alertText), 1000);
 				}
 			</script>
 			<style>
@@ -40,29 +49,32 @@
 					tap-highlight-color: rgba(0,0,0,0);
 					touch-action: pan-x pan-y;
 				}
+				#alert-text:before {
+					content: 'Long press me!';
+				}
+				#alert-text.hovered:before {
+					content: 'Release to select!';
+				}
+				#alert-text.selected:before {
+					content: 'You selected the X!';
+				}
 			</style>
 			<div class="no-tap-interaction" id="menu-parent">
-				Long press me!
+				<span id="alert-text"></span>
 				<d2l-touch-menu id="menu">
 					<d2l-touch-menu-item
 						id="menu-item"
 						action-description="Select X"
 						background-image="actions:close"
-						selection-handler="xHandler"
+						hover-event="my-hover-event"
+						selection-event="my-selection-event"
 						text="The X">
 					</d2l-touch-menu-item>
 				</d2l-touch-menu>
 			</div>
 			<script>
-				// This is some trickery required for the demo. In normal usage,
-				// this would not be required.
-				var menuParent = document.getElementById('menu-parent');
-				var menu = document.getElementById('menu');
-				var menuItem = document.getElementById('menu-item');
-
-				menu._host = menuParent;
-				menu._host[menuItem.selectionHandler] = xHandler;
-				menu._touchTarget = menuParent;
+				document.getElementById('menu-parent').addEventListener('my-hover-event', xHovered);
+				document.getElementById('menu-parent').addEventListener('my-selection-event', xSelected);
 			</script>
 		</main>
 	</body>

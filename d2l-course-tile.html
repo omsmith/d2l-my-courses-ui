@@ -37,10 +37,10 @@
 			<div class="hover-menu no-tap-interaction">
 				<button class="menu-item no-tap-interaction"
 					on-click="pinClickHandler"
-					on-focus="hoverUnpinButton"
-					on-blur="unhoverUnpinButton"
-					on-mouseout="unhoverUnpinButton"
-					on-mouseover="hoverUnpinButton">
+					on-focus="hoverPinMenuItem"
+					on-blur="unhoverPinMenuItem"
+					on-mouseover="hoverPinMenuItem"
+					on-mouseout="unhoverPinMenuItem">
 					<iron-icon class="menu-icon" icon="d2l-tier1:pin-filled" aria-hidden="true"></iron-icon>
 					<span class="menu-text pin"
 						aria-label$="[[localize('pinCourse', 'course', _enrollmentEntity.properties.name)]]"
@@ -56,9 +56,9 @@
 			<d2l-touch-menu-item
 				text="{{localize('pin')}}"
 				background-image="d2l-tier1:pin-filled"
-				selection-handler="pinClickHandler"
-				action-description="[[localize('pinCourse', 'course', _enrollmentEntity.properties.name)]]"
-				hover-event="unpin-hover">
+				hover-event="touch-pin-hover"
+				selection-event="touch-pin-select"
+				action-description="[[localize('pinCourse', 'course', _enrollmentEntity.properties.name)]]">
 			</d2l-touch-menu-item>
 		</d2l-touch-menu>
 	</template>
@@ -111,7 +111,8 @@
 				Polymer.D2L.MyCourses.LocalizeBehavior
 			],
 			listeners: {
-				'unpin-hover': '_onUnpinHover',
+				'touch-pin-hover': '_onUnpinHover',
+				'touch-pin-select': 'pinClickHandler',
 				'animationend': '_onAnimationComplete'
 			},
 			created: function() {
@@ -187,12 +188,11 @@
 					Polymer.dom(courseImage).classList.remove('hover');
 				}
 			},
-			hoverUnpinButton: function() {
+			hoverPinMenuItem: function() {
 				this._onUnpinHover({detail: {hoverState: true}});
-
 				this.hoverCourseTile();
 			},
-			unhoverUnpinButton: function() {
+			unhoverPinMenuItem: function() {
 				this._onUnpinHover({detail: {hoverState: false}});
 				this.unhoverCourseTile();
 			},

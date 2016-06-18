@@ -63,10 +63,6 @@
 				enrollmentsUrl: {
 					type: String
 				},
-				fetchEnrollments: {
-					type: Boolean,
-					value: true
-				},
 				_hasPinnedCourses: {
 					type: Boolean
 				}
@@ -77,10 +73,6 @@
 				Polymer.D2L.MyCourses.InteractionDetectionBehavior,
 				Polymer.D2L.MyCourses.CourseManagementBehavior
 			],
-			listeners: {
-				'course-pinned': '_onCoursePinned',
-				'course-unpinned': '_onCourseUnpinned'
-			},
 			observers: [
 				'_onPinnedCoursesEntitiesChanged(pinnedCoursesEntities.*)'
 			],
@@ -146,7 +138,8 @@
 			},
 			_onPinnedCoursesEntitiesChanged: function(newArray) {
 				this._hasPinnedCourses = !newArray.base || newArray.base.length > 0;
-			}
+			},
+			fetchEnrollments: true
 		});
 	</script>
 </dom-module>
