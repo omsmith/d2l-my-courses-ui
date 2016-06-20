@@ -15,91 +15,30 @@
 			is: 'd2l-touch-menu',
 			properties: {
 				enabled: {
-					type: Boolean
+					type: Boolean,
+					value: true
 				},
 				_touchTarget: {
 					type: Object,
 					observer: '_touchTargetChanged'
 				},
-				_longPressDuration: {
-					type: Number,
-					value: 500
-				},
-				_menuItemInitialOffset: {
-					type: Object
-				},
 				_menuOpen: {
 					type: Boolean,
 					observer: '_onMenuOpenChanged'
-				},
-				_openMenuTimerID: {
-					type: Number,
-					value: null
-				},
-				_enableClicksTimerID: {
-					type: Number,
-					value: null
-				},
-				_touchHandlers: {
-					Type: Array,
-					value: [{
-						event: 'touchstart',
-						handler: 'touchstartHandler'
-					},  {
-						event: 'touchend',
-						handler:  'touchendHandler'
-					}, {
-						event: 'touchcancel',
-						handler:  'touchcancelHandler'
-					}, {
-						event: 'touchmove',
-						handler: 'touchmoveHandler'
-					}, {
-						event: 'click',
-						handler: 'clickHandler'
-					}]
-				},
-				_host: {
-					type: Object
-				},
-				_menu: {
-					type: Object
-				},
-				_menuItems: {
-					type: Array
-				},
-				_owner: {
-					type: Object
-				},
-				_initialized: {
-					type: Boolean
-				},
-				_cancelClicks: {
-					type: Boolean
 				}
 			},
 			listeners: {
-				'contextmenu': 'contextMenuHandler'
+				'contextmenu': 'contextmenuHandler'
 			},
 			ready: function() {
 				this._menu = this.$$('.long-press-menu');
 				this._menuItems = [].slice.call(Polymer.dom(this).querySelectorAll('d2l-touch-menu-item'));
 			},
 			attached: function() {
-				if (this.enabled && !this._initialized) {
-					// Only run once, as attaching to body will cause this to be called again
-					this._initialized = true;
-					this._owner = this.parentNode;
-					this._host = Polymer.dom(this).parentNode.host;
-
+				if (this.enabled) {
 					if (!this._touchTarget) {
-						this._touchTarget = this._host;
+						this._touchTarget = this.domHost || this.parentElement;
 					}
-
-					// We need to catch contextmenu events both directly from this element, and separetly from the touch target,
-					// as each will be the target of that event under different circumstances (typically, this element will be the target
-					// when there is no active scroll event, and the touch target will be the event target when there is a scroll event)
-					this.listen(this._touchTarget, 'contextmenu', 'contextMenuHandler');
 				}
 			},
 			touchstartHandler: function(e) {
@@ -138,8 +77,8 @@
 					if (menuItem.hoverState === true) {
 						menuItem.selected = true;
 
-						if (menuItem.selectionHandler) {
-							this.async(this._host[menuItem.selectionHandler].bind(this._host));
+						if (typeof menuItem.selectionEvent === 'string') {
+							this.fire(menuItem.selectionEvent);
 						}
 					}
 				}.bind(this));
@@ -222,19 +161,16 @@
 				this._menuOpen = true;
 			},
 			_touchTargetChanged: function(newValue, oldValue) {
-				if (oldValue !== null) {
-					this._touchHandlers.forEach( function(handlerData) {
-						this.unlisten(oldValue, handlerData.event, handlerData.handler);
-					}.bind(this));
-				}
-
-				if (newValue !== null) {
-					this._touchHandlers.forEach( function(handlerData) {
-						this.listen(newValue, handlerData.event, handlerData.handler);
-					}.bind(this));
+				for (var handler in this._touchHandlers) {
+					if (oldValue !== null) {
+						this.unlisten(oldValue, handler, this._touchHandlers[handler]);
+					}
+					if (newValue !== null) {
+						this.listen(newValue, handler, this._touchHandlers[handler]);
+					}
 				}
 			},
-			contextMenuHandler: function(e) {
+			contextmenuHandler: function(e) {
 				e.preventDefault();
 			},
 			_onMenuOpenChanged: function(openMenu) {
@@ -261,7 +197,21 @@
 				this._cancelClicks = false;
 				clearTimeout(this._enableClicksTimerID);
 				this._enableClicksTimerID = null;
-			}
+			},
+			_touchHandlers: {
+				'touchstart': 'touchstartHandler',
+				'touchend': 'touchendHandler',
+				'touchcancel': 'touchcancelHandler',
+				'touchmove': 'touchmoveHandler',
+				'click': 'clickHandler',
+				'contextmenu': 'contextmenuHandler'
+			},
+			_openMenuTimerID: null,
+			_enableClicksTimerID: null,
+			_menu: null,
+			_menuItems: null,
+			_cancelClicks: false,
+			_longPressDuration: 500
 		});
 	</script>
 </dom-module>

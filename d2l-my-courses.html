@@ -1,6 +1,5 @@
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../d2l-ajax/d2l-ajax.html">
-<link rel="import" href="../d2l-offscreen/d2l-offscreen.html">
 <link rel="import" href="../d2l-siren-parser/d2l-siren-parser.html">
 <link rel="import" href="../d2l-link/d2l-link.html">
 <link rel="import" href="d2l-my-courses-styles.html">
@@ -10,6 +9,7 @@
 <link rel="import" href="d2l-course-tile-region-behavior.html">
 <link rel="import" href="localize-behavior.html">
 <link rel="import" href="d2l-interaction-detection-behavior.html">
+<link rel="import" href="d2l-course-management-behavior.html">
 
 <dom-module id="d2l-my-courses">
 	<template>
@@ -19,8 +19,7 @@
 			id="pinnedCoursesRequest"
 			url="[[_pinnedCoursesUrl]]"
 			headers='{ "Accept": "application/vnd.siren+json" }'
-			on-response="onPinnedCoursesResponse"
-			last-response="{{_pinnedCoursesResponse}}">
+			on-response="onPinnedCoursesResponse">
 		</d2l-ajax>
 
 		<d2l-ajax
@@ -30,11 +29,11 @@
 			on-response="onAllCoursesResponse">
 		</d2l-ajax>
 
-		<d2l-alert visible="{{_alertMessage}}">
+		<d2l-alert visible="[[!_hasPinnedCourses]]">
 			{{_alertMessage}}
 			<a is="d2l-link"
 				href="Javascript:void(0);"
-				hidden$="{{_hasCourses}}"
+				hidden$="[[_hasPinnedCourses]]"
 				on-tap="refreshPage">{{localize('refresh')}}</a>
 		</d2l-alert>
 
@@ -43,12 +42,11 @@
 				<d2l-course-tile
 					enrollment="[[item]]"
 					hover-enabled="[[_hoverInteractionEnabled]]"
-					touch-enabled="[[_touchInteractionEnabled]]">
+					touch-enabled="[[_touchInteractionEnabled]]"
+					animate-insertion="[[removeCourseFromTransitionList(item.properties.id)]]">
 				</d2l-course-tile>
 			</template>
 		</div>
-
-		<d2l-offscreen aria-live="polite">{{ariaMessage}}</d2l-offscreen>
 
 		<button class="all-courses-button"
 			hidden$="{{!_hasCourses}}"
@@ -69,10 +67,6 @@
 		Polymer({
 			is: 'd2l-my-courses',
 			properties: {
-				ariaMessage: {
-					type: String,
-					readOnly: true
-				},
 				delayLoad: {
 					type: Boolean,
 					value: false
@@ -80,20 +74,8 @@
 				enrollmentsUrl: {
 					type: String
 				},
-				pinnedCoursesEntities: {
-					type: Array,
-					value: []
-				},
-				unpinnedCoursesEntities: {
-					type: Array,
-					value: []
-				},
 				_alertMessage: {
 					type: String
-				},
-				_hasCourses: {
-					type: Boolean,
-					value: false
 				},
 				_pinnedCoursesUrl: {
 					type: String,
@@ -103,11 +85,11 @@
 			behaviors: [
 				Polymer.D2L.MyCourses.CourseTileRegionBehavior,
 				Polymer.D2L.MyCourses.LocalizeBehavior,
-				Polymer.D2L.MyCourses.InteractionDetectionBehavior
+				Polymer.D2L.MyCourses.InteractionDetectionBehavior,
+				Polymer.D2L.MyCourses.CourseManagementBehavior
 			],
-			listeners: {
-				'course-pinned': '_onCoursePinned',
-				'course-unpinned': '_onCourseUnpinned'
+			ready: function() {
+				this._alertMessage = this.localize('noPinnedCoursesMessage');
 			},
 			attached: function() {
 				if (!this.delayLoad) {
@@ -116,48 +98,26 @@
 			},
 			onPinnedCoursesResponse: function(response) {
 				if (response.detail.status === 200) {
-					var parser = document.createElement('d2l-siren-parser');
-					var allEnrollments = parser.parse(response.detail.xhr.response);
-					var allCourses = allEnrollments.getSubEntitiesByClass('course-offering');
-
-					this.set('pinnedCoursesEntities', allCourses.filter(function(item) {
-						return item.hasClass('active');
-					}));
+					this.setAllCoursesFromSirenResponse(response.detail.xhr.response);
 
 					if (this.pinnedCoursesEntities.length === 0) {
 						this.$.allCoursesRequest.generateRequest();
 					} else {
-						this._updateAlertMessage();
 						this._rescaleCourseTileRegions();
 					}
 				}
 			},
 			onAllCoursesResponse: function(response) {
 				if (response.detail.status === 200) {
-					var parser = document.createElement('d2l-siren-parser');
-					var allEnrollments = parser.parse(response.detail.xhr.response);
-					var allCourses = allEnrollments.getSubEntitiesByClass('course-offering');
-
-					var newPinnedCourses = [];
-					var newUnpinnedCourses = [];
-
-					for (var i = 0; i < allCourses.length; i++) {
-						if (allCourses[i].hasClass('active')) {
-							if (allCourses[i].hasEntityByClass('pinned')) {
-								newPinnedCourses.push(allCourses[i]);
-							} else {
-								newUnpinnedCourses.push(allCourses[i]);
-							}
-						}
-					}
-
-					this.set('pinnedCoursesEntities', newPinnedCourses);
-					this.set('unpinnedCoursesEntities', newUnpinnedCourses);
+					this.setAllCoursesFromSirenResponse(response.detail.xhr.response);
 
 					// Since we've already fetched all enrollments, prevent All Courses from doing so
 					this.$$('d2l-all-courses').fetchEnrollments = false;
 
-					this._updateAlertMessage();
+					if (!this._hasCourses) {
+						this._alertMessage = this.localize('noCoursesMessage');
+					}
+
 					this._rescaleCourseTileRegions();
 				}
 			},
@@ -174,74 +134,6 @@
 			},
 			get courseTileItemCount() {
 				return this.pinnedCoursesEntities.length;
-			},
-			_onCoursePinned: function(e) {
-				this._ariaAnnounce(this.localize('pinActionResult', 'course', e.detail.course.properties.name));
-
-				this._pinCourse(e.detail.course);
-			},
-			_onCourseUnpinned: function(e) {
-				this._ariaAnnounce(this.localize('unpinActionResult', 'course', e.detail.course.properties.name));
-
-				this._unpinCourse(e.detail.course);
-			},
-			_pinCourse: function(course) {
-				// Remove course from unpinned list, add to pinned
-				for (var index = 0; index < this.unpinnedCoursesEntities.length; index++) {
-					if (this.unpinnedCoursesEntities[index].properties.id === course.properties.id) {
-						var foundCourse = this.unpinnedCoursesEntities[index];
-						this._setCoursePinned(foundCourse, true);
-						this.push('pinnedCoursesEntities', foundCourse);
-						this.splice('unpinnedCoursesEntities', index, 1);
-						break;
-					}
-				}
-
-				this._updateAlertMessage();
-			},
-			_unpinCourse: function(course) {
-				// Remove course from pinned list, add to unpinned
-				for (var index = 0; index < this.pinnedCoursesEntities.length; index++) {
-					if (this.pinnedCoursesEntities[index].properties.id === course.properties.id) {
-						var foundCourse = this.pinnedCoursesEntities[index];
-						this._setCoursePinned(foundCourse, false);
-						this.splice('pinnedCoursesEntities', index, 1);
-						this.push('unpinnedCoursesEntities', foundCourse);
-						break;
-					}
-				}
-
-				this._updateAlertMessage();
-			},
-			_setCoursePinned: function(entity, isPinned) {
-				var modEntity = entity.entities[0];
-
-				if (isPinned) {
-					modEntity.properties.pinDate = new Date().toISOString();
-					modEntity.class.push('pinned');
-				} else {
-					modEntity.properties.pinDate = undefined;
-					modEntity.class.splice(modEntity.class.indexOf('pinned'), 1);
-				}
-			},
-			_ariaAnnounce: function(message) {
-				this._setAriaMessage('');
-				this._setAriaMessage(message);
-			},
-			_updateAlertMessage: function() {
-				this._alertMessage = null;
-				var hasCourses = true;
-
-				if (this.pinnedCoursesEntities.length === 0) {
-					if (this.unpinnedCoursesEntities.length > 0) {
-						this._alertMessage = this.localize('noPinnedCoursesMessage');
-					} else {
-						this._alertMessage = this.localize('noCoursesMessage');
-						hasCourses = false;
-					}
-				}
-
-				this._hasCourses = hasCourses;
 			}
 		});
 	</script>

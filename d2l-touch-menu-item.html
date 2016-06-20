@@ -41,7 +41,10 @@
 					type: Object,
 					observer: '_offsetChanged'
 				},
-				selectionHandler: {
+				hoverEvent: {
+					type: String
+				},
+				selectionEvent: {
 					type: String
 				},
 				text: {
@@ -136,6 +139,10 @@
 						this._ariaAnnounce(this.actionDescription);
 					} else {
 						this._ariaAnnounce('');
+					}
+
+					if (this.hoverEvent && !this.selected) {
+						this.fire(this.hoverEvent, {hoverState: isHovered, element: this._touchTarget});
 					}
 				}
 			},
