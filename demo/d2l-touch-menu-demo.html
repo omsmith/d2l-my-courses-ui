@@ -23,7 +23,11 @@
 			<h1>d2l-touch-menu demo</h1>
 			<script>
 				function xHovered(e) {
-					document.getElementById('alert-text').className = e.detail.hoverState ? 'hovered' : '';
+					if(e.detail.hoverState === true) {
+						document.getElementById('alert-text').classList.add('hover');
+					} else {
+						document.getElementById('alert-text').classList.remove('hover');
+					}
 				}
 
 				function xSelected() {
@@ -33,6 +37,14 @@
 					setTimeout(function() {
 						this.className = '';
 					}.bind(alertText), 1000);
+				}
+
+				function menuOpened(e) {
+					document.getElementById('alert-text').classList.add('menu-open');
+				}
+
+				function menuClosed(e) {
+					document.getElementById('alert-text').classList.remove('menu-open');
 				}
 			</script>
 			<style>
@@ -52,7 +64,10 @@
 				#alert-text:before {
 					content: 'Long press me!';
 				}
-				#alert-text.hovered:before {
+				#alert-text.menu-open:before {
+					content: 'Hover over the X!'
+				}
+				#alert-text.menu-open.hover:before {
 					content: 'Release to select!';
 				}
 				#alert-text.selected:before {
@@ -75,6 +90,8 @@
 			<script>
 				document.getElementById('menu-parent').addEventListener('my-hover-event', xHovered);
 				document.getElementById('menu-parent').addEventListener('my-selection-event', xSelected);
+				document.getElementById('menu-parent').addEventListener('touch-menu-open', menuOpened);
+				document.getElementById('menu-parent').addEventListener('touch-menu-close', menuClosed);
 			</script>
 		</main>
 	</body>

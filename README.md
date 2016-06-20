@@ -87,7 +87,8 @@ Properties:
 - `actionDescription` _String_: used for A11Y offscreen description
 - `backgroundImage` _String_: an icon to use for the menu item
 - `text` _String_: Text to display on menu item
-- `selectionHandler` _String_: Callback for when menu item is selected
+- `selectionEvent` _String_: Name of event that will be fired when menu item selected
+- `hoverEvent` _String_: Name of event that will be fired when menu item is hovered
 
 ## `user-info-api` Integration
 
@@ -99,26 +100,24 @@ will be changed in the future.
 
 Testing from within LMS:
 
-1) Checkout brightspace/d2l-my-courses-ui and brightspace/brightspace-integration
+1. Checkout brightspace/d2l-my-courses-ui and brightspace/brightspace-integration
 
-2) In brightspace-integration project, ensure you're in the correct branch (c12i12)
+2. In brightspace-integration project, ensure you're in the correct branch (c12i12)
 
-3) In d2l-my-courses-ui directory, run
-
-```shell
-bower link
-```
+3. In d2l-my-courses-ui directory, run
+	```shell
+	bower link
+	```
 to allow it to be linked from brightspace-integration
 
-4) In brightspace-integration directory, run
-
-```shell
-bower link d2l-my-courses-ui
-```
+4. In brightspace-integration directory, run
+	```shell
+	bower link d2l-my-courses-ui
+	```
 to link to the local d2l-my-courses-ui project
 
-5) Build and run brightspace-integration (will have to be rebuilt on any changes to d2l-my-courses-ui)
---*Note: If on Windows, you must remove the tmp directory manually prior to building, if it exists.
+5. Build and run brightspace-integration (will have to be rebuilt on any changes to d2l-my-courses-ui)
+ * Note: If on Windows, you must remove the tmp directory manually prior to building, if it exists.
 
 ## Unit Tests
 
