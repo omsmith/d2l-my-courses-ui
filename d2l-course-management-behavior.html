@@ -1,5 +1,6 @@
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../d2l-siren-parser/d2l-siren-parser.html">
+<link rel="import" href="../d2l-offscreen/d2l-offscreen.html">
 
 <script>
 	(function() {
@@ -19,22 +20,30 @@
 					type: Array,
 					value: [],
 					notify: true
+				},
+				_hasPinnedCourses: {
+					type: Boolean,
+					value: false
+				},
+				_hasCourses: {
+					type: Boolean,
+					value: false
 				}
 			},
 			listeners: {
 				'course-pinned': '_onCoursePinned',
 				'course-unpinned': '_onCourseUnpinned',
-				'pin-animation-complete': '_onCoursePinAnimationComplete',
-				'unpin-animation-complete': '_onCourseUnpinAnimationComplete'
+				'tile-remove-complete': '_onCourseTileRemoveAnimationComplete'
 			},
-			setPinnedCoursesFromSirenResponse: function(response) {
-				var parser = document.createElement('d2l-siren-parser');
-				var allEnrollments = parser.parse(response);
-				var allCourses = allEnrollments.getSubEntitiesByClass('course-offering');
-
-				this.set('pinnedCoursesEntities', allCourses.filter(function(item) {
-					return item.hasClass('active');
-				}));
+			observers: [
+				'_onPinnedCoursesEntitiesChanged(pinnedCoursesEntities.*)'
+			],
+			created: function() {
+				this._tilesInPinStateTransition = [];
+			},
+			ready: function() {
+				this._announceElement = document.createElement('d2l-offscreen');
+				this._announceElement.setAttribute('aria-live', 'polite');
 			},
 			setAllCoursesFromSirenResponse: function(response) {
 				var parser = document.createElement('d2l-siren-parser');
@@ -56,38 +65,30 @@
 
 				this.set('pinnedCoursesEntities', newPinnedCourses);
 				this.set('unpinnedCoursesEntities', newUnpinnedCourses);
+
+				this._hasPinnedCourses = this.pinnedCoursesEntities.length > 0;
+				this._hasCourses = this._hasPinnedCourses || this.unpinnedCoursesEntities.length > 0;
 			},
 			_onCoursePinned: function(e) {
-				if(typeof this.onPinCourseSelected === 'function') {
-					this.onPinCourseSelected(e);
-				}
+				this._ariaAnnounce(this.localize('pinActionResult', 'course', e.detail.course.properties.name));
 			},
 			_onCourseUnpinned: function(e) {
-				if(typeof this.onUnpinCourseSelected === 'function') {
-					this.onUnpinCourseSelected(e);
-				}
+				this._ariaAnnounce(this.localize('unpinActionResult', 'course', e.detail.course.properties.name));
 			},
-			_onCoursePinAnimationComplete: function(e) {
-				this._moveCourseToPinnedList(e.detail.course);
-
-				if (typeof this.onPinCourseComplete === 'function') {
-					this.onPinCourseComplete(e);
+			_onCourseTileRemoveAnimationComplete: function(e) {
+				if (e.detail.pinned) {
+					this._moveCourseToPinnedList(e.detail.course);
+				} else {
+					this._moveCourseToUnpinnedList(e.detail.course);
 				}
 
 				e.stopPropagation();
 			},
-			_onCourseUnpinAnimationComplete: function(e) {
-				this._moveCourseToUnpinnedList(e.detail.course);
+			removeCourseFromTransitionList: function(courseID) {
+				var index = this._tilesInPinStateTransition.indexOf(courseID);
 
-				if (typeof this.onUnpinCourseComplete === 'function') {
-					this.onUnpinCourseComplete(e);
-				}
-
-				e.stopPropagation();
-			},
-			shouldAnimateInsertion: function(courseID) {
-				if (courseID === this.pinnedCourseID) {
-					this.pinnedCourseID = null;
+				if (index !== -1) {
+					this._tilesInPinStateTransition.splice(index, 1);
 					return true;
 				}
 
@@ -99,7 +100,7 @@
 					if (this.unpinnedCoursesEntities[index].properties.id === course.properties.id) {
 						var foundCourse = this.unpinnedCoursesEntities[index];
 						this._setEnrollmentPinData(foundCourse, true);
-						this.pinnedCourseID = course.properties.id;
+						this._tilesInPinStateTransition.push(course.properties.id);
 						this.unshift('pinnedCoursesEntities', foundCourse);
 						this.splice('unpinnedCoursesEntities', index, 1);
 						break;
@@ -112,7 +113,7 @@
 					if (this.pinnedCoursesEntities[index].properties.id === course.properties.id) {
 						var foundCourse = this.pinnedCoursesEntities[index];
 						this._setEnrollmentPinData(foundCourse, false);
-						this.pinnedCourseID = course.properties.id;
+						this._tilesInPinStateTransition.push(course.properties.id);
 						this.splice('pinnedCoursesEntities', index, 1);
 						this.unshift('unpinnedCoursesEntities', foundCourse);
 						break;
@@ -130,8 +131,18 @@
 					modEntity.class.splice(modEntity.class.indexOf('pinned'), 1);
 				}
 			},
-			pinnedCourseID: null /* ID of the course in current pin animation; Bad because you can pin more than one course more quickly than it can animate..
-									But, that will be a problem when the tile-slide animation comes in anyway.. Still, should have per-entity flag */
+			_announceElement: null,
+			_ariaAnnounce: function(message) {
+				this._announceElement.textContent = '';
+				this._announceElement.textContent = message;
+			},
+			get ariaMessage() {
+				return this._announceElement.textContent;
+			},
+			_onPinnedCoursesEntitiesChanged: function(newArray) {
+				this._hasPinnedCourses = !newArray.base || newArray.base.length > 0;
+			},
+			_tilesInPinStateTransition: null
 		};
 	})();
 </script>

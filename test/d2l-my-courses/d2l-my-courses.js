@@ -150,11 +150,14 @@ describe('smoke test', function() {
 					req.respond(200, emptyResponse.headers, JSON.stringify(emptyResponse.body));
 				});
 
+			var onPinnedCoursesResponseSpy = sinon.spy(widget, 'onPinnedCoursesResponse');
+
 			widget.$.pinnedCoursesRequest.generateRequest();
 
 			widget.$.pinnedCoursesRequest.addEventListener('response', function() {
-				expect(widget._pinnedCoursesResponse).to.not.be.undefined;
-				expect(Array.isArray(widget._pinnedCoursesResponse.entities)).to.be.true;
+				expect(Array.isArray(widget.pinnedCoursesEntities)).to.be.true;
+				expect(onPinnedCoursesResponseSpy.calledOnce).to.be.true;
+				widget.onPinnedCoursesResponse.restore();
 				done();
 			});
 		});

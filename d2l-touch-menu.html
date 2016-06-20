@@ -18,14 +18,14 @@
 					type: Boolean,
 					value: true
 				},
-				touchTarget: {
+				_touchTarget: {
 					type: Object,
 					observer: '_touchTargetChanged'
 				},
 				_menuOpen: {
 					type: Boolean,
 					observer: '_onMenuOpenChanged'
-				},
+				}
 			},
 			listeners: {
 				'contextmenu': 'contextmenuHandler'
@@ -36,9 +36,8 @@
 			},
 			attached: function() {
 				if (this.enabled) {
-					if (!this.touchTarget) {
-						// If a target for touch events hasn't been set, set the menu's parent element as the touch target
-						this.touchTarget = this.domHost || this.parentElement;
+					if (!this._touchTarget) {
+						this._touchTarget = this.domHost || this.parentElement;
 					}
 				}
 			},
@@ -92,7 +91,7 @@
 				this._menuOpen = false;
 			},
 			openMenu: function(touchstartEvent) {
-				this.listen(this.touchTarget, 'touchend', 'touchendHandler');
+				this.listen(this._touchTarget, 'touchend', 'touchendHandler');
 
 				var touchData = {
 					startX: touchstartEvent.changedTouches[0].pageX,
@@ -162,7 +161,7 @@
 				this._menuOpen = true;
 			},
 			_touchTargetChanged: function(newValue, oldValue) {
-				for(var handler in this._touchHandlers) {
+				for (var handler in this._touchHandlers) {
 					if (oldValue !== null) {
 						this.unlisten(oldValue, handler, this._touchHandlers[handler]);
 					}
@@ -210,7 +209,7 @@
 			_openMenuTimerID: null,
 			_enableClicksTimerID: null,
 			_menu: null,
-			_menuItems: [],
+			_menuItems: null,
 			_cancelClicks: false,
 			_longPressDuration: 500
 		});

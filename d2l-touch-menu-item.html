@@ -54,9 +54,6 @@
 				touchRegion: {
 					type: Object
 				},
-				selectionEvent: {
-					type: String
-				},
 				_inTransition: {
 					type: Boolean
 				},
@@ -138,10 +135,8 @@
 				this.toggleClass('longpress-menu-item-hover', isHovered, this._menuItem);
 
 				if (isHovered !== wasHovered) {
-					if (isHovered) {
-						if (this.actionDescription) {
-							this._ariaAnnounce(this.actionDescription);
-						}
+					if (isHovered && this.actionDescription) {
+						this._ariaAnnounce(this.actionDescription);
 					} else {
 						this._ariaAnnounce('');
 					}

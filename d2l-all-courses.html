@@ -38,7 +38,8 @@
 							enrollment="[[item]]"
 							hover-enabled="[[_hoverInteractionEnabled]]"
 							touch-enabled="[[_touchInteractionEnabled]]"
-							animate-insertion="[[shouldAnimateInsertion(item.properties.id)]]"></d2l-course-tile>
+							animate-insertion="[[removeCourseFromTransitionList(item.properties.id)]]">
+						</d2l-course-tile>
 					</template>
 				</div>
 
@@ -49,7 +50,8 @@
 							enrollment="[[item]]"
 							hover-enabled="[[_hoverInteractionEnabled]]"
 							touch-enabled="[[_touchInteractionEnabled]]"
-							animate-insertion="[[shouldAnimateInsertion(item.properties.id)]]"></d2l-course-tile>
+							animate-insertion="[[removeCourseFromTransitionList(item.properties.id)]]">
+						</d2l-course-tile>
 					</template>
 				</div>
 			</div>
@@ -62,9 +64,6 @@
 			properties: {
 				enrollmentsUrl: {
 					type: String
-				},
-				_hasPinnedCourses: {
-					type: Boolean
 				}
 			},
 			behaviors: [
@@ -73,33 +72,12 @@
 				Polymer.D2L.MyCourses.InteractionDetectionBehavior,
 				Polymer.D2L.MyCourses.CourseManagementBehavior
 			],
-			observers: [
-				'_onPinnedCoursesEntitiesChanged(pinnedCoursesEntities.*)'
-			],
 			ready: function() {
 				this.$$('d2l-simple-overlay').focusableNodesOverride = this.focusableNodesOverride;
 			},
 			allEnrollmentsOnResponse: function(response) {
 				if (response.detail.status === 200) {
-					var parser = document.createElement('d2l-siren-parser');
-					var allEnrollments = parser.parse(response.detail.xhr.response);
-					var allCourses = allEnrollments.getSubEntitiesByClass('course-offering');
-
-					var newPinnedCourses = [];
-					var newUnpinnedCourses = [];
-
-					for (var i = 0; i < allCourses.length; i++) {
-						if (allCourses[i].hasClass('active')) {
-							if (allCourses[i].hasEntityByClass('pinned')) {
-								newPinnedCourses.push(allCourses[i]);
-							} else {
-								newUnpinnedCourses.push(allCourses[i]);
-							}
-						}
-					}
-
-					this.set('pinnedCoursesEntities', newPinnedCourses);
-					this.set('unpinnedCoursesEntities', newUnpinnedCourses);
+					this.setAllCoursesFromSirenResponse(response.detail.xhr.response);
 					this.fetchEnrollments = false;
 
 					this._rescaleCourseTileRegions(this._getOverlayWidth());
@@ -132,12 +110,6 @@
 				});
 
 				return courseTileFocusables;
-			},
-			_isEmpty: function(list) {
-				return !list || list.length === 0;
-			},
-			_onPinnedCoursesEntitiesChanged: function(newArray) {
-				this._hasPinnedCourses = !newArray.base || newArray.base.length > 0;
 			},
 			fetchEnrollments: true
 		});

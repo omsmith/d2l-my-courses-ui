@@ -80,8 +80,7 @@
 					value: true
 				},
 				animateInsertion: {
-					type: Boolean,
-					value: false
+					type: Boolean
 				},
 				_enrollmentEntity: {
 					type: Object,
@@ -167,7 +166,7 @@
 				this.toggleClass('unpin-hovered', false, tileContainer);
 				this.toggleClass('unpin', true, tileContainer);
 
-				this.lastPinAction = this._pinned;
+				this.pendingPinAction = this._pinned;
 			},
 			hoverCourseTile: function() {
 				if (this.hoverEnabled) {
@@ -250,15 +249,14 @@
 			},
 			_onAnimationComplete: function(e) {
 				if (e.animationName.includes('scale-and-fade-out')) {
-					var pinEventName = this.lastPinAction ? 'pin-animation-complete' : 'unpin-animation-complete';
-					this.fire(pinEventName, {course: this._enrollmentEntity});
+					this.fire('tile-remove-complete', {course: this._enrollmentEntity, pinned: this.pendingPinAction});
 				} else if (e.animationName.includes('scale-and-fade-in')) {
 					var tileContainer = this.$$('.tile-container');
 					this.toggleClass('animate-insertion', false, tileContainer);
 				}
 			},
-			pinAnimationInProgress: false,
-			lastPinAction: false
+			pendingPinAction: false,
+			pinAnimationInProgress: false
 		});
 	</script>
 </dom-module>
