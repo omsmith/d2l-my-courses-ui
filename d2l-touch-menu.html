@@ -183,6 +183,9 @@
 					this._enableClicksTimerID = setTimeout(this._enableClicks.bind(this), 100);
 				}
 
+				var menuEvent = 'touch-menu-' + (openMenu ? 'open' : 'close');
+				this.fire(menuEvent);
+
 				this._menuItems.forEach(function(menuItem) {
 					menuItem.visible = openMenu;
 				}.bind(this));

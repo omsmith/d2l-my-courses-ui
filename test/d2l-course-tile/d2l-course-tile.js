@@ -128,7 +128,7 @@ describe('<d2l-course-tile>', function() {
 					done();
 				});
 
-			courseTile.pinClickHandler(event);
+			courseTile.hoverPinClickHandler(event);
 		});
 
 		it('should update the local pinned state with the received pin state', function(done) {
@@ -138,7 +138,7 @@ describe('<d2l-course-tile>', function() {
 				[200, {}, JSON.stringify(enrollment.entities[0])]);
 
 			expect(courseTile._pinned).to.be.true;
-			courseTile.pinClickHandler(event);
+			courseTile.hoverPinClickHandler(event);
 			expect(courseTile._pinned).to.be.false;
 
 			setTimeout(function() {
@@ -155,7 +155,7 @@ describe('<d2l-course-tile>', function() {
 				[204, {}, '']);
 
 			expect(courseTile._pinned).to.be.true;
-			courseTile.pinClickHandler(event);
+			courseTile.hoverPinClickHandler(event);
 			expect(courseTile._pinned).to.be.false;
 
 			setTimeout(function() {
@@ -171,7 +171,7 @@ describe('<d2l-course-tile>', function() {
 				[404, {}, '']);
 
 			expect(courseTile._pinned).to.be.true;
-			courseTile.pinClickHandler(event);
+			courseTile.hoverPinClickHandler(event);
 			expect(courseTile._pinned).to.be.false;
 
 			setTimeout(function() {
