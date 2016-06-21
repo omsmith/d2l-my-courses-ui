@@ -5,6 +5,7 @@
 <link rel="import" href="d2l-my-courses-styles.html">
 <link rel="import" href="d2l-alert.html">
 <link rel="import" href="d2l-course-tile.html">
+<link rel="import" href="d2l-simple-overlay.html">
 <link rel="import" href="d2l-all-courses.html">
 <link rel="import" href="d2l-course-tile-region-behavior.html">
 <link rel="import" href="localize-behavior.html">
@@ -55,12 +56,20 @@
 			{{localize('viewAllCourses')}}
 		</button>
 
-		<d2l-all-courses
-			enrollments-url="[[enrollmentsUrl]]"
-			pinned-courses-entities="{{pinnedCoursesEntities}}"
-			unpinned-courses-entities="{{unpinnedCoursesEntities}}"
-			locale="[[locale]]">
-		</d2l-all-courses>
+		<d2l-simple-overlay
+			id="all-courses"
+			title="{{localize('allCourses')}}"
+			locale="[[locale]]"
+			with-backdrop>
+
+			<d2l-all-courses
+				enrollments-url="[[enrollmentsUrl]]"
+				pinned-courses-entities="{{pinnedCoursesEntities}}"
+				unpinned-courses-entities="{{unpinnedCoursesEntities}}"
+				locale="[[locale]]">
+			</d2l-all-courses>
+		</d2l-simple-overlay>
+
 	</template>
 
 	<script>
@@ -90,6 +99,10 @@
 			],
 			ready: function() {
 				this._alertMessage = this.localize('noPinnedCoursesMessage');
+
+				var overlay = this.$$('d2l-simple-overlay');
+				var allCourses = this.$$('d2l-all-courses');
+				overlay.focusableNodesOverride = allCourses.focusableNodesOverride.bind(allCourses);
 			},
 			attached: function() {
 				if (!this.delayLoad) {
@@ -127,7 +140,8 @@
 			openAllCoursesView: function(e) {
 				e.preventDefault();
 				e.stopPropagation();
-				this.$$('d2l-all-courses').open();
+				this.$$('d2l-simple-overlay').open();
+				this.$$('d2l-all-courses').refresh();
 			},
 			_getPinnedCoursesUrl: function(enrollmentsUrl) {
 				return enrollmentsUrl + '?filter=pinned';
