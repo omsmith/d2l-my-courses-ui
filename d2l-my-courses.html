@@ -5,6 +5,7 @@
 <link rel="import" href="d2l-my-courses-styles.html">
 <link rel="import" href="d2l-alert.html">
 <link rel="import" href="d2l-course-tile.html">
+<link rel="import" href="d2l-simple-overlay.html">
 <link rel="import" href="d2l-all-courses.html">
 <link rel="import" href="d2l-course-tile-region-behavior.html">
 <link rel="import" href="localize-behavior.html">
@@ -55,12 +56,20 @@
 			{{localize('viewAllCourses')}}
 		</button>
 
-		<d2l-all-courses
-			enrollments-url="[[enrollmentsUrl]]"
-			pinned-courses-entities="{{pinnedCoursesEntities}}"
-			unpinned-courses-entities="{{unpinnedCoursesEntities}}"
-			locale="[[locale]]">
-		</d2l-all-courses>
+		<d2l-simple-overlay
+			id="all-courses"
+			title="{{localize('allCourses')}}"
+			locale="[[locale]]"
+			with-backdrop>
+
+			<d2l-all-courses
+				enrollments-url="[[enrollmentsUrl]]"
+				pinned-courses-entities="{{pinnedCoursesEntities}}"
+				unpinned-courses-entities="{{unpinnedCoursesEntities}}"
+				locale="[[locale]]">
+			</d2l-all-courses>
+		</d2l-simple-overlay>
+
 	</template>
 
 	<script>
@@ -90,11 +99,25 @@
 			],
 			ready: function() {
 				this._alertMessage = this.localize('noPinnedCoursesMessage');
+				this.$$('d2l-simple-overlay').focusableNodesOverride = this.focusableNodesOverride;
 			},
 			attached: function() {
 				if (!this.delayLoad) {
 					this.$.pinnedCoursesRequest.generateRequest();
 				}
+			},
+			focusableNodesOverride: function() {
+				var courseTileFocusables = [];
+
+				this.getContentChildren().forEach(function(contentChild) {
+					var courseTiles = Polymer.dom(contentChild).querySelectorAll('d2l-course-tile');
+
+					[].forEach.call(courseTiles, function(courseTile) {
+						Array.prototype.push.apply(courseTileFocusables, Polymer.dom(courseTile.root).querySelectorAll('a'));
+					});
+				});
+
+				return courseTileFocusables;
 			},
 			onPinnedCoursesResponse: function(response) {
 				if (response.detail.status === 200) {
@@ -127,7 +150,8 @@
 			openAllCoursesView: function(e) {
 				e.preventDefault();
 				e.stopPropagation();
-				this.$$('d2l-all-courses').open();
+				this.$$('d2l-simple-overlay').open();
+				this.$$('d2l-all-courses').refresh();
 			},
 			_getPinnedCoursesUrl: function(enrollmentsUrl) {
 				return enrollmentsUrl + '?filter=pinned';
