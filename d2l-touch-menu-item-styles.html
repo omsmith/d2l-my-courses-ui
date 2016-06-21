@@ -50,6 +50,9 @@
 			transition: 0.3s ease-in-out;
 			opacity: 0;
 		}
+		.longpress-menu-item.visible.selected .longpress-menu-item-text {
+			opacity: 0;
+		}
 
 		.longpress-menu-item-image {
 			--iron-icon-width: 0.58em;
@@ -58,6 +61,7 @@
 			-webkit-backface-visibility: hidden;
 			-webkit-transition: fill 0.3s ease-in-out;
 			transition: fill 0.3s ease-in-out;
+			transform: rotate(0.0001deg);
 			left: 0.21em;
 			top: 0.21em;
 		}
@@ -73,6 +77,7 @@
 			display: flex;
 			-webkit-transition: background-color 0.3s ease-in-out;
 			transition: background-color 0.3s ease-in-out;
+			transform: rotate(0.0001deg);
 		}
 
 		.longpress-menu-item-text {
@@ -95,6 +100,7 @@
 			-webkit-backface-visibility: hidden;
 			position: absolute;
 			box-shadow: 0px 1px 2px 0px rgba(86,89,92,0.20);
+			transition: 0.3s ease-in-out;
 		}
 
 		.visible.longpress-menu-item-hover .longpress-menu-item-image-background,
@@ -107,7 +113,7 @@
 
 		.longpress-menu-item-hover .longpress-menu-item-image {
 			fill: var(--d2l-color-white);
-			-webkit-transition: 0.3s ease-in-out;
+			-webkit-transition: fill 0.3s ease-in-out;
 			transition: fill 0.3s ease-in-out;
 		}
 		</style>
