@@ -99,25 +99,15 @@
 			],
 			ready: function() {
 				this._alertMessage = this.localize('noPinnedCoursesMessage');
-				this.$$('d2l-simple-overlay').focusableNodesOverride = this.focusableNodesOverride;
+
+				var overlay = this.$$('d2l-simple-overlay');
+				var allCourses = this.$$('d2l-all-courses');
+				overlay.focusableNodesOverride = allCourses.focusableNodesOverride.bind(allCourses);
 			},
 			attached: function() {
 				if (!this.delayLoad) {
 					this.$.pinnedCoursesRequest.generateRequest();
 				}
-			},
-			focusableNodesOverride: function() {
-				var courseTileFocusables = [];
-
-				this.getContentChildren().forEach(function(contentChild) {
-					var courseTiles = Polymer.dom(contentChild).querySelectorAll('d2l-course-tile');
-
-					[].forEach.call(courseTiles, function(courseTile) {
-						Array.prototype.push.apply(courseTileFocusables, Polymer.dom(courseTile.root).querySelectorAll('a'));
-					});
-				});
-
-				return courseTileFocusables;
 			},
 			onPinnedCoursesResponse: function(response) {
 				if (response.detail.status === 200) {

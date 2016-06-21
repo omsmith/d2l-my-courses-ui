@@ -72,6 +72,15 @@
 					this._rescaleCourseTileRegions(this._getOverlayWidth());
 				}
 			},
+			focusableNodesOverride: function() {
+				var courseTileFocusables = [];
+
+				Polymer.dom(this.root).querySelectorAll('d2l-course-tile').forEach(function(courseTile) {
+					Array.prototype.push.apply(courseTileFocusables, Polymer.dom(courseTile.root).querySelectorAll('a'));
+				});
+
+				return courseTileFocusables;
+			},
 			refresh: function() {
 				this.$.allEnrollmentsRequest.generateRequest();
 			},
