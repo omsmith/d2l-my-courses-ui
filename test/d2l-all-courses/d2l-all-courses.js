@@ -4,86 +4,7 @@
 
 describe('smoke test', function() {
 	var server,
-		parser = document.createElement('d2l-siren-parser'),
 		widget,
-		pinnedCourses = {
-			class: ['enrollments'],
-			rel: ['enrollments'],
-			links: [],
-			actions: [],
-			properties: {},
-			entities: [{
-				class: ['course-offering', 'active'],
-				rel: ['enrollment'],
-				entities: [{
-					rel: ['preferences'],
-					class: [
-						'preferences',
-						'pinned'
-					],
-					properties: {
-						'pinDate': '2016-06-18T16:36:05Z'
-					}
-				}],
-				properties: {
-					name: 'Course 2',
-					id: 2
-				},
-				links: []
-			}, {
-				class: ['course-offering', 'active'],
-				rel: ['enrollment'],
-				entities: [{
-					rel: ['preferences'],
-					class: [
-						'preferences',
-						'pinned'
-					],
-					properties: {
-						'pinDate': '2016-06-18T16:35:05Z'
-					}
-				}],
-				properties: {
-					name: 'Course 4',
-					id: 4
-				},
-				links: []
-			}]
-		},
-		unpinnedCourses = {
-			class: ['enrollments'],
-			rel: ['enrollments'],
-			links: [],
-			actions: [],
-			properties: {},
-			entities: [{
-				class: ['course-offering', 'active'],
-				rel: ['enrollment'],
-				entities: [{
-					rel: ['preferences'],
-					class: [],
-					properties: { }
-				}],
-				properties: {
-					name: 'Course 1',
-					id: 1
-				},
-				links: []
-			}, {
-				class: ['course-offering', 'active'],
-				rel: ['enrollment'],
-				entities: [{
-					rel: ['preferences'],
-					class: [],
-					properties: { }
-				}],
-				properties: {
-					name: 'Course 3',
-					id: 3
-				},
-				links: []
-			}]
-		},
 		courseEntity = {
 			properties: {
 				name: 'Test Name'
@@ -92,15 +13,7 @@ describe('smoke test', function() {
 
 	beforeEach(function() {
 		server = sinon.fakeServer.create();
-
 		widget = fixture('d2l-all-courses-fixture');
-
-		var pinnedEnrollmentsEntity,
-			unpinnedEnrollmentsEntity;
-		pinnedEnrollmentsEntity = parser.parse(pinnedCourses);
-		unpinnedEnrollmentsEntity = parser.parse(unpinnedCourses);
-		widget.pinnedCoursesEntities = pinnedEnrollmentsEntity.entities;
-		widget.unpinnedCoursesEntities = unpinnedEnrollmentsEntity.entities;
 	});
 
 	afterEach(function() {

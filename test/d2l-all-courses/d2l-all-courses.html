@@ -11,7 +11,72 @@
 	<body>
 		<test-fixture id="d2l-all-courses-fixture">
 			<template>
-				<d2l-all-courses></d2l-all-courses>
+				<d2l-all-courses
+					pinned-courses-entities='[{
+							"class": ["course-offering", "active"],
+							"rel": ["enrollment"],
+							"entities": [{
+								"rel": ["preferences"],
+								"class": [
+									"preferences",
+									"pinned"
+								],
+								"properties": {
+									"pinDate": "2016-06-18T16:36:05Z"
+								}
+							}],
+							"properties": {
+								"name": "Course 2",
+								"id": 2
+							},
+							"links": []
+						}, {
+							"class": ["course-offering", "active"],
+							"rel": ["enrollment"],
+							"entities": [{
+								"rel": ["preferences"],
+								"class": [
+									"preferences",
+									"pinned"
+								],
+								"properties": {
+									"pinDate": "2016-06-18T16:35:05Z"
+								}
+							}],
+							"properties": {
+								"name": "Course 4",
+								"id": 4
+							},
+							"links": []
+						}]'
+					unpinned-courses-entities='[{
+							"class": ["course-offering", "active"],
+							"rel": ["enrollment"],
+							"entities": [{
+								"rel": ["preferences"],
+								"class": [],
+								"properties": { }
+							}],
+							"properties": {
+								"name": "Course 1",
+								"id": 1
+							},
+							"links": []
+						}, {
+							"class": ["course-offering", "active"],
+							"rel": ["enrollment"],
+							"entities": [{
+								"rel": ["preferences"],
+								"class": [],
+								"properties": { }
+							}],
+							"properties": {
+								"name": "Course 3",
+								"id": 3
+							},
+							"links": []
+						}]'>
+				</d2l-all-courses>
 			</template>
 		</test-fixture>
 
