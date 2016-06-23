@@ -126,14 +126,14 @@ describe('smoke test', function() {
 		it('should not display inactive courses', function(done) {
 			server.respondWith(
 				'GET',
-				widget._pinnedCoursesUrl,
+				widget.enrollmentsUrl,
 				function(req) {
 					req.respond(200, enrollmentsResponseInactiveCourse.headers, JSON.stringify(enrollmentsResponseInactiveCourse.body));
 				});
 
-			widget.$.pinnedCoursesRequest.generateRequest();
+			widget.$.enrollmentsRequest.generateRequest();
 
-			widget.$.pinnedCoursesRequest.addEventListener('response', function() {
+			widget.$.enrollmentsRequest.addEventListener('response', function() {
 				expect(widget.courseTileItemCount).to.equal(0);
 				done();
 			});
@@ -141,31 +141,10 @@ describe('smoke test', function() {
 	});
 
 	describe('Enrollments requests', function() {
-		it('should send a request for pinned courses', function(done) {
+		it('should send a request for all courses', function(done) {
 			server.respondWith(
 				'GET',
-				widget._pinnedCoursesUrl,
-				function(req) {
-					expect(req.requestHeaders['accept']).to.equal('application/vnd.siren+json');
-					req.respond(200, emptyResponse.headers, JSON.stringify(emptyResponse.body));
-				});
-
-			var onPinnedCoursesResponseSpy = sinon.spy(widget, 'onPinnedCoursesResponse');
-
-			widget.$.pinnedCoursesRequest.generateRequest();
-
-			widget.$.pinnedCoursesRequest.addEventListener('response', function() {
-				expect(Array.isArray(widget.pinnedCoursesEntities)).to.be.true;
-				expect(onPinnedCoursesResponseSpy.calledOnce).to.be.true;
-				widget.onPinnedCoursesResponse.restore();
-				done();
-			});
-		});
-
-		it('should send a request for all courses if there are no pinned courses', function(done) {
-			server.respondWith(
-				'GET',
-				widget._pinnedCoursesUrl,
+				widget.enrollmentsUrl,
 				function(req) {
 					expect(req.requestHeaders['accept']).to.equal('application/vnd.siren+json');
 					req.respond(200, emptyResponse.headers, JSON.stringify(emptyResponse.body));
@@ -179,13 +158,13 @@ describe('smoke test', function() {
 					req.respond(200, emptyResponse.headers, JSON.stringify(emptyResponse.body));
 				});
 
-			var allCoursesResponseSpy =  sinon.spy(widget, 'onAllCoursesResponse');
+			var allCoursesResponseSpy =  sinon.spy(widget, 'onEnrollmentsResponse');
 
-			widget.$.pinnedCoursesRequest.generateRequest();
+			widget.$.enrollmentsRequest.generateRequest();
 
-			widget.$.allCoursesRequest.addEventListener('response', function() {
+			widget.$.enrollmentsRequest.addEventListener('response', function() {
 				expect(allCoursesResponseSpy.called);
-				widget.onAllCoursesResponse.restore();
+				widget.onEnrollmentsResponse.restore();
 				done();
 			});
 		});
@@ -195,7 +174,7 @@ describe('smoke test', function() {
 		it('should display appropriate message when no enrolled courses', function(done) {
 			server.respondWith(
 				'GET',
-				widget._pinnedCoursesUrl,
+				widget.enrollmentsUrl,
 				function(req) {
 					req.respond(200, emptyResponse.headers, JSON.stringify(emptyResponse.body));
 				});
@@ -207,9 +186,9 @@ describe('smoke test', function() {
 					req.respond(200, enrollmentsResponseWithOrgOnly.headers, JSON.stringify(enrollmentsResponseWithOrgOnly.body));
 				});
 
-			widget.$.pinnedCoursesRequest.generateRequest();
+			widget.$.enrollmentsRequest.generateRequest();
 
-			widget.$.allCoursesRequest.addEventListener('response', function() {
+			widget.$.enrollmentsRequest.addEventListener('response', function() {
 				expect(widget._hasCourses).to.equal(false);
 				expect(widget._alertMessage).to.equal('Your courses aren\'t quite ready. Please check back soon.');
 				done();
@@ -219,7 +198,7 @@ describe('smoke test', function() {
 		it('should display appropriate message when no pinned courses', function(done) {
 			server.respondWith(
 				'GET',
-				widget._pinnedCoursesUrl,
+				widget.enrollmentsUrl,
 				function(req) {
 					req.respond(200, emptyResponse.headers, JSON.stringify(emptyResponse.body));
 				});
@@ -231,9 +210,9 @@ describe('smoke test', function() {
 					req.respond(200, enrollmentsResponseWithCourse.headers, JSON.stringify(enrollmentsResponseWithCourse.body));
 				});
 
-			widget.$.pinnedCoursesRequest.generateRequest();
+			widget.$.enrollmentsRequest.generateRequest();
 
-			widget.$.allCoursesRequest.addEventListener('response', function() {
+			widget.$.enrollmentsRequest.addEventListener('response', function() {
 				expect(widget._hasCourses).to.equal(true);
 				expect(widget._alertMessage).to.equal('You don\'t have any pinned courses. Pin your favorite courses to make them easier to find.');
 				done();
