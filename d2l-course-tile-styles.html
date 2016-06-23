@@ -14,6 +14,7 @@
 			backface-visibility: hidden;
 			--scale-fade-max-scale: 1.5;
 			--scale-fade-min-scale: 1.05;
+			--insertion-delay: 0.01s;
 		}
 
 		.tile-container {
@@ -25,9 +26,11 @@
 			-webkit-backface-visibility: hidden;
 			-moz-backface-visibility: hidden;
 			backface-visibility: hidden;
+			display: inherit !important;
+			visibility: inherit;
 		}
 		.tile-container.hover {
-			transition: 0.25s ease-in-out;
+			transition: 0.3s ease-in-out;
 			z-index: 100;
 			background-color: var(--d2l-color-white);
 		}
@@ -43,9 +46,22 @@
 			transform: scale(1.05);
 			box-shadow: 3px 2px 10px rgba(0, 0, 0, 0.3);
 		}
-		.tile-container.animate-insertion {
-			animation: 0.6s forwards scale-and-fade-in;
+		:host(.animate-insertion-pre) {
+			position: absolute;
+		}
+		:host(.animate-insertion-pre) > .tile-container {
+			width: calc(100% - 20px) !important;
+			animation: var(--insertion-delay) normal tile-pre-insertion;
 			pointer-events: none;
+		}
+		:host(.animate-insertion) {
+			position: absolute;
+		}
+		:host(.animate-insertion) > .tile-container {
+			animation: 0.6s forwards scale-and-fade-in;
+			animation-direction: normal;
+			pointer-events: none;
+			width: calc(100% - 20px) !important;
 		}
 		.tile-container.unpin {
 			animation: 0.7s forwards scale-and-fade-out;
@@ -55,9 +71,6 @@
 		a, a:hover, a:visited {
 			text-decoration: none;
 			color: inherit;
-		}
-		:focus .course-text {
-			text-decoration: underline;
 		}
 		.course-image-container {
 			position: relative;
@@ -195,6 +208,44 @@
 			to {
 				transform: scale(var(--scale-fade-max-scale)) translateZ(0);
 				box-shadow: 10px 6px 20px rgba(0, 0, 0, 0.3);
+				opacity: 0;
+			}
+		}
+
+		:host-context(.animate) {
+			position: absolute;
+			width: 100%;
+		}
+
+		:host(.animate-insertion) {
+			position: absolute;
+			z-index: 100;
+		}
+		:host(.unknown-state) {
+			//display: none !important;
+			visibility: hidden;
+			position: absolute;
+		}
+		:host(.position-absolute) {
+			position: absolute !important;
+		}
+
+		@keyframes slideover {
+			from {
+				transform: translate(var(--col), var(--row));
+			}
+			to {
+				transform: translate(var(--new-col), var(--new-row));
+			}
+		}
+
+		/* Use an animation for this so we can catch the animation completion by name. Hacky and there's probably a better way..
+		   We could just use a setTimeout of course, but I think that decentralizes the animation-switch logic too much.*/
+		@keyframes tile-pre-insertion {
+			from {
+				opacity: 0;
+			}
+			to {
 				opacity: 0;
 			}
 		}

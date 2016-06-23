@@ -21,6 +21,16 @@
 					value: [],
 					notify: true
 				},
+				pinnedCoursesEntitiesQueue: {
+					type: Array,
+					value: [],
+					notify: true
+				},
+				unpinnedCoursesEntitiesQueue: {
+					type: Array,
+					value: [],
+					notify: true
+				},
 				_hasPinnedCourses: {
 					type: Boolean,
 					value: false
@@ -28,12 +38,18 @@
 				_hasCourses: {
 					type: Boolean,
 					value: false
+				},
+				usePendingLists: {
+					type: Boolean,
+					value: false
 				}
 			},
 			listeners: {
 				'course-pinned': '_onCoursePinned',
 				'course-unpinned': '_onCourseUnpinned',
-				'tile-remove-complete': '_onCourseTileRemoveAnimationComplete'
+				'tile-remove-complete': '_onTileRemoveComplete',
+				'course-pin-complete': '_onCoursePinComplete',
+				'course-unpin-complete': '_onCourseUnpinComplete'
 			},
 			observers: [
 				'_onPinnedCoursesEntitiesChanged(pinnedCoursesEntities.*)'
@@ -75,7 +91,7 @@
 			_onCourseUnpinned: function(e) {
 				this._ariaAnnounce(this.localize('unpinActionResult', 'course', e.detail.course.properties.name));
 			},
-			_onCourseTileRemoveAnimationComplete: function(e) {
+			_onTileRemoveComplete: function(e) {
 				if (e.detail.pinned) {
 					this._moveCourseToPinnedList(e.detail.course);
 				} else {
@@ -84,24 +100,21 @@
 
 				e.stopPropagation();
 			},
-			removeCourseFromTransitionList: function(courseID) {
-				var index = this._tilesInPinStateTransition.indexOf(courseID);
-
-				if (index !== -1) {
-					this._tilesInPinStateTransition.splice(index, 1);
-					return true;
-				}
-
-				return false;
-			},
 			_moveCourseToPinnedList: function(course) {
 				// Remove course from unpinned list, add to pinned
 				for (var index = 0; index < this.unpinnedCoursesEntities.length; index++) {
 					if (this.unpinnedCoursesEntities[index].properties.id === course.properties.id) {
 						var foundCourse = this.unpinnedCoursesEntities[index];
 						this._setEnrollmentPinData(foundCourse, true);
-						this._tilesInPinStateTransition.push(course.properties.id);
-						this.unshift('pinnedCoursesEntities', foundCourse);
+
+						// If enabled, add to list of "to be added" pinned entities, and let consumer move to pinned list when desired
+						if(this.usePendingLists) {
+							this.push('pinnedCoursesEntitiesQueue', foundCourse);
+						} else {
+							this._tilesInPinStateTransition.push(course.properties.id);
+							this.unshift('pinnedCoursesEntities', foundCourse);
+						}
+
 						this.splice('unpinnedCoursesEntities', index, 1);
 						break;
 					}
@@ -113,9 +126,16 @@
 					if (this.pinnedCoursesEntities[index].properties.id === course.properties.id) {
 						var foundCourse = this.pinnedCoursesEntities[index];
 						this._setEnrollmentPinData(foundCourse, false);
-						this._tilesInPinStateTransition.push(course.properties.id);
 						this.splice('pinnedCoursesEntities', index, 1);
-						this.unshift('unpinnedCoursesEntities', foundCourse);
+
+						// If enabled, add to list of "to be added" unpinned entities, and let consumer move to unpinned list when desired
+						if(this.usePendingLists) {
+							this.push('unpinnedCoursesEntitiesQueue', foundCourse);
+						} else {
+							this._tilesInPinStateTransition.push(course.properties.id);
+							this.unshift('unpinnedCoursesEntities', foundCourse);
+						}
+
 						break;
 					}
 				}
@@ -141,8 +161,7 @@
 			},
 			_onPinnedCoursesEntitiesChanged: function(newArray) {
 				this._hasPinnedCourses = !newArray.base || newArray.base.length > 0;
-			},
-			_tilesInPinStateTransition: null
+			}
 		};
 	})();
 </script>

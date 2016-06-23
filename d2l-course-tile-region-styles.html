@@ -6,6 +6,7 @@
 		}
 
 		.my-courses-container {
+			position: relative;
 			width: calc(100% + 10px); /* 10px to account for negative margin, below */
 			display: flex;
 			flex-wrap: wrap;
@@ -18,39 +19,44 @@
 			width: 100%;
 		}
 
-		.columns-2 d2l-course-tile {
+		.columns-2 > d2l-course-tile {
 			width: 47.5%;
 			margin-left: 0.833%;
 			margin-right: 0.833%;
 		}
-		.columns-2 d2l-course-tile:nth-of-type(2n) {
+		.columns-2 > d2l-course-tile:nth-child(2n) {
 			margin-right: 0;
 		}
-		.columns-2 d2l-course-tile:nth-of-type(2n+1) {
+		.columns-2 > d2l-course-tile:nth-child(2n+1) {
 			margin-left: 0;
 		}
 
-		.columns-3 d2l-course-tile {
+		.columns-3 > d2l-course-tile {
 			width: 32.213%;
 			margin-left: 0.56%;
 			margin-right: 0.56%;
 		}
-		.columns-3 d2l-course-tile:nth-of-type(3n) {
+		.columns-3 > d2l-course-tile:nth-child(3n) {
 			margin-right: 0;
 		}
-		.columns-3 d2l-course-tile:nth-of-type(3n+1) {
+		.columns-3 > d2l-course-tile:nth-child(3n+1) {
 			margin-left: 0;
 		}
 
-		.columns-4 d2l-course-tile {
+		.columns-4 >  d2l-course-tile {
 			width: 24.1%;
 			margin-left: 0.45%;
 			margin-right: 0.45%;
 		}
-		.columns-4 d2l-course-tile:nth-of-type(4n) {
+		.columns-4 > d2l-course-tile:nth-child(4n) {
 			margin-right: 0;
 		}
-		.columns-4 d2l-course-tile:nth-of-type(4n+1) {
+		.columns-4 > d2l-course-tile:nth-child(4n+1) {
+			margin-left: 0;
+		}
+
+		.my-courses-container.animate > d2l-course-tile {
+			margin-right: 0;
 			margin-left: 0;
 		}
 		</style>

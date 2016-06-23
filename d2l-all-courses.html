@@ -1,12 +1,8 @@
 <link rel="import" href="../polymer/polymer.html">
-<link rel="import" href="../d2l-siren-parser/d2l-siren-parser.html">
-<link rel="import" href="../d2l-ajax/d2l-ajax.html">
-<link rel="import" href="d2l-alert.html">
 <link rel="import" href="d2l-all-courses-styles.html">
-<link rel="import" href="d2l-course-tile.html">
+<link rel="import" href="d2l-course-tile-grid.html">
 <link rel="import" href="d2l-course-tile-region-behavior.html">
 <link rel="import" href="localize-behavior.html">
-<link rel="import" href="d2l-interaction-detection-behavior.html">
 <link rel="import" href="d2l-course-management-behavior.html">
 
 <dom-module id="d2l-all-courses">
@@ -15,31 +11,18 @@
 
 		<div class="dialog-content">
 			<h2 class="d2l-heading-3">{{localize('pinnedCourses')}}</h2>
-			<d2l-alert visible="{{!_hasPinnedCourses}}">
-				{{localize('noPinnedCoursesMessage')}}
-			</d2l-alert>
-			<div class="my-courses-container" role="region">
-				<template is="dom-repeat" items="[[pinnedCoursesEntities]]">
-					<d2l-course-tile
-						enrollment="[[item]]"
-						hover-enabled="[[_hoverInteractionEnabled]]"
-						touch-enabled="[[_touchInteractionEnabled]]"
-						animate-insertion="[[removeCourseFromTransitionList(item.properties.id)]]">
-					</d2l-course-tile>
-				</template>
-			</div>
+			<d2l-course-tile-grid
+				course-entities="{{pinnedCoursesEntities}}"
+				course-entities-queue="{{pinnedCoursesEntitiesQueue}}"
+				alert-visible="{{!_hasPinnedCourses}}"
+				alert-message="{{localize('noPinnedCoursesMessage')}}">
+			</d2l-course-tile-grid>
 
 			<h2 class="d2l-heading-3">{{localize('unpinnedCourses')}}</h2>
-			<div class="my-courses-container" role="region">
-				<template is="dom-repeat" items="[[unpinnedCoursesEntities]]">
-					<d2l-course-tile
-						enrollment="[[item]]"
-						hover-enabled="[[_hoverInteractionEnabled]]"
-						touch-enabled="[[_touchInteractionEnabled]]"
-						animate-insertion="[[removeCourseFromTransitionList(item.properties.id)]]">
-					</d2l-course-tile>
-				</template>
-			</div>
+			<d2l-course-tile-grid
+				course-entities="{{unpinnedCoursesEntities}}"
+				course-entities-queue="{{unpinnedCoursesEntitiesQueue}}">
+			</d2l-course-tile-grid>
 		</div>
 	</template>
 
@@ -49,9 +32,11 @@
 			behaviors: [
 				Polymer.D2L.MyCourses.CourseTileRegionBehavior,
 				Polymer.D2L.MyCourses.LocalizeBehavior,
-				Polymer.D2L.MyCourses.InteractionDetectionBehavior,
 				Polymer.D2L.MyCourses.CourseManagementBehavior
 			],
+			ready: function() {
+				this.usePendingLists = true;
+			},
 			focusableNodesOverride: function() {
 				var courseTileFocusables = [];
 
@@ -68,6 +53,14 @@
 				var itemCount = Math.max(this.pinnedCoursesEntities.length, this.unpinnedCoursesEntities.length);
 
 				return itemCount;
+			},
+			_rescaleCourseTileRegions: function(forcedWidth) {
+				var itemCount = this.courseTileItemCount;
+				var courseTileRegions = Polymer.dom(this.root).querySelectorAll('d2l-course-tile-grid');
+
+				Array.prototype.forEach.call(courseTileRegions, function(courseTileRegion) {
+					courseTileRegion._rescaleCourseTileRegions(forcedWidth, itemCount);
+				});
 			}
 		});
 	</script>

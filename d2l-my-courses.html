@@ -4,13 +4,11 @@
 <link rel="import" href="../d2l-link/d2l-link.html">
 <link rel="import" href="d2l-my-courses-styles.html">
 <link rel="import" href="d2l-alert.html">
-<link rel="import" href="d2l-course-tile.html">
 <link rel="import" href="d2l-simple-overlay.html">
 <link rel="import" href="d2l-all-courses.html">
-<link rel="import" href="d2l-course-tile-region-behavior.html">
 <link rel="import" href="localize-behavior.html">
-<link rel="import" href="d2l-interaction-detection-behavior.html">
 <link rel="import" href="d2l-course-management-behavior.html">
+<link rel="import" href="d2l-course-tile-grid.html">
 
 <dom-module id="d2l-my-courses">
 	<template>
@@ -31,16 +29,9 @@
 				on-tap="refreshPage">{{localize('refresh')}}</a>
 		</d2l-alert>
 
-		<div class="my-courses-container">
-			<template is="dom-repeat" items="[[pinnedCoursesEntities]]">
-				<d2l-course-tile
-					enrollment="[[item]]"
-					hover-enabled="[[_hoverInteractionEnabled]]"
-					touch-enabled="[[_touchInteractionEnabled]]"
-					animate-insertion="[[removeCourseFromTransitionList(item.properties.id)]]">
-				</d2l-course-tile>
-			</template>
-		</div>
+		<d2l-course-tile-grid
+			course-entities="{{pinnedCoursesEntities}}">
+		</d2l-course-tile-grid>
 
 		<button class="all-courses-button"
 			hidden$="{{!_hasCourses}}"
@@ -104,7 +95,7 @@
 						this._alertMessage = this.localize('noCoursesMessage');
 					}
 
-					this._rescaleCourseTileRegions();
+					this.$$('d2l-course-tile-grid')._rescaleCourseTileRegions();
 				}
 			},
 			refreshPage: function() {

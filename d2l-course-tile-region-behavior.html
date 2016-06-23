@@ -17,6 +17,9 @@
 					}
 				}
 			},
+			created: function() {
+				this._courseTileBoundingRects = [];
+			},
 			attached: function() {
 				this._addThrottledEventListener('resize', this._windowResizeHandler);
 			},
@@ -26,8 +29,8 @@
 			get courseTileItemCount() {
 				throw 'Must implement courseTileItemCount in behavior consumer';
 			},
-			_rescaleCourseTileRegions: function(forcedWidth) {
-				var itemCount = this.courseTileItemCount;
+			_rescaleCourseTileRegions: function(forcedWidth, itemCount) {
+				var _itemCount = itemCount || this.courseTileItemCount;
 
 				this._setupColumns(itemCount, forcedWidth);
 			},
@@ -71,12 +74,12 @@
 
 				containers.forEach(function(container) {
 					var width = forcedWidth || this._getAvailableWidth(container);
-					var numCols = this._calcNumColumns(width, itemCount);
 					var domNode = Polymer.dom(container);
 					var oldClassName = currentColClass(domNode);
+					this._numCols = this._calcNumColumns(width, itemCount);
 
-					if (numCols > 1) {
-						var newClassName = 'columns-' + numCols;
+					if (this._numCols > 1) {
+						var newClassName = 'columns-' + this._numCols;
 
 						if (oldClassName !== newClassName) {
 							if (oldClassName) {
@@ -89,6 +92,8 @@
 							domNode.classList.remove(oldClassName);
 						}
 					}
+
+					this._containerWidth = width;
 				}, this);
 			},
 			// This method will first try to get the available width from the passed in DOM node, but if the
@@ -120,7 +125,10 @@
 					clearTimeout(timeout);
 					timeout = setTimeout(eventHandler, delay);
 				});
-			}
+			},
+			_courseTileBoundingRects: null,
+			_numCols: 0,
+			_containerWidth: 0
 		};
 	})();
 </script>

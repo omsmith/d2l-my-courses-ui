@@ -7,6 +7,8 @@
 <link rel="import" href="localize-behavior.html">
 <link rel="import" href="d2l-touch-menu.html">
 <link rel="import" href="d2l-touch-menu-item.html">
+<link rel="import" href="../neon-animation/neon-animation-runner-behavior.html">
+<link rel="import" href="../neon-animation/animations/transform-animation.html">
 
 <dom-module id="d2l-course-tile">
 	<template>
@@ -82,6 +84,10 @@
 				animateInsertion: {
 					type: Boolean
 				},
+				animateInsertionDelay: {
+					type: Number,
+					value: 0
+				},
 				_enrollmentEntity: {
 					type: Object,
 					observer: '_enrollmentEntityChanged'
@@ -107,7 +113,8 @@
 				}
 			},
 			behaviors: [
-				Polymer.D2L.MyCourses.LocalizeBehavior
+				Polymer.D2L.MyCourses.LocalizeBehavior,
+				Polymer.NeonAnimationRunnerBehavior
 			],
 			listeners: {
 				'touch-pin-hover': '_onUnpinHover',
@@ -122,7 +129,7 @@
 			attached: function() {
 				if (this.animateInsertion) {
 					var tileContainer = this.$$('.tile-container');
-					this.toggleClass('animate-insertion', true, tileContainer);
+					this.toggleClass('animate-insertion-pre', true, this);
 				}
 			},
 			updatePreferencesOnResponse: function(response) {
@@ -267,11 +274,19 @@
 				this.toggleClass('unpin-hovered', e.detail.hoverState, courseTile);
 			},
 			_onAnimationComplete: function(e) {
+				var tileContainer = this.$$('.tile-container');
+
 				if (e.animationName.includes('scale-and-fade-out')) {
 					this.fire('tile-remove-complete', {course: this._enrollmentEntity, pinned: this.pendingPinAction});
 				} else if (e.animationName.includes('scale-and-fade-in')) {
-					var tileContainer = this.$$('.tile-container');
 					this.toggleClass('animate-insertion', false, tileContainer);
+					this.toggleClass('animate-insertion', false, this);
+					this.toggleClass('animate-insertion', false, this.$$('.tile-container'));
+					this.fire('tile-insert-complete', {course: this._enrollmentEntity, pinned: this.pendingPinAction});
+				} else if (e.animationName.includes('tile-pre-insertion')) {
+					this.toggleClass('animate-insertion-pre', false, this);
+					this.toggleClass('animate-insertion', true, tileContainer);
+					this.toggleClass('animate-insertion', true, this);
 				}
 			},
 			pendingPinAction: false,
