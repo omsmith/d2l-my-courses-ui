@@ -13,13 +13,6 @@
 	<template>
 		<style include="d2l-all-courses-styles"></style>
 
-		<d2l-ajax
-			id="allEnrollmentsRequest"
-			url="[[enrollmentsUrl]]"
-			headers='{ "Accept": "application/vnd.siren+json" }'
-			on-response="allEnrollmentsOnResponse">
-		</d2l-ajax>
-
 		<div class="dialog-content">
 			<h3 class="d2l-heading-3">{{localize('pinnedCourses')}}</h3>
 			<d2l-alert visible="{{!_hasPinnedCourses}}">
@@ -53,25 +46,12 @@
 	<script>
 		Polymer({
 			is: 'd2l-all-courses',
-			properties: {
-				enrollmentsUrl: {
-					type: String
-				}
-			},
 			behaviors: [
 				Polymer.D2L.MyCourses.CourseTileRegionBehavior,
 				Polymer.D2L.MyCourses.LocalizeBehavior,
 				Polymer.D2L.MyCourses.InteractionDetectionBehavior,
 				Polymer.D2L.MyCourses.CourseManagementBehavior
 			],
-			allEnrollmentsOnResponse: function(response) {
-				if (response.detail.status === 200) {
-					this.setAllCoursesFromSirenResponse(response.detail.xhr.response);
-					this.fetchEnrollments = false;
-
-					this._rescaleCourseTileRegions(this._getOverlayWidth());
-				}
-			},
 			focusableNodesOverride: function() {
 				var courseTileFocusables = [];
 
@@ -81,9 +61,6 @@
 
 				return courseTileFocusables;
 			},
-			refresh: function() {
-				this.$.allEnrollmentsRequest.generateRequest();
-			},
 			_getOverlayWidth: function() {
 				return this._getAvailableWidth(this.$$('.dialog-content'));
 			},
@@ -91,8 +68,7 @@
 				var itemCount = Math.max(this.pinnedCoursesEntities.length, this.unpinnedCoursesEntities.length);
 
 				return itemCount;
-			},
-			fetchEnrollments: true
+			}
 		});
 	</script>
 </dom-module>

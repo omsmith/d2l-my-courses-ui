@@ -17,17 +17,10 @@
 		<style include="d2l-my-courses-styles"></style>
 
 		<d2l-ajax
-			id="pinnedCoursesRequest"
-			url="[[_pinnedCoursesUrl]]"
-			headers='{ "Accept": "application/vnd.siren+json" }'
-			on-response="onPinnedCoursesResponse">
-		</d2l-ajax>
-
-		<d2l-ajax
-			id="allCoursesRequest"
+			id="enrollmentsRequest"
 			url="[[enrollmentsUrl]]"
 			headers='{ "Accept": "application/vnd.siren+json" }'
-			on-response="onAllCoursesResponse">
+			on-response="onEnrollmentsResponse">
 		</d2l-ajax>
 
 		<d2l-alert visible="[[!_hasPinnedCourses]]">
@@ -63,7 +56,6 @@
 			with-backdrop>
 
 			<d2l-all-courses
-				enrollments-url="[[enrollmentsUrl]]"
 				pinned-courses-entities="{{pinnedCoursesEntities}}"
 				unpinned-courses-entities="{{unpinnedCoursesEntities}}"
 				locale="[[locale]]">
@@ -85,10 +77,6 @@
 				},
 				_alertMessage: {
 					type: String
-				},
-				_pinnedCoursesUrl: {
-					type: String,
-					computed: '_getPinnedCoursesUrl(enrollmentsUrl)'
 				}
 			},
 			behaviors: [
@@ -106,26 +94,12 @@
 			},
 			attached: function() {
 				if (!this.delayLoad) {
-					this.$.pinnedCoursesRequest.generateRequest();
+					this.$.enrollmentsRequest.generateRequest();
 				}
 			},
-			onPinnedCoursesResponse: function(response) {
+			onEnrollmentsResponse: function(response) {
 				if (response.detail.status === 200) {
 					this.setAllCoursesFromSirenResponse(response.detail.xhr.response);
-
-					if (this.pinnedCoursesEntities.length === 0) {
-						this.$.allCoursesRequest.generateRequest();
-					} else {
-						this._rescaleCourseTileRegions();
-					}
-				}
-			},
-			onAllCoursesResponse: function(response) {
-				if (response.detail.status === 200) {
-					this.setAllCoursesFromSirenResponse(response.detail.xhr.response);
-
-					// Since we've already fetched all enrollments, prevent All Courses from doing so
-					this.$$('d2l-all-courses').fetchEnrollments = false;
 
 					if (!this._hasCourses) {
 						this._alertMessage = this.localize('noCoursesMessage');
@@ -141,10 +115,11 @@
 				e.preventDefault();
 				e.stopPropagation();
 				this.$$('d2l-simple-overlay').open();
-				this.$$('d2l-all-courses').refresh();
-			},
-			_getPinnedCoursesUrl: function(enrollmentsUrl) {
-				return enrollmentsUrl + '?filter=pinned';
+
+				setTimeout(function() {
+					var allCourses = this.$$('d2l-all-courses');
+					allCourses._rescaleCourseTileRegions(allCourses._getOverlayWidth());
+				}.bind(this), 50);
 			},
 			get courseTileItemCount() {
 				return this.pinnedCoursesEntities.length;
