@@ -57,16 +57,12 @@ animations. See the `neon` docs for more information.
 
 ### d2l-all-courses
 
-The `d2l-all-courses` component uses the `d2l-simple-overlay` to display a
-user's pinned and unpinned courses.
+The `d2l-all-courses` component displays a user's pinned and unpinned courses.
 
 Properties:
 
 - `pinnedCoursesEntities` _Array_: entities representing pinned courses
 - `unpinnedCoursesEntities` _Array_: entities representing unpinned courses
-- `fetchEnrollments` _Boolean_ (optional): If true (default), component will fetch all enrollments
-on open, if it has not already done so
-- `enrollmentsUrl` _String_: URL to use to fetch enrollments
 
 ### d2l-touch-menu
 
