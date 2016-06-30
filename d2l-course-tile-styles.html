@@ -221,26 +221,8 @@
 			position: absolute;
 			z-index: 100;
 		}
-		:host(.unknown-state) {
-			//display: none !important;
-			visibility: hidden;
-			position: absolute;
-		}
-		:host(.position-absolute) {
-			position: absolute !important;
-		}
 
-		@keyframes slideover {
-			from {
-				transform: translate(var(--col), var(--row));
-			}
-			to {
-				transform: translate(var(--new-col), var(--new-row));
-			}
-		}
-
-		/* Use an animation for this so we can catch the animation completion by name. Hacky and there's probably a better way..
-		   We could just use a setTimeout of course, but I think that decentralizes the animation-switch logic too much.*/
+		/* Use an animation for this so we can catch the animation completion by name. Hacky and there's probably a better way..*/
 		@keyframes tile-pre-insertion {
 			from {
 				opacity: 0;

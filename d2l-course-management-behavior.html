@@ -108,7 +108,7 @@
 						this._setEnrollmentPinData(foundCourse, true);
 
 						// If enabled, add to list of "to be added" pinned entities, and let consumer move to pinned list when desired
-						if(this.usePendingLists) {
+						if (this.usePendingLists) {
 							this.push('pinnedCoursesEntitiesQueue', foundCourse);
 						} else {
 							this._tilesInPinStateTransition.push(course.properties.id);
@@ -129,7 +129,7 @@
 						this.splice('pinnedCoursesEntities', index, 1);
 
 						// If enabled, add to list of "to be added" unpinned entities, and let consumer move to unpinned list when desired
-						if(this.usePendingLists) {
+						if (this.usePendingLists) {
 							this.push('unpinnedCoursesEntitiesQueue', foundCourse);
 						} else {
 							this._tilesInPinStateTransition.push(course.properties.id);

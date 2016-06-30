@@ -74,7 +74,7 @@
 			_onCourseEntitiesQueueChanged: function(newCourseEntities) {
 				// For now, assume there will only be one entity being added at a time before being removed - might not affect implementation,
 				// but for simplicity, that's how's I'm writin' it.
-				if(newCourseEntities.base && newCourseEntities.base.length > 0) {
+				if (newCourseEntities.base && newCourseEntities.base.length > 0) {
 					var newCourse = newCourseEntities.base[0];
 					this.splice('courseEntitiesQueue', 0, 1);
 					this._animateTileSlide(true, 0, newCourse);
@@ -94,7 +94,7 @@
 					this._animationState.slideAnimationComplete = true;
 				}
 
-				if(isInsertion) {
+				if (isInsertion) {
 					// Would prefer to use template.render(), but that forces full re-render that breaks animation logic
 					this._tilesInPinStateTransition.push(courseEntity.properties.id);
 					this.unshift('courseEntities', courseEntity);
@@ -107,25 +107,24 @@
 				}
 			},
 			_getNewRowHeights: function(items, columns) {
-				if(items.length === 0) {
+				if (items.length === 0) {
 					return [0];
 				}
 
 				var numRows = Math.floor((items.length - 1) / columns) + 1;
 				var rowHeights = Array.apply(null, Array(numRows)).map(function() {return 0;});
-				var courseTileHeight;
 
-				for(var count = 0; count < items.length; count++)  {
+				for (var count = 0; count < items.length; count++)  {
 					var currRow = Math.floor(count / columns);
 					var itemHeight = items[count].height;
 
 					rowHeights[currRow] = Math.max(rowHeights[currRow], itemHeight);
 				}
 
-				for(count = 0; count < rowHeights.length; count++) {
+				for (count = 0; count < rowHeights.length; count++) {
 					rowHeights[count] += 8; // Magic bottom margin
 
-					if(count > 0) {
+					if (count > 0) {
 						rowHeights[count] += rowHeights[count - 1];
 					}
 				}
@@ -135,14 +134,14 @@
 			/**************
 			 * At this point, the DOM will have all tiles that are part of the animation. For insertions, this includes the new tile as well.
 			 */
-			_doTileSlideAnimation: function (isInsertion, tileIndex, container, columns) {
+			_doTileSlideAnimation: function(isInsertion, tileIndex, container, columns) {
 				var courseTiles = container.querySelectorAll('d2l-course-tile');
 
 				this._getCourseTileGridInfo(courseTiles);
 
 				var courseTileBoundingRects = this._courseTileBoundingRects.slice();
 
-				if(!isInsertion) {
+				if (!isInsertion) {
 					// If we're removing a tile, remove its bounding box from the list before calculating row heights
 					courseTileBoundingRects.splice(tileIndex, 1);
 				}
@@ -152,8 +151,8 @@
 
 				this._animationState.isAnimating = true;
 
-				if(isInsertion) {
-					if(courseTiles.length > 1) {
+				if (isInsertion) {
+					if (courseTiles.length > 1) {
 						this._animationState.lastCourseTile = courseTiles[1];
 					} else {
 						this._animationState.slideAnimationComplete = true;
@@ -167,35 +166,34 @@
 				this.toggleClass('animate', true, container);
 				var containerAnimationDelay = 0;
 
-				if(!isInsertion) {
-					if(tileIndex === (courseTiles.length - 1)) {
+				if (!isInsertion) {
+					if (tileIndex === (courseTiles.length - 1)) {
 						containerAnimationDelay = 500;
 					} else {
 						containerAnimationDelay =  (0.1 + ((courseTiles.length - 1 - tileIndex) * delayPerTile)) * 1000 + 200;
 					}
 				}
 
-
 				// Expand/contract container
 				var containerAnimation = container.animate([
-						{
-							width: this._containerBoundingRect.width + 'px',
-						 	height: this._containerBoundingRect.height + 'px'
-						},
-						{
-							width: this._containerBoundingRect.width + 'px',
-						 	height: rowHeights[rowHeights.length - 1] + 'px'
-						},
-					], {
-						fill: 'both',
-						delay: containerAnimationDelay,
-						duration: 200,
-						easing: 'linear'
-					});
+					{
+						width: this._containerBoundingRect.width + 'px',
+						height: this._containerBoundingRect.height + 'px'
+					},
+					{
+						width: this._containerBoundingRect.width + 'px',
+						height: rowHeights[rowHeights.length - 1] + 'px'
+					}
+				], {
+					fill: 'both',
+					delay: containerAnimationDelay,
+					duration: 200,
+					easing: 'linear'
+				});
 
 				this._animations.push(containerAnimation);
 
-				for(var i = 0; i < courseTiles.length; i++) {
+				for (var i = 0; i < courseTiles.length; i++) {
 					var leftMarginPct = [
 						[0], //1 column
 						[0, .01666], //2 columns
@@ -214,16 +212,16 @@
 					var xPos = (courseTileRect.left - this._containerBoundingRect.left);
 					var yPos = (courseTileRect.top - this._containerBoundingRect.top);
 
-					if(i > tileIndex) {
+					if (i > tileIndex) {
 						newIndex = isInsertion ? i : i - 1;
 						nextCol = newIndex % columns;
 						newRow = Math.floor(newIndex / columns);
-					 	newRowPx = newRow > 0 ? rowHeights[newRow - 1] : 0;
+						newRowPx = newRow > 0 ? rowHeights[newRow - 1] : 0;
 						newCol = courseTileRect.width * nextCol;
 
 						newCol = newCol + (leftMarginPct[columns - 1][nextCol] * this._containerWidth);
 
-						if(isInsertion) {
+						if (isInsertion) {
 							delayTime = ((courseTiles.length - 1) - i) * delayPerTile;
 						} else {
 							delayTime = 0.1 + ((i - tileIndex) * delayPerTile);
@@ -244,14 +242,14 @@
 						easing: 'cubic-bezier(0.91, 0.03, 0.85, 0.36)'
 					});
 
-					animation.finished.then(function(animation, courseId){
-						this.fire('slide-animation-finished', {id: courseId})
+					animation.finished.then(function(animation, courseId) {
+						this.fire('slide-animation-finished', {id: courseId});
 					}.bind(this, animation, this.courseEntities[i].properties.id));
 
 					this._animations.push(animation);
 				}
 
-				if(this._domChangeListener) {
+				if (this._domChangeListener) {
 					this.$.courseEntitiesTemplate.removeEventListener('dom-change', this._domChangeListener);
 					this._domChangeListener = null;
 				}
@@ -272,9 +270,9 @@
 			_onTileInsertionComplete: function(e) {
 				if (this._animationState.isAnimating) {
 					this._animationState.scaleAnimationComplete = true;
-						this._animationState.newTileEventDetail = e.detail;
-						this._animationState.newCourseTile = Polymer.dom(e).path[0];
-						this._checkAnimationComplete(e)
+					this._animationState.newTileEventDetail = e.detail;
+					this._animationState.newCourseTile = Polymer.dom(e).path[0];
+					this._checkAnimationComplete(e);
 				}
 			},
 			_onCoursePinAction: function(e) {
@@ -284,15 +282,15 @@
 				// Find the index of the course just (un)pinned
 				var removeIndex = -1;
 
-				for(var i = 0; i < this.courseEntities.length; i++) {
-					if(this.courseEntities[i].properties.id === e.detail.course.properties.id) {
+				for (var i = 0; i < this.courseEntities.length; i++) {
+					if (this.courseEntities[i].properties.id === e.detail.course.properties.id) {
 						removeIndex = i;
 						this._animationState.lastCourseTile = this.courseEntities[i];
 						break;
 					}
 				}
 
-				if(removeIndex >= 0) {
+				if (removeIndex >= 0) {
 					this._animateTileSlide(false, removeIndex);
 				}
 			},
@@ -310,15 +308,14 @@
 				this._animationState.newCourseTile = null;
 			},
 			_checkAnimationComplete: function(e) {
-				if(this._animationState.isAnimating) {
-					if(this._animationState.scaleAnimationComplete &&
-					   this._animationState.slideAnimationComplete) {
+				if (this._animationState.isAnimating) {
+					if (this._animationState.scaleAnimationComplete &&
+						this._animationState.slideAnimationComplete) {
 						// Rethrow event to parent, as it won't propagate
 						var parent = this.domHost || this.parentElement;
 
-						if(this._animationState.isInsertion) {
+						if (this._animationState.isInsertion) {
 							this.toggleClass('animate-insertion', false, this._animationState.newCourseTile);
-							//this.toggleClass('position-absolute', false, this._animationState.newCourseTile);
 							this.fire('tile-insert-complete', this._animationState.newTileEventDetail, {node: parent});
 						} else {
 							this.fire('tile-remove-complete', this._animationState.newTileEventDetail, {node: parent});
@@ -349,14 +346,14 @@
 			_onTileRemoveComplete: function(e) {
 				if (this._animationState.isAnimating) {
 					this._animationState.scaleAnimationComplete = true;
-						this._animationState.newTileEventDetail = e.detail;
-						this._checkAnimationComplete(e);
+					this._animationState.newTileEventDetail = e.detail;
+					this._checkAnimationComplete(e);
 				}
 			},
 			_cancelAnimations: function() {
 				// Cancel all animations regardless of play state - if this is called, then the layout is ready
 				// to be switched to relative positioning
-				for(var i = 0; i < this._animations.length; i++) {
+				for (var i = 0; i < this._animations.length; i++) {
 					this._animations[i].cancel();
 				}
 
