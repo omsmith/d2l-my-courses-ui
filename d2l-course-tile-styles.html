@@ -62,6 +62,11 @@
 		.course-image-container {
 			position: relative;
 			padding-top: 43%;
+			transition: filter 0.25s, -webkit-filter 0.25s;
+		}
+		.course-image-container.hover {
+			-webkit-filter: saturate(1.15);
+			filter: saturate(1.15);
 		}
 		.course-image {
 			position: absolute;
@@ -85,9 +90,10 @@
 			margin: auto;
 			transition: filter 0.25s, -webkit-filter 0.25s, transform 0.5s ease-in-out;
 		}
-		.course-image img.hover {
-			filter: contrast(1.15) saturate(1.15);
-			-webkit-filter: contrast(1.15) saturate(1.15);
+		.course-image-container.hover > .course-image img {
+			/* Ensure only one filter per layer to avoid aliasing bug in Webkit during transforms */
+			-webkit-filter: contrast(1.15);
+			filter: contrast(1.15);
 			transform: scale(1.1);
 		}
 		.course-text {
