@@ -15,10 +15,14 @@
 	<style include="d2l-simple-overlay-styles"></style>
 	<template>
 		<div class="max-width">
-			<button class="close-button pull-right" on-tap="handleClose" alt$="{{localize('closeSimpleOverlayAltText')}}">
+			<button
+				class="close-button pull-right"
+				on-tap="handleClose"
+				aria-label$="{{localize('closeSimpleOverlayAltText')}}"
+				alt$="{{localize('closeSimpleOverlayAltText')}}">
 				<iron-icon icon="actions:close"></iron-icon>
 			</button>
-			<h2 class="d2l-heading-2">{{title}}</h2>
+			<h1 class="d2l-heading-2">{{title}}</h1>
 		</div>
 		<div class="scrollable">
 			<div class="max-width">

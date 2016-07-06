@@ -14,7 +14,7 @@
 		<style include="d2l-all-courses-styles"></style>
 
 		<div class="dialog-content">
-			<h3 class="d2l-heading-3">{{localize('pinnedCourses')}}</h3>
+			<h2 class="d2l-heading-3">{{localize('pinnedCourses')}}</h2>
 			<d2l-alert visible="{{!_hasPinnedCourses}}">
 				{{localize('noPinnedCoursesMessage')}}
 			</d2l-alert>
@@ -29,7 +29,7 @@
 				</template>
 			</div>
 
-			<h3 class="d2l-heading-3">{{localize('unpinnedCourses')}}</h3>
+			<h2 class="d2l-heading-3">{{localize('unpinnedCourses')}}</h2>
 			<div class="my-courses-container" role="region">
 				<template is="dom-repeat" items="[[unpinnedCoursesEntities]]">
 					<d2l-course-tile
