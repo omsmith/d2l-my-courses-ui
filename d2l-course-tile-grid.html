@@ -2,18 +2,21 @@
 <link rel="import" href="d2l-my-courses-styles.html">
 <link rel="import" href="d2l-alert.html">
 <link rel="import" href="d2l-course-tile.html">
-<link rel="import" href="d2l-course-tile-region-behavior.html">
+<link rel="import" href="d2l-course-tile-responsive-grid-behavior.html">
 <link rel="import" href="localize-behavior.html">
 <link rel="import" href="d2l-interaction-detection-behavior.html">
-<link rel="import" href="d2l-course-tile-region-styles.html">
+<link rel="import" href="d2l-course-tile-grid-styles.html">
 
 <dom-module id="d2l-course-tile-grid">
 	<template>
 		<style include="d2l-my-courses-styles"></style>
-		<style include="d2l-course-tile-region-styles"></style>
-		<d2l-alert visible="[[alertVisible]]">
-			{{alertMessage}}
-		</d2l-alert>
+		<style include="d2l-course-tile-grid-styles"></style>
+
+		<template is="dom-if" if="[[alertVisible]]">
+			<d2l-alert visible="[[alertVisible]]">
+				{{alertMessage}}
+			</d2l-alert>
+		</template>
 
 		<div class="my-courses-container">
 			<template id="courseEntitiesTemplate" is="dom-repeat" items="[[courseEntities]]">
@@ -22,8 +25,7 @@
 					hover-enabled="[[_hoverInteractionEnabled]]"
 					touch-enabled="[[_touchInteractionEnabled]]"
 					animate-insertion="[[removeCourseFromTransitionList(item.properties.id)]]"
-					data-course-id="[[item.properties.id]]"
-					data-pin-state="[[item.getSubEntitiesByRel('preferences')[0].properties.hasOwnProperty('pinDate')]]">
+					course-id="[[item.properties.id]]">
 				</d2l-course-tile>
 			</template>
 		</div>
@@ -64,7 +66,7 @@
 				}
 			},
 			behaviors: [
-				Polymer.D2L.MyCourses.CourseTileRegionBehavior,
+				Polymer.D2L.MyCourses.CourseTileResponsiveGridBehavior,
 				Polymer.D2L.MyCourses.InteractionDetectionBehavior,
 				Polymer.D2L.MyCourses.LocalizeBehavior
 			],
@@ -77,7 +79,7 @@
 				'touch-pin-select': '_onTouchPinSelect',
 				'touch-menu-open': '_onTouchMenuOpen',
 				'touch-menu-close': '_onTouchMenuClose',
-				'slide-animation-finished': '_onSlideAnimationFinished',
+				'slide-animation-finished': '_onSlideAnimationComplete',
 				'dom-change': '_onCourseTilesChanged'
 			},
 			observers: [
@@ -86,22 +88,22 @@
 			created: function() {
 				this._tilesInPinStateTransition = [];
 				this._animations = [];
+				this._courseTileBoundingRects = [];
 				this._clearAnimationState();
 			},
 			_onCourseEntitiesQueueChanged: function(newCourseEntities) {
 				if (newCourseEntities.base && newCourseEntities.base.length > 0) {
-					var newCourse = newCourseEntities.base[0];
-					this.splice('courseEntitiesQueue', 0, 1);
-					this._animateTileSlide(true, 0, newCourse);
+					var newCourses = this.splice('courseEntitiesQueue', 0, 1);
+					this._animateTileSlide(true, 0, newCourses[0]);
 				}
 			},
-			_tilesInPinStateTransition: null,
 			_animateTileSlide: function(isInsertion, courseIndex, courseEntity) {
-				var columns = this._numCols;
-
-				this._animationState.isInsertion = isInsertion;
 				var container = this.$$('.my-courses-container');
+				var courseTiles = container.querySelectorAll('d2l-course-tile');
 				var lastAnimatedCourseIndex = isInsertion ? 0 : (this.courseEntities.length - 1);
+
+				this._animationState.isAnimating = true;
+				this._animationState.isInsertion = isInsertion;
 
 				if (this.courseEntities.length > 0) {
 					this._animationState.lastAnimatedCourseTileId = this.courseEntities[lastAnimatedCourseIndex].properties.id;
@@ -109,155 +111,121 @@
 					this._animationState.slideAnimationComplete = true;
 				}
 
+				this._updateCourseTileGridInfo(courseTiles);
+
 				if (isInsertion) {
+					// If inserting, set tile as in transition, and listen for DOM change to know when new course tile is added and tiles can be animated
 					this._tilesInPinStateTransition.push(courseEntity.properties.id);
 					this.unshift('courseEntities', courseEntity);
 
 					var gridTemplate = container.querySelector('template');
-					this._domChangeListener = this._doTileSlideAnimation.bind(this, true, courseIndex, container, columns);
+					this._domChangeListener = this._doTileSlideAnimation.bind(this, true, courseIndex, container, this._numCols);
 					gridTemplate.addEventListener('dom-change', this._domChangeListener);
 				} else {
-					this._doTileSlideAnimation(false, courseIndex, container, columns);
+					this._doTileSlideAnimation(false, courseIndex, container, this._numCols);
 				}
 			},
-			_getNewRowHeights: function(items, columns) {
-				if (items.length === 0) {
-					return [0];
-				}
+			/*
+			* Calculates layout data after a tile insertion/removal operation will be completed, including tile positions and
+			* container height.
+			*/
+			_getNewTileLayout: function(currPositions, columns, isInsertion, tileIndex, containerWidth) {
+				var currIndex = 0;
+				var newIndex = 0;
+				var currYPx = 0;
+				var maxYPx = 0;
+				var newPositions = [];
 
-				var numRows = Math.floor((items.length - 1) / columns) + 1;
-				var rowHeights = Array.apply(null, Array(numRows)).map(function() {return 0;});
+				for (currIndex = 0; currIndex < currPositions.length; currIndex++) {
+					if (newIndex % columns === 0) {
+						currYPx = maxYPx;
+					}
 
-				for (var count = 0; count < items.length; count++)  {
-					var currRow = Math.floor(count / columns);
-					var itemHeight = items[count].height;
+					if (currIndex <= tileIndex) {
+						// Tile will stay in place
+						newPositions.push(currPositions[currIndex]);
+					} else {
+						// Tile will shift into new position
+						var leftMarginPct = [
+							[0], //1 column
+							[0, .01666], //2 columns
+							[0, .01175, .023], //3 columns
+							[0, .00934, .01867, .02801] //4 columns
+						];
+						var newCol = newIndex % columns;
+						var newXPx = currPositions[currIndex].width * newCol;
 
-					rowHeights[currRow] = Math.max(rowHeights[currRow], itemHeight);
-				}
+						newXPx = newXPx + (leftMarginPct[columns - 1][newCol] * containerWidth);
 
-				for (count = 0; count < rowHeights.length; count++) {
-					rowHeights[count] += 8; // Magic bottom margin
+						newPositions.push({
+							width: currPositions[currIndex].width,
+							height: currPositions[currIndex].height,
+							left: newXPx,
+							top: currYPx
+						});
+					}
 
-					if (count > 0) {
-						rowHeights[count] += rowHeights[count - 1];
+					if (!(currIndex === tileIndex && !isInsertion)) {
+						// Tile will take up space in new layout
+						maxYPx = Math.max(maxYPx, currYPx + currPositions[currIndex].height);
+						newIndex++;
 					}
 				}
 
-				return rowHeights;
+				return {
+					newPositions: newPositions,
+					newContainerHeight: maxYPx
+				};
 			},
-			/**************
-			 * At this point, the DOM will have all tiles that are part of the animation. For insertions, this includes the new tile as well.
-			 */
 			_doTileSlideAnimation: function(isInsertion, tileIndex, container, columns) {
 				var courseTiles = container.querySelectorAll('d2l-course-tile');
-
-				this._getCourseTileGridInfo(courseTiles);
-
-				var courseTileBoundingRects = this._courseTileBoundingRects.slice();
-
-				if (!isInsertion) {
-					// If we're removing a tile, remove its bounding box from the list before calculating row heights
-					courseTileBoundingRects.splice(tileIndex, 1);
-				}
-
-				var rowHeights = this._getNewRowHeights(courseTileBoundingRects, columns);
-				var delayPerTile = 0.05;
-
-				this._animationState.isAnimating = true;
-
-				courseTiles[0].customStyle['--insertion-delay'] = (delayPerTile * (courseTiles.length + 0.25)) + 's';
-				this.updateStyles();
-
-				//Start animation
-				this.toggleClass('animate', true, container);
 				var containerAnimationDelay = 0;
-
-				if (!isInsertion) {
-					if (tileIndex === (courseTiles.length - 1)) {
-						containerAnimationDelay = 500;
-					} else {
-						containerAnimationDelay =  (0.1 + ((courseTiles.length - 1 - tileIndex) * delayPerTile)) * 1000 + 200;
-					}
-				}
-
-				// Expand/contract container
-				var containerAnimation = container.animate([
-					{
-						width: this._containerBoundingRect.width + 'px',
-						height: this._containerBoundingRect.height + 'px'
-					},
-					{
-						width: this._containerBoundingRect.width + 'px',
-						height: rowHeights[rowHeights.length - 1] + 'px'
-					}
-				], {
-					fill: 'both',
-					delay: containerAnimationDelay,
-					duration: 200,
-					easing: 'linear'
-				});
-
-				this._animations.push(containerAnimation);
-
-				for (var i = 0; i < courseTiles.length; i++) {
-					var leftMarginPct = [
-						[0], //1 column
-						[0, .01666], //2 columns
-						[0, .011, .0225], //3 columns
-						[0, .009, .018, .027] //4 columns
-					];
-
-					var delayTime = 0;
-					var newIndex = i;
-					var courseTile = courseTiles[i];
-					var courseTileRect = this._courseTileBoundingRects[i];
-					var nextRow = Math.floor(i / columns);
-					var nextCol = newIndex % columns;
-					var currXPx = (courseTileRect.left - this._containerBoundingRect.left);
-					var currYPx = (courseTileRect.top - this._containerBoundingRect.top);
-					var newYPx = nextRow > 0 ? rowHeights[nextRow - 1] : 0;
-					var newXPx = courseTileRect.width * nextCol;
-
-					if (i > tileIndex) {
-						newIndex = isInsertion ? i : i - 1;
-						nextCol = newIndex % columns;
-						nextRow = Math.floor(newIndex / columns);
-						newYPx = nextRow > 0 ? rowHeights[nextRow - 1] : 0;
-						newXPx = courseTileRect.width * nextCol;
-
-						newXPx = newXPx + (leftMarginPct[columns - 1][nextCol] * this._containerWidth);
-
-						if (isInsertion) {
-							delayTime = ((courseTiles.length - 1) - i) * delayPerTile;
-						} else {
-							delayTime = 0.1 + ((i - tileIndex) * delayPerTile);
-						}
-					} else {
-						newXPx = currXPx;
-						newYPx = currYPx;
-					}
-
-					// Use Web Animations API directly as neon-animation doesn't (effectively) support animation-fill-mode
-					var animation = courseTile.animate([
-						{transform: 'translate3d(' + currXPx + 'px,' + currYPx + 'px, 0)'},
-						{transform: 'translate3d(' + newXPx + 'px,' + newYPx + 'px, 0)'}
-					], {
-						fill: 'both',
-						delay: delayTime * 1000,
-						duration: 300,
-						easing: 'cubic-bezier(0.91, 0.03, 0.85, 0.36)'
-					});
-
-					animation.finished.then(function(animation, courseId) {
-						this.fire('slide-animation-finished', {id: courseId});
-					}.bind(this, animation, this.courseEntities[i].properties.id));
-
-					this._animations.push(animation);
-				}
 
 				if (this._domChangeListener) {
 					this.$.courseEntitiesTemplate.removeEventListener('dom-change', this._domChangeListener);
 					this._domChangeListener = null;
+				}
+
+				if (isInsertion) {
+					// If inserting a tile, we need to insert offset data for it.
+					var newTileBoundingRect = {
+						width: courseTiles[0].offsetWidth,
+						height: courseTiles[0].offsetHeight,
+						left: courseTiles[0].offsetLeft,
+						top: courseTiles[0].offsetTop
+					};
+
+					this._courseTileBoundingRects.unshift(newTileBoundingRect);
+				}
+
+				var newLayoutInfo = this._getNewTileLayout(this._courseTileBoundingRects, columns, isInsertion, tileIndex, this._containerWidth);
+				var delayPerTile = 0.05;
+
+				if (this._courseTileBoundingRects.length > 0) {
+					delayPerTile = Math.min(delayPerTile, 0.2 / this._courseTileBoundingRects.length);
+				}
+
+				if (isInsertion) {
+					courseTiles[0].customStyle['--insertion-delay'] = (delayPerTile * (courseTiles.length + 0.25)) + 's';
+					this.updateStyles();
+				} else {
+					containerAnimationDelay =  ((courseTiles.length - 1 - tileIndex) * delayPerTile * 1000) + 300;
+				}
+
+				this.toggleClass('animate', true, container);
+				this._animateContainer(container, newLayoutInfo.newContainerHeight, containerAnimationDelay);
+
+				// Animate each course tile to its new position
+				for (var i = 0; i < courseTiles.length; i++) {
+					var delayTime = 0;
+
+					if (isInsertion) {
+						delayTime = ((courseTiles.length - 1) - i) * delayPerTile;
+					} else {
+						delayTime = 0.1 + ((i - tileIndex) * delayPerTile);
+					}
+
+					this._animateCourseTile(courseTiles[i], this._courseTileBoundingRects[i], newLayoutInfo.newPositions[i], delayTime);
 				}
 			},
 			removeCourseFromTransitionList: function(courseID) {
@@ -270,7 +238,7 @@
 
 				return false;
 			},
-			get courseTileItemCount() {
+			getCourseTileItemCount: function() {
 				return this.courseEntities.length;
 			},
 			_onTileInsertionComplete: function(e) {
@@ -290,7 +258,6 @@
 					}
 				}
 			},
-			_animationState: null,
 			_clearAnimationState: function() {
 				this._animationState = this._animationState || {};
 
@@ -322,7 +289,7 @@
 
 				return false;
 			},
-			_onSlideAnimationFinished: function(e) {
+			_onSlideAnimationComplete: function(e) {
 				if (this._animationState.isAnimating) {
 					if (this._animationState.lastAnimatedCourseTileId === e.detail.id) {
 						this._animationState.slideAnimationComplete = true;
@@ -345,15 +312,24 @@
 
 				this._animations.length = 0;
 			},
-			_getCourseTileGridInfo: function(courseTiles) {
+			/*
+			* Caches information position/size information
+			*/
+			_updateCourseTileGridInfo: function(courseTiles) {
 				var elements = courseTiles || Polymer.dom(this.root).querySelectorAll('d2l-course-tile');
 				this._courseTileBoundingRects.length = 0;
+				this._containerBoundingRect = this.$$('.my-courses-container').getBoundingClientRect();
 
 				Array.prototype.forEach.call(elements, function(element) {
-					this._courseTileBoundingRects.push(element.getBoundingClientRect());
-				}.bind(this));
+					var offsetData = {
+						width: element.offsetWidth,
+						height: element.offsetHeight,
+						top: element.offsetTop,
+						left: element.offsetLeft
+					};
 
-				this._containerBoundingRect = this.$$('.my-courses-container').getBoundingClientRect();
+					this._courseTileBoundingRects.push(offsetData);
+				}.bind(this));
 			},
 			_onCourseTilesChanged: function() {
 				var courseTiles = Polymer.dom(this.root).querySelectorAll('d2l-course-tile');
@@ -385,9 +361,48 @@
 			_onTouchMenuClose: function(e) {
 				e.detail.element._setTouchMenuOpen(false);
 			},
+			_animateCourseTile: function(courseTile, fromPos, toPos, delayTime) {
+				// Use Web Animations API directly as neon-animation doesn't (effectively) support animation-fill-mode
+				var animation = courseTile.animate([
+					{transform: 'translate3d(' + fromPos.left + 'px,' + fromPos.top + 'px, 0)'},
+					{transform: 'translate3d(' + toPos.left + 'px,' + toPos.top + 'px, 0)'}
+				], {
+					fill: 'both',
+					delay: delayTime * 1000,
+					duration: 300,
+					easing: 'cubic-bezier(0.91, 0.03, 0.85, 0.36)'
+				});
+
+				animation.finished.then(function(animation, courseId) {
+					this.fire('slide-animation-finished', {id: courseId});
+				}.bind(this, animation, courseTile.courseId));
+
+				this._animations.push(animation);
+			},
+			_animateContainer: function(container, newHeight, containerAnimationDelay) {
+				// Expand/contract container
+				var containerAnimation = container.animate([{
+					width: this._containerBoundingRect.width + 'px',
+					height: this._containerBoundingRect.height + 'px'
+				}, {
+					width: this._containerBoundingRect.width + 'px',
+					height: newHeight + 'px'
+				}], {
+					fill: 'both',
+					delay: containerAnimationDelay,
+					duration: 200,
+					easing: 'linear'
+				});
+
+				this._animations.push(containerAnimation);
+			},
+			_animationState: null,
+			_tilesInPinStateTransition: null,
 			_animations: null,
 			_domChangeListener: null,
-			_containerBoundingRect: null
+			_containerBoundingRect: null,
+			_courseTileBoundingRects: null,
+			_containerWidth: 0
 		});
 	</script>
 </dom-module>

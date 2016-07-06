@@ -12,6 +12,7 @@
 			-webkit-backface-visibility: hidden;
 			-moz-backface-visibility: hidden;
 			backface-visibility: hidden;
+			margin-bottom: 0px;
 			--scale-fade-max-scale: 1.5;
 			--scale-fade-min-scale: 1.05;
 			--insertion-delay: 0.01s;
@@ -28,21 +29,23 @@
 			backface-visibility: hidden;
 			display: inherit !important;
 			visibility: inherit;
+			margin-bottom: 0.75rem;
 		}
 		.tile-container.hover {
 			transition: 0.3s ease-in-out;
 			z-index: 100;
 			background-color: var(--d2l-color-white);
 		}
-		.tile-container.touch-menu-open {
+
+		:host(.touch-menu-open) > .tile-container {
 			transform: scale(1.05);
 			box-shadow: 2px 1px 10px rgba(0, 0, 0, 0.3);
 		}
-		.tile-container.touch-menu-open.unpin-hovered {
+		:host(.touch-menu-open.unpin-hovered) > .tile-container {
 			transform: scale(1.1);
 			box-shadow: 2px 1px 10px rgba(0, 0, 0, 0.3);
 		}
-		.tile-container.unpin-hovered:not(.touch-menu-open) {
+		:host(.unpin-hovered:not(.touch-menu-open)) >.tile-container {
 			transform: scale(1.05);
 			box-shadow: 3px 2px 10px rgba(0, 0, 0, 0.3);
 		}
@@ -50,8 +53,7 @@
 			position: absolute;
 		}
 		:host(.animate-insertion-pre) > .tile-container {
-			width: calc(100% - 20px) !important;
-			animation: var(--insertion-delay) normal tile-pre-insertion;
+			animation: var(--insertion-delay) forwards tile-pre-insertion;
 			pointer-events: none;
 		}
 		:host(.animate-insertion) {
@@ -61,11 +63,14 @@
 			animation: 0.6s forwards scale-and-fade-in;
 			animation-direction: normal;
 			pointer-events: none;
-			width: calc(100% - 20px) !important;
 		}
-		.tile-container.unpin {
+		:host(.unpin) {
+			z-index: 100;
+		}
+		:host(.unpin) > .tile-container {
 			animation: 0.7s forwards scale-and-fade-out;
 			pointer-events: none;
+			z-index: 100;
 		}
 
 		a, a:hover, a:visited {

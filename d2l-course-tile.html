@@ -72,6 +72,9 @@
 				animateInsertion: {
 					type: Boolean
 				},
+				courseId: {
+					type: Number
+				},
 				_enrollmentEntity: {
 					type: Object,
 					observer: '_enrollmentEntityChanged'
@@ -150,15 +153,14 @@
 				});
 
 				this.pinAnimationInProgress = true;
-				var tileContainer = this.$$('.tile-container');
-				this.toggleClass('unpin-hovered', false, tileContainer);
+				this.toggleClass('unpin-hovered', false, this);
 
 				if (isTouch) {
 					this.customStyle['--scale-fade-min-scale'] = '1.1';
 					this.updateStyles();
 				}
 
-				this.toggleClass('unpin', true, tileContainer);
+				this.toggleClass('unpin', true, this);
 
 				this.pendingPinAction = this._pinned;
 			},
@@ -244,13 +246,11 @@
 				}
 			},
 			_onUnpinHover: function(e) {
-				var courseTile = this.$$('.tile-container');
-				this.toggleClass('unpin-hovered', e.detail.hoverState, courseTile);
+				this.toggleClass('unpin-hovered', e.detail.hoverState, this);
 			},
 			_setTouchMenuOpen: function(isOpen) {
-				var courseTile = this.$$('.tile-container');
-				this.toggleClass('touch-menu-open', isOpen, courseTile);
-				this.toggleClass('hover', isOpen, courseTile);
+				this.toggleClass('touch-menu-open', isOpen, this);
+				this.toggleClass('hover', isOpen, this);
 			},
 			pendingPinAction: false,
 			pinAnimationInProgress: false

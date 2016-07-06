@@ -1,8 +1,9 @@
-<dom-module id="d2l-course-tile-region-styles">
+<dom-module id="d2l-course-tile-grid-styles">
 	<template>
 		<style>
 		:host {
 			display: block;
+			user-select: none;
 		}
 
 		.my-courses-container {
@@ -13,6 +14,10 @@
 			flex-direction: row;
 			align-items: flex-start;
 			margin-left: -10px;	/* To offset 10px left padding on tile containers, where tile image left edge must align with headers */
+		}
+		.my-courses-container.animate > d2l-course-tile {
+			margin-right: 0;
+			margin-left: 0;
 		}
 
 		d2l-course-tile {
@@ -52,11 +57,6 @@
 			margin-right: 0;
 		}
 		.columns-4 > d2l-course-tile:nth-child(4n+1) {
-			margin-left: 0;
-		}
-
-		.my-courses-container.animate > d2l-course-tile {
-			margin-right: 0;
 			margin-left: 0;
 		}
 		</style>

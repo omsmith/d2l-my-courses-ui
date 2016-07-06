@@ -13,22 +13,30 @@
 			properties: {
 				pinnedCoursesEntities: {
 					type: Array,
-					value: [],
+					value: function() {
+						return [];
+					},
 					notify: true
 				},
 				unpinnedCoursesEntities: {
 					type: Array,
-					value: [],
+					value: function() {
+						return [];
+					},
 					notify: true
 				},
 				pinnedCoursesEntitiesQueue: {
 					type: Array,
-					value: [],
+					value: function() {
+						return [];
+					},
 					notify: true
 				},
 				unpinnedCoursesEntitiesQueue: {
 					type: Array,
-					value: [],
+					value: function() {
+						return [];
+					},
 					notify: true
 				},
 				_hasPinnedCourses: {

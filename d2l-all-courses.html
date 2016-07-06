@@ -1,7 +1,7 @@
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="d2l-all-courses-styles.html">
 <link rel="import" href="d2l-course-tile-grid.html">
-<link rel="import" href="d2l-course-tile-region-behavior.html">
+<link rel="import" href="d2l-course-tile-responsive-grid-behavior.html">
 <link rel="import" href="localize-behavior.html">
 <link rel="import" href="d2l-course-management-behavior.html">
 
@@ -30,12 +30,18 @@
 		Polymer({
 			is: 'd2l-all-courses',
 			behaviors: [
-				Polymer.D2L.MyCourses.CourseTileRegionBehavior,
+				Polymer.D2L.MyCourses.CourseTileResponsiveGridBehavior,
 				Polymer.D2L.MyCourses.LocalizeBehavior,
 				Polymer.D2L.MyCourses.CourseManagementBehavior
 			],
 			ready: function() {
 				this.usePendingLists = true;
+			},
+			created: function() {
+				Polymer.dom(this.root).querySelectorAll('d2l-course-tile-grid').forEach(function(courseTileGrid) {
+					// Use global course tile count for each course tile grid
+					courseTileGrid.getCourseTileItemCount = this.getCourseTileItemCount.bind(this);
+				}.bind(this));
 			},
 			focusableNodesOverride: function() {
 				var courseTileFocusables = [];
@@ -49,13 +55,17 @@
 			_getOverlayWidth: function() {
 				return this._getAvailableWidth(this.$$('.dialog-content'));
 			},
-			get courseTileItemCount() {
-				var itemCount = Math.max(this.pinnedCoursesEntities.length, this.unpinnedCoursesEntities.length);
+			getCourseTileItemCount: function() {
+				var itemCount = 0;
+
+				if (this.pinnedCoursesEntities && this.unpinnedCoursesEntities) {
+					itemCount = Math.max(this.pinnedCoursesEntities.length, this.unpinnedCoursesEntities.length);
+				}
 
 				return itemCount;
 			},
 			_rescaleCourseTileRegions: function(forcedWidth) {
-				var itemCount = this.courseTileItemCount;
+				var itemCount = this.getCourseTileItemCount();
 				var courseTileRegions = Polymer.dom(this.root).querySelectorAll('d2l-course-tile-grid');
 
 				Array.prototype.forEach.call(courseTileRegions, function(courseTileRegion) {

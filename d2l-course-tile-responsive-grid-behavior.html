@@ -7,7 +7,7 @@
 		Polymer.D2L = Polymer.D2L || {};
 		Polymer.D2L.MyCourses = Polymer.D2L.MyCourses || {};
 
-		Polymer.D2L.MyCourses.CourseTileRegionBehavior = {
+		Polymer.D2L.MyCourses.CourseTileResponsiveGridBehavior = {
 			properties: {
 				_windowResizeHandler: {
 					type: Object,
@@ -17,20 +17,17 @@
 					}
 				}
 			},
-			created: function() {
-				this._courseTileBoundingRects = [];
-			},
 			attached: function() {
 				this._addThrottledEventListener('resize', this._windowResizeHandler);
 			},
 			detached: function() {
 				window.removeEventListener('resize', this._windowResizeHandler);
 			},
-			get courseTileItemCount() {
-				throw 'Must implement courseTileItemCount in behavior consumer';
+			getCourseTileItemCount: function() {
+				throw 'Must implement getCourseTileItemCount in behavior consumer';
 			},
 			_rescaleCourseTileRegions: function(forcedWidth, itemCount) {
-				var _itemCount = itemCount || this.courseTileItemCount;
+				var _itemCount = itemCount || this.getCourseTileItemCount();
 
 				this._setupColumns(_itemCount, forcedWidth);
 			},
@@ -126,9 +123,7 @@
 					timeout = setTimeout(eventHandler, delay);
 				});
 			},
-			_courseTileBoundingRects: null,
-			_numCols: 0,
-			_containerWidth: 0
+			_numCols: 0
 		};
 	})();
 </script>

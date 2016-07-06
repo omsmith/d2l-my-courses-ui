@@ -25,7 +25,7 @@
 			{{_alertMessage}}
 			<a is="d2l-link"
 				href="Javascript:void(0);"
-				hidden$="[[_hasPinnedCourses]]"
+				hidden$="[[_hasCourses]]"
 				on-tap="refreshPage">{{localize('refresh')}}</a>
 		</d2l-alert>
 
@@ -70,13 +70,13 @@
 				}
 			},
 			behaviors: [
-				Polymer.D2L.MyCourses.CourseTileRegionBehavior,
+				Polymer.D2L.MyCourses.CourseTileResponsiveGridBehavior,
 				Polymer.D2L.MyCourses.LocalizeBehavior,
 				Polymer.D2L.MyCourses.InteractionDetectionBehavior,
 				Polymer.D2L.MyCourses.CourseManagementBehavior
 			],
 			ready: function() {
-				this._alertMessage = this.localize('noPinnedCoursesMessage');
+				this._alertMessage = this.localize('noCoursesMessage');
 
 				var overlay = this.$$('d2l-simple-overlay');
 				var allCourses = this.$$('d2l-all-courses');
@@ -91,8 +91,8 @@
 				if (response.detail.status === 200) {
 					this.setAllCoursesFromSirenResponse(response.detail.xhr.response);
 
-					if (!this._hasCourses) {
-						this._alertMessage = this.localize('noCoursesMessage');
+					if (this._hasCourses) {
+						this._alertMessage = this.localize('noPinnedCoursesMessage');
 					}
 
 					this.$$('d2l-course-tile-grid')._rescaleCourseTileRegions();
@@ -111,7 +111,7 @@
 					allCourses._rescaleCourseTileRegions(allCourses._getOverlayWidth());
 				}.bind(this), 50);
 			},
-			get courseTileItemCount() {
+			getCourseTileItemCount: function() {
 				return this.pinnedCoursesEntities.length;
 			}
 		});
