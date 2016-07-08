@@ -168,7 +168,7 @@
           "rel": [
             "course-image"
           ],
-          "href": "http://lorempixel.com/100/100/"
+          "href": "http://lorempixel.com/500/100/"
         }
       ],
       "actions": [
@@ -255,7 +255,7 @@
           "rel": [
             "course-image"
           ],
-          "href": "http://lorempixel.com/400/200/"
+          "href": "http://lorempixel.com/100/500/"
         }
       ],
       "actions": [
