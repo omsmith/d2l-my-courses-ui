@@ -13,17 +13,16 @@
 		<style include="d2l-course-tile-styles"></style>
 
 		<d2l-ajax
-			url="[[_updatePreferencesUrl]]"
-			method="[[_updatePreferencesMethod]]"
-			body="[[_updatePreferencesBody]]"
-			headers='{ "Accept": "application/vnd.siren+json", "Content-Type": "application/json" }'
-			on-response="updatePreferencesOnResponse"
-			on-error="updatePreferencesOnError"></d2l-ajax>
+			id="organizationRequest"
+			url="[[_organizationUrl]]"
+			headers='{ "Accept": "application/vnd.siren+json" }'
+			on-response="onOrganizationResponse">
+		</d2l-ajax>
 
 		<div class="tile-container"
 			on-mouseover="hoverCourseTile"
 			on-mouseout="onTileMouseOut">
-			<a href="[[_courseUrl]]" class="no-tap-interaction"
+			<a href="[[_organizationHomepageUrl]]" class="no-tap-interaction"
 				on-focus="hoverCourseTile"
 				on-blur="unhoverCourseTile">
 				<div class="course-image-container">
@@ -31,7 +30,7 @@
 						<img aria-hidden="true" />
 					</div>
 				</div>
-				<div class="course-text d2l-heading-4">{{_enrollmentEntity.properties.name}}</div>
+				<div class="course-text d2l-heading-4">{{_organization.properties.name}}</div>
 			</a>
 
 			<div class="hover-menu no-tap-interaction">
@@ -43,10 +42,10 @@
 					on-mouseout="unhoverPinMenuItem">
 					<iron-icon class="menu-icon" icon="d2l-tier1:pin-filled" aria-hidden="true"></iron-icon>
 					<span class="menu-text pin"
-						aria-label$="[[localize('pinCourse', 'course', _enrollmentEntity.properties.name)]]"
+						aria-label$="[[localize('pinCourse', 'course', _organization.properties.name)]]"
 						>{{localize('pin')}}</span>
 					<span class="menu-text unpin"
-						aria-label$="[[localize('unpinCourse', 'course', _enrollmentEntity.properties.name)]]"
+						aria-label$="[[localize('unpinCourse', 'course', _organization.properties.name)]]"
 						>{{localize('unpin')}}</span>
 				</button>
 			</div>
@@ -75,28 +74,16 @@
 				courseId: {
 					type: Number
 				},
-				_enrollmentEntity: {
+				_organization: {
 					type: Object,
-					observer: '_enrollmentEntityChanged'
+					observer: '_organizationChanged'
 				},
-				_courseUrl: {
+				_organizationHomepageUrl: {
 					type: String
 				},
 				_pinned: {
 					type: Boolean,
 					observer: '_pinnedChanged'
-				},
-				_updatePreferencesUrl: {
-					type: String
-				},
-				_updatePreferencesMethod: {
-					type: String
-				},
-				_updatePreferencesFields: {
-					type: String
-				},
-				_updatePreferencesBody: {
-					type: String
 				}
 			},
 			behaviors: [
@@ -113,56 +100,11 @@
 					this.toggleClass('animate-insertion-pre', true, this);
 				}
 			},
-			updatePreferencesOnResponse: function(response) {
-				if (response.detail.status === 200) {
-					var parser = document.createElement('d2l-siren-parser');
-					var preferencesEntity = parser.parse(response.detail.xhr.response);
-					this._pinned = preferencesEntity.properties.hasOwnProperty('pinDate');
-				} else {
-					this._pinned = this._enrollmentEntity.getSubEntitiesByRel('preferences')[0].properties.hasOwnProperty('pinDate');
-				}
-			},
-			updatePreferencesOnError: function(error) {
-				error.preventDefault();
-				error.stopPropagation();
-				this._pinned = this._enrollmentEntity.getSubEntitiesByRel('preferences')[0].properties.hasOwnProperty('pinDate');
-			},
 			hoverPinClickHandler: function(e) {
 				// Prevent the click from triggering navigation to the course
 				e.preventDefault();
 
 				this._pinClickHandler(false);
-			},
-			_pinClickHandler: function(isTouch) {
-				this._pinned = !this._pinned;
-
-				var updatePreferences = this.$$('d2l-ajax');
-
-				var updatePreferencesBody = {};
-				this._updatePreferencesFields.forEach(function(field) {
-					updatePreferencesBody[field.name] = field.value;
-				});
-				updatePreferencesBody.pinned = this._pinned;
-				this._updatePreferencesBody = JSON.stringify(updatePreferencesBody);
-
-				updatePreferences.generateRequest();
-
-				var eventName = this._pinned ? 'course-pinned' : 'course-unpinned';
-				this.fire(eventName, {
-					course: this._enrollmentEntity
-				});
-
-				this.pinAnimationInProgress = true;
-				this.toggleClass('unpin-hovered', false, this);
-
-				if (isTouch) {
-					this.customStyle['--scale-fade-min-scale'] = '1.1';
-					this.updateStyles();
-				}
-
-				this.toggleClass('unpin', true, this);
-
-				this.pendingPinAction = this._pinned;
 			},
 			hoverCourseTile: function() {
 				if (this.hoverEnabled) {
@@ -191,27 +133,20 @@
 			onTileMouseOut: function() {
 				this.unhoverCourseTile(true);
 			},
-			_enrollmentChanged: function(enrollment) {
-				var parser = document.createElement('d2l-siren-parser');
-				this._enrollmentEntity = parser.parse(enrollment);
+			_enrollmentChanged: function(enrollmentEntity) {
+				var organizationLink = enrollmentEntity.getLinkByRel('https://api.brightspace.com/rels/organization');
+				this._organizationUrl = organizationLink.href;
+
+				this.$.organizationRequest.generateRequest();
 			},
-			_enrollmentEntityChanged: function(entity) {
-				if (entity.hasLink('course-image')) {
-					var courseImageLink = entity.getLinkByRel('course-image');
-					var courseImage = this.$$('.course-image img');
-					Polymer.dom(courseImage).setAttribute('src', courseImageLink.href);
-				}
+			onOrganizationResponse: function(response) {
+				if (response.detail.status === 200) {
+					var parser = document.createElement('d2l-siren-parser');
+					var organization = parser.parse(response.detail.xhr.response);
 
-				this._courseUrl = '/d2l/home/' + entity.properties.id;
+					this._organization = organization;
+					this._organizationUrl = organization.getLinkByRel('https://api.brightspace.com/rels/organization-homepage');
 
-				var preferencesEntity = entity.getSubEntitiesByRel('preferences')[0];
-				this._pinned = preferencesEntity.hasClass('pinned');
-
-				var updatePreferencesAction = preferencesEntity.getActionByName('update');
-				if (updatePreferencesAction) {
-					this._updatePreferencesUrl = updatePreferencesAction.href;
-					this._updatePreferencesMethod = updatePreferencesAction.method;
-					this._updatePreferencesFields = updatePreferencesAction.fields;
 				}
 			},
 			_pinnedChanged: function(pinned) {

@@ -69,30 +69,6 @@
 				this._announceElement = document.createElement('d2l-offscreen');
 				this._announceElement.setAttribute('aria-live', 'polite');
 			},
-			setAllCoursesFromSirenResponse: function(response) {
-				var parser = document.createElement('d2l-siren-parser');
-				var allEnrollments = parser.parse(response);
-				var allCourses = allEnrollments.getSubEntitiesByClass('course-offering');
-
-				var newPinnedCourses = [];
-				var newUnpinnedCourses = [];
-
-				for (var i = 0; i < allCourses.length; i++) {
-					if (allCourses[i].hasClass('active')) {
-						if (allCourses[i].hasEntityByClass('pinned')) {
-							newPinnedCourses.push(allCourses[i]);
-						} else {
-							newUnpinnedCourses.push(allCourses[i]);
-						}
-					}
-				}
-
-				this.set('pinnedCoursesEntities', newPinnedCourses);
-				this.set('unpinnedCoursesEntities', newUnpinnedCourses);
-
-				this._hasPinnedCourses = this.pinnedCoursesEntities.length > 0;
-				this._hasCourses = this._hasPinnedCourses || this.unpinnedCoursesEntities.length > 0;
-			},
 			_onCoursePinned: function(e) {
 				this._ariaAnnounce(this.localize('pinActionResult', 'course', e.detail.course.properties.name));
 			},
