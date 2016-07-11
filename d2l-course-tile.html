@@ -19,6 +19,16 @@
 			on-response="onOrganizationResponse">
 		</d2l-ajax>
 
+		<d2l-ajax
+			id="enrollmentPinRequest"
+			url="[[_enrollmentPinUrl]]"
+			method="[[_enrollmentPinMethod]]"
+			body="[[_enrollmentPinBody]]"
+			headers='{ "Accept": "application/vnd.siren+json", "Content-Type": "application/x-www-form-urlencoded" }'
+			on-response="onEnrollmentPinResponse"
+			on-error="onEnrollmentPinError">
+		</d2l-ajax>
+
 		<div class="tile-container"
 			on-mouseover="hoverCourseTile"
 			on-mouseout="onTileMouseOut">
@@ -75,8 +85,7 @@
 					type: Number
 				},
 				_organization: {
-					type: Object,
-					observer: '_organizationChanged'
+					type: Object
 				},
 				_organizationHomepageUrl: {
 					type: String
@@ -134,20 +143,80 @@
 				this.unhoverCourseTile(true);
 			},
 			_enrollmentChanged: function(enrollmentEntity) {
-				var organizationLink = enrollmentEntity.getLinkByRel('https://api.brightspace.com/rels/organization');
-				this._organizationUrl = organizationLink.href;
+				this._pinned = enrollmentEntity.hasClass('pinned');
 
-				this.$.organizationRequest.generateRequest();
+				var organizationLink = enrollmentEntity.getLinkByRel('https://api.brightspace.com/rels/organization');
+				this._organizationUrl = organizationLink.href + '?embedDepth=1';
+
+				// The enrollment is updated (i.e. this handler is called) upon a pin/unpin response as well, but
+				// there's no need to update the organization in that case
+				if (!this.organization) {
+					this.$.organizationRequest.generateRequest();
+				}
 			},
 			onOrganizationResponse: function(response) {
 				if (response.detail.status === 200) {
 					var parser = document.createElement('d2l-siren-parser');
 					var organization = parser.parse(response.detail.xhr.response);
 
-					this._organization = organization;
-					this._organizationUrl = organization.getLinkByRel('https://api.brightspace.com/rels/organization-homepage');
+					var courseImageEntity = organization.getSubEntityByClass('course-image');
+					if (courseImageEntity) {
+						var courseImageLink = courseImageEntity.getLinkByRel('alternate');
+						var courseImage = this.$$('.course-image img');
+						Polymer.dom(courseImage).setAttribute('src', courseImageLink.href);
+					}
 
+					this._organization = organization;
+					this._organizationHomepageUrl = organization.getLinkByRel('https://api.brightspace.com/rels/organization-homepage');
 				}
+			},
+			_pinClickHandler: function(isTouch) {
+				var pinAction = this._pinned ? this.enrollment.getActionByName('unpin-course') : this.enrollment.getActionByName('pin-course');
+
+				this._enrollmentPinMethod = pinAction.method;
+				this._enrollmentPinUrl = pinAction.href;
+
+				var body = {};
+				var fields = pinAction.fields || [];
+				fields.forEach(function(field) {
+					body[field.name] = field.value;
+				});
+				this._enrollmentPinBody = body;
+
+				// This value is purely for UI responsiveness - if the request fails, this value will be set back to
+				// the previous value in the error handler; if the request succeeds, we also set it in the response
+				// handler (to this same value), but that could take a few hundred ms, so do it before the request too.
+				this._pinned = !this._pinned;
+
+				this.$.enrollmentPinRequest.generateRequest();
+
+				var eventName = this._pinned ? 'course-pinned' : 'course-unpinned';
+				this.fire(eventName, {
+					course: this._enrollmentEntity
+				});
+
+				this.pinAnimationInProgress = true;
+				this.toggleClass('unpin-hovered', false, this);
+
+				if (isTouch) {
+					this.customStyle['--scale-fade-min-scale'] = '1.1';
+					this.updateStyles();
+				}
+
+				this.toggleClass('unpin', true, this);
+
+				this.pendingPinAction = this._pinned;
+			},
+			onEnrollmentPinResponse: function(response) {
+				if (response.detail.status === 200) {
+					// The pin action returns the updated enrollment, so update this.enrollment with the modified one
+					var parser = document.createElement('d2l-siren-parser');
+					this.enrollment = parser.parse(response.detail.xhr.response);
+				}
+			},
+			onEnrollmentPinError: function() {
+				// Just revert back to whatever pin state we already had stored
+				this._pinned = this.enrollment.hasClass('pinned');
 			},
 			_pinnedChanged: function(pinned) {
 				var pinIcon = this.$$('.menu-item iron-icon.menu-icon'),
@@ -168,12 +237,12 @@
 				var tileContainer = this.$$('.tile-container');
 
 				if (e.animationName.includes('scale-and-fade-out')) {
-					this.fire('tile-remove-complete', {course: this._enrollmentEntity, pinned: this.pendingPinAction});
+					this.fire('tile-remove-complete', {course: this.enrollment, pinned: this.pendingPinAction});
 				} else if (e.animationName.includes('scale-and-fade-in')) {
 					this.toggleClass('animate-insertion', false, tileContainer);
 					this.toggleClass('animate-insertion', false, this);
 					this.toggleClass('animate-insertion', false, this.$$('.tile-container'));
-					this.fire('tile-insert-complete', {course: this._enrollmentEntity, pinned: this.pendingPinAction});
+					this.fire('tile-insert-complete', {course: this.enrollment, pinned: this.pendingPinAction});
 				} else if (e.animationName.includes('tile-pre-insertion')) {
 					this.toggleClass('animate-insertion-pre', false, this);
 					this.toggleClass('animate-insertion', true, tileContainer);
