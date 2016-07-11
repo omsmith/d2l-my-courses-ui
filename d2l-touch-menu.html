@@ -18,7 +18,7 @@
 					type: Boolean,
 					value: true
 				},
-				_touchTargets: {
+				touchTargets: {
 					type: Array,
 					value: function() {
 						return [];
@@ -27,25 +27,22 @@
 				_menuOpen: {
 					type: Boolean,
 					observer: '_onMenuOpenChanged'
-				},
-				targetElementName: {
-					type: String
 				}
 			},
 			listeners: {
 				'contextmenu': 'contextmenuHandler'
 			},
 			observers: [
-				'_touchTargetsChanged(_touchTargets)'
+				'_touchTargetsChanged(touchTargets)'
 			],
 			ready: function() {
 				this._menu = this.$$('.long-press-menu');
 				this._menuItems = [].slice.call(Polymer.dom(this).querySelectorAll('d2l-touch-menu-item'));
 			},
 			attached: function() {
-				Array.prototype.forEach.call(this._menuItems, function(menuItem) {
-					menuItem._menu = this;
-				}.bind(this));
+				for (var i = 0; i < this._menuItems.length; i++) {
+					this._menuItems[i]._menu = this;
+				}
 			},
 			touchstartHandler: function(e) {
 				e.stopPropagation();
@@ -99,8 +96,6 @@
 				this._menuOpen = false;
 			},
 			openMenu: function(touchstartEvent) {
-				//this.listen(this._currentTarget, 'touchend', 'touchendHandler');
-
 				var touchData = {
 					startX: touchstartEvent.changedTouches[0].pageX,
 					startY: touchstartEvent.changedTouches[0].pageY,
@@ -169,13 +164,15 @@
 				this._menuOpen = true;
 			},
 			_touchTargetsChanged: function(newValues) {
-				for (var i = 0; i < newValues.length; i++) {
-					if (!newValues[i]._touchMenuHandlersAdded) {
-						newValues[i]._touchMenuHandlersAdded = true;
+				if (this.enabled) {
+					for (var i = 0; i < newValues.length; i++) {
+						if (!newValues[i]._touchMenuHandlersAdded) {
+							newValues[i]._touchMenuHandlersAdded = true;
 
-						for (var handler in this._touchHandlers) {
-							var boundHandler = this[this._touchHandlers[handler]].bind(this);
-							newValues[i].addEventListener(handler, boundHandler, false);
+							for (var handler in this._touchHandlers) {
+								var boundHandler = this[this._touchHandlers[handler]].bind(this);
+								newValues[i].addEventListener(handler, boundHandler, false);
+							}
 						}
 					}
 				}
