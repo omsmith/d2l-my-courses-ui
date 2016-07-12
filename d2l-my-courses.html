@@ -146,6 +146,12 @@
 
 					this._hasPinnedCourses = this.pinnedCoursesEntities.length > 0;
 					this._hasCourses = this._hasPinnedCourses || this.unpinnedCoursesEntities.length > 0;
+
+					if (this._hasCourses) {
+						this._alertMessage = this.localize('noPinnedCoursesMessage');
+					}
+
+					this.$$('d2l-course-tile-grid')._rescaleCourseTileRegions();
 				}
 			},
 			refreshPage: function() {

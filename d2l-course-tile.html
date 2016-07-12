@@ -87,6 +87,9 @@
 				_organization: {
 					type: Object
 				},
+				_organizationUrl: {
+					type: String
+				},
 				_organizationHomepageUrl: {
 					type: String
 				},
@@ -114,6 +117,43 @@
 				e.preventDefault();
 
 				this._pinClickHandler(false);
+			},
+			_pinClickHandler: function(isTouch) {
+				var pinAction = this._pinned ? this.enrollment.getActionByName('unpin-course') : this.enrollment.getActionByName('pin-course');
+
+				this._enrollmentPinMethod = pinAction.method;
+				this._enrollmentPinUrl = pinAction.href;
+
+				// This value is purely for UI responsiveness - if the request fails, this value will be set back to
+				// the previous value in the error handler; if the request succeeds, we also set it in the response
+				// handler (to this same value), but that could take a few hundred ms, so do it before the request too.
+				this._pinned = !this._pinned;
+
+				var body = {};
+				var fields = pinAction.fields || [];
+				fields.forEach(function(field) {
+					body[field.name] = field.value;
+				});
+				this._enrollmentPinBody = body;
+
+				this.$.enrollmentPinRequest.generateRequest();
+
+				var eventName = this._pinned ? 'course-pinned' : 'course-unpinned';
+				this.fire(eventName, {
+					course: this.enrollment
+				});
+
+				this.pinAnimationInProgress = true;
+				this.toggleClass('unpin-hovered', false, this);
+
+				if (isTouch) {
+					this.customStyle['--scale-fade-min-scale'] = '1.1';
+					this.updateStyles();
+				}
+
+				this.toggleClass('unpin', true, this);
+
+				this.pendingPinAction = this._pinned;
 			},
 			hoverCourseTile: function() {
 				if (this.hoverEnabled) {
@@ -145,12 +185,11 @@
 			_enrollmentChanged: function(enrollmentEntity) {
 				this._pinned = enrollmentEntity.hasClass('pinned');
 
-				var organizationLink = enrollmentEntity.getLinkByRel('https://api.brightspace.com/rels/organization');
-				this._organizationUrl = organizationLink.href + '?embedDepth=1';
-
 				// The enrollment is updated (i.e. this handler is called) upon a pin/unpin response as well, but
 				// there's no need to update the organization in that case
-				if (!this.organization) {
+				if (!this._organization) {
+					var organizationLink = enrollmentEntity.getLinkByRel('https://api.brightspace.com/rels/organization');
+					this._organizationUrl = organizationLink.href + '?embedDepth=1';
 					this.$.organizationRequest.generateRequest();
 				}
 			},
@@ -167,45 +206,8 @@
 					}
 
 					this._organization = organization;
-					this._organizationHomepageUrl = organization.getLinkByRel('https://api.brightspace.com/rels/organization-homepage');
+					this._organizationHomepageUrl = organization.getLinkByRel('https://api.brightspace.com/rels/organization-homepage').href;
 				}
-			},
-			_pinClickHandler: function(isTouch) {
-				var pinAction = this._pinned ? this.enrollment.getActionByName('unpin-course') : this.enrollment.getActionByName('pin-course');
-
-				this._enrollmentPinMethod = pinAction.method;
-				this._enrollmentPinUrl = pinAction.href;
-
-				var body = {};
-				var fields = pinAction.fields || [];
-				fields.forEach(function(field) {
-					body[field.name] = field.value;
-				});
-				this._enrollmentPinBody = body;
-
-				// This value is purely for UI responsiveness - if the request fails, this value will be set back to
-				// the previous value in the error handler; if the request succeeds, we also set it in the response
-				// handler (to this same value), but that could take a few hundred ms, so do it before the request too.
-				this._pinned = !this._pinned;
-
-				this.$.enrollmentPinRequest.generateRequest();
-
-				var eventName = this._pinned ? 'course-pinned' : 'course-unpinned';
-				this.fire(eventName, {
-					course: this._enrollmentEntity
-				});
-
-				this.pinAnimationInProgress = true;
-				this.toggleClass('unpin-hovered', false, this);
-
-				if (isTouch) {
-					this.customStyle['--scale-fade-min-scale'] = '1.1';
-					this.updateStyles();
-				}
-
-				this.toggleClass('unpin', true, this);
-
-				this.pendingPinAction = this._pinned;
 			},
 			onEnrollmentPinResponse: function(response) {
 				if (response.detail.status === 200) {

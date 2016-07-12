@@ -11,13 +11,19 @@
 		<style include="d2l-my-courses-styles"></style>
 		<style include="d2l-course-tile-grid-styles"></style>
 
+		<template is="dom-if" if="[[alertVisible]]">
+			<d2l-alert visible="[[alertVisible]]">
+				{{alertMessage}}
+			</d2l-alert>
+		</template>
+
 		<div class="my-courses-container">
 			<template id="courseEntitiesTemplate" is="dom-repeat" items="[[courseEntities]]">
 				<d2l-course-tile
 					enrollment="[[item]]"
 					hover-enabled="[[_hoverInteractionEnabled]]"
-					animate-insertion="[[removeCourseFromTransitionList(item.properties.id)]]"
-					course-id="[[item.properties.id]]">
+					animate-insertion="[[removeCourseFromTransitionList(item)]]"
+					course-id="[[_getEnrollmentIdentifier(item)]]">
 				</d2l-course-tile>
 			</template>
 		</div>
@@ -92,7 +98,7 @@
 				this._animationState.isInsertion = isInsertion;
 
 				if (this.courseEntities.length > 0) {
-					this._animationState.lastAnimatedCourseTileId = this.courseEntities[lastAnimatedCourseIndex].properties.id;
+					this._animationState.lastAnimatedCourseTileId = this._getEnrollmentIdentifier(this.courseEntities[lastAnimatedCourseIndex]);
 				} else {
 					this._animationState.slideAnimationComplete = true;
 				}
@@ -101,7 +107,7 @@
 
 				if (isInsertion) {
 					// If inserting, set tile as in transition, and listen for DOM change to know when new course tile is added and tiles can be animated
-					this._tilesInPinStateTransition.push(courseEntity.properties.id);
+					this._tilesInPinStateTransition.push(this._getEnrollmentIdentifier(courseEntity));
 					this.unshift('courseEntities', courseEntity);
 
 					var gridTemplate = container.querySelector('template');
@@ -110,6 +116,11 @@
 				} else {
 					this._doTileSlideAnimation(false, courseIndex, container, this._numCols);
 				}
+			},
+			_getEnrollmentIdentifier: function(courseEntity) {
+				// An enrollment's self href should be unique, so use it as an identifier
+				var selfLink = courseEntity.getLinkByRel('self');
+				return selfLink.href;
 			},
 			/*
 			* Calculates layout data after a tile insertion/removal operation will be completed, including tile positions and
@@ -214,8 +225,9 @@
 					this._animateCourseTile(courseTiles[i], this._courseTileBoundingRects[i], newLayoutInfo.newPositions[i], delayTime);
 				}
 			},
-			removeCourseFromTransitionList: function(courseID) {
-				var index = this._tilesInPinStateTransition.indexOf(courseID);
+			removeCourseFromTransitionList: function(courseEntity) {
+				var enrollmentId = this._getEnrollmentIdentifier(courseEntity);
+				var index = this._tilesInPinStateTransition.indexOf(enrollmentId);
 
 				if (index !== -1) {
 					this._tilesInPinStateTransition.splice(index, 1);
@@ -237,8 +249,11 @@
 			_onCoursePinAction: function(e) {
 				// If a course was (un)pinned from this grid (ie. a course tile had a pin action invoked on it, such that it (should) leave
 				// this grid, then we need to slide other tiles in to fill its place
+				var modifiedEnrollmentId = this._getEnrollmentIdentifier(e.detail.course);
+
 				for (var i = 0; i < this.courseEntities.length; i++) {
-					if (this.courseEntities[i].properties.id === e.detail.course.properties.id) {
+					var enrollmentId = this._getEnrollmentIdentifier(this.courseEntities[i]);
+					if (enrollmentId === modifiedEnrollmentId) {
 						this._animateTileSlide(false, i);
 						break;
 					}
@@ -329,11 +344,11 @@
 				if (courseTile._pinned) {
 					Polymer.dom(pinTouchMenuItem).setAttribute('text', this.localize('unpin'));
 					Polymer.dom(pinTouchMenuItem).setAttribute('background-image', 'd2l-tier1:pin-hollow');
-					Polymer.dom(pinTouchMenuItem).setAttribute('action-description', this.localize('unpinCourse', 'course', courseTile._enrollmentEntity.properties.name));
+					// Polymer.dom(pinTouchMenuItem).setAttribute('action-description', this.localize('unpinCourse', 'course', courseTile._enrollmentEntity.properties.name));
 				} else {
 					Polymer.dom(pinTouchMenuItem).setAttribute('text', this.localize('pin'));
 					Polymer.dom(pinTouchMenuItem).setAttribute('background-image', 'd2l-tier1:pin-filled');
-					Polymer.dom(pinTouchMenuItem).setAttribute('action-description', this.localize('pinCourse', 'course', courseTile._enrollmentEntity.properties.name));
+					// Polymer.dom(pinTouchMenuItem).setAttribute('action-description', this.localize('pinCourse', 'course', courseTile._enrollmentEntity.properties.name));
 				}
 
 				e.detail.element._onUnpinHover(e);
