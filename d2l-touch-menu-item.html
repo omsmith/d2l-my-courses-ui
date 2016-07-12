@@ -142,7 +142,12 @@
 					}
 
 					if (this.hoverEvent && !this.selected) {
-						this.fire(this.hoverEvent, {hoverState: isHovered, element: this._touchTarget});
+						var eventData = {
+							hoverState: isHovered,
+							element: this._menu._currentTarget
+						};
+
+						this.fire(this.hoverEvent, eventData);
 					}
 				}
 			},
@@ -176,7 +181,8 @@
 			},
 			get visible() {
 				return this._visible;
-			}
+			},
+			_menu: null
 		});
 	</script>
 </dom-module>

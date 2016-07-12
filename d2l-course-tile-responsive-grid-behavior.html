@@ -7,7 +7,7 @@
 		Polymer.D2L = Polymer.D2L || {};
 		Polymer.D2L.MyCourses = Polymer.D2L.MyCourses || {};
 
-		Polymer.D2L.MyCourses.CourseTileRegionBehavior = {
+		Polymer.D2L.MyCourses.CourseTileResponsiveGridBehavior = {
 			properties: {
 				_windowResizeHandler: {
 					type: Object,
@@ -23,13 +23,13 @@
 			detached: function() {
 				window.removeEventListener('resize', this._windowResizeHandler);
 			},
-			get courseTileItemCount() {
-				throw 'Must implement courseTileItemCount in behavior consumer';
+			getCourseTileItemCount: function() {
+				throw 'Must implement getCourseTileItemCount in behavior consumer';
 			},
-			_rescaleCourseTileRegions: function(forcedWidth) {
-				var itemCount = this.courseTileItemCount;
+			_rescaleCourseTileRegions: function(forcedWidth, itemCount) {
+				var _itemCount = itemCount || this.getCourseTileItemCount();
 
-				this._setupColumns(itemCount, forcedWidth);
+				this._setupColumns(_itemCount, forcedWidth);
 			},
 			_calcNumColumns: function(width, itemCount) {
 				var numCols = 1;
@@ -71,12 +71,12 @@
 
 				containers.forEach(function(container) {
 					var width = forcedWidth || this._getAvailableWidth(container);
-					var numCols = this._calcNumColumns(width, itemCount);
 					var domNode = Polymer.dom(container);
 					var oldClassName = currentColClass(domNode);
+					this._numCols = this._calcNumColumns(width, itemCount);
 
-					if (numCols > 1) {
-						var newClassName = 'columns-' + numCols;
+					if (this._numCols > 1) {
+						var newClassName = 'columns-' + this._numCols;
 
 						if (oldClassName !== newClassName) {
 							if (oldClassName) {
@@ -89,6 +89,8 @@
 							domNode.classList.remove(oldClassName);
 						}
 					}
+
+					this._containerWidth = width;
 				}, this);
 			},
 			// This method will first try to get the available width from the passed in DOM node, but if the
@@ -120,7 +122,8 @@
 					clearTimeout(timeout);
 					timeout = setTimeout(eventHandler, delay);
 				});
-			}
+			},
+			_numCols: 0
 		};
 	})();
 </script>

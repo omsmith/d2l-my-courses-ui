@@ -4,13 +4,11 @@
 <link rel="import" href="../d2l-link/d2l-link.html">
 <link rel="import" href="d2l-my-courses-styles.html">
 <link rel="import" href="d2l-alert.html">
-<link rel="import" href="d2l-course-tile.html">
 <link rel="import" href="d2l-simple-overlay.html">
 <link rel="import" href="d2l-all-courses.html">
-<link rel="import" href="d2l-course-tile-region-behavior.html">
 <link rel="import" href="localize-behavior.html">
-<link rel="import" href="d2l-interaction-detection-behavior.html">
 <link rel="import" href="d2l-course-management-behavior.html">
+<link rel="import" href="d2l-course-tile-grid.html">
 
 <dom-module id="d2l-my-courses">
 	<template>
@@ -27,20 +25,13 @@
 			{{_alertMessage}}
 			<a is="d2l-link"
 				href="Javascript:void(0);"
-				hidden$="[[_hasPinnedCourses]]"
+				hidden$="[[_hasCourses]]"
 				on-tap="refreshPage">{{localize('refresh')}}</a>
 		</d2l-alert>
 
-		<div class="my-courses-container">
-			<template is="dom-repeat" items="[[pinnedCoursesEntities]]">
-				<d2l-course-tile
-					enrollment="[[item]]"
-					hover-enabled="[[_hoverInteractionEnabled]]"
-					touch-enabled="[[_touchInteractionEnabled]]"
-					animate-insertion="[[removeCourseFromTransitionList(item.properties.id)]]">
-				</d2l-course-tile>
-			</template>
-		</div>
+		<d2l-course-tile-grid
+			course-entities="{{pinnedCoursesEntities}}">
+		</d2l-course-tile-grid>
 
 		<button class="all-courses-button"
 			hidden$="{{!_hasCourses}}"
@@ -79,13 +70,13 @@
 				}
 			},
 			behaviors: [
-				Polymer.D2L.MyCourses.CourseTileRegionBehavior,
+				Polymer.D2L.MyCourses.CourseTileResponsiveGridBehavior,
 				Polymer.D2L.MyCourses.LocalizeBehavior,
 				Polymer.D2L.MyCourses.InteractionDetectionBehavior,
 				Polymer.D2L.MyCourses.CourseManagementBehavior
 			],
 			ready: function() {
-				this._alertMessage = this.localize('noPinnedCoursesMessage');
+				this._alertMessage = this.localize('noCoursesMessage');
 
 				var overlay = this.$$('d2l-simple-overlay');
 				var allCourses = this.$$('d2l-all-courses');
@@ -100,11 +91,11 @@
 				if (response.detail.status === 200) {
 					this.setAllCoursesFromSirenResponse(response.detail.xhr.response);
 
-					if (!this._hasCourses) {
-						this._alertMessage = this.localize('noCoursesMessage');
+					if (this._hasCourses) {
+						this._alertMessage = this.localize('noPinnedCoursesMessage');
 					}
 
-					this._rescaleCourseTileRegions();
+					this.$$('d2l-course-tile-grid')._rescaleCourseTileRegions();
 				}
 			},
 			refreshPage: function() {
@@ -120,7 +111,7 @@
 					allCourses._rescaleCourseTileRegions(allCourses._getOverlayWidth());
 				}.bind(this), 50);
 			},
-			get courseTileItemCount() {
+			getCourseTileItemCount: function() {
 				return this.pinnedCoursesEntities.length;
 			}
 		});

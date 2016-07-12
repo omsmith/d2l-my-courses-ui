@@ -134,7 +134,7 @@ describe('smoke test', function() {
 			widget.$.enrollmentsRequest.generateRequest();
 
 			widget.$.enrollmentsRequest.addEventListener('response', function() {
-				expect(widget.courseTileItemCount).to.equal(0);
+				expect(widget.getCourseTileItemCount()).to.equal(0);
 				done();
 			});
 		});
