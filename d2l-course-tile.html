@@ -140,7 +140,8 @@
 
 				var eventName = this._pinned ? 'course-pinned' : 'course-unpinned';
 				this.fire(eventName, {
-					course: this.enrollment
+					enrollment: this.enrollment,
+					organization: this._organization
 				});
 
 				this.pinAnimationInProgress = true;
@@ -249,12 +250,12 @@
 				var tileContainer = this.$$('.tile-container');
 
 				if (e.animationName.includes('scale-and-fade-out')) {
-					this.fire('tile-remove-complete', {course: this.enrollment, pinned: this.pendingPinAction});
+					this.fire('tile-remove-complete', {enrollment: this.enrollment, pinned: this.pendingPinAction});
 				} else if (e.animationName.includes('scale-and-fade-in')) {
 					this.toggleClass('animate-insertion', false, tileContainer);
 					this.toggleClass('animate-insertion', false, this);
 					this.toggleClass('animate-insertion', false, this.$$('.tile-container'));
-					this.fire('tile-insert-complete', {course: this.enrollment, pinned: this.pendingPinAction});
+					this.fire('tile-insert-complete', {enrollment: this.enrollment, pinned: this.pendingPinAction});
 				} else if (e.animationName.includes('tile-pre-insertion')) {
 					this.toggleClass('animate-insertion-pre', false, this);
 					this.toggleClass('animate-insertion', true, tileContainer);

@@ -10,7 +10,7 @@
 		Polymer.D2L = Polymer.D2L || {};
 		Polymer.D2L.MyCourses = Polymer.D2L.MyCourses || {};
 
-		Polymer.D2L.MyCourses.CourseManagementBehavior = {
+		Polymer.D2L.MyCourses.CourseManagementBehaviorImpl = {
 			properties: {
 				pinnedCoursesEntities: {
 					type: Array,
@@ -53,9 +53,6 @@
 					value: false
 				}
 			},
-			behaviors: [
-				Polymer.D2L.MyCourses.UtilityBehavior
-			],
 			listeners: {
 				'course-pinned': '_onCoursePinned',
 				'course-unpinned': '_onCourseUnpinned',
@@ -74,16 +71,16 @@
 				this._announceElement.setAttribute('aria-live', 'polite');
 			},
 			_onCoursePinned: function(e) {
-				this._ariaAnnounce(this.localize('pinActionResult', 'course', e.detail.course.properties.name));
+				this._ariaAnnounce(this.localize('pinActionResult', 'course', e.detail.organization.properties.name));
 			},
 			_onCourseUnpinned: function(e) {
-				this._ariaAnnounce(this.localize('unpinActionResult', 'course', e.detail.course.properties.name));
+				this._ariaAnnounce(this.localize('unpinActionResult', 'course', e.detail.organization.properties.name));
 			},
 			_onTileRemoveComplete: function(e) {
 				if (e.detail.pinned) {
-					this._moveCourseToPinnedList(e.detail.course);
+					this._moveCourseToPinnedList(e.detail.enrollment);
 				} else {
-					this._moveCourseToUnpinnedList(e.detail.course);
+					this._moveCourseToUnpinnedList(e.detail.enrollment);
 				}
 
 				e.stopPropagation();
@@ -163,5 +160,10 @@
 				this._hasPinnedCourses = !newArray.base || newArray.base.length > 0;
 			}
 		};
+
+		Polymer.D2L.MyCourses.CourseManagementBehavior = [
+			Polymer.D2L.MyCourses.CourseManagementBehaviorImpl,
+			Polymer.D2L.MyCourses.UtilityBehavior
+		];
 	})();
 </script>

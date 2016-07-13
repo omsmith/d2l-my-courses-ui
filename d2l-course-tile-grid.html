@@ -244,9 +244,9 @@
 				}
 			},
 			_onCoursePinAction: function(e) {
-				// If a course was (un)pinned from this grid (ie. a course tile had a pin action invoked on it, such that it (should) leave
-				// this grid, then we need to slide other tiles in to fill its place
-				var modifiedEnrollmentId = this._getEnrollmentIdentifier(e.detail.course);
+				// If an enrollment was (un)pinned from this grid (ie. a course tile had a pin action invoked on it, such that it (should) leave
+				// this grid), then we need to slide other tiles in to fill its place
+				var modifiedEnrollmentId = this._getEnrollmentIdentifier(e.detail.enrollment);
 
 				for (var i = 0; i < this.courseEntities.length; i++) {
 					var enrollmentId = this._getEnrollmentIdentifier(this.courseEntities[i]);
@@ -341,11 +341,11 @@
 				if (courseTile._pinned) {
 					Polymer.dom(pinTouchMenuItem).setAttribute('text', this.localize('unpin'));
 					Polymer.dom(pinTouchMenuItem).setAttribute('background-image', 'd2l-tier1:pin-hollow');
-					// Polymer.dom(pinTouchMenuItem).setAttribute('action-description', this.localize('unpinCourse', 'course', courseTile._enrollmentEntity.properties.name));
+					Polymer.dom(pinTouchMenuItem).setAttribute('action-description', this.localize('unpinCourse', 'course', courseTile._organization.properties.name));
 				} else {
 					Polymer.dom(pinTouchMenuItem).setAttribute('text', this.localize('pin'));
 					Polymer.dom(pinTouchMenuItem).setAttribute('background-image', 'd2l-tier1:pin-filled');
-					// Polymer.dom(pinTouchMenuItem).setAttribute('action-description', this.localize('pinCourse', 'course', courseTile._enrollmentEntity.properties.name));
+					Polymer.dom(pinTouchMenuItem).setAttribute('action-description', this.localize('pinCourse', 'course', courseTile._organization.properties.name));
 				}
 
 				e.detail.element._onUnpinHover(e);

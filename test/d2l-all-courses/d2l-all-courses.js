@@ -5,11 +5,6 @@
 describe('smoke test', function() {
 	var server,
 		widget,
-		courseEntity = {
-			properties: {
-				name: 'Test Name'
-			}
-		},
 		organization = {
 			class: ['active', 'course-offering'],
 			properties: {
@@ -46,7 +41,7 @@ describe('smoke test', function() {
 		server.respondImmediately = true;
 		server.respondWith(
 			'GET',
-			'/organizations/1?embedDepth=1',
+			/\/organizations\/1\?embedDepth=1/,
 			[200, {}, JSON.stringify(organization)]);
 
 		widget = fixture('d2l-all-courses-fixture');
@@ -61,24 +56,24 @@ describe('smoke test', function() {
 	});
 
 	describe('A11Y', function() {
-		it('should announce when course is pinned', function() {
+		it('should announce when enrollment is pinned', function() {
 			var event = new CustomEvent('course-pinned', {
 				detail: {
-					course: courseEntity
+					organization: organization
 				}
 			});
 			widget.dispatchEvent(event);
-			expect(widget.ariaMessage).to.equal(courseEntity.properties.name + ' has been pinned');
+			expect(widget.ariaMessage).to.equal(organization.properties.name + ' has been pinned');
 		});
 
-		it('should announce when course is unpinned', function() {
+		it('should announce when enrollment is unpinned', function() {
 			var event = new CustomEvent('course-unpinned', {
 				detail: {
-					course: courseEntity
+					organization: organization
 				}
 			});
 			widget.dispatchEvent(event);
-			expect(widget.ariaMessage).to.equal(courseEntity.properties.name + ' has been unpinned');
+			expect(widget.ariaMessage).to.equal(organization.properties.name + ' has been unpinned');
 		});
 	});
 });

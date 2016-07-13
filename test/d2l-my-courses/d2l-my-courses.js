@@ -91,10 +91,35 @@ describe('smoke test', function() {
 				href: searchHref
 			}]
 		},
-		courseEntity = {
+		organization = {
+			class: ['active', 'course-offering'],
 			properties: {
-				name: 'Test Name'
-			}
+				name: 'Course name',
+				code: 'COURSE100'
+			},
+			links: [{
+				rel: ['self'],
+				href: '/organizations/1'
+			}, {
+				rel: ['https://api.brightspace.com/rels/organization-homepage'],
+				href: 'http://example.com/1/home',
+				type: 'text/html'
+			}],
+			entities: [{
+				class: ['course-image'],
+				propeties: {
+					name: '1.jpg',
+					type: 'image/jpeg'
+				},
+				rel: ['https://api.brightspace.com/rels/organization-image'],
+				links: [{
+					rel: ['self'],
+					href: '/organizations/1/image'
+				}, {
+					rel: ['alternate'],
+					href: ''
+				}]
+			}]
 		};
 
 	beforeEach(function() {
@@ -213,24 +238,24 @@ describe('smoke test', function() {
 	});
 
 	describe('A11Y', function() {
-		it('should announce when course is pinned', function() {
+		it('should announce when enrollment is pinned', function() {
 			var event = new CustomEvent('course-pinned', {
 				detail: {
-					course: courseEntity
+					organization: organization
 				}
 			});
 			widget.dispatchEvent(event);
-			expect(widget.ariaMessage).to.equal(courseEntity.properties.name + ' has been pinned');
+			expect(widget.ariaMessage).to.equal(organization.properties.name + ' has been pinned');
 		});
 
-		it('should announce when course is unpinned', function() {
+		it('should announce when enrollment is unpinned', function() {
 			var event = new CustomEvent('course-unpinned', {
 				detail: {
-					course: courseEntity
+					organization: organization
 				}
 			});
 			widget.dispatchEvent(event);
-			expect(widget.ariaMessage).to.equal(courseEntity.properties.name + ' has been unpinned');
+			expect(widget.ariaMessage).to.equal(organization.properties.name + ' has been unpinned');
 		});
 	});
 
