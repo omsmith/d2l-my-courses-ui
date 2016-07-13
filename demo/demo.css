@@ -7,3 +7,7 @@
 	overflow: hidden;
 	position: fixed;
 }
+
+.d2l-hidden {
+	display: none !important;
+}

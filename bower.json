@@ -41,7 +41,8 @@
     "d2l-offscreen": "^2.1.0",
     "d2l-colors": "^2.0.0",
     "d2l-typography": "^4.0.0",
-    "d2l-link": "^3.0.0"
+    "d2l-link": "^3.0.0",
+    "d2l-loading-spinner": "^3.0.1"
   },
   "devDependencies": {
     "web-component-tester": "^4.2.2"
