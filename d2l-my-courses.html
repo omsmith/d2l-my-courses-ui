@@ -15,10 +15,17 @@
 		<style include="d2l-my-courses-styles"></style>
 
 		<d2l-ajax
-			id="enrollmentsRequest"
+			id="enrollmentsRootRequest"
 			url="[[enrollmentsUrl]]"
 			headers='{ "Accept": "application/vnd.siren+json" }'
-			on-response="onEnrollmentsResponse">
+			on-response="onEnrollmentsRootResponse">
+		</d2l-ajax>
+
+		<d2l-ajax
+			id="enrollmentsSearchRequest"
+			url="[[_enrollmentsSearchUrl]]"
+			headers='{ "Accept": "application/vnd.siren+json" }'
+			on-response="onEnrollmentsSearchResponse">
 		</d2l-ajax>
 
 		<d2l-alert visible="[[!_hasPinnedCourses]]">
@@ -84,12 +91,61 @@
 			},
 			attached: function() {
 				if (!this.delayLoad) {
-					this.$.enrollmentsRequest.generateRequest();
+					// TODO: Remove this override once the LMS is updated
+					this.enrollmentsUrl = '/d2l/api/hm/enrollments';
+					this.$.enrollmentsRootRequest.generateRequest();
 				}
 			},
-			onEnrollmentsResponse: function(response) {
+			onEnrollmentsRootResponse: function(response) {
 				if (response.detail.status === 200) {
-					this.setAllCoursesFromSirenResponse(response.detail.xhr.response);
+					var parser = document.createElement('d2l-siren-parser');
+					var enrollmentsRoot = parser.parse(response.detail.xhr.response);
+
+					if (!enrollmentsRoot.hasAction('search-my-enrollments')) {
+						return;
+					}
+
+					var searchAction = enrollmentsRoot.getActionByName('search-my-enrollments');
+					this._enrollmentsSearchUrl = searchAction.href + '?';
+
+					var query = {};
+					if (searchAction.hasFieldByName('pageSize')) {
+						query.pageSize = 20;
+					}
+					if (searchAction.hasFieldByName('embedDepth')) {
+						query.embedDepth = 1;
+					}
+					var queryString = Object.keys(query).map(function(key) {
+						return key + '=' + query[key];
+					}).join('&');
+
+					this._enrollmentsSearchUrl += queryString;
+
+					this.$.enrollmentsSearchRequest.generateRequest();
+				}
+			},
+			onEnrollmentsSearchResponse: function(response) {
+				if (response.detail.status === 200) {
+					var parser = document.createElement('d2l-siren-parser');
+					var enrollments = parser.parse(response.detail.xhr.response);
+					var enrollmentEntities = enrollments.getSubEntitiesByClass('enrollment');
+
+					var pinnedEnrollments = [];
+					var unpinnedEnrollments = [];
+
+					enrollmentEntities.forEach(function(enrollment) {
+						if (enrollment.hasClass('pinned')) {
+							pinnedEnrollments.push(enrollment);
+						} else {
+							unpinnedEnrollments.push(enrollment);
+						}
+					});
+
+					this.set('pinnedCoursesEntities', pinnedEnrollments);
+					this.set('unpinnedCoursesEntities', unpinnedEnrollments);
+
+					this._hasPinnedCourses = this.pinnedCoursesEntities.length > 0;
+					this._hasCourses = this._hasPinnedCourses || this.unpinnedCoursesEntities.length > 0;
 
 					if (this._hasCourses) {
 						this._alertMessage = this.localize('noPinnedCoursesMessage');

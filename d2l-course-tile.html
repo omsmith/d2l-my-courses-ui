@@ -13,17 +13,26 @@
 		<style include="d2l-course-tile-styles"></style>
 
 		<d2l-ajax
-			url="[[_updatePreferencesUrl]]"
-			method="[[_updatePreferencesMethod]]"
-			body="[[_updatePreferencesBody]]"
-			headers='{ "Accept": "application/vnd.siren+json", "Content-Type": "application/json" }'
-			on-response="updatePreferencesOnResponse"
-			on-error="updatePreferencesOnError"></d2l-ajax>
+			id="organizationRequest"
+			url="[[_organizationUrl]]"
+			headers='{ "Accept": "application/vnd.siren+json" }'
+			on-response="onOrganizationResponse">
+		</d2l-ajax>
+
+		<d2l-ajax
+			id="enrollmentPinRequest"
+			url="[[_enrollmentPinUrl]]"
+			method="[[_enrollmentPinMethod]]"
+			body="[[_enrollmentPinBody]]"
+			headers='{ "Accept": "application/vnd.siren+json", "Content-Type": "application/x-www-form-urlencoded" }'
+			on-response="onEnrollmentPinResponse"
+			on-error="onEnrollmentPinError">
+		</d2l-ajax>
 
 		<div class="tile-container"
 			on-mouseover="hoverCourseTile"
 			on-mouseout="onTileMouseOut">
-			<a href="[[_courseUrl]]" class="no-tap-interaction"
+			<a href="[[_organizationHomepageUrl]]" class="no-tap-interaction"
 				on-focus="hoverCourseTile"
 				on-blur="unhoverCourseTile">
 				<div class="course-image-container">
@@ -31,7 +40,7 @@
 						<img aria-hidden="true" />
 					</div>
 				</div>
-				<div class="course-text d2l-heading-4">{{_enrollmentEntity.properties.name}}</div>
+				<div class="course-text d2l-heading-4">{{_organization.properties.name}}</div>
 			</a>
 
 			<div class="hover-menu no-tap-interaction">
@@ -43,10 +52,10 @@
 					on-mouseout="unhoverPinMenuItem">
 					<iron-icon class="menu-icon" icon="d2l-tier1:pin-filled" aria-hidden="true"></iron-icon>
 					<span class="menu-text pin"
-						aria-label$="[[localize('pinCourse', 'course', _enrollmentEntity.properties.name)]]"
+						aria-label$="[[localize('pinCourse', 'course', _organization.properties.name)]]"
 						>{{localize('pin')}}</span>
 					<span class="menu-text unpin"
-						aria-label$="[[localize('unpinCourse', 'course', _enrollmentEntity.properties.name)]]"
+						aria-label$="[[localize('unpinCourse', 'course', _organization.properties.name)]]"
 						>{{localize('unpin')}}</span>
 				</button>
 			</div>
@@ -75,28 +84,18 @@
 				courseId: {
 					type: Number
 				},
-				_enrollmentEntity: {
-					type: Object,
-					observer: '_enrollmentEntityChanged'
+				_organization: {
+					type: Object
 				},
-				_courseUrl: {
+				_organizationUrl: {
+					type: String
+				},
+				_organizationHomepageUrl: {
 					type: String
 				},
 				_pinned: {
 					type: Boolean,
 					observer: '_pinnedChanged'
-				},
-				_updatePreferencesUrl: {
-					type: String
-				},
-				_updatePreferencesMethod: {
-					type: String
-				},
-				_updatePreferencesFields: {
-					type: String
-				},
-				_updatePreferencesBody: {
-					type: String
 				}
 			},
 			behaviors: [
@@ -113,20 +112,6 @@
 					this.toggleClass('animate-insertion-pre', true, this);
 				}
 			},
-			updatePreferencesOnResponse: function(response) {
-				if (response.detail.status === 200) {
-					var parser = document.createElement('d2l-siren-parser');
-					var preferencesEntity = parser.parse(response.detail.xhr.response);
-					this._pinned = preferencesEntity.properties.hasOwnProperty('pinDate');
-				} else {
-					this._pinned = this._enrollmentEntity.getSubEntitiesByRel('preferences')[0].properties.hasOwnProperty('pinDate');
-				}
-			},
-			updatePreferencesOnError: function(error) {
-				error.preventDefault();
-				error.stopPropagation();
-				this._pinned = this._enrollmentEntity.getSubEntitiesByRel('preferences')[0].properties.hasOwnProperty('pinDate');
-			},
 			hoverPinClickHandler: function(e) {
 				// Prevent the click from triggering navigation to the course
 				e.preventDefault();
@@ -134,22 +119,29 @@
 				this._pinClickHandler(false);
 			},
 			_pinClickHandler: function(isTouch) {
+				var pinAction = this._pinned ? this.enrollment.getActionByName('unpin-course') : this.enrollment.getActionByName('pin-course');
+
+				this._enrollmentPinMethod = pinAction.method;
+				this._enrollmentPinUrl = pinAction.href;
+
+				// This value is purely for UI responsiveness - if the request fails, this value will be set back to
+				// the previous value in the error handler; if the request succeeds, we also set it in the response
+				// handler (to this same value), but that could take a few hundred ms, so do it before the request too.
 				this._pinned = !this._pinned;
 
-				var updatePreferences = this.$$('d2l-ajax');
-
-				var updatePreferencesBody = {};
-				this._updatePreferencesFields.forEach(function(field) {
-					updatePreferencesBody[field.name] = field.value;
+				var body = {};
+				var fields = pinAction.fields || [];
+				fields.forEach(function(field) {
+					body[field.name] = field.value;
 				});
-				updatePreferencesBody.pinned = this._pinned;
-				this._updatePreferencesBody = JSON.stringify(updatePreferencesBody);
+				this._enrollmentPinBody = body;
 
-				updatePreferences.generateRequest();
+				this.$.enrollmentPinRequest.generateRequest();
 
 				var eventName = this._pinned ? 'course-pinned' : 'course-unpinned';
 				this.fire(eventName, {
-					course: this._enrollmentEntity
+					enrollment: this.enrollment,
+					organization: this._organization
 				});
 
 				this.pinAnimationInProgress = true;
@@ -193,26 +185,51 @@
 			},
 			_enrollmentChanged: function(enrollment) {
 				var parser = document.createElement('d2l-siren-parser');
-				this._enrollmentEntity = parser.parse(enrollment);
+				// Only in tests is this strictly required; in normal operation, it's (nearly) a no-op
+				var enrollmentEntity = parser.parse(enrollment);
+
+				// Need to no-op the observer (then set it back) so we avoid infinite loop when setting this.enrollment
+				var observer = this._enrollmentChanged;
+				this._enrollmentChanged = function() {};
+				this.enrollment = enrollmentEntity;
+				this._enrollmentChanged = observer;
+
+				this._pinned = enrollmentEntity.hasClass('pinned');
+
+				// The enrollment is updated (i.e. this handler is called) upon a pin/unpin response as well, but
+				// there's no need to update the organization in that case
+				if (!this._organization) {
+					var organizationLink = enrollmentEntity.getLinkByRel('https://api.brightspace.com/rels/organization');
+					this._organizationUrl = organizationLink.href + '?embedDepth=1';
+					this.$.organizationRequest.generateRequest();
+				}
 			},
-			_enrollmentEntityChanged: function(entity) {
-				if (entity.hasLink('course-image')) {
-					var courseImageLink = entity.getLinkByRel('course-image');
-					var courseImage = this.$$('.course-image img');
-					Polymer.dom(courseImage).setAttribute('src', courseImageLink.href);
+			onOrganizationResponse: function(response) {
+				if (response.detail.status === 200) {
+					var parser = document.createElement('d2l-siren-parser');
+					var organization = parser.parse(response.detail.xhr.response);
+
+					var courseImageEntity = organization.getSubEntityByClass('course-image');
+					if (courseImageEntity) {
+						var courseImageLink = courseImageEntity.getLinkByRel('alternate');
+						var courseImage = this.$$('.course-image img');
+						Polymer.dom(courseImage).setAttribute('src', courseImageLink.href);
+					}
+
+					this._organization = organization;
+					this._organizationHomepageUrl = organization.getLinkByRel('https://api.brightspace.com/rels/organization-homepage').href;
 				}
-
-				this._courseUrl = '/d2l/home/' + entity.properties.id;
-
-				var preferencesEntity = entity.getSubEntitiesByRel('preferences')[0];
-				this._pinned = preferencesEntity.hasClass('pinned');
-
-				var updatePreferencesAction = preferencesEntity.getActionByName('update');
-				if (updatePreferencesAction) {
-					this._updatePreferencesUrl = updatePreferencesAction.href;
-					this._updatePreferencesMethod = updatePreferencesAction.method;
-					this._updatePreferencesFields = updatePreferencesAction.fields;
+			},
+			onEnrollmentPinResponse: function(response) {
+				if (response.detail.status === 200) {
+					// The pin action returns the updated enrollment, so update this.enrollment with the modified one
+					var parser = document.createElement('d2l-siren-parser');
+					this.enrollment = parser.parse(response.detail.xhr.response);
 				}
+			},
+			onEnrollmentPinError: function() {
+				// Just revert back to whatever pin state we already had stored
+				this._pinned = this.enrollment.hasClass('pinned');
 			},
 			_pinnedChanged: function(pinned) {
 				var pinIcon = this.$$('.menu-item iron-icon.menu-icon'),
@@ -233,12 +250,12 @@
 				var tileContainer = this.$$('.tile-container');
 
 				if (e.animationName.includes('scale-and-fade-out')) {
-					this.fire('tile-remove-complete', {course: this._enrollmentEntity, pinned: this.pendingPinAction});
+					this.fire('tile-remove-complete', {enrollment: this.enrollment, pinned: this.pendingPinAction});
 				} else if (e.animationName.includes('scale-and-fade-in')) {
 					this.toggleClass('animate-insertion', false, tileContainer);
 					this.toggleClass('animate-insertion', false, this);
 					this.toggleClass('animate-insertion', false, this.$$('.tile-container'));
-					this.fire('tile-insert-complete', {course: this._enrollmentEntity, pinned: this.pendingPinAction});
+					this.fire('tile-insert-complete', {enrollment: this.enrollment, pinned: this.pendingPinAction});
 				} else if (e.animationName.includes('tile-pre-insertion')) {
 					this.toggleClass('animate-insertion-pre', false, this);
 					this.toggleClass('animate-insertion', true, tileContainer);

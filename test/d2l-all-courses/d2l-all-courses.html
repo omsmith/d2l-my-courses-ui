@@ -13,69 +13,47 @@
 			<template>
 				<d2l-all-courses
 					pinned-courses-entities='[{
-							"class": ["course-offering", "active"],
-							"rel": ["enrollment"],
-							"entities": [{
-								"rel": ["preferences"],
-								"class": [
-									"preferences",
-									"pinned"
-								],
-								"properties": {
-									"pinDate": "2016-06-18T16:36:05Z"
-								}
-							}],
-							"properties": {
-								"name": "Course 2",
-								"id": 2
-							},
-							"links": []
+						"class": ["pinned", "enrollment"],
+						"rel": ["https://api.brightspace.com/rels/user-enrollment"],
+						"actions": [{
+							"name": "unpin-course",
+							"method": "PUT",
+							"href": "/enrollments/users/169/organizations/1",
+							"fields": [{
+								"name": "pinned",
+								"type": "hidden",
+								"value": false
+							}]
+						}],
+						"links": [{
+							"rel": ["https://api.brightspace.com/rels/organization"],
+							"href": "/organizations/1"
 						}, {
-							"class": ["course-offering", "active"],
-							"rel": ["enrollment"],
-							"entities": [{
-								"rel": ["preferences"],
-								"class": [
-									"preferences",
-									"pinned"
-								],
-								"properties": {
-									"pinDate": "2016-06-18T16:35:05Z"
-								}
-							}],
-							"properties": {
-								"name": "Course 4",
-								"id": 4
-							},
-							"links": []
-						}]'
+							"rel": ["self"],
+							"href": "/enrollments/users/169/organizations/1"
+						}]
+					}]'
 					unpinned-courses-entities='[{
-							"class": ["course-offering", "active"],
-							"rel": ["enrollment"],
-							"entities": [{
-								"rel": ["preferences"],
-								"class": [],
-								"properties": { }
-							}],
-							"properties": {
-								"name": "Course 1",
-								"id": 1
-							},
-							"links": []
+						"class": ["unpinned", "enrollment"],
+						"rel": ["https://api.brightspace.com/rels/user-enrollment"],
+						"actions": [{
+							"name": "pin-course",
+							"method": "PUT",
+							"href": "/enrollments/users/169/organizations/1",
+							"fields": [{
+								"name": "pinned",
+								"type": "hidden",
+								"value": true
+							}]
+						}],
+						"links": [{
+							"rel": ["https://api.brightspace.com/rels/organization"],
+							"href": "/organizations/1"
 						}, {
-							"class": ["course-offering", "active"],
-							"rel": ["enrollment"],
-							"entities": [{
-								"rel": ["preferences"],
-								"class": [],
-								"properties": { }
-							}],
-							"properties": {
-								"name": "Course 3",
-								"id": 3
-							},
-							"links": []
-						}]'>
+							"rel": ["self"],
+							"href": "/enrollments/users/169/organizations/1"
+						}]
+					}]'>
 				</d2l-all-courses>
 			</template>
 		</test-fixture>

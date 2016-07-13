@@ -5,106 +5,121 @@
 describe('smoke test', function() {
 	var server,
 		widget,
-		emptyResponse = {
-			headers: { },
-			body: {
-				class: ['enrollments'],
-				rel: ['enrollments'],
-				links: [],
-				actions: [],
-				properties: {},
-				entities: []
-			}
-		},
-		enrollmentsResponseInactiveCourse = {
-			headers: { },
-			body: {
-				class: ['enrollments'],
-				rel: ['enrollments'],
-				links: [],
-				actions: [],
-				properties: {},
-				entities: [{
-					class: ['course-offering', 'inactive'],
-					rel: ['enrollment'],
-					properties: {
-						name: 'Test Name',
-						id: 'TestName'
-					},
-					links: [],
-					actions: [],
-					entities: [{
-						rel: ['preferences'],
-						actions: []
-					}]
-				}]
-			}
-		},
-		enrollmentsResponseWithOrgOnly = {
-			headers: { },
-			body: {
-				class: ['enrollments'],
-				rel: ['enrollments'],
-				links: [],
-				actions: [],
-				properties: {},
-				entities: [{
-					class: ['organization'],
-					rel: ['enrollment'],
-					properties: {
-						name: 'Test Name',
-						id: 'TestName'
-					},
-					links: [],
-					actions: [],
-					entities: [{
-						rel: ['preferences'],
-						actions: []
-					}]
-				}]
-			}
-		},
-		enrollmentsResponseWithCourse = {
-			headers: { },
-			body: {
-				class: ['enrollments'],
-				rel: ['enrollments'],
-				links: [],
-				actions: [],
-				properties: {},
-				entities: [{
-					class: ['organization'],
-					rel: ['enrollment'],
-					properties: {
-						name: 'Test Name',
-						id: 'TestName'
-					},
-					links: [],
-					actions: [],
-					entities: [{
-						rel: ['preferences'],
-						actions: []
-					}]
+		// Using relative URLs here so that d2l-ajax just uses cookies (no need to mock the token fetching this way)
+		rootHref = '/enrollments',
+		searchHref = '/enrollments/users/169',
+		searchQuery = '?pageSize=20&embedDepth=1',
+		enrollmentsRootResponse = {
+			class: ['enrollments', 'root'],
+			actions: [{
+				name: 'search-my-enrollments',
+				method: 'GET',
+				href: searchHref,
+				fields: [{
+					name: 'search',
+					type: 'search',
+					value: ''
 				}, {
-					class: ['course-offering', 'active'],
-					rel: ['enrollment'],
-					properties: {
-						name: 'Test Name',
-						id: 'TestName'
-					},
-					links: [],
-					actions: [],
-					entities: [{
-						rel: ['preferences'],
-						actions: []
-					}]
+					name: 'pageSize',
+					type: 'number',
+					value: 20
+				}, {
+					name: 'embedDepth',
+					type: 'number',
+					value: 0
 				}]
-			}
+			}],
+			links: [{
+				rel: ['self'],
+				href: rootHref
+			}]
 		},
-		courseEntity = {
+		enrollmentsSearchResponse = {
+			entities: [{
+				class: ['pinned', 'enrollment'],
+				rel: ['https://api.brightspace.com/rels/user-enrollment'],
+				actions: [{
+					name: 'unpin-course',
+					method: 'PUT',
+					href: '/enrollments/users/169/organizations/1',
+					fields: [{
+						name: 'pinned',
+						type: 'hidden',
+						value: false
+					}]
+				}],
+				links: [{
+					rel: ['https://api.brightspace.com/rels/organization'],
+					href: '/organizations/1'
+				}, {
+					rel: ['self'],
+					href: '/enrollments/users/169/organizations/1'
+				}]
+			}],
+			links: [{
+				rel: ['self'],
+				href: searchHref
+			}]
+		},
+		noEnrollmentsResponse = {
+			entities: []
+		},
+		noPinnedEnrollmentsResponse = {
+			entities: [{
+				class: ['unpinned', 'enrollment'],
+				rel: ['https://api.brightspace.com/rels/user-enrollment'],
+				actions: [{
+					name: 'pin-course',
+					method: 'PUT',
+					href: '/enrollments/users/169/organizations/1',
+					fields: [{
+						name: 'pinned',
+						type: 'hidden',
+						value: true
+					}]
+				}],
+				links: [{
+					rel: ['https://api.brightspace.com/rels/organization'],
+					href: '/organizations/1'
+				}, {
+					rel: ['self'],
+					href: '/enrollments/users/169/organizations/1'
+				}]
+			}],
+			links: [{
+				rel: ['self'],
+				href: searchHref
+			}]
+		},
+		organization = {
+			class: ['active', 'course-offering'],
 			properties: {
-				name: 'Test Name'
-			}
+				name: 'Course name',
+				code: 'COURSE100'
+			},
+			links: [{
+				rel: ['self'],
+				href: '/organizations/1'
+			}, {
+				rel: ['https://api.brightspace.com/rels/organization-homepage'],
+				href: 'http://example.com/1/home',
+				type: 'text/html'
+			}],
+			entities: [{
+				class: ['course-image'],
+				propeties: {
+					name: '1.jpg',
+					type: 'image/jpeg'
+				},
+				rel: ['https://api.brightspace.com/rels/organization-image'],
+				links: [{
+					rel: ['self'],
+					href: '/organizations/1/image'
+				}, {
+					rel: ['alternate'],
+					href: ''
+				}]
+			}]
 		};
 
 	beforeEach(function() {
@@ -122,49 +137,51 @@ describe('smoke test', function() {
 		expect(widget).to.exist;
 	});
 
-	describe('Inactive courses', function() {
-		it('should not display inactive courses', function(done) {
+	describe('Enrollments requests', function() {
+		it('should not send a search request if the root request fails', function(done) {
 			server.respondWith(
 				'GET',
 				widget.enrollmentsUrl,
 				function(req) {
-					req.respond(200, enrollmentsResponseInactiveCourse.headers, JSON.stringify(enrollmentsResponseInactiveCourse.body));
+					expect(req.requestHeaders['accept']).to.equal('application/vnd.siren+json');
+					req.respond(404, {}, '');
 				});
 
-			widget.$.enrollmentsRequest.generateRequest();
+			var enrollmentsSearchSpy = sinon.spy(widget.$.enrollmentsSearchRequest, 'generateRequest');
 
-			widget.$.enrollmentsRequest.addEventListener('response', function() {
-				expect(widget.getCourseTileItemCount()).to.equal(0);
+			widget.$.enrollmentsRootRequest.generateRequest();
+
+			widget.$.enrollmentsRootRequest.addEventListener('error', function() {
+				expect(enrollmentsSearchSpy.callCount === 0);
+				widget.$.enrollmentsSearchRequest.generateRequest.restore();
 				done();
 			});
 		});
-	});
 
-	describe('Enrollments requests', function() {
-		it('should send a request for all courses', function(done) {
+		it('should send a search request for enrollments', function(done) {
 			server.respondWith(
 				'GET',
 				widget.enrollmentsUrl,
 				function(req) {
 					expect(req.requestHeaders['accept']).to.equal('application/vnd.siren+json');
-					req.respond(200, emptyResponse.headers, JSON.stringify(emptyResponse.body));
+					req.respond(200, {}, JSON.stringify(enrollmentsRootResponse));
 				});
 
 			server.respondWith(
 				'GET',
-				widget.enrollmentsUrl,
+				searchHref + searchQuery,
 				function(req) {
 					expect(req.requestHeaders['accept']).to.equal('application/vnd.siren+json');
-					req.respond(200, emptyResponse.headers, JSON.stringify(emptyResponse.body));
+					req.respond(200, {}, JSON.stringify(enrollmentsSearchResponse));
 				});
 
-			var allCoursesResponseSpy =  sinon.spy(widget, 'onEnrollmentsResponse');
+			var enrollmentsSearchSpy = sinon.spy(widget, 'onEnrollmentsSearchResponse');
 
-			widget.$.enrollmentsRequest.generateRequest();
+			widget.$.enrollmentsRootRequest.generateRequest();
 
-			widget.$.enrollmentsRequest.addEventListener('response', function() {
-				expect(allCoursesResponseSpy.called);
-				widget.onEnrollmentsResponse.restore();
+			widget.$.enrollmentsSearchRequest.addEventListener('response', function() {
+				expect(enrollmentsSearchSpy.called);
+				widget.onEnrollmentsSearchResponse.restore();
 				done();
 			});
 		});
@@ -176,19 +193,19 @@ describe('smoke test', function() {
 				'GET',
 				widget.enrollmentsUrl,
 				function(req) {
-					req.respond(200, emptyResponse.headers, JSON.stringify(emptyResponse.body));
+					req.respond(200, {}, JSON.stringify(enrollmentsRootResponse));
 				});
 
 			server.respondWith(
 				'GET',
-				widget.enrollmentsUrl,
+				searchHref + searchQuery,
 				function(req) {
-					req.respond(200, enrollmentsResponseWithOrgOnly.headers, JSON.stringify(enrollmentsResponseWithOrgOnly.body));
+					req.respond(200, {}, JSON.stringify(noEnrollmentsResponse));
 				});
 
-			widget.$.enrollmentsRequest.generateRequest();
+			widget.$.enrollmentsRootRequest.generateRequest();
 
-			widget.$.enrollmentsRequest.addEventListener('response', function() {
+			widget.$.enrollmentsSearchRequest.addEventListener('response', function() {
 				expect(widget._hasCourses).to.equal(false);
 				expect(widget._alertMessage).to.equal('Your courses aren\'t quite ready. Please check back soon.');
 				done();
@@ -200,19 +217,19 @@ describe('smoke test', function() {
 				'GET',
 				widget.enrollmentsUrl,
 				function(req) {
-					req.respond(200, emptyResponse.headers, JSON.stringify(emptyResponse.body));
+					req.respond(200, {}, JSON.stringify(enrollmentsRootResponse));
 				});
 
 			server.respondWith(
 				'GET',
-				widget.enrollmentsUrl,
+				searchHref + searchQuery,
 				function(req) {
-					req.respond(200, enrollmentsResponseWithCourse.headers, JSON.stringify(enrollmentsResponseWithCourse.body));
+					req.respond(200, {}, JSON.stringify(noPinnedEnrollmentsResponse));
 				});
 
-			widget.$.enrollmentsRequest.generateRequest();
+			widget.$.enrollmentsRootRequest.generateRequest();
 
-			widget.$.enrollmentsRequest.addEventListener('response', function() {
+			widget.$.enrollmentsSearchRequest.addEventListener('response', function() {
 				expect(widget._hasCourses).to.equal(true);
 				expect(widget._alertMessage).to.equal('You don\'t have any pinned courses. Pin your favorite courses to make them easier to find.');
 				done();
@@ -221,24 +238,24 @@ describe('smoke test', function() {
 	});
 
 	describe('A11Y', function() {
-		it('should announce when course is pinned', function() {
+		it('should announce when enrollment is pinned', function() {
 			var event = new CustomEvent('course-pinned', {
 				detail: {
-					course: courseEntity
+					organization: organization
 				}
 			});
 			widget.dispatchEvent(event);
-			expect(widget.ariaMessage).to.equal(courseEntity.properties.name + ' has been pinned');
+			expect(widget.ariaMessage).to.equal(organization.properties.name + ' has been pinned');
 		});
 
-		it('should announce when course is unpinned', function() {
+		it('should announce when enrollment is unpinned', function() {
 			var event = new CustomEvent('course-unpinned', {
 				detail: {
-					course: courseEntity
+					organization: organization
 				}
 			});
 			widget.dispatchEvent(event);
-			expect(widget.ariaMessage).to.equal(courseEntity.properties.name + ' has been unpinned');
+			expect(widget.ariaMessage).to.equal(organization.properties.name + ' has been unpinned');
 		});
 	});
 
