@@ -31,121 +31,123 @@
 		</div>
 	</template>
 	<script>
-	Polymer({
-		is: 'd2l-simple-overlay',
-		behaviors: [
-			Polymer.IronOverlayBehavior,
-			Polymer.NeonAnimationRunnerBehavior,
-			Polymer.D2L.MyCourses.LocalizeBehavior
-		],
-		listeners: {
-			'neon-animation-finish': '_onNeonAnimationFinish'
-		},
-		properties: {
-			title: {
-				type: String
+		'use strict';
+
+		Polymer({
+			is: 'd2l-simple-overlay',
+			behaviors: [
+				Polymer.IronOverlayBehavior,
+				Polymer.NeonAnimationRunnerBehavior,
+				Polymer.D2L.MyCourses.LocalizeBehavior
+			],
+			listeners: {
+				'neon-animation-finish': '_onNeonAnimationFinish'
 			},
-			animationConfig: {
-				value: function() {
-					return {
-						'mobileOpen': {
-							name: 'slide-from-bottom-animation',
-							node: this
-						},
-						'mobileClose': {
-							name: 'slide-down-animation',
-							node: this
-						},
-						'desktopOpen': [{
-							name: 'transform-animation',
-							transformFrom: 'scale(.95) translateY(-100px)',
-							transformTo: 'scale(1) translateY(0)',
-							node: this
-						}, {
-							name: 'fade-in-animation',
-							node: this
-						}],
-						'desktopClose': [{
-							name: 'transform-animation',
-							transformFrom: 'scale(1) translateY(0)',
-							transformTo: 'scale(.95) translateY(-100px)',
-							node: this
-						}, {
-							name: 'fade-out-animation',
-							node: this
-						}]
-					};
+			properties: {
+				title: {
+					type: String
+				},
+				animationConfig: {
+					value: function() {
+						return {
+							'mobileOpen': {
+								name: 'slide-from-bottom-animation',
+								node: this
+							},
+							'mobileClose': {
+								name: 'slide-down-animation',
+								node: this
+							},
+							'desktopOpen': [{
+								name: 'transform-animation',
+								transformFrom: 'scale(.95) translateY(-100px)',
+								transformTo: 'scale(1) translateY(0)',
+								node: this
+							}, {
+								name: 'fade-in-animation',
+								node: this
+							}],
+							'desktopClose': [{
+								name: 'transform-animation',
+								transformFrom: 'scale(1) translateY(0)',
+								transformTo: 'scale(.95) translateY(-100px)',
+								node: this
+							}, {
+								name: 'fade-out-animation',
+								node: this
+							}]
+						};
+					}
+				},
+				focusableNodesOverride: {
+					type: Object,
+					value: null
+				},
+				_viewportContent: {
+					type: String
+				},
+				_restoreViewportContent: {
+					type: Boolean
 				}
 			},
-			focusableNodesOverride: {
-				type: Object,
-				value: null
+			created: function() {
+				this._updateBackdropStyle();
 			},
-			_viewportContent: {
-				type: String
+			handleClose: function() {
+				this.close();
 			},
-			_restoreViewportContent: {
-				type: Boolean
+			_isMobile: function() {
+				var width = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
+				return width < 768;
+			},
+			_updateBackdropStyle: function() {
+				var style = document.createElement('style', 'custom-style');
+				style.innerHTML = 'iron-overlay-backdrop { --iron-overlay-backdrop-opacity: 0.0; }';
+				document.body.appendChild(style);
+			},
+			_renderOpened: function() {
+				this.cancelAnimation();
+
+				this._onNodesChange();
+				Polymer.dom(this.root).querySelector('.scrollable').scrollTop = 0;
+
+				if (this._isMobile()) {
+					this.playAnimation('mobileOpen');
+				} else {
+					this.playAnimation('desktopOpen');
+				}
+			},
+			_renderClosed: function() {
+				this.cancelAnimation();
+
+				if (this._isMobile()) {
+					this.playAnimation('mobileClose');
+				} else {
+					this.playAnimation('desktopClose');
+				}
+			},
+			_onNeonAnimationFinish: function() {
+				document.body.classList.toggle('d2l-shim-body-overflow', this.opened);
+
+				if (this.opened) {
+					this._finishRenderOpened();
+				} else {
+					this._finishRenderClosed();
+				}
+			},
+			get _focusableNodes() {
+				var focusables;
+
+				if (this.focusableNodesOverride !== null) {
+					focusables = this.focusableNodesOverride.call(this);
+				} else {
+					focusables = Polymer.IronOverlayBehaviorImpl.__lookupGetter__('_focusableNodes').call(this);
+				}
+
+				focusables.push(Polymer.dom(this.root).querySelector('.close-button'));
+
+				return focusables;
 			}
-		},
-		created: function() {
-			this._updateBackdropStyle();
-		},
-		handleClose: function() {
-			this.close();
-		},
-		_isMobile: function() {
-			var width = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
-			return width < 768;
-		},
-		_updateBackdropStyle: function() {
-			var style = document.createElement('style', 'custom-style');
-			style.innerHTML = 'iron-overlay-backdrop { --iron-overlay-backdrop-opacity: 0.0; }';
-			document.body.appendChild(style);
-		},
-		_renderOpened: function() {
-			this.cancelAnimation();
-
-			this._onNodesChange();
-			Polymer.dom(this.root).querySelector('.scrollable').scrollTop = 0;
-
-			if (this._isMobile()) {
-				this.playAnimation('mobileOpen');
-			} else {
-				this.playAnimation('desktopOpen');
-			}
-		},
-		_renderClosed: function() {
-			this.cancelAnimation();
-
-			if (this._isMobile()) {
-				this.playAnimation('mobileClose');
-			} else {
-				this.playAnimation('desktopClose');
-			}
-		},
-		_onNeonAnimationFinish: function() {
-			document.body.classList.toggle('d2l-shim-body-overflow', this.opened);
-
-			if (this.opened) {
-				this._finishRenderOpened();
-			} else {
-				this._finishRenderClosed();
-			}
-		},
-		get _focusableNodes() {
-			var focusables;
-
-			if (this.focusableNodesOverride !== null) {
-				focusables = this.focusableNodesOverride.call(this);
-			} else {
-				focusables = Polymer.IronOverlayBehaviorImpl.__lookupGetter__('_focusableNodes').call(this);
-			}
-
-			focusables.push(Polymer.dom(this.root).querySelector('.close-button'));
-
-			return focusables;
-		}
-	});
+		});
 	</script>
 </dom-module>

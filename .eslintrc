@@ -1,8 +1,6 @@
 extends: brightspace
 env:
   browser: true
-rules:
-  strict: warn
 plugins:
   [html]
 globals:
