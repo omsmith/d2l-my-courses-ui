@@ -3,7 +3,7 @@ node_js:
 - 4
 sudo: false
 addons:
-  firefox: "46.0"
+  firefox: "latest"
 before_script:
 - npm run test:lint
 script:
