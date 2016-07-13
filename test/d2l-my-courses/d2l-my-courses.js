@@ -51,6 +51,9 @@ describe('smoke test', function() {
 				links: [{
 					rel: ['https://api.brightspace.com/rels/organization'],
 					href: '/organizations/1'
+				}, {
+					rel: ['self'],
+					href: '/enrollments/users/169/organizations/1'
 				}]
 			}],
 			links: [{
@@ -78,6 +81,9 @@ describe('smoke test', function() {
 				links: [{
 					rel: ['https://api.brightspace.com/rels/organization'],
 					href: '/organizations/1'
+				}, {
+					rel: ['self'],
+					href: '/enrollments/users/169/organizations/1'
 				}]
 			}],
 			links: [{

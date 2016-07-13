@@ -52,7 +52,7 @@ describe('<d2l-course-tile>', function() {
 					href: '/organizations/1/image'
 				}, {
 					rel: ['alternate'],
-					href: 'http://example.com/d2l/api/lp/1.9/courses/1/image'
+					href: ''
 				}]
 			}]
 		};
@@ -60,11 +60,6 @@ describe('<d2l-course-tile>', function() {
 	beforeEach(function() {
 		server = sinon.fakeServer.create();
 		server.respondImmediately = true;
-
-		server.respondWith(
-			'GET',
-			'http://example.com/d2l/api/lp/1.9/courses/1/image',
-			[200, {}, '']);
 
 		widget = fixture('d2l-course-tile-fixture');
 	});
@@ -203,38 +198,6 @@ describe('<d2l-course-tile>', function() {
 
 			setTimeout(function() {
 				// We responded with pinned = true, so it gets set back to true by the response
-				expect(widget._pinned).to.be.true;
-				done();
-			}, 10);
-		});
-
-		it('should revert the local pinned state if a non-200 success occurs', function(done) {
-			server.respondWith(
-				'PUT',
-				'http://example.com',
-				[204, {}, '']);
-
-			expect(widget._pinned).to.be.true;
-			widget.hoverPinClickHandler(event);
-			expect(widget._pinned).to.be.false;
-
-			setTimeout(function() {
-				expect(widget._pinned).to.be.true;
-				done();
-			}, 10);
-		});
-
-		it('should revert the local pinned state if an error occurs', function(done) {
-			server.respondWith(
-				'PUT',
-				'http://example.com',
-				[404, {}, '']);
-
-			expect(widget._pinned).to.be.true;
-			widget.hoverPinClickHandler(event);
-			expect(widget._pinned).to.be.false;
-
-			setTimeout(function() {
 				expect(widget._pinned).to.be.true;
 				done();
 			}, 10);

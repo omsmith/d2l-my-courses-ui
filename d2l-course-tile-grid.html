@@ -5,6 +5,7 @@
 <link rel="import" href="localize-behavior.html">
 <link rel="import" href="d2l-interaction-detection-behavior.html">
 <link rel="import" href="d2l-course-tile-grid-styles.html">
+<link rel="import" href="d2l-utility-behavior.html">
 
 <dom-module id="d2l-course-tile-grid">
 	<template>
@@ -60,7 +61,8 @@
 			behaviors: [
 				Polymer.D2L.MyCourses.CourseTileResponsiveGridBehavior,
 				Polymer.D2L.MyCourses.InteractionDetectionBehavior,
-				Polymer.D2L.MyCourses.LocalizeBehavior
+				Polymer.D2L.MyCourses.LocalizeBehavior,
+				Polymer.D2L.MyCourses.UtilityBehavior
 			],
 			listeners: {
 				'tile-insert-complete': '_onTileInsertionComplete',
@@ -116,11 +118,6 @@
 				} else {
 					this._doTileSlideAnimation(false, courseIndex, container, this._numCols);
 				}
-			},
-			_getEnrollmentIdentifier: function(courseEntity) {
-				// An enrollment's self href should be unique, so use it as an identifier
-				var selfLink = courseEntity.getLinkByRel('self');
-				return selfLink.href;
 			},
 			/*
 			* Calculates layout data after a tile insertion/removal operation will be completed, including tile positions and

@@ -1,17 +1,59 @@
-/* global describe, it, beforeEach, fixture, expect */
+/* global describe, it, beforeEach, afterEach, fixture, expect, sinon */
 
 'use strict';
 
 describe('smoke test', function() {
-	var widget,
+	var server,
+		widget,
 		courseEntity = {
 			properties: {
 				name: 'Test Name'
 			}
+		},
+		organization = {
+			class: ['active', 'course-offering'],
+			properties: {
+				name: 'Course name',
+				code: 'COURSE100'
+			},
+			links: [{
+				rel: ['self'],
+				href: '/organizations/1'
+			}, {
+				rel: ['https://api.brightspace.com/rels/organization-homepage'],
+				href: 'http://example.com/1/home',
+				type: 'text/html'
+			}],
+			entities: [{
+				class: ['course-image'],
+				propeties: {
+					name: '1.jpg',
+					type: 'image/jpeg'
+				},
+				rel: ['https://api.brightspace.com/rels/organization-image'],
+				links: [{
+					rel: ['self'],
+					href: '/organizations/1/image'
+				}, {
+					rel: ['alternate'],
+					href: ''
+				}]
+			}]
 		};
 
 	beforeEach(function() {
+		server = sinon.fakeServer.create();
+		server.respondImmediately = true;
+		server.respondWith(
+			'GET',
+			'/organizations/1?embedDepth=1',
+			[200, {}, JSON.stringify(organization)]);
+
 		widget = fixture('d2l-all-courses-fixture');
+	});
+
+	afterEach(function() {
+		server.restore();
 	});
 
 	it('should load', function() {

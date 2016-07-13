@@ -1,6 +1,7 @@
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../d2l-siren-parser/d2l-siren-parser.html">
 <link rel="import" href="../d2l-offscreen/d2l-offscreen.html">
+<link rel="import" href="d2l-utility-behavior.html">
 
 <script>
 	(function() {
@@ -52,6 +53,9 @@
 					value: false
 				}
 			},
+			behaviors: [
+				Polymer.D2L.MyCourses.UtilityBehavior
+			],
 			listeners: {
 				'course-pinned': '_onCoursePinned',
 				'course-unpinned': '_onCourseUnpinned',
@@ -83,21 +87,6 @@
 				}
 
 				e.stopPropagation();
-			},
-			_getEnrollmentIdentifier: function(enrollment) {
-				// An enrollment's self href should be unique, so use it as an identifier
-				if (enrollment.getLinkByRel) {
-					var selfLink = enrollment.getLinkByRel('self');
-					return selfLink.href;
-				} else {
-					// Only really required by tests... must be a better way to do this...
-					for (var i = 0; i < enrollment.links.length; i++) {
-						if (enrollment.links[i].rel.indexOf('self') > -1) {
-							return enrollment.links[i].href;
-						}
-					}
-					return '';
-				}
 			},
 			_moveCourseToPinnedList: function(course) {
 				// Remove course from unpinned list, add to pinned
