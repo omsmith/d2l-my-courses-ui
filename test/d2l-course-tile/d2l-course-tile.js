@@ -3,147 +3,207 @@
 'use strict';
 
 describe('<d2l-course-tile>', function() {
-	var courseTile,
+	var server,
+		widget,
 		enrollment = {
-			rel: ['enrollment'],
+			class: ['pinned', 'enrollment'],
+			rel: ['https://api.brightspace.com/rels/user-enrollment'],
+			actions: [{
+				name: 'unpin-course',
+				method: 'PUT',
+				href: '/enrollments/users/169/organizations/1',
+				fields: [{
+					name: 'pinned',
+					type: 'hidden',
+					value: false
+				}]
+			}],
+			links: [{
+				rel: ['https://api.brightspace.com/rels/organization'],
+				href: '/organizations/1'
+			}, {
+				rel: ['self'],
+				href: '/enrollments/users/169/organizations/1'
+			}]
+		},
+		organization = {
+			class: ['active', 'course-offering'],
 			properties: {
-				id: 'foo',
-				name: 'bar'
+				name: 'Course name',
+				code: 'COURSE100'
 			},
+			links: [{
+				rel: ['self'],
+				href: '/organizations/1'
+			}, {
+				rel: ['https://api.brightspace.com/rels/organization-homepage'],
+				href: 'http://example.com/1/home',
+				type: 'text/html'
+			}],
 			entities: [{
-				class: ['preferences', 'pinned'],
-				rel: ['preferences'],
-				properties: {
-					colour: '#000000',
-					pinDate: '2016-01-01T00:00:00.000Z'
+				class: ['course-image'],
+				propeties: {
+					name: '1.jpg',
+					type: 'image/jpeg'
 				},
-				actions: [{
-					name: 'update',
-					method: 'PUT',
-					href: 'http://example.com',
-					fields: [{
-						name: 'colour',
-						type: 'text',
-						value: '#000000'
-					}, {
-						name: 'pinned',
-						type: 'checkbox',
-						value: true
-					}]
+				rel: ['https://api.brightspace.com/rels/organization-image'],
+				links: [{
+					rel: ['self'],
+					href: '/organizations/1/image'
+				}, {
+					rel: ['alternate'],
+					href: 'http://example.com/d2l/api/lp/1.9/courses/1/image'
 				}]
 			}]
 		};
 
 	beforeEach(function() {
-		courseTile = fixture('d2l-course-tile-fixture');
+		server = sinon.fakeServer.create();
+		server.respondImmediately = true;
+
+		server.respondWith(
+			'GET',
+			'http://example.com/d2l/api/lp/1.9/courses/1/image',
+			[200, {}, '']);
+
+		widget = fixture('d2l-course-tile-fixture');
+	});
+
+	afterEach(function() {
+		server.restore();
 	});
 
 	it('loads element', function() {
-		expect(courseTile).to.exist;
+		expect(widget).to.exist;
+	});
+
+	it('should fetch the organization', function(done) {
+		server.respondWith(
+			'GET',
+			'/organizations/1?embedDepth=1',
+			[200, {}, JSON.stringify(organization)]);
+
+		var organizationSpy = sinon.spy(widget.$.organizationRequest, 'generateRequest');
+
+		widget.$.organizationRequest.addEventListener('response', function() {
+			expect(organizationSpy.called);
+			done();
+		});
+
+		widget.enrollment = enrollment;
 	});
 
 	describe('setting the enrollment attribute', function() {
-		beforeEach(function() {
-			courseTile.enrollment = enrollment;
+		beforeEach(function(done) {
+			server.respondWith(
+				'GET',
+				'/organizations/1?embedDepth=1',
+				[200, {}, JSON.stringify(organization)]);
+
+			widget.$.organizationRequest.addEventListener('response', function() {
+				// Ensure organization has been received before doing tests
+				done();
+			});
+
+			widget.enrollment = enrollment;
 		});
 
 		it('should parse and update the internal Siren representation', function() {
-			expect(courseTile._enrollmentEntity.properties).to.be.an('object');
+			expect(widget._organization.properties).to.be.an('object');
 		});
 
 		it('should have the correct href', function() {
-			var anchor = courseTile.$$('a');
-			expect(anchor.href).to.contain('/d2l/home/' + enrollment.properties.id);
+			var anchor = widget.$$('a');
+			expect(anchor.href).to.equal(organization.links[1].href);
 		});
 
 		it('should update the course name', function() {
-			var courseText = courseTile.$$('.course-text');
-			expect(courseText.innerHTML).to.equal(enrollment.properties.name);
+			var courseText = widget.$$('.course-text');
+			expect(courseText.innerHTML).to.equal(organization.properties.name);
 		});
 
 		it('should set the internal pinned state correctly', function() {
-			expect(courseTile._pinned).to.be.true;
-		});
-
-		it('should set the update action parameters correctly', function() {
-			expect(courseTile._updatePreferencesUrl).to.equal('http://example.com');
-			expect(courseTile._updatePreferencesMethod).to.equal('PUT');
-			expect(courseTile._updatePreferencesFields).to.be.an.instanceof(Array).with.lengthOf(2);
+			expect(widget._pinned).to.be.true;
 		});
 
 		it('should hide image from screen readers', function() {
-			var courseImage = courseTile.$$('.course-image img');
+			var courseImage = widget.$$('.course-image img');
 			expect(courseImage.getAttribute('aria-hidden')).to.equal('true');
 		});
 
 		it('should have an aria-label for pin button', function() {
-			var pinButton = courseTile.$$('.menu-text.pin');
-			expect(pinButton.getAttribute('aria-label')).to.equal('Pin ' + enrollment.properties.name);
+			var pinButton = widget.$$('.menu-text.pin');
+			expect(pinButton.getAttribute('aria-label')).to.equal('Pin ' + organization.properties.name);
 		});
 
 		it('should have an aria-label for unpin button', function() {
-			var pinButton = courseTile.$$('.menu-text.unpin');
-			expect(pinButton.getAttribute('aria-label')).to.equal('Unpin ' + enrollment.properties.name);
+			var pinButton = widget.$$('.menu-text.unpin');
+			expect(pinButton.getAttribute('aria-label')).to.equal('Unpin ' + organization.properties.name);
 		});
 	});
 
 	describe('changing the pinned state', function() {
-		var event = { preventDefault: function() {} },
-			server;
+		var event = { preventDefault: function() {} };
 
-		beforeEach(function() {
-			courseTile.enrollment = enrollment;
+		beforeEach(function(done) {
+			server.respondWith(
+				'GET',
+				'/organizations/1?embedDepth=1',
+				[200, {}, JSON.stringify(organization)]);
 
-			server = sinon.fakeServer.create();
-			server.respondImmediately = true;
+			widget.$.organizationRequest.addEventListener('response', function() {
+				// Ensure organization has been received before doing tests
+				done();
+			});
 
-			var updatePreferencesComponent = courseTile.$$('d2l-ajax');
-			updatePreferencesComponent.cachedTokens['*:*:*'] = {
-				access_token: 'such access wow',
-				expires_at: Number.MAX_VALUE
-			};
+			widget.enrollment = enrollment;
 		});
 
 		afterEach(function() {
 			server.restore();
 		});
 
-		it('should update the icon', function() {
-			var pinIcon = courseTile.$$('.menu-item iron-icon.menu-icon');
+		it('should set the update action parameters correctly', function() {
+			widget.hoverPinClickHandler(event);
 
-			courseTile._pinned = false;
+			expect(widget._enrollmentPinUrl).to.equal('/enrollments/users/169/organizations/1');
+			expect(widget._enrollmentPinMethod).to.equal('PUT');
+		});
+
+		it('should update the icon', function() {
+			var pinIcon = widget.$$('.menu-item iron-icon.menu-icon');
+
+			widget._pinned = false;
 			expect(pinIcon.icon).to.equal('d2l-tier1:pin-filled');
-			courseTile._pinned = true;
+			widget._pinned = true;
 			expect(pinIcon.icon).to.equal('d2l-tier1:pin-hollow');
 		});
 
 		it('should call the pinning API', function(done) {
 			server.respondWith(
 				'PUT',
-				'http://example.com',
+				'/enrollments/users/169/organizations/1',
 				function(req) {
-					var body = JSON.parse(req.requestBody);
-					expect(body.colour).to.equal('#000000');
-					expect(body.pinned).to.be.false;
+					expect(req.requestBody).to.contain('pinned=false');
 					done();
 				});
 
-			courseTile.hoverPinClickHandler(event);
+			widget.hoverPinClickHandler(event);
 		});
 
 		it('should update the local pinned state with the received pin state', function(done) {
 			server.respondWith(
 				'PUT',
-				'http://example.com',
-				[200, {}, JSON.stringify(enrollment.entities[0])]);
+				'/enrollments/users/169/organizations/1',
+				[200, {}, JSON.stringify(enrollment)]);
 
-			expect(courseTile._pinned).to.be.true;
-			courseTile.hoverPinClickHandler(event);
-			expect(courseTile._pinned).to.be.false;
+			expect(widget._pinned).to.be.true;
+			widget.hoverPinClickHandler(event);
+			expect(widget._pinned).to.be.false;
 
 			setTimeout(function() {
 				// We responded with pinned = true, so it gets set back to true by the response
-				expect(courseTile._pinned).to.be.true;
+				expect(widget._pinned).to.be.true;
 				done();
 			}, 10);
 		});
@@ -154,12 +214,12 @@ describe('<d2l-course-tile>', function() {
 				'http://example.com',
 				[204, {}, '']);
 
-			expect(courseTile._pinned).to.be.true;
-			courseTile.hoverPinClickHandler(event);
-			expect(courseTile._pinned).to.be.false;
+			expect(widget._pinned).to.be.true;
+			widget.hoverPinClickHandler(event);
+			expect(widget._pinned).to.be.false;
 
 			setTimeout(function() {
-				expect(courseTile._pinned).to.be.true;
+				expect(widget._pinned).to.be.true;
 				done();
 			}, 10);
 		});
@@ -170,12 +230,12 @@ describe('<d2l-course-tile>', function() {
 				'http://example.com',
 				[404, {}, '']);
 
-			expect(courseTile._pinned).to.be.true;
-			courseTile.hoverPinClickHandler(event);
-			expect(courseTile._pinned).to.be.false;
+			expect(widget._pinned).to.be.true;
+			widget.hoverPinClickHandler(event);
+			expect(widget._pinned).to.be.false;
 
 			setTimeout(function() {
-				expect(courseTile._pinned).to.be.true;
+				expect(widget._pinned).to.be.true;
 				done();
 			}, 10);
 		});

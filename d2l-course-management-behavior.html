@@ -86,8 +86,18 @@
 			},
 			_getEnrollmentIdentifier: function(enrollment) {
 				// An enrollment's self href should be unique, so use it as an identifier
-				var selfLink = enrollment.getLinkByRel('self');
-				return selfLink.href;
+				if (enrollment.getLinkByRel) {
+					var selfLink = enrollment.getLinkByRel('self');
+					return selfLink.href;
+				} else {
+					// Only really required by tests... must be a better way to do this...
+					for (var i = 0; i < enrollment.links.length; i++) {
+						if (enrollment.links[i].rel.indexOf('self') > -1) {
+							return enrollment.links[i].href;
+						}
+					}
+					return '';
+				}
 			},
 			_moveCourseToPinnedList: function(course) {
 				// Remove course from unpinned list, add to pinned
