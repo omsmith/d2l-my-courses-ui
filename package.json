@@ -49,7 +49,6 @@
     "frau-publisher": "^2.5.3",
     "polyserve": "^0.7.1",
     "rimraf": "^2.5.2",
-    "sinon": "^1.17.4",
     "web-component-tester": "^4.2.2"
   }
 }
