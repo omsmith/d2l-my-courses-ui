@@ -5,7 +5,7 @@
 	<template>
 		<style include="d2l-alert-styles"></style>
 
-		<div class="message-wrapper" hidden$="{{_hideAlert}}">
+		<div class="message-wrapper" hidden="{{!visible}}">
 			<div class="message-highlight"></div>
 			<content></content>
 		</div>
@@ -17,18 +17,9 @@
 			is: 'd2l-alert',
 			properties: {
 				visible: {
-					type: Object,
-					value: function() {
-						return false;
-					}
-				},
-				_hideAlert: {
 					type: Boolean,
-					computed: '_checkAlertIsHidden(visible)'
+					value: false
 				}
-			},
-			_checkAlertIsHidden: function(isVisible) {
-				return !isVisible;
 			}
 		});
 	</script>
