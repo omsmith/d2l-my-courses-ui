@@ -191,7 +191,7 @@
 				// The enrollment is updated (i.e. this handler is called) upon a pin/unpin response as well, but
 				// there's no need to update the organization in that case
 				if (!this._organization) {
-					var organizationLink = enrollment.getLinkByRel('https://api.brightspace.com/rels/organization');
+					var organizationLink = enrollment.getLinkByRel(/\/organization$/);
 					this._organizationUrl = organizationLink.href + '?embedDepth=1';
 					this.$.organizationRequest.generateRequest();
 				}
@@ -209,7 +209,7 @@
 					}
 
 					this._organization = organization;
-					this._organizationHomepageUrl = organization.getLinkByRel('https://api.brightspace.com/rels/organization-homepage').href;
+					this._organizationHomepageUrl = organization.getLinkByRel(/\/organization-homepage$/).href;
 				}
 			},
 			onEnrollmentPinResponse: function(response) {
