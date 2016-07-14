@@ -38,8 +38,7 @@ text.
 
 Properties:
 
-- `visible`: Defines whether alert is visible. Can be a truthy value, or a
-function that returns a truthy value.
+- `visible` _Boolean_: Defines whether alert is visible.
 
 ### d2l-simple-overlay
 

@@ -19,7 +19,19 @@
 	<body unresolved class="d2l-typography">
 		<main class="d2l-max-width">
 			<h1>d2l-alert demo</h1>
-			<d2l-alert visible="true">This is a d2l-alert. It displays informational text.</d2l-alert>
+			<script>
+				function changeVisibility() {
+					var alert = document.getElementById('alert');
+
+					if (alert.hasAttribute('visible')) {
+						alert.removeAttribute('visible');
+					} else {
+						alert.setAttribute('visible', '');
+					}
+				}
+			</script>
+			<button onclick="changeVisibility()">Show/Hide Alert</button>
+			<d2l-alert id="alert" visible>This is a d2l-alert. It displays informational text.</d2l-alert>
 		</main>
 	</body>
 </html>
