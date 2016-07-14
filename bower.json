@@ -35,7 +35,7 @@
     "iron-iconset-svg": "PolymerElements/iron-iconset-svg#^1.0.9",
     "neon-animation": "PolymerElements/neon-animation#^1.2.2",
     "app-localize-behavior": "https://github.com/Brightspace/app-localize-behavior.git#master",
-    "d2l-siren-parser": "git://github.com/Brightspace/d2l-siren-parser-ui.git#^1.0.0",
+    "d2l-siren-parser": "git://github.com/Brightspace/d2l-siren-parser-ui.git#^1.1.1",
     "d2l-icons": "^2.1.0",
     "d2l-offscreen": "^2.1.0",
     "d2l-colors": "^2.0.0",
