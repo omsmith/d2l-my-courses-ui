@@ -6,54 +6,15 @@
 		<script src="../../../webcomponentsjs/webcomponents-lite.js"></script>
 		<script src="../../../web-component-tester/browser.js"></script>
 
+		<link rel="import" href="../../../d2l-siren-parser/d2l-siren-parser.html">
 		<link rel="import" href="../../d2l-my-courses.html">
 	</head>
 	<body>
 		<test-fixture id="d2l-all-courses-fixture">
 			<template>
 				<d2l-all-courses
-					pinned-courses-entities='[{
-						"class": ["pinned", "enrollment"],
-						"rel": ["https://api.brightspace.com/rels/user-enrollment"],
-						"actions": [{
-							"name": "unpin-course",
-							"method": "PUT",
-							"href": "/enrollments/users/169/organizations/1",
-							"fields": [{
-								"name": "pinned",
-								"type": "hidden",
-								"value": false
-							}]
-						}],
-						"links": [{
-							"rel": ["https://api.brightspace.com/rels/organization"],
-							"href": "/organizations/1"
-						}, {
-							"rel": ["self"],
-							"href": "/enrollments/users/169/organizations/1"
-						}]
-					}]'
-					unpinned-courses-entities='[{
-						"class": ["unpinned", "enrollment"],
-						"rel": ["https://api.brightspace.com/rels/user-enrollment"],
-						"actions": [{
-							"name": "pin-course",
-							"method": "PUT",
-							"href": "/enrollments/users/169/organizations/1",
-							"fields": [{
-								"name": "pinned",
-								"type": "hidden",
-								"value": true
-							}]
-						}],
-						"links": [{
-							"rel": ["https://api.brightspace.com/rels/organization"],
-							"href": "/organizations/1"
-						}, {
-							"rel": ["self"],
-							"href": "/enrollments/users/169/organizations/1"
-						}]
-					}]'>
+					pinned-courses-entities='[]'
+					unpinned-courses-entities='[]'>
 				</d2l-all-courses>
 			</template>
 		</test-fixture>

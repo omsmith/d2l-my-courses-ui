@@ -9,12 +9,7 @@
 
 	Polymer.D2L.MyCourses.UtilityBehavior = {
 		_getEnrollmentIdentifier: function(enrollment) {
-		// An enrollment's self href should be unique, so use it as an identifier
-			if (!enrollment.getLinkByRel) {
-				var parser = document.createElement('d2l-siren-parser');
-				enrollment = parser.parse(enrollment);
-			}
-
+			// An enrollment's self href should be unique, so use it as an identifier
 			var selfLink = enrollment.getLinkByRel('self');
 			return selfLink.href;
 		}
