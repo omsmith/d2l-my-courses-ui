@@ -79,7 +79,7 @@
 				'dom-change': '_onCourseTilesChanged'
 			},
 			observers: [
-				'_onenrollmentsQueueChanged(enrollmentsQueue.*)'
+				'_onEnrollmentsQueueChanged(enrollmentsQueue.*)'
 			],
 			created: function() {
 				this._tilesInPinStateTransition = [];
@@ -87,8 +87,8 @@
 				this._courseTileBoundingRects = [];
 				this._clearAnimationState();
 			},
-			_onenrollmentsQueueChanged: function(newenrollments) {
-				if (newenrollments.base && newenrollments.base.length > 0) {
+			_onEnrollmentsQueueChanged: function(enrollments) {
+				if (enrollments.base && enrollments.base.length > 0) {
 					var newEnrollments = this.splice('enrollmentsQueue', 0, 1);
 					this._animateTileSlide(true, 0, newEnrollments[0]);
 				}
