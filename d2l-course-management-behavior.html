@@ -12,39 +12,39 @@
 
 		Polymer.D2L.MyCourses.CourseManagementBehaviorImpl = {
 			properties: {
-				pinnedCoursesEntities: {
+				pinnedEnrollments: {
 					type: Array,
 					value: function() {
 						return [];
 					},
 					notify: true
 				},
-				unpinnedCoursesEntities: {
+				unpinnedEnrollments: {
 					type: Array,
 					value: function() {
 						return [];
 					},
 					notify: true
 				},
-				pinnedCoursesEntitiesQueue: {
+				pinnedEnrollmentsQueue: {
 					type: Array,
 					value: function() {
 						return [];
 					},
 					notify: true
 				},
-				unpinnedCoursesEntitiesQueue: {
+				unpinnedEnrollmentsQueue: {
 					type: Array,
 					value: function() {
 						return [];
 					},
 					notify: true
 				},
-				_hasPinnedCourses: {
+				_hasPinnedEnrollments: {
 					type: Boolean,
 					value: false
 				},
-				_hasCourses: {
+				_hasEnrollments: {
 					type: Boolean,
 					value: false
 				},
@@ -54,14 +54,14 @@
 				}
 			},
 			listeners: {
-				'course-pinned': '_onCoursePinned',
-				'course-unpinned': '_onCourseUnpinned',
+				'enrollment-pinned': '_onEnrollmentPinned',
+				'enrollment-unpinned': '_onEnrollmentUnpinned',
 				'tile-remove-complete': '_onTileRemoveComplete',
-				'course-pin-complete': '_onCoursePinComplete',
-				'course-unpin-complete': '_onCourseUnpinComplete'
+				'enrollment-pin-complete': '_onEnrollmentPinComplete',
+				'enrollment-unpin-complete': '_onEnrollmentUnpinComplete'
 			},
 			observers: [
-				'_onPinnedCoursesEntitiesChanged(pinnedCoursesEntities.*)'
+				'_onPinnedEnrollmentsChanged(pinnedEnrollments.*)'
 			],
 			created: function() {
 				this._tilesInPinStateTransition = [];
@@ -70,63 +70,63 @@
 				this._announceElement = document.createElement('d2l-offscreen');
 				this._announceElement.setAttribute('aria-live', 'polite');
 			},
-			_onCoursePinned: function(e) {
+			_onEnrollmentPinned: function(e) {
 				this._ariaAnnounce(this.localize('pinActionResult', 'course', e.detail.organization.properties.name));
 			},
-			_onCourseUnpinned: function(e) {
+			_onEnrollmentUnpinned: function(e) {
 				this._ariaAnnounce(this.localize('unpinActionResult', 'course', e.detail.organization.properties.name));
 			},
 			_onTileRemoveComplete: function(e) {
 				if (e.detail.pinned) {
-					this._moveCourseToPinnedList(e.detail.enrollment);
+					this._moveEnrollmentToPinnedList(e.detail.enrollment);
 				} else {
-					this._moveCourseToUnpinnedList(e.detail.enrollment);
+					this._moveEnrollmentToUnpinnedList(e.detail.enrollment);
 				}
 
 				e.stopPropagation();
 			},
-			_moveCourseToPinnedList: function(course) {
-				// Remove course from unpinned list, add to pinned
-				var enrollmentId = this._getEnrollmentIdentifier(course);
+			_moveEnrollmentToPinnedList: function(enrollment) {
+				// Remove enrollment from unpinned list, add to pinned
+				var enrollmentId = this._getEnrollmentIdentifier(enrollment);
 
-				for (var index = 0; index < this.unpinnedCoursesEntities.length; index++) {
-					var pinnedEnrollmentId = this._getEnrollmentIdentifier(this.unpinnedCoursesEntities[index]);
+				for (var index = 0; index < this.unpinnedEnrollments.length; index++) {
+					var pinnedEnrollmentId = this._getEnrollmentIdentifier(this.unpinnedEnrollments[index]);
 					if (pinnedEnrollmentId === enrollmentId) {
-						var foundCourse = this.unpinnedCoursesEntities[index];
-						this._setEnrollmentPinData(foundCourse, true);
+						var foundEnrollment = this.unpinnedEnrollments[index];
+						this._setEnrollmentPinData(foundEnrollment, true);
 
 						// If enabled, add to list of "to be added" pinned entities, and let consumer move to pinned list when desired
 						if (this.usePendingLists) {
-							this.push('pinnedCoursesEntitiesQueue', foundCourse);
+							this.push('pinnedEnrollmentsQueue', foundEnrollment);
 						} else {
 							this._tilesInPinStateTransition.push(enrollmentId);
-							this.unshift('pinnedCoursesEntities', foundCourse);
+							this.unshift('pinnedEnrollments', foundEnrollment);
 						}
 
-						this.splice('unpinnedCoursesEntities', index, 1);
+						this.splice('unpinnedEnrollments', index, 1);
 						break;
 					}
 				}
 			},
-			_moveCourseToUnpinnedList: function(course) {
-				// Remove course from pinned list, add to unpinned
-				var enrollmentId = this._getEnrollmentIdentifier(course);
+			_moveEnrollmentToUnpinnedList: function(enrollment) {
+				// Remove enrollment from pinned list, add to unpinned
+				var enrollmentId = this._getEnrollmentIdentifier(enrollment);
 
-				for (var index = 0; index < this.pinnedCoursesEntities.length; index++) {
-					var unpinnedEnrollmentId = this._getEnrollmentIdentifier(this.pinnedCoursesEntities[index]);
+				for (var index = 0; index < this.pinnedEnrollments.length; index++) {
+					var unpinnedEnrollmentId = this._getEnrollmentIdentifier(this.pinnedEnrollments[index]);
 					if (unpinnedEnrollmentId === enrollmentId) {
-						var foundCourse = this.pinnedCoursesEntities[index];
-						this._setEnrollmentPinData(foundCourse, false);
+						var foundEnrollment = this.pinnedEnrollments[index];
+						this._setEnrollmentPinData(foundEnrollment, false);
 
 						// If enabled, add to list of "to be added" unpinned entities, and let consumer move to unpinned list when desired
 						if (this.usePendingLists) {
-							this.push('unpinnedCoursesEntitiesQueue', foundCourse);
+							this.push('unpinnedEnrollmentsQueue', foundEnrollment);
 						} else {
 							this._tilesInPinStateTransition.push(enrollmentId);
-							this.unshift('unpinnedCoursesEntities', foundCourse);
+							this.unshift('unpinnedEnrollments', foundEnrollment);
 						}
 
-						this.splice('pinnedCoursesEntities', index, 1);
+						this.splice('pinnedEnrollments', index, 1);
 						break;
 					}
 				}
@@ -156,8 +156,8 @@
 			get ariaMessage() {
 				return this._announceElement.textContent;
 			},
-			_onPinnedCoursesEntitiesChanged: function(newArray) {
-				this._hasPinnedCourses = !newArray.base || newArray.base.length > 0;
+			_onPinnedEnrollmentsChanged: function(newArray) {
+				this._hasPinnedEnrollments = !newArray.base || newArray.base.length > 0;
 			}
 		};
 

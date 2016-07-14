@@ -28,20 +28,20 @@
 			on-response="onEnrollmentsSearchResponse">
 		</d2l-ajax>
 
-		<d2l-alert visible="[[!_hasPinnedCourses]]">
+		<d2l-alert visible="[[!_hasPinnedEnrollments]]">
 			{{_alertMessage}}
 			<a is="d2l-link"
 				href="Javascript:void(0);"
-				hidden$="[[_hasCourses]]"
+				hidden$="[[_hasEnrollments]]"
 				on-tap="refreshPage">{{localize('refresh')}}</a>
 		</d2l-alert>
 
 		<d2l-course-tile-grid
-			course-entities="{{pinnedCoursesEntities}}">
+			enrollments="{{pinnedEnrollments}}">
 		</d2l-course-tile-grid>
 
 		<button class="all-courses-button"
-			hidden$="{{!_hasCourses}}"
+			hidden$="{{!_hasEnrollments}}"
 			on-tap="openAllCoursesView">
 			{{localize('viewAllCourses')}}
 		</button>
@@ -53,8 +53,8 @@
 			with-backdrop>
 
 			<d2l-all-courses
-				pinned-courses-entities="{{pinnedCoursesEntities}}"
-				unpinned-courses-entities="{{unpinnedCoursesEntities}}"
+				pinned-enrollments="{{pinnedEnrollments}}"
+				unpinned-enrollments="{{unpinnedEnrollments}}"
 				locale="[[locale]]">
 			</d2l-all-courses>
 		</d2l-simple-overlay>
@@ -143,13 +143,13 @@
 						}
 					});
 
-					this.set('pinnedCoursesEntities', pinnedEnrollments);
-					this.set('unpinnedCoursesEntities', unpinnedEnrollments);
+					this.set('pinnedEnrollments', pinnedEnrollments);
+					this.set('unpinnedEnrollments', unpinnedEnrollments);
 
-					this._hasPinnedCourses = this.pinnedCoursesEntities.length > 0;
-					this._hasCourses = this._hasPinnedCourses || this.unpinnedCoursesEntities.length > 0;
+					this._hasPinnedEnrollments = this.pinnedEnrollments.length > 0;
+					this._hasEnrollments = this._hasPinnedEnrollments || this.unpinnedEnrollments.length > 0;
 
-					if (this._hasCourses) {
+					if (this._hasEnrollments) {
 						this._alertMessage = this.localize('noPinnedCoursesMessage');
 					}
 
@@ -170,7 +170,7 @@
 				}.bind(this), 50);
 			},
 			getCourseTileItemCount: function() {
-				return this.pinnedCoursesEntities.length;
+				return this.pinnedEnrollments.length;
 			}
 		});
 	</script>

@@ -98,8 +98,8 @@ describe('smoke test', function() {
 
 		widget = fixture('d2l-all-courses-fixture');
 
-		widget.pinnedCoursesEntities = [pinnedEnrollmentEntity];
-		widget.unpinnedCoursesEntities = [unpinnedEnrollmentEntity];
+		widget.pinnedEnrollments = [pinnedEnrollmentEntity];
+		widget.unpinnedEnrollments = [unpinnedEnrollmentEntity];
 	});
 
 	afterEach(function() {
@@ -112,7 +112,7 @@ describe('smoke test', function() {
 
 	describe('A11Y', function() {
 		it('should announce when enrollment is pinned', function() {
-			var event = new CustomEvent('course-pinned', {
+			var event = new CustomEvent('enrollment-pinned', {
 				detail: {
 					organization: organizationEntity
 				}
@@ -122,7 +122,7 @@ describe('smoke test', function() {
 		});
 
 		it('should announce when enrollment is unpinned', function() {
-			var event = new CustomEvent('course-unpinned', {
+			var event = new CustomEvent('enrollment-unpinned', {
 				detail: {
 					organization: organizationEntity
 				}
