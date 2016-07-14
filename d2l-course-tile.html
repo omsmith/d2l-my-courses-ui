@@ -83,7 +83,7 @@
 				animateInsertion: {
 					type: Boolean
 				},
-				courseId: {
+				enrollmentId: {
 					type: Number
 				},
 				_organization: {
@@ -140,7 +140,7 @@
 
 				this.$.enrollmentPinRequest.generateRequest();
 
-				var eventName = this._pinned ? 'course-pinned' : 'course-unpinned';
+				var eventName = this._pinned ? 'enrollment-pinned' : 'enrollment-unpinned';
 				this.fire(eventName, {
 					enrollment: this.enrollment,
 					organization: this._organization

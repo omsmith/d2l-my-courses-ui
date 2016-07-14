@@ -206,7 +206,7 @@ describe('smoke test', function() {
 			widget.$.enrollmentsRootRequest.generateRequest();
 
 			widget.$.enrollmentsSearchRequest.addEventListener('response', function() {
-				expect(widget._hasCourses).to.equal(false);
+				expect(widget._hasEnrollments).to.equal(false);
 				expect(widget._alertMessage).to.equal('Your courses aren\'t quite ready. Please check back soon.');
 				done();
 			});
@@ -230,7 +230,7 @@ describe('smoke test', function() {
 			widget.$.enrollmentsRootRequest.generateRequest();
 
 			widget.$.enrollmentsSearchRequest.addEventListener('response', function() {
-				expect(widget._hasCourses).to.equal(true);
+				expect(widget._hasEnrollments).to.equal(true);
 				expect(widget._alertMessage).to.equal('You don\'t have any pinned courses. Pin your favorite courses to make them easier to find.');
 				done();
 			});
@@ -239,7 +239,7 @@ describe('smoke test', function() {
 
 	describe('A11Y', function() {
 		it('should announce when enrollment is pinned', function() {
-			var event = new CustomEvent('course-pinned', {
+			var event = new CustomEvent('enrollment-pinned', {
 				detail: {
 					organization: organization
 				}
@@ -249,7 +249,7 @@ describe('smoke test', function() {
 		});
 
 		it('should announce when enrollment is unpinned', function() {
-			var event = new CustomEvent('course-unpinned', {
+			var event = new CustomEvent('enrollment-unpinned', {
 				detail: {
 					organization: organization
 				}

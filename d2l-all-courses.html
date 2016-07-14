@@ -11,20 +11,20 @@
 
 		<div class="dialog-content">
 			<h2 class="d2l-heading-3">{{localize('pinnedCourses')}}</h2>
-			<template is="dom-if" if="[[!_hasPinnedCourses]]">
-				<d2l-alert visible="[[!_hasPinnedCourses]]">
+			<template is="dom-if" if="[[!_hasPinnedEnrollments]]">
+				<d2l-alert visible="[[!_hasPinnedEnrollments]]">
 					{{localize('noPinnedCoursesMessage')}}
 				</d2l-alert>
 			</template>
 			<d2l-course-tile-grid
-				course-entities="{{pinnedCoursesEntities}}"
-				course-entities-queue="{{pinnedCoursesEntitiesQueue}}">
+				enrollments="{{pinnedEnrollments}}"
+				enrollments-queue="{{pinnedEnrollmentsQueue}}">
 			</d2l-course-tile-grid>
 
 			<h2 class="d2l-heading-3">{{localize('unpinnedCourses')}}</h2>
 			<d2l-course-tile-grid
-				course-entities="{{unpinnedCoursesEntities}}"
-				course-entities-queue="{{unpinnedCoursesEntitiesQueue}}">
+				enrollments="{{unpinnedEnrollments}}"
+				enrollments-queue="{{unpinnedEnrollmentsQueue}}">
 			</d2l-course-tile-grid>
 		</div>
 	</template>
@@ -63,7 +63,7 @@
 				return this._getAvailableWidth(this.$$('.dialog-content'));
 			},
 			getCourseTileItemCount: function() {
-				var itemCount = Math.max(this.pinnedCoursesEntities.length, this.unpinnedCoursesEntities.length);
+				var itemCount = Math.max(this.pinnedEnrollments.length, this.unpinnedEnrollments.length);
 
 				return itemCount;
 			},

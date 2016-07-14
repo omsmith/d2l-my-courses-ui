@@ -19,12 +19,12 @@
 		</template>
 
 		<div class="my-courses-container">
-			<template id="courseEntitiesTemplate" is="dom-repeat" items="[[courseEntities]]">
+			<template id="enrollmentsTemplate" is="dom-repeat" items="[[enrollments]]">
 				<d2l-course-tile
 					enrollment="[[item]]"
 					hover-enabled="[[_hoverInteractionEnabled]]"
-					animate-insertion="[[removeCourseFromTransitionList(item)]]"
-					course-id="[[_getEnrollmentIdentifier(item)]]">
+					animate-insertion="[[removeEnrollmentFromTransitionList(item)]]"
+					enrollment-id="[[_getEnrollmentIdentifier(item)]]">
 				</d2l-course-tile>
 			</template>
 		</div>
@@ -45,14 +45,14 @@
 		Polymer({
 			is: 'd2l-course-tile-grid',
 			properties: {
-				courseEntities: {
+				enrollments: {
 					type: Array,
 					notify: true,
 					value: function() {
 						return [];
 					}
 				},
-				courseEntitiesQueue: {
+				enrollmentsQueue: {
 					type: Array,
 					notify: true,
 					value: function() {
@@ -69,8 +69,8 @@
 			listeners: {
 				'tile-insert-complete': '_onTileInsertionComplete',
 				'tile-remove-complete': '_onTileRemoveComplete',
-				'course-pinned': '_onCoursePinAction',
-				'course-unpinned': '_onCoursePinAction',
+				'enrollment-pinned': '_onEnrollmentPinAction',
+				'enrollment-unpinned': '_onEnrollmentPinAction',
 				'touch-pin-hover': '_onUnpinHover',
 				'touch-pin-select': '_onTouchPinSelect',
 				'touch-menu-open': '_onTouchMenuOpen',
@@ -79,7 +79,7 @@
 				'dom-change': '_onCourseTilesChanged'
 			},
 			observers: [
-				'_onCourseEntitiesQueueChanged(courseEntitiesQueue.*)'
+				'_onEnrollmentsQueueChanged(enrollmentsQueue.*)'
 			],
 			created: function() {
 				this._tilesInPinStateTransition = [];
@@ -87,22 +87,22 @@
 				this._courseTileBoundingRects = [];
 				this._clearAnimationState();
 			},
-			_onCourseEntitiesQueueChanged: function(newCourseEntities) {
-				if (newCourseEntities.base && newCourseEntities.base.length > 0) {
-					var newCourses = this.splice('courseEntitiesQueue', 0, 1);
-					this._animateTileSlide(true, 0, newCourses[0]);
+			_onEnrollmentsQueueChanged: function(enrollments) {
+				if (enrollments.base && enrollments.base.length > 0) {
+					var newEnrollments = this.splice('enrollmentsQueue', 0, 1);
+					this._animateTileSlide(true, 0, newEnrollments[0]);
 				}
 			},
-			_animateTileSlide: function(isInsertion, courseIndex, courseEntity) {
+			_animateTileSlide: function(isInsertion, enrollmentIndex, enrollment) {
 				var container = this.$$('.my-courses-container');
 				var courseTiles = container.querySelectorAll('d2l-course-tile');
-				var lastAnimatedCourseIndex = isInsertion ? 0 : (this.courseEntities.length - 1);
+				var lastAnimatedCourseIndex = isInsertion ? 0 : (this.enrollments.length - 1);
 
 				this._animationState.isAnimating = true;
 				this._animationState.isInsertion = isInsertion;
 
-				if (this.courseEntities.length > 0) {
-					this._animationState.lastAnimatedCourseTileId = this._getEnrollmentIdentifier(this.courseEntities[lastAnimatedCourseIndex]);
+				if (this.enrollments.length > 0) {
+					this._animationState.lastAnimatedCourseTileId = this._getEnrollmentIdentifier(this.enrollments[lastAnimatedCourseIndex]);
 				} else {
 					this._animationState.slideAnimationComplete = true;
 				}
@@ -111,14 +111,14 @@
 
 				if (isInsertion) {
 					// If inserting, set tile as in transition, and listen for DOM change to know when new course tile is added and tiles can be animated
-					this._tilesInPinStateTransition.push(this._getEnrollmentIdentifier(courseEntity));
-					this.unshift('courseEntities', courseEntity);
+					this._tilesInPinStateTransition.push(this._getEnrollmentIdentifier(enrollment));
+					this.unshift('enrollments', enrollment);
 
 					var gridTemplate = container.querySelector('template');
-					this._domChangeListener = this._doTileSlideAnimation.bind(this, true, courseIndex, container, this._numCols);
+					this._domChangeListener = this._doTileSlideAnimation.bind(this, true, enrollmentIndex, container, this._numCols);
 					gridTemplate.addEventListener('dom-change', this._domChangeListener);
 				} else {
-					this._doTileSlideAnimation(false, courseIndex, container, this._numCols);
+					this._doTileSlideAnimation(false, enrollmentIndex, container, this._numCols);
 				}
 			},
 			/*
@@ -178,7 +178,7 @@
 				var containerAnimationDelay = 0;
 
 				if (this._domChangeListener) {
-					this.$.courseEntitiesTemplate.removeEventListener('dom-change', this._domChangeListener);
+					this.$.enrollmentsTemplate.removeEventListener('dom-change', this._domChangeListener);
 					this._domChangeListener = null;
 				}
 
@@ -224,8 +224,8 @@
 					this._animateCourseTile(courseTiles[i], this._courseTileBoundingRects[i], newLayoutInfo.newPositions[i], delayTime);
 				}
 			},
-			removeCourseFromTransitionList: function(courseEntity) {
-				var enrollmentId = this._getEnrollmentIdentifier(courseEntity);
+			removeEnrollmentFromTransitionList: function(enrollment) {
+				var enrollmentId = this._getEnrollmentIdentifier(enrollment);
 				var index = this._tilesInPinStateTransition.indexOf(enrollmentId);
 
 				if (index !== -1) {
@@ -236,7 +236,7 @@
 				return false;
 			},
 			getCourseTileItemCount: function() {
-				return this.courseEntities.length;
+				return this.enrollments.length;
 			},
 			_onTileInsertionComplete: function(e) {
 				if (this._animationState.isAnimating) {
@@ -245,13 +245,13 @@
 					this._checkAnimationComplete(e);
 				}
 			},
-			_onCoursePinAction: function(e) {
+			_onEnrollmentPinAction: function(e) {
 				// If an enrollment was (un)pinned from this grid (ie. a course tile had a pin action invoked on it, such that it (should) leave
 				// this grid), then we need to slide other tiles in to fill its place
 				var modifiedEnrollmentId = this._getEnrollmentIdentifier(e.detail.enrollment);
 
-				for (var i = 0; i < this.courseEntities.length; i++) {
-					var enrollmentId = this._getEnrollmentIdentifier(this.courseEntities[i]);
+				for (var i = 0; i < this.enrollments.length; i++) {
+					var enrollmentId = this._getEnrollmentIdentifier(this.enrollments[i]);
 					if (enrollmentId === modifiedEnrollmentId) {
 						this._animateTileSlide(false, i);
 						break;
@@ -373,9 +373,9 @@
 					easing: 'cubic-bezier(0.91, 0.03, 0.85, 0.36)'
 				});
 
-				animation.finished.then(function(animation, courseId) {
-					this.fire('slide-animation-finished', {id: courseId});
-				}.bind(this, animation, courseTile.courseId));
+				animation.finished.then(function(animation, enrollmentId) {
+					this.fire('slide-animation-finished', {id: enrollmentId});
+				}.bind(this, animation, courseTile.enrollmentId));
 
 				this._animations.push(animation);
 			},
