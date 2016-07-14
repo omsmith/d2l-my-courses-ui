@@ -1,4 +1,4 @@
-/* global describe, it, beforeEach, afterEach, fixture, expect, sinon */
+/* global describe, it, before, beforeEach, afterEach, fixture, expect, sinon */
 
 'use strict';
 
@@ -55,7 +55,15 @@ describe('<d2l-course-tile>', function() {
 					href: ''
 				}]
 			}]
-		};
+		},
+		enrollmentEntity,
+		organizationEntity;
+
+	before(function() {
+		var parser = document.createElement('d2l-siren-parser');
+		enrollmentEntity = parser.parse(enrollment);
+		organizationEntity = parser.parse(organization);
+	});
 
 	beforeEach(function() {
 		server = sinon.fakeServer.create();
@@ -85,7 +93,7 @@ describe('<d2l-course-tile>', function() {
 			done();
 		});
 
-		widget.enrollment = enrollment;
+		widget.enrollment = enrollmentEntity;
 	});
 
 	describe('setting the enrollment attribute', function() {
@@ -100,7 +108,7 @@ describe('<d2l-course-tile>', function() {
 				done();
 			});
 
-			widget.enrollment = enrollment;
+			widget.enrollment = enrollmentEntity;
 		});
 
 		it('should parse and update the internal Siren representation', function() {
@@ -109,12 +117,13 @@ describe('<d2l-course-tile>', function() {
 
 		it('should have the correct href', function() {
 			var anchor = widget.$$('a');
-			expect(anchor.href).to.equal(organization.links[1].href);
+			var homepageLink = organizationEntity.getLinkByRel('https://api.brightspace.com/rels/organization-homepage');
+			expect(anchor.href).to.equal(homepageLink.href);
 		});
 
 		it('should update the course name', function() {
 			var courseText = widget.$$('.course-text');
-			expect(courseText.innerHTML).to.equal(organization.properties.name);
+			expect(courseText.innerHTML).to.equal(organizationEntity.properties.name);
 		});
 
 		it('should set the internal pinned state correctly', function() {
@@ -128,12 +137,12 @@ describe('<d2l-course-tile>', function() {
 
 		it('should have an aria-label for pin button', function() {
 			var pinButton = widget.$$('.menu-text.pin');
-			expect(pinButton.getAttribute('aria-label')).to.equal('Pin ' + organization.properties.name);
+			expect(pinButton.getAttribute('aria-label')).to.equal('Pin ' + organizationEntity.properties.name);
 		});
 
 		it('should have an aria-label for unpin button', function() {
 			var pinButton = widget.$$('.menu-text.unpin');
-			expect(pinButton.getAttribute('aria-label')).to.equal('Unpin ' + organization.properties.name);
+			expect(pinButton.getAttribute('aria-label')).to.equal('Unpin ' + organizationEntity.properties.name);
 		});
 	});
 
@@ -151,7 +160,7 @@ describe('<d2l-course-tile>', function() {
 				done();
 			});
 
-			widget.enrollment = enrollment;
+			widget.enrollment = enrollmentEntity;
 		});
 
 		afterEach(function() {

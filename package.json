@@ -1,6 +1,5 @@
 {
   "name": "d2l-my-courses",
-  "version": "0.3.2",
   "description": "Brightspace My Courses homepage widget",
   "private": true,
   "scripts": {
@@ -49,7 +48,6 @@
     "frau-publisher": "^2.5.3",
     "polyserve": "^0.7.1",
     "rimraf": "^2.5.2",
-    "sinon": "^1.17.4",
     "web-component-tester": "^4.2.2"
   }
 }

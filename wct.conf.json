@@ -2,8 +2,7 @@
   "plugins": {
     "local": {
       "browsers": [{
-        "browserName": "firefox",
-        "version": "46"
+        "browserName": "firefox"
       }]
     },
     "sauce": {

@@ -63,6 +63,8 @@
 	</template>
 
 	<script>
+		'use strict';
+
 		Polymer({
 			is: 'd2l-course-tile',
 			properties: {
@@ -184,22 +186,12 @@
 				this.unhoverCourseTile(true);
 			},
 			_enrollmentChanged: function(enrollment) {
-				var parser = document.createElement('d2l-siren-parser');
-				// Only in tests is this strictly required; in normal operation, it's (nearly) a no-op
-				var enrollmentEntity = parser.parse(enrollment);
-
-				// Need to no-op the observer (then set it back) so we avoid infinite loop when setting this.enrollment
-				var observer = this._enrollmentChanged;
-				this._enrollmentChanged = function() {};
-				this.enrollment = enrollmentEntity;
-				this._enrollmentChanged = observer;
-
-				this._pinned = enrollmentEntity.hasClass('pinned');
+				this._pinned = enrollment.hasClass('pinned');
 
 				// The enrollment is updated (i.e. this handler is called) upon a pin/unpin response as well, but
 				// there's no need to update the organization in that case
 				if (!this._organization) {
-					var organizationLink = enrollmentEntity.getLinkByRel('https://api.brightspace.com/rels/organization');
+					var organizationLink = enrollment.getLinkByRel('https://api.brightspace.com/rels/organization');
 					this._organizationUrl = organizationLink.href + '?embedDepth=1';
 					this.$.organizationRequest.generateRequest();
 				}
