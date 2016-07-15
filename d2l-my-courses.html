@@ -10,6 +10,11 @@
 <link rel="import" href="d2l-course-management-behavior.html">
 <link rel="import" href="d2l-course-tile-grid.html">
 
+<!--
+`<d2l-my-courses>` is the main component for My Courses widget
+
+@demo demo/d2l-my-courses-demo.html
+-->
 <dom-module id="d2l-my-courses">
 	<template>
 		<style include="d2l-my-courses-styles"></style>
@@ -18,14 +23,14 @@
 			id="enrollmentsRootRequest"
 			url="[[enrollmentsUrl]]"
 			headers='{ "Accept": "application/vnd.siren+json" }'
-			on-response="onEnrollmentsRootResponse">
+			on-response="_onEnrollmentsRootResponse">
 		</d2l-ajax>
 
 		<d2l-ajax
 			id="enrollmentsSearchRequest"
 			url="[[_enrollmentsSearchUrl]]"
 			headers='{ "Accept": "application/vnd.siren+json" }'
-			on-response="onEnrollmentsSearchResponse">
+			on-response="_onEnrollmentsSearchResponse">
 		</d2l-ajax>
 
 		<d2l-alert visible="[[!_hasPinnedEnrollments]]">
@@ -33,7 +38,7 @@
 			<a is="d2l-link"
 				href="Javascript:void(0);"
 				hidden$="[[_hasEnrollments]]"
-				on-tap="refreshPage">{{localize('refresh')}}</a>
+				on-tap="_refreshPage">{{localize('refresh')}}</a>
 		</d2l-alert>
 
 		<d2l-course-tile-grid
@@ -42,7 +47,7 @@
 
 		<button class="all-courses-button"
 			hidden$="{{!_hasEnrollments}}"
-			on-tap="openAllCoursesView">
+			on-tap="_openAllCoursesView">
 			{{localize('viewAllCourses')}}
 		</button>
 
@@ -67,13 +72,26 @@
 		Polymer({
 			is: 'd2l-my-courses',
 			properties: {
+				/*
+				* Allows for delaying the call to `enrollmentsUrl` (required by tests)
+				* TODO: Better way to do this?
+				* @type {Boolean}
+				*/
 				delayLoad: {
 					type: Boolean,
 					value: false
 				},
+				/*
+				* URL that is called by the widget to fetch enrollments
+				* @type {String}
+				*/
 				enrollmentsUrl: {
 					type: String
 				},
+				/*
+				* Message to display in alert if no enrollments are found
+				* @type {String}
+				*/
 				_alertMessage: {
 					type: String
 				}
@@ -98,7 +116,14 @@
 					this.$.enrollmentsRootRequest.generateRequest();
 				}
 			},
-			onEnrollmentsRootResponse: function(response) {
+			/*
+			* Count of `d2l-course-tile` elements in grid.
+			* @return {Number}
+			*/
+			getCourseTileItemCount: function() {
+				return this.pinnedEnrollments.length;
+			},
+			_onEnrollmentsRootResponse: function(response) {
 				if (response.detail.status === 200) {
 					var parser = document.createElement('d2l-siren-parser');
 					var enrollmentsRoot = parser.parse(response.detail.xhr.response);
@@ -126,7 +151,7 @@
 					this.$.enrollmentsSearchRequest.generateRequest();
 				}
 			},
-			onEnrollmentsSearchResponse: function(response) {
+			_onEnrollmentsSearchResponse: function(response) {
 				if (response.detail.status === 200) {
 					var parser = document.createElement('d2l-siren-parser');
 					var enrollments = parser.parse(response.detail.xhr.response);
@@ -156,10 +181,7 @@
 					this.$$('d2l-course-tile-grid')._rescaleCourseTileRegions();
 				}
 			},
-			refreshPage: function() {
-				document.location.reload(true);
-			},
-			openAllCoursesView: function(e) {
+			_openAllCoursesView: function(e) {
 				e.preventDefault();
 				e.stopPropagation();
 				this.$$('d2l-simple-overlay').open();
@@ -169,8 +191,8 @@
 					allCourses._rescaleCourseTileRegions(allCourses._getOverlayWidth());
 				}.bind(this), 50);
 			},
-			getCourseTileItemCount: function() {
-				return this.pinnedEnrollments.length;
+			_refreshPage: function() {
+				document.location.reload(true);
 			}
 		});
 	</script>

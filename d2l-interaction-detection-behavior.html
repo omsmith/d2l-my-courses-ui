@@ -7,12 +7,27 @@
 		Polymer.D2L = Polymer.D2L || {};
 		Polymer.D2L.MyCourses = Polymer.D2L.MyCourses || {};
 
+		/*
+		* Behavior that detects whether an interaction occurs via touch or hover
+		*
+		* Requires switch to be set to "more magic".
+		*
+		* @polymerBehavior
+		*/
 		Polymer.D2L.MyCourses.InteractionDetectionBehavior = {
 			properties: {
+				/*
+				* True if hover (desktop) interaction is enabled
+				* @type {Boolean}
+				*/
 				_hoverInteractionEnabled: {
 					type: Boolean,
 					value: true
 				},
+				/*
+				* True if touch (mobile) interaction is enabled
+				* @type {Boolean}
+				*/
 				_touchInteractionEnabled: {
 					type: Boolean,
 					value: false

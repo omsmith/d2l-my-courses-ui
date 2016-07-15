@@ -11,13 +11,16 @@
 <link rel="import" href="d2l-simple-overlay-styles.html">
 <link rel="import" href="localize-behavior.html">
 
+<!--
+`<d2l-simple-overlay>` extends `iron-overlay` and adds some styling.
+-->
 <dom-module id="d2l-simple-overlay">
 	<style include="d2l-simple-overlay-styles"></style>
 	<template>
 		<div class="max-width">
 			<button
 				class="close-button pull-right"
-				on-tap="handleClose"
+				on-tap="_handleClose"
 				aria-label$="{{localize('closeSimpleOverlayAltText')}}"
 				alt$="{{localize('closeSimpleOverlayAltText')}}">
 				<iron-icon icon="d2l-tier1:close-large-thick"></iron-icon>
@@ -44,9 +47,17 @@
 				'neon-animation-finish': '_onNeonAnimationFinish'
 			},
 			properties: {
+				/*
+				* Title for overlay
+				* @type {String}
+				*/
 				title: {
 					type: String
 				},
+				/*
+				* Animation configuration used by `neon-animation`
+				* @type {Object}
+				*/
 				animationConfig: {
 					value: function() {
 						return {
@@ -79,61 +90,28 @@
 						};
 					}
 				},
+				/*
+				* Focusable element override for `iron-overlay`
+				*
+				* Required for accessibility, this specifies which elements within the element are intended to be
+				* keyboard-focusable. This is because we're using `<iron-overlay with-backdrop>`. See
+				* [those docs](https://github.com/PolymerElements/iron-overlay-behavior#backdrop) for more information.
+				*/
 				focusableNodesOverride: {
 					type: Object,
 					value: null
 				},
+				/* TODO: No longer required? */
 				_viewportContent: {
 					type: String
 				},
+				/* TODO: No longer required? */
 				_restoreViewportContent: {
 					type: Boolean
 				}
 			},
 			created: function() {
 				this._updateBackdropStyle();
-			},
-			handleClose: function() {
-				this.close();
-			},
-			_isMobile: function() {
-				var width = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
-				return width < 768;
-			},
-			_updateBackdropStyle: function() {
-				var style = document.createElement('style', 'custom-style');
-				style.innerHTML = 'iron-overlay-backdrop { --iron-overlay-backdrop-opacity: 0.0; }';
-				document.body.appendChild(style);
-			},
-			_renderOpened: function() {
-				this.cancelAnimation();
-
-				this._onNodesChange();
-				Polymer.dom(this.root).querySelector('.scrollable').scrollTop = 0;
-
-				if (this._isMobile()) {
-					this.playAnimation('mobileOpen');
-				} else {
-					this.playAnimation('desktopOpen');
-				}
-			},
-			_renderClosed: function() {
-				this.cancelAnimation();
-
-				if (this._isMobile()) {
-					this.playAnimation('mobileClose');
-				} else {
-					this.playAnimation('desktopClose');
-				}
-			},
-			_onNeonAnimationFinish: function() {
-				document.body.classList.toggle('d2l-shim-body-overflow', this.opened);
-
-				if (this.opened) {
-					this._finishRenderOpened();
-				} else {
-					this._finishRenderClosed();
-				}
 			},
 			get _focusableNodes() {
 				var focusables;
@@ -147,6 +125,48 @@
 				focusables.push(Polymer.dom(this.root).querySelector('.close-button'));
 
 				return focusables;
+			},
+			_handleClose: function() {
+				this.close();
+			},
+			_isMobile: function() {
+				var width = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
+				return width < 768;
+			},
+			_onNeonAnimationFinish: function() {
+				document.body.classList.toggle('d2l-shim-body-overflow', this.opened);
+
+				if (this.opened) {
+					this._finishRenderOpened();
+				} else {
+					this._finishRenderClosed();
+				}
+			},
+			_renderClosed: function() {
+				this.cancelAnimation();
+
+				if (this._isMobile()) {
+					this.playAnimation('mobileClose');
+				} else {
+					this.playAnimation('desktopClose');
+				}
+			},
+			_renderOpened: function() {
+				this.cancelAnimation();
+
+				this._onNodesChange();
+				Polymer.dom(this.root).querySelector('.scrollable').scrollTop = 0;
+
+				if (this._isMobile()) {
+					this.playAnimation('mobileOpen');
+				} else {
+					this.playAnimation('desktopOpen');
+				}
+			},
+			_updateBackdropStyle: function() {
+				var style = document.createElement('style', 'custom-style');
+				style.innerHTML = 'iron-overlay-backdrop { --iron-overlay-backdrop-opacity: 0.0; }';
+				document.body.appendChild(style);
 			}
 		});
 	</script>

@@ -7,8 +7,20 @@
 	Polymer.D2L = Polymer.D2L || {};
 	Polymer.D2L.MyCourses = Polymer.D2L.MyCourses || {};
 
+	/*
+	* General utility functions that can be used in many places.
+	*
+	* No specific requirements or restrictions on what goes in here.
+	*
+	* @polymerBehavior
+	*/
 	Polymer.D2L.MyCourses.UtilityBehavior = {
-		_getEnrollmentIdentifier: function(enrollment) {
+		/*
+		* Creates a unique identifier for an enrollment (really just the self Link href)
+		* @param {Entity} enrollment
+		* @return {String}
+		*/
+		getEnrollmentIdentifier: function(enrollment) {
 			// An enrollment's self href should be unique, so use it as an identifier
 			var selfLink = enrollment.getLinkByRel('self');
 			return selfLink.href;
