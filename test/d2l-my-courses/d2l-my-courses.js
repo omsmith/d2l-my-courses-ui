@@ -2,7 +2,7 @@
 
 'use strict';
 
-describe('smoke test', function() {
+describe('d2l-my-courses', function() {
 	var server,
 		widget,
 		// Using relative URLs here so that d2l-ajax just uses cookies (no need to mock the token fetching this way)
@@ -137,7 +137,7 @@ describe('smoke test', function() {
 		expect(widget).to.exist;
 	});
 
-	describe('Enrollments requests', function() {
+	describe('Enrollments requests and responses', function() {
 		it('should not send a search request if the root request fails', function(done) {
 			server.respondWith(
 				'GET',
@@ -185,10 +185,36 @@ describe('smoke test', function() {
 				done();
 			});
 		});
-	});
 
-	describe('Empty states', function() {
-		it('should display appropriate message when no enrolled courses', function(done) {
+		it('should rescale the course tile grid on search response', function(done) {
+			server.respondWith(
+				'GET',
+				widget.enrollmentsUrl,
+				function(req) {
+					expect(req.requestHeaders['accept']).to.equal('application/vnd.siren+json');
+					req.respond(200, {}, JSON.stringify(enrollmentsRootResponse));
+				});
+
+			server.respondWith(
+				'GET',
+				searchHref + searchQuery,
+				function(req) {
+					expect(req.requestHeaders['accept']).to.equal('application/vnd.siren+json');
+					req.respond(200, {}, JSON.stringify(enrollmentsSearchResponse));
+				});
+
+			var gridRescaleSpy = sinon.spy(widget.$$('d2l-course-tile-grid'), '_rescaleCourseTileRegions');
+
+			widget.$.enrollmentsRootRequest.generateRequest();
+
+			widget.$.enrollmentsSearchRequest.addEventListener('response', function() {
+				expect(gridRescaleSpy.called);
+				widget.$$('d2l-course-tile-grid')._rescaleCourseTileRegions.restore();
+				done();
+			});
+		});
+
+		it('should display appropriate message when there are no enrollments', function(done) {
 			server.respondWith(
 				'GET',
 				widget.enrollmentsUrl,
@@ -212,7 +238,7 @@ describe('smoke test', function() {
 			});
 		});
 
-		it('should display appropriate message when no pinned courses', function(done) {
+		it('should display appropriate message when there are no pinned enrollments', function(done) {
 			server.respondWith(
 				'GET',
 				widget.enrollmentsUrl,
@@ -237,105 +263,151 @@ describe('smoke test', function() {
 		});
 	});
 
-	describe('A11Y', function() {
-		it('should announce when enrollment is pinned', function() {
-			var event = new CustomEvent('enrollment-pinned', {
-				detail: {
-					organization: organization
-				}
+	describe('With enrollments', function() {
+		beforeEach(function(done) {
+			server.respondWith(
+				'GET',
+				widget.enrollmentsUrl,
+				function(req) {
+					req.respond(200, {}, JSON.stringify(enrollmentsRootResponse));
+				});
+
+			server.respondWith(
+				'GET',
+				searchHref + searchQuery,
+				function(req) {
+					req.respond(200, {}, JSON.stringify(enrollmentsSearchResponse));
+				});
+
+			widget.$.enrollmentsRootRequest.generateRequest();
+
+			// Wait until the second (search) request finishes before checking things
+			widget.$.enrollmentsSearchRequest.addEventListener('response', function() {
+				done();
 			});
-			widget.dispatchEvent(event);
-			expect(widget.ariaMessage).to.equal(organization.properties.name + ' has been pinned');
 		});
 
-		it('should announce when enrollment is unpinned', function() {
-			var event = new CustomEvent('enrollment-unpinned', {
-				detail: {
-					organization: organization
-				}
-			});
-			widget.dispatchEvent(event);
-			expect(widget.ariaMessage).to.equal(organization.properties.name + ' has been unpinned');
+		it('should return the correct value from getCourseTileItemCount', function() {
+			expect(widget.getCourseTileItemCount()).to.equal(1);
+		});
+
+		it('should correctly evaluate whether it has pinned/unpinned enrollments', function() {
+			expect(widget._hasEnrollments).to.be.true;
+			expect(widget._hasPinnedEnrollments).to.be.true;
 		});
 	});
 
-	describe('layout', function() {
-		describe('column calculations', function() {
-			it('should be correct according to the crazy design', function() {
-				[{
-					width: 767,
-					itemCount: 0,
-					expectedColumns: 1
-				}, {
-					width: 767,
-					itemCount: 3,
-					expectedColumns: 1
-				}, {
-					width: 767,
-					itemCount: 4,
-					expectedColumns: 2
-				}, {
-					width: 991,
-					itemCount: 0,
-					expectedColumns: 3
-				}, {
-					width: 991,
-					itemCount: 1,
-					expectedColumns: 2
-				}, {
-					width: 991,
-					itemCount: 2,
-					expectedColumns: 2
-				}, {
-					width: 991,
-					itemCount: 3,
-					expectedColumns: 3
-				}, {
-					width: 991,
-					itemCount: 4,
-					expectedColumns: 2
-				}, {
-					width: 991,
-					itemCount: 5,
-					expectedColumns: 3
-				}, {
-					width: 992,
-					itemCount: 0,
-					expectedColumns: 4
-				}, {
-					width: 992,
-					itemCount: 1,
-					expectedColumns: 2
-				}, {
-					width: 992,
-					itemCount: 2,
-					expectedColumns: 2
-				}, {
-					width: 992,
-					itemCount: 3,
-					expectedColumns: 3
-				}, {
-					width: 992,
-					itemCount: 4,
-					expectedColumns: 4
-				}, {
-					width: 992,
-					itemCount: 5,
-					expectedColumns: 3
-				}, {
-					width: 992,
-					itemCount: 6,
-					expectedColumns: 3
-				}, {
-					width: 992,
-					itemCount: 7,
-					expectedColumns: 4
-				}]
-				.forEach(function(scenario) {
-					var description = 'width: ' + scenario.width + '; itemCount: ' + scenario.itemCount;
-					var numberOfColumns = widget._calcNumColumns(scenario.width, scenario.itemCount);
-					expect(numberOfColumns, description).to.equal(scenario.expectedColumns);
+	describe('User interaction', function() {
+		it('should rescale the all courses view when it is opened', function(done) {
+			var allCoursesRescaleSpy = sinon.spy(widget.$$('d2l-all-courses'), '_rescaleCourseTileRegions');
+
+			widget.$$('button').click();
+
+			setTimeout(function() {
+				expect(allCoursesRescaleSpy.called);
+				widget.$$('d2l-all-courses')._rescaleCourseTileRegions.restore();
+				done();
+			}, 100);
+		});
+
+		describe('A11Y', function() {
+			it('should announce when enrollment is pinned', function() {
+				var event = new CustomEvent('enrollment-pinned', {
+					detail: {
+						organization: organization
+					}
 				});
+				widget.dispatchEvent(event);
+				expect(widget.ariaMessage).to.equal(organization.properties.name + ' has been pinned');
+			});
+
+			it('should announce when enrollment is unpinned', function() {
+				var event = new CustomEvent('enrollment-unpinned', {
+					detail: {
+						organization: organization
+					}
+				});
+				widget.dispatchEvent(event);
+				expect(widget.ariaMessage).to.equal(organization.properties.name + ' has been unpinned');
+			});
+		});
+	});
+
+	describe('column calculations', function() {
+		it('should be correct according to the design', function() {
+			[{
+				width: 767,
+				itemCount: 0,
+				expectedColumns: 1
+			}, {
+				width: 767,
+				itemCount: 3,
+				expectedColumns: 1
+			}, {
+				width: 767,
+				itemCount: 4,
+				expectedColumns: 2
+			}, {
+				width: 991,
+				itemCount: 0,
+				expectedColumns: 3
+			}, {
+				width: 991,
+				itemCount: 1,
+				expectedColumns: 2
+			}, {
+				width: 991,
+				itemCount: 2,
+				expectedColumns: 2
+			}, {
+				width: 991,
+				itemCount: 3,
+				expectedColumns: 3
+			}, {
+				width: 991,
+				itemCount: 4,
+				expectedColumns: 2
+			}, {
+				width: 991,
+				itemCount: 5,
+				expectedColumns: 3
+			}, {
+				width: 992,
+				itemCount: 0,
+				expectedColumns: 4
+			}, {
+				width: 992,
+				itemCount: 1,
+				expectedColumns: 2
+			}, {
+				width: 992,
+				itemCount: 2,
+				expectedColumns: 2
+			}, {
+				width: 992,
+				itemCount: 3,
+				expectedColumns: 3
+			}, {
+				width: 992,
+				itemCount: 4,
+				expectedColumns: 4
+			}, {
+				width: 992,
+				itemCount: 5,
+				expectedColumns: 3
+			}, {
+				width: 992,
+				itemCount: 6,
+				expectedColumns: 3
+			}, {
+				width: 992,
+				itemCount: 7,
+				expectedColumns: 4
+			}]
+			.forEach(function(scenario) {
+				var description = 'width: ' + scenario.width + '; itemCount: ' + scenario.itemCount;
+				var numberOfColumns = widget._calcNumColumns(scenario.width, scenario.itemCount);
+				expect(numberOfColumns, description).to.equal(scenario.expectedColumns);
 			});
 		});
 	});

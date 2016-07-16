@@ -80,7 +80,7 @@ describe('<d2l-course-tile>', function() {
 		expect(widget).to.exist;
 	});
 
-	it('should fetch the organization', function(done) {
+	it('should fetch the organization when the enrollment is changed', function(done) {
 		server.respondWith(
 			'GET',
 			'/organizations/1?embedDepth=1',
