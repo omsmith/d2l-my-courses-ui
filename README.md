@@ -18,10 +18,8 @@ To run the application locally, run the following from within the project:
 npm run serve
 ```
 
-This will start a local server using polyserve
-
-The demos can be found at:
-> http://localhost:8080/components/d2l-my-courses/demo/index.html
+This will start a local server `polymer-cli` which you can use to explore the
+docs and demos for the components.
 
 ## Components
 
@@ -29,67 +27,7 @@ The demos can be found at:
 intent behind this design is that each component can be used more or less
 independently. If there is a need, these components could be broken out into
 their own repositories/release schedule, but for now they are all contained
-within this repo.
-
-### d2l-alert
-
-The `d2l-alert` is intended to be used for highlighted blocks of informational
-text.
-
-Properties:
-
-- `visible` _Boolean_: Defines whether alert is visible.
-
-### d2l-simple-overlay
-
-The `d2l-simple-overlay` is a popover window that can be used to display any
-content. It uses [iron-overlay](https://github.com/PolymerElements/iron-overlay-behavior)
-and various [neon](https://elements.polymer-project.org/browse?package=neon-elements)
-behaviours and elements. The overlay supports using different animations
-and transitions for desktop and mobile.
-
-Properties:
-
-- `title` _String_: Title that appears at the top of the overlay
-- `animationConfig` _function_: Defines transformations for open/close
-animations. See the `neon` docs for more information.
-
-### d2l-all-courses
-
-The `d2l-all-courses` component displays a user's pinned and unpinned courses.
-
-Properties:
-
-- `pinnedCoursesEntities` _Array_: entities representing pinned courses
-- `unpinnedCoursesEntities` _Array_: entities representing unpinned courses
-
-### d2l-touch-menu
-
-The `d2l-touch-menu` is simply a container for `d2l-touch-menu-item`s. See the
-`d2l-touch-menu-item` demo for usage.
-
-Properties:
-
-- `enabled` _Boolean_: if true (default), touch menu is enabled
-
-### d2l-touch-menu-item
-
-The `d2l-touch-menu` is a long-press menu that is used on mobile, and can
-contain one or more `d2l-touch-menu-item`s.
-
-Properties:
-
-- `actionDescription` _String_: used for A11Y offscreen description
-- `backgroundImage` _String_: an icon to use for the menu item
-- `text` _String_: Text to display on menu item
-- `selectionEvent` _String_: Name of event that will be fired when menu item selected
-- `hoverEvent` _String_: Name of event that will be fired when menu item is hovered
-
-## `user-info-api` Integration
-
-The My Courses widget pulls data from an instance of the User Info Service to
-get the enrollments for a user. This is intended as a temporary solution, and
-will be changed in the future.
+within this repo. See the docs for information about each of them.
 
 ## Local Testing
 

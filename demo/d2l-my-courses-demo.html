@@ -19,7 +19,16 @@
 	<body unresolved class="d2l-typography">
 		<main class="d2l-max-width">
 			<h1>d2l-my-courses demo</h1>
-			<d2l-my-courses id="my-courses" enrollments-url="all-courses.json"></d2l-my-courses>
+			<script>
+				function fetchEnrollments() {
+					var widget = document.getElementById('my-courses');
+					// Skip loading enrollments root until the explicit enrollmentsUrl override is removed from the widget
+					widget._enrollmentsSearchUrl = 'enrollmentsSearchResponse.json';
+					widget.$.enrollmentsSearchRequest.generateRequest();
+				}
+			</script>
+			<button onclick="fetchEnrollments()" style="margin-bottom: 20px;">Fetch Enrollments</button>
+			<d2l-my-courses id="my-courses" enrollments-url="enrollments.json" delay-load></d2l-my-courses>
 		</main>
 	</body>
 </html>
