@@ -175,13 +175,13 @@ describe('smoke test', function() {
 					req.respond(200, {}, JSON.stringify(enrollmentsSearchResponse));
 				});
 
-			var enrollmentsSearchSpy = sinon.spy(widget, 'onEnrollmentsSearchResponse');
+			var enrollmentsSearchSpy = sinon.spy(widget, '_onEnrollmentsSearchResponse');
 
 			widget.$.enrollmentsRootRequest.generateRequest();
 
 			widget.$.enrollmentsSearchRequest.addEventListener('response', function() {
 				expect(enrollmentsSearchSpy.called);
-				widget.onEnrollmentsSearchResponse.restore();
+				widget._onEnrollmentsSearchResponse.restore();
 				done();
 			});
 		});

@@ -1,6 +1,11 @@
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="d2l-alert-styles.html">
 
+<!--
+`<d2l-alert>` is intended to display highlighted informational text
+
+@demo demo/d2l-alert-demo.html
+-->
 <dom-module id="d2l-alert">
 	<template>
 		<style include="d2l-alert-styles"></style>
@@ -16,6 +21,10 @@
 		Polymer({
 			is: 'd2l-alert',
 			properties: {
+				/*
+				* Specifies whether the alert is visible
+				* @type {Boolean}
+				*/
 				visible: {
 					type: Boolean,
 					value: false

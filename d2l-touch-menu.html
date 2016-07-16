@@ -1,6 +1,9 @@
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="d2l-touch-menu-styles.html">
 
+<!--
+`<d2l-touch-menu>` is a menu intended for use with mobile interfaces.
+-->
 <dom-module id="d2l-touch-menu">
 	<template>
 		<style include="d2l-touch-menu-styles"></style>
@@ -15,24 +18,47 @@
 
 		Polymer({
 			is: 'd2l-touch-menu',
+
+			/*
+			* Fired when the menu is opened
+			* @event touch-menu-open
+			*/
+
+			/*
+			* Fired when the menu is closed
+			* @event touch-menu-closed
+			*/
+
 			properties: {
+				/*
+				* Determines whether the menu is enabled or disabled
+				* @type {Boolean}
+				*/
 				enabled: {
 					type: Boolean,
 					value: true
 				},
+				/*
+				* Array of touch targets to be applied to an element
+				* @type {Array<HTMLElement>}
+				*/
 				touchTargets: {
 					type: Array,
 					value: function() {
 						return [];
 					}
 				},
+				/*
+				* State of menu
+				* @type {Boolean}
+				*/
 				_menuOpen: {
 					type: Boolean,
 					observer: '_onMenuOpenChanged'
 				}
 			},
 			listeners: {
-				'contextmenu': 'contextmenuHandler'
+				'contextmenu': '_contextmenuHandler'
 			},
 			observers: [
 				'_touchTargetsChanged(touchTargets)'
@@ -46,58 +72,36 @@
 					this._menuItems[i]._menu = this;
 				}
 			},
-			touchstartHandler: function(e) {
-				e.stopPropagation();
-
-				this._currentTarget = e.currentTarget;
-
-				// Only show the menu if it's tap+hold
-				this._openMenuTimerID = setTimeout(this.openMenu.bind(this, e), this._longPressDuration);
+			_cancelClicks: false,
+			_currentTarget: null,
+			_enableClicksTimerID: null,
+			_longPressDuration: 500,
+			_menu: null,
+			_menuItems: null,
+			_openMenuTimerID: null,
+			_touchHandlers: {
+				'touchstart': '_touchstartHandler',
+				'touchend': '_touchendHandler',
+				'touchcancel': '_touchcancelHandler',
+				'touchmove': '_touchmoveHandler',
+				'click': '_clickHandler',
+				'contextmenu': '_contextmenuHandler'
 			},
-			touchmoveHandler: function(e) {
-				if (this._menuOpen) {
-					var touchPoint = {
-						x: e.changedTouches[0].clientX,
-						y: e.changedTouches[0].clientY
-					};
-
-					//If we can cancel the pending move, do so, so we don't scroll the page while attempting to navigate the menu.
-					if (e.cancelable) {
-						e.preventDefault();
-						e.stopPropagation();
-					}
-					else {
-						//Otherwise, terminate the touch (though this shouldn't be visible at this point anyway
-						this.touchendHandler();
-					}
-
-					this._menuItems.forEach(function(menuItem) {
-						menuItem.hoverState = menuItem.pointInTouchRegion(touchPoint);
-					}.bind(this));
-				} else {
-					clearTimeout(this._openMenuTimerID);
+			_clickHandler: function(e) {
+				if (this._cancelClicks) {
+					e.preventDefault();
+					this._enableClicks();
 				}
 			},
-			touchendHandler: function(e) {
-				// When finger is released, if the item is selected, then do the fancy animation
-				this._menuItems.forEach(function(menuItem) {
-					if (menuItem.hoverState === true) {
-						menuItem.selected = true;
-
-						if (typeof menuItem.selectionEvent === 'string') {
-							this.fire(menuItem.selectionEvent, {element: this._currentTarget});
-						}
-					}
-				}.bind(this));
-
-				this.touchcancelHandler(e);
+			_contextmenuHandler: function(e) {
+				e.preventDefault();
 			},
-			touchcancelHandler: function() {
-				clearTimeout(this._openMenuTimerID);
-
-				this._menuOpen = false;
+			_enableClicks: function() {
+				this._cancelClicks = false;
+				clearTimeout(this._enableClicksTimerID);
+				this._enableClicksTimerID = null;
 			},
-			openMenu: function(touchstartEvent) {
+			_openMenu: function(touchstartEvent) {
 				var touchData = {
 					startX: touchstartEvent.changedTouches[0].pageX,
 					startY: touchstartEvent.changedTouches[0].pageY,
@@ -165,23 +169,6 @@
 
 				this._menuOpen = true;
 			},
-			_touchTargetsChanged: function(newValues) {
-				if (this.enabled) {
-					for (var i = 0; i < newValues.length; i++) {
-						if (!newValues[i]._touchMenuHandlersAdded) {
-							newValues[i]._touchMenuHandlersAdded = true;
-
-							for (var handler in this._touchHandlers) {
-								var boundHandler = this[this._touchHandlers[handler]].bind(this);
-								newValues[i].addEventListener(handler, boundHandler, false);
-							}
-						}
-					}
-				}
-			},
-			contextmenuHandler: function(e) {
-				e.preventDefault();
-			},
 			_onMenuOpenChanged: function(openMenu) {
 				this._menu.style.visibility = openMenu ? 'visible' : 'hidden';
 
@@ -199,32 +186,71 @@
 					menuItem.visible = openMenu;
 				}.bind(this));
 			},
-			clickHandler: function(e) {
-				if (this._cancelClicks) {
-					e.preventDefault();
-					this._enableClicks();
+			_touchcancelHandler: function() {
+				clearTimeout(this._openMenuTimerID);
+
+				this._menuOpen = false;
+			},
+			_touchendHandler: function(e) {
+				// When finger is released, if the item is selected, then do the fancy animation
+				this._menuItems.forEach(function(menuItem) {
+					if (menuItem.hoverState === true) {
+						menuItem.selected = true;
+
+						if (typeof menuItem.selectionEvent === 'string') {
+							this.fire(menuItem.selectionEvent, {element: this._currentTarget});
+						}
+					}
+				}.bind(this));
+
+				this._touchcancelHandler(e);
+			},
+			_touchmoveHandler: function(e) {
+				if (this._menuOpen) {
+					var touchPoint = {
+						x: e.changedTouches[0].clientX,
+						y: e.changedTouches[0].clientY
+					};
+
+					//If we can cancel the pending move, do so, so we don't scroll the page while attempting to navigate the menu.
+					if (e.cancelable) {
+						e.preventDefault();
+						e.stopPropagation();
+					}
+					else {
+						//Otherwise, terminate the touch (though this shouldn't be visible at this point anyway
+						this._touchendHandler();
+					}
+
+					this._menuItems.forEach(function(menuItem) {
+						menuItem.hoverState = menuItem.pointInTouchRegion(touchPoint);
+					}.bind(this));
+				} else {
+					clearTimeout(this._openMenuTimerID);
 				}
 			},
-			_enableClicks: function() {
-				this._cancelClicks = false;
-				clearTimeout(this._enableClicksTimerID);
-				this._enableClicksTimerID = null;
+			_touchstartHandler: function(e) {
+				e.stopPropagation();
+
+				this._currentTarget = e.currentTarget;
+
+				// Only show the menu if it's tap+hold
+				this._openMenuTimerID = setTimeout(this._openMenu.bind(this, e), this._longPressDuration);
 			},
-			_touchHandlers: {
-				'touchstart': 'touchstartHandler',
-				'touchend': 'touchendHandler',
-				'touchcancel': 'touchcancelHandler',
-				'touchmove': 'touchmoveHandler',
-				'click': 'clickHandler',
-				'contextmenu': 'contextmenuHandler'
-			},
-			_openMenuTimerID: null,
-			_enableClicksTimerID: null,
-			_menu: null,
-			_menuItems: null,
-			_cancelClicks: false,
-			_longPressDuration: 500,
-			_currentTarget: null
+			_touchTargetsChanged: function(newValues) {
+				if (this.enabled) {
+					for (var i = 0; i < newValues.length; i++) {
+						if (!newValues[i]._touchMenuHandlersAdded) {
+							newValues[i]._touchMenuHandlersAdded = true;
+
+							for (var handler in this._touchHandlers) {
+								var boundHandler = this[this._touchHandlers[handler]].bind(this);
+								newValues[i].addEventListener(handler, boundHandler, false);
+							}
+						}
+					}
+				}
+			}
 		});
 	</script>
 </dom-module>

@@ -8,6 +8,15 @@
 <link rel="import" href="d2l-touch-menu.html">
 <link rel="import" href="d2l-touch-menu-item.html">
 
+<!--
+`<d2l-course-tile>` is a clickable, interactable tile that represents a course
+
+An important distinction to make in understanding the functionality of the course tile is the difference between an
+enrollment and an organization. An organization is what some might call a "course" - it has a name, an image, etc.,
+but it is largely static and doesn't speak to a user's relationship to it. An enrollment, on the other hand, represents
+a user's involvement in an organization, and so has things like a start date, end date, and the role that the user has
+in that organization - student, teacher, TA, etc.
+-->
 <dom-module id="d2l-course-tile">
 	<template>
 		<style include="d2l-course-tile-styles"></style>
@@ -16,7 +25,7 @@
 			id="organizationRequest"
 			url="[[_organizationUrl]]"
 			headers='{ "Accept": "application/vnd.siren+json" }'
-			on-response="onOrganizationResponse">
+			on-response="_onOrganizationResponse">
 		</d2l-ajax>
 
 		<d2l-ajax
@@ -25,16 +34,16 @@
 			method="[[_enrollmentPinMethod]]"
 			body="[[_enrollmentPinBody]]"
 			headers='{ "Accept": "application/vnd.siren+json", "Content-Type": "application/x-www-form-urlencoded" }'
-			on-response="onEnrollmentPinResponse"
-			on-error="onEnrollmentPinError">
+			on-response="_onEnrollmentPinResponse"
+			on-error="_onEnrollmentPinError">
 		</d2l-ajax>
 
 		<div class="tile-container"
-			on-mouseover="hoverCourseTile"
-			on-mouseout="onTileMouseOut">
+			on-mouseover="_hoverCourseTile"
+			on-mouseout="_onTileMouseOut">
 			<a href="[[_organizationHomepageUrl]]" class="no-tap-interaction"
-				on-focus="hoverCourseTile"
-				on-blur="unhoverCourseTile">
+				on-focus="_hoverCourseTile"
+				on-blur="_unhoverCourseTile">
 				<div class="course-image-container">
 					<div class="course-image">
 						<img aria-hidden="true" />
@@ -45,11 +54,11 @@
 
 			<div class="hover-menu no-tap-interaction">
 				<button class="menu-item no-tap-interaction"
-					on-click="hoverPinClickHandler"
-					on-focus="hoverPinMenuItem"
-					on-blur="unhoverPinMenuItem"
-					on-mouseover="hoverPinMenuItem"
-					on-mouseout="unhoverPinMenuItem">
+					on-click="_hoverPinClickHandler"
+					on-focus="_hoverPinMenuItem"
+					on-blur="_unhoverPinMenuItem"
+					on-mouseover="_hoverPinMenuItem"
+					on-mouseout="_unhoverPinMenuItem">
 					<iron-icon class="menu-icon" icon="d2l-tier1:pin-filled" aria-hidden="true"></iron-icon>
 					<span class="menu-text pin"
 						aria-label$="[[localize('pinCourse', 'course', _organization.properties.name)]]"
@@ -67,35 +76,96 @@
 
 		Polymer({
 			is: 'd2l-course-tile',
+
+			/*
+			* Fired when the course tile's pin action is selected
+			* @event enrollment-pinned
+			*/
+
+			/*
+			* Fired when the course tile's unpin action is selected
+			* @event enrollment-unpinned
+			*/
+
+			/*
+			* Fired when the tile removal animation from the grid is completed
+			* @event tile-remove-complete
+			*/
+
+			/*
+			* Fired when the tile insertion animation to the grid is completed
+			* @event tile-insert-complete
+			*/
+
 			properties: {
+				/*
+				* Course tile enrollment
+				*
+				* When the enrollment is set, the course tile will automatically fetch information about the
+				* organization the enrollment is in.
+				*
+				* @type {Entity}
+				*/
 				enrollment: {
 					type: Object,
 					observer: '_enrollmentChanged'
 				},
+				/*
+				* Specifies whether the (desktop) hover menu is enabled on the course tile
+				* @type {Boolean}
+				*/
 				hoverEnabled: {
 					type: Boolean,
 					value: true
 				},
+				/*
+				* Specifies whether the (mobile) touch menu is enabled on the course tile
+				* @type {Boolean}
+				*/
 				touchEnabled: {
 					type: Boolean,
 					value: true
 				},
+				/*
+				* TODO: Figure out what this is... Friday night brain isn't allowing me to understand this.
+				* @type {Boolean}
+				*/
 				animateInsertion: {
 					type: Boolean
 				},
+				/*
+				* TODO: Erm... same thing. Something something animation?
+				* @type {Boolean}
+				*/
 				enrollmentId: {
 					type: Number
 				},
+				/*
+				* The organization, fetched by the course tile when the `enrollment` Entity is changed
+				* @type {Entity}
+				*/
 				_organization: {
 					type: Object
 				},
+				/*
+				* The URL to fetch the `_organization` Entity from (determined from the `enrollment`'s Links)
+				* @type {String}
+				*/
 				_organizationUrl: {
 					type: String
 				},
+				/*
+				* The URL to of the `_organization`'s homepage - when the course tile is clicked, this is the URL we go to
+				* @type {String}
+				*/
 				_organizationHomepageUrl: {
 					type: String
 				},
-				_pinned: {
+				/*
+				* Whether the enrollment represented by this course tile is pinned or not
+				* @type {Boolean}
+				*/
+				pinned: {
 					type: Boolean,
 					observer: '_pinnedChanged'
 				}
@@ -114,14 +184,13 @@
 					this.toggleClass('animate-insertion-pre', true, this);
 				}
 			},
-			hoverPinClickHandler: function(e) {
-				// Prevent the click from triggering navigation to the course
-				e.preventDefault();
-
-				this._pinClickHandler(false);
-			},
-			_pinClickHandler: function(isTouch) {
-				var pinAction = this._pinned ? this.enrollment.getActionByName('unpin-course') : this.enrollment.getActionByName('pin-course');
+			/*
+			* Handler that triggers the API call to change an enrollment's pin state when the user says DO IT
+			* TODO: what do `isTouch`?
+			* @param {Boolean} isTouch If a touch interface, `isTouch=true` will... do... something with styles.
+			*/
+			pinClickHandler: function(isTouch) {
+				var pinAction = this.pinned ? this.enrollment.getActionByName('unpin-course') : this.enrollment.getActionByName('pin-course');
 
 				this._enrollmentPinMethod = pinAction.method;
 				this._enrollmentPinUrl = pinAction.href;
@@ -129,7 +198,7 @@
 				// This value is purely for UI responsiveness - if the request fails, this value will be set back to
 				// the previous value in the error handler; if the request succeeds, we also set it in the response
 				// handler (to this same value), but that could take a few hundred ms, so do it before the request too.
-				this._pinned = !this._pinned;
+				this.pinned = !this.pinned;
 
 				var body = {};
 				var fields = pinAction.fields || [];
@@ -140,13 +209,13 @@
 
 				this.$.enrollmentPinRequest.generateRequest();
 
-				var eventName = this._pinned ? 'enrollment-pinned' : 'enrollment-unpinned';
+				var eventName = this.pinned ? 'enrollment-pinned' : 'enrollment-unpinned';
 				this.fire(eventName, {
 					enrollment: this.enrollment,
 					organization: this._organization
 				});
 
-				this.pinAnimationInProgress = true;
+				this._pinAnimationInProgress = true;
 				this.toggleClass('unpin-hovered', false, this);
 
 				if (isTouch) {
@@ -156,37 +225,20 @@
 
 				this.toggleClass('unpin', true, this);
 
-				this.pendingPinAction = this._pinned;
+				this._pendingPinAction = this.pinned;
 			},
-			hoverCourseTile: function() {
-				if (this.hoverEnabled) {
-					this._setCourseTileHovered(true);
-				}
+			/*
+			* Sets classes for this tile having the touch menu on it
+			* @param {Boolean} isOpen Whether the menu is being opened or closed
+			*/
+			setTouchMenuOpen: function(isOpen) {
+				this.toggleClass('touch-menu-open', isOpen, this);
+				this.toggleClass('hover', isOpen, this);
 			},
-			unhoverCourseTile: function(force) {
-				if ((force === true || Polymer.dom(this.root).querySelectorAll(':hover').length === 0) &&
-					!this.pinAnimationInProgress) {
-					this._setCourseTileHovered(false);
-				}
-			},
-			_setCourseTileHovered: function(isHovered) {
-				this.toggleClass('hover', isHovered, this.$$('.tile-container'));
-				this.toggleClass('hover', isHovered, this.$$('.hover-menu'));
-				this.toggleClass('hover', isHovered, this.$$('.course-image-container'));
-			},
-			hoverPinMenuItem: function() {
-				this._onUnpinHover({detail: {hoverState: true}});
-				this.hoverCourseTile();
-			},
-			unhoverPinMenuItem: function() {
-				this._onUnpinHover({detail: {hoverState: false}});
-				this.unhoverCourseTile();
-			},
-			onTileMouseOut: function() {
-				this.unhoverCourseTile(true);
-			},
+			_pendingPinAction: false,
+			_pinAnimationInProgress: false,
 			_enrollmentChanged: function(enrollment) {
-				this._pinned = enrollment.hasClass('pinned');
+				this.pinned = enrollment.hasClass('pinned');
 
 				// The enrollment is updated (i.e. this handler is called) upon a pin/unpin response as well, but
 				// there's no need to update the organization in that case
@@ -196,7 +248,49 @@
 					this.$.organizationRequest.generateRequest();
 				}
 			},
-			onOrganizationResponse: function(response) {
+			_hoverCourseTile: function() {
+				if (this.hoverEnabled) {
+					this._setCourseTileHovered(true);
+				}
+			},
+			_hoverPinClickHandler: function(e) {
+				// Prevent the click from triggering navigation to the course
+				e.preventDefault();
+
+				this.pinClickHandler(false);
+			},
+			_hoverPinMenuItem: function() {
+				this._onUnpinHover({detail: {hoverState: true}});
+				this.hoverCourseTile();
+			},
+			_onAnimationComplete: function(e) {
+				var tileContainer = this.$$('.tile-container');
+
+				if (e.animationName.includes('scale-and-fade-out')) {
+					this.fire('tile-remove-complete', {enrollment: this.enrollment, pinned: this._pendingPinAction});
+				} else if (e.animationName.includes('scale-and-fade-in')) {
+					this.toggleClass('animate-insertion', false, tileContainer);
+					this.toggleClass('animate-insertion', false, this);
+					this.toggleClass('animate-insertion', false, this.$$('.tile-container'));
+					this.fire('tile-insert-complete', {enrollment: this.enrollment, pinned: this._pendingPinAction});
+				} else if (e.animationName.includes('tile-pre-insertion')) {
+					this.toggleClass('animate-insertion-pre', false, this);
+					this.toggleClass('animate-insertion', true, tileContainer);
+					this.toggleClass('animate-insertion', true, this);
+				}
+			},
+			_onEnrollmentPinError: function() {
+				// Just revert back to whatever pin state we already had stored
+				this.pinned = this.enrollment.hasClass('pinned');
+			},
+			_onEnrollmentPinResponse: function(response) {
+				if (response.detail.status === 200) {
+					// The pin action returns the updated enrollment, so update this.enrollment with the modified one
+					var parser = document.createElement('d2l-siren-parser');
+					this.enrollment = parser.parse(response.detail.xhr.response);
+				}
+			},
+			_onOrganizationResponse: function(response) {
 				if (response.detail.status === 200) {
 					var parser = document.createElement('d2l-siren-parser');
 					var organization = parser.parse(response.detail.xhr.response);
@@ -212,16 +306,11 @@
 					this._organizationHomepageUrl = organization.getLinkByRel(/\/organization-homepage$/).href;
 				}
 			},
-			onEnrollmentPinResponse: function(response) {
-				if (response.detail.status === 200) {
-					// The pin action returns the updated enrollment, so update this.enrollment with the modified one
-					var parser = document.createElement('d2l-siren-parser');
-					this.enrollment = parser.parse(response.detail.xhr.response);
-				}
+			_onTileMouseOut: function() {
+				this._unhoverCourseTile(true);
 			},
-			onEnrollmentPinError: function() {
-				// Just revert back to whatever pin state we already had stored
-				this._pinned = this.enrollment.hasClass('pinned');
+			_onUnpinHover: function(e) {
+				this.toggleClass('unpin-hovered', e.detail.hoverState, this);
 			},
 			_pinnedChanged: function(pinned) {
 				var pinIcon = this.$$('.menu-item iron-icon.menu-icon'),
@@ -238,31 +327,21 @@
 					Polymer.dom(unpinText).setAttribute('style', 'display: none');
 				}
 			},
-			_onAnimationComplete: function(e) {
-				var tileContainer = this.$$('.tile-container');
-
-				if (e.animationName.includes('scale-and-fade-out')) {
-					this.fire('tile-remove-complete', {enrollment: this.enrollment, pinned: this.pendingPinAction});
-				} else if (e.animationName.includes('scale-and-fade-in')) {
-					this.toggleClass('animate-insertion', false, tileContainer);
-					this.toggleClass('animate-insertion', false, this);
-					this.toggleClass('animate-insertion', false, this.$$('.tile-container'));
-					this.fire('tile-insert-complete', {enrollment: this.enrollment, pinned: this.pendingPinAction});
-				} else if (e.animationName.includes('tile-pre-insertion')) {
-					this.toggleClass('animate-insertion-pre', false, this);
-					this.toggleClass('animate-insertion', true, tileContainer);
-					this.toggleClass('animate-insertion', true, this);
+			_setCourseTileHovered: function(isHovered) {
+				this.toggleClass('hover', isHovered, this.$$('.tile-container'));
+				this.toggleClass('hover', isHovered, this.$$('.hover-menu'));
+				this.toggleClass('hover', isHovered, this.$$('.course-image-container'));
+			},
+			_unhoverCourseTile: function(force) {
+				if ((force === true || Polymer.dom(this.root).querySelectorAll(':hover').length === 0) &&
+					!this._pinAnimationInProgress) {
+					this._setCourseTileHovered(false);
 				}
 			},
-			_onUnpinHover: function(e) {
-				this.toggleClass('unpin-hovered', e.detail.hoverState, this);
-			},
-			_setTouchMenuOpen: function(isOpen) {
-				this.toggleClass('touch-menu-open', isOpen, this);
-				this.toggleClass('hover', isOpen, this);
-			},
-			pendingPinAction: false,
-			pinAnimationInProgress: false
+			_unhoverPinMenuItem: function() {
+				this._onUnpinHover({detail: {hoverState: false}});
+				this._unhoverCourseTile();
+			}
 		});
 	</script>
 </dom-module>

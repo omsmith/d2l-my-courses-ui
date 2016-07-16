@@ -7,12 +7,25 @@
 		Polymer.D2L = Polymer.D2L || {};
 		Polymer.D2L.MyCourses = Polymer.D2L.MyCourses || {};
 
+		/*
+		* Behavior for elements that require localization, based on `app-localize-behavior`
+		*
+		* @polymerBehavior
+		*/
 		Polymer.D2L.MyCourses.LocalizeBehaviorImpl = {
 			properties: {
+				/*
+				* Language string
+				* @type {String}
+				*/
 				language: {
 					type: String,
 					computed: '_determineLanguage(locale, resources)'
 				},
+				/*
+				* Locale string
+				* @type {String}
+				*/
 				locale: {
 					type: String,
 					value: function() {
@@ -21,6 +34,10 @@
 							|| 'en-us';
 					}
 				},
+				/*
+				* Translation resources
+				* @type {Object}
+				*/
 				resources: {
 					value: function() {
 						var en = {

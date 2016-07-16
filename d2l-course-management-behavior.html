@@ -10,8 +10,21 @@
 		Polymer.D2L = Polymer.D2L || {};
 		Polymer.D2L.MyCourses = Polymer.D2L.MyCourses || {};
 
+		/*
+		* Behavior that allows for course management
+		*
+		* "Management" in this case means having a pinned and unpinned list, and supporting switching an enrollment between the
+		* two. This also contains some A11Y functionality to aria-announce when an enrollment changes between pinned and
+		* unpinned.
+		*
+		* @polymerBehavior Polymer.D2L.MyCourses.CourseManagementBehavior
+		*/
 		Polymer.D2L.MyCourses.CourseManagementBehaviorImpl = {
 			properties: {
+				/*
+				* Set of pinned enrollment entities
+				* @type {Array<Entity>}
+				*/
 				pinnedEnrollments: {
 					type: Array,
 					value: function() {
@@ -19,6 +32,10 @@
 					},
 					notify: true
 				},
+				/*
+				* Set of unpinned enrollment entities
+				* @type {Array<Entity>}
+				*/
 				unpinnedEnrollments: {
 					type: Array,
 					value: function() {
@@ -26,6 +43,13 @@
 					},
 					notify: true
 				},
+				/*
+				* Set of enrollments that are being transferred from unpinned to pinned state
+				*
+				* Only used by `d2l-all-courses`
+				*
+				* @type {Array<Entity>}
+				*/
 				pinnedEnrollmentsQueue: {
 					type: Array,
 					value: function() {
@@ -33,6 +57,13 @@
 					},
 					notify: true
 				},
+				/*
+				* Set of enrollments that are being transferred from pinned to unpinned state
+				*
+				* Only used by `d2l-all-courses`
+				*
+				* @type Array{Entity}
+				*/
 				unpinnedEnrollmentsQueue: {
 					type: Array,
 					value: function() {
@@ -40,15 +71,30 @@
 					},
 					notify: true
 				},
+				/*
+				* If enabled, the component will use the pinned/unpinned enrollment queues
+				*
+				* In the case of `d2l-all-courses`, the enrollments are switching lists, so this is required.
+				*
+				* @type {Boolean}
+				*/
+				usePendingLists: {
+					type: Boolean,
+					value: false
+				},
+				/*
+				* True when there are pinned enrollments (i.e. `pinnedEnrollments.length > 0`)
+				* @type {Boolean}
+				*/
 				_hasPinnedEnrollments: {
 					type: Boolean,
 					value: false
 				},
+				/*
+				* True when there are any enrollments (pinned or unpinned)
+				* @type {Boolean}
+				*/
 				_hasEnrollments: {
-					type: Boolean,
-					value: false
-				},
-				usePendingLists: {
 					type: Boolean,
 					value: false
 				}
@@ -70,27 +116,24 @@
 				this._announceElement = document.createElement('d2l-offscreen');
 				this._announceElement.setAttribute('aria-live', 'polite');
 			},
-			_onEnrollmentPinned: function(e) {
-				this._ariaAnnounce(this.localize('pinActionResult', 'course', e.detail.organization.properties.name));
+			/*
+			* A11Y `d2l-offscreen` announcement text
+			* @type {String}
+			*/
+			get ariaMessage() {
+				return this._announceElement.textContent;
 			},
-			_onEnrollmentUnpinned: function(e) {
-				this._ariaAnnounce(this.localize('unpinActionResult', 'course', e.detail.organization.properties.name));
-			},
-			_onTileRemoveComplete: function(e) {
-				if (e.detail.pinned) {
-					this._moveEnrollmentToPinnedList(e.detail.enrollment);
-				} else {
-					this._moveEnrollmentToUnpinnedList(e.detail.enrollment);
-				}
-
-				e.stopPropagation();
+			_announceElement: null,
+			_ariaAnnounce: function(message) {
+				this._announceElement.textContent = '';
+				this._announceElement.textContent = message;
 			},
 			_moveEnrollmentToPinnedList: function(enrollment) {
 				// Remove enrollment from unpinned list, add to pinned
-				var enrollmentId = this._getEnrollmentIdentifier(enrollment);
+				var enrollmentId = this.getEnrollmentIdentifier(enrollment);
 
 				for (var index = 0; index < this.unpinnedEnrollments.length; index++) {
-					var pinnedEnrollmentId = this._getEnrollmentIdentifier(this.unpinnedEnrollments[index]);
+					var pinnedEnrollmentId = this.getEnrollmentIdentifier(this.unpinnedEnrollments[index]);
 					if (pinnedEnrollmentId === enrollmentId) {
 						var foundEnrollment = this.unpinnedEnrollments[index];
 						this._setEnrollmentPinData(foundEnrollment, true);
@@ -110,10 +153,10 @@
 			},
 			_moveEnrollmentToUnpinnedList: function(enrollment) {
 				// Remove enrollment from pinned list, add to unpinned
-				var enrollmentId = this._getEnrollmentIdentifier(enrollment);
+				var enrollmentId = this.getEnrollmentIdentifier(enrollment);
 
 				for (var index = 0; index < this.pinnedEnrollments.length; index++) {
-					var unpinnedEnrollmentId = this._getEnrollmentIdentifier(this.pinnedEnrollments[index]);
+					var unpinnedEnrollmentId = this.getEnrollmentIdentifier(this.pinnedEnrollments[index]);
 					if (unpinnedEnrollmentId === enrollmentId) {
 						var foundEnrollment = this.pinnedEnrollments[index];
 						this._setEnrollmentPinData(foundEnrollment, false);
@@ -131,6 +174,24 @@
 					}
 				}
 			},
+			_onEnrollmentPinned: function(e) {
+				this._ariaAnnounce(this.localize('pinActionResult', 'course', e.detail.organization.properties.name));
+			},
+			_onEnrollmentUnpinned: function(e) {
+				this._ariaAnnounce(this.localize('unpinActionResult', 'course', e.detail.organization.properties.name));
+			},
+			_onPinnedEnrollmentsChanged: function(newArray) {
+				this._hasPinnedEnrollments = !newArray.base || newArray.base.length > 0;
+			},
+			_onTileRemoveComplete: function(e) {
+				if (e.detail.pinned) {
+					this._moveEnrollmentToPinnedList(e.detail.enrollment);
+				} else {
+					this._moveEnrollmentToUnpinnedList(e.detail.enrollment);
+				}
+
+				e.stopPropagation();
+			},
 			_setEnrollmentPinData: function(entity, isPinned) {
 				// HACK: Because the course tiles are being removed and re-created in the DOM, we have to effectively
 				// manually update them, rather than updating them with the received enrollment from the API call.
@@ -147,17 +208,6 @@
 					entity.actions[0].fields[0].value = true;
 					entity._actionsByName['pin-course'] = entity.actions[0];
 				}
-			},
-			_announceElement: null,
-			_ariaAnnounce: function(message) {
-				this._announceElement.textContent = '';
-				this._announceElement.textContent = message;
-			},
-			get ariaMessage() {
-				return this._announceElement.textContent;
-			},
-			_onPinnedEnrollmentsChanged: function(newArray) {
-				this._hasPinnedEnrollments = !newArray.base || newArray.base.length > 0;
 			}
 		};
 

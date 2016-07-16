@@ -127,7 +127,7 @@ describe('<d2l-course-tile>', function() {
 		});
 
 		it('should set the internal pinned state correctly', function() {
-			expect(widget._pinned).to.be.true;
+			expect(widget.pinned).to.be.true;
 		});
 
 		it('should hide image from screen readers', function() {
@@ -168,7 +168,7 @@ describe('<d2l-course-tile>', function() {
 		});
 
 		it('should set the update action parameters correctly', function() {
-			widget.hoverPinClickHandler(event);
+			widget._hoverPinClickHandler(event);
 
 			expect(widget._enrollmentPinUrl).to.equal('/enrollments/users/169/organizations/1');
 			expect(widget._enrollmentPinMethod).to.equal('PUT');
@@ -177,9 +177,9 @@ describe('<d2l-course-tile>', function() {
 		it('should update the icon', function() {
 			var pinIcon = widget.$$('.menu-item iron-icon.menu-icon');
 
-			widget._pinned = false;
+			widget.pinned = false;
 			expect(pinIcon.icon).to.equal('d2l-tier1:pin-filled');
-			widget._pinned = true;
+			widget.pinned = true;
 			expect(pinIcon.icon).to.equal('d2l-tier1:pin-hollow');
 		});
 
@@ -192,7 +192,7 @@ describe('<d2l-course-tile>', function() {
 					done();
 				});
 
-			widget.hoverPinClickHandler(event);
+			widget._hoverPinClickHandler(event);
 		});
 
 		it('should update the local pinned state with the received pin state', function(done) {
@@ -201,13 +201,13 @@ describe('<d2l-course-tile>', function() {
 				'/enrollments/users/169/organizations/1',
 				[200, {}, JSON.stringify(enrollment)]);
 
-			expect(widget._pinned).to.be.true;
-			widget.hoverPinClickHandler(event);
-			expect(widget._pinned).to.be.false;
+			expect(widget.pinned).to.be.true;
+			widget._hoverPinClickHandler(event);
+			expect(widget.pinned).to.be.false;
 
 			setTimeout(function() {
 				// We responded with pinned = true, so it gets set back to true by the response
-				expect(widget._pinned).to.be.true;
+				expect(widget.pinned).to.be.true;
 				done();
 			}, 10);
 		});

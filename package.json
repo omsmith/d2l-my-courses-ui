@@ -7,7 +7,7 @@
     "build": "cp d2l-*.html ./dist/",
     "postinstall": "bower install",
     "publish:cdn": "npm run build -s && frau-publisher",
-    "serve": "polyserve",
+    "serve": "polymer serve",
     "test:lint": "eslint test/ --ext .js,.html && eslint *.html",
     "test": "npm run test:lint && wct",
     "test:no-lint": "wct -p"
@@ -46,6 +46,7 @@
     "eslint-config-brightspace": "^0.2.1",
     "eslint-plugin-html": "^1.4.0",
     "frau-publisher": "^2.5.3",
+    "polymer-cli": "^0.12.0",
     "polyserve": "^0.7.1",
     "rimraf": "^2.5.2",
     "web-component-tester": "^4.2.2"

@@ -7,6 +7,9 @@
 <link rel="import" href="d2l-course-tile-grid-styles.html">
 <link rel="import" href="d2l-utility-behavior.html">
 
+<!--
+`<d2l-course-tile-grid>` is the wrapper that contains several `<d2l-course-tile>` elements
+-->
 <dom-module id="d2l-course-tile-grid">
 	<template>
 		<style include="d2l-my-courses-styles"></style>
@@ -23,8 +26,8 @@
 				<d2l-course-tile
 					enrollment="[[item]]"
 					hover-enabled="[[_hoverInteractionEnabled]]"
-					animate-insertion="[[removeEnrollmentFromTransitionList(item)]]"
-					enrollment-id="[[_getEnrollmentIdentifier(item)]]">
+					animate-insertion="[[_removeEnrollmentFromTransitionList(item)]]"
+					enrollment-id="[[getEnrollmentIdentifier(item)]]">
 				</d2l-course-tile>
 			</template>
 		</div>
@@ -44,7 +47,17 @@
 
 		Polymer({
 			is: 'd2l-course-tile-grid',
+
+			/*
+			* Fired when the sliding animation of course tiles is finished
+			* @event slide-animation-finished
+			*/
+
 			properties: {
+				/*
+				* Set of enrollment entities for which to display course tiles
+				* @type {Array<Entity>}
+				*/
 				enrollments: {
 					type: Array,
 					notify: true,
@@ -52,6 +65,10 @@
 						return [];
 					}
 				},
+				/*
+				* Queue for incoming enrollment entities
+				* @type {Array<Entity>}
+				*/
 				enrollmentsQueue: {
 					type: Array,
 					notify: true,
@@ -87,31 +104,72 @@
 				this._courseTileBoundingRects = [];
 				this._clearAnimationState();
 			},
-			_onEnrollmentsQueueChanged: function(enrollments) {
-				if (enrollments.base && enrollments.base.length > 0) {
-					var newEnrollments = this.splice('enrollmentsQueue', 0, 1);
-					this._animateTileSlide(true, 0, newEnrollments[0]);
-				}
+			/*
+			* @return {Number} Total number of enrollments/course tiles
+			*/
+			getCourseTileItemCount: function() {
+				return this.enrollments.length;
+			},
+			_animationState: null,
+			_tilesInPinStateTransition: null,
+			_animations: null,
+			_domChangeListener: null,
+			_containerBoundingRect: null,
+			_courseTileBoundingRects: null,
+			_containerWidth: 0,
+			_animateContainer: function(container, newHeight, containerAnimationDelay) {
+				// Expand/contract container
+				var containerAnimation = container.animate([{
+					width: this._containerBoundingRect.width + 'px',
+					height: this._containerBoundingRect.height + 'px'
+				}, {
+					width: this._containerBoundingRect.width + 'px',
+					height: newHeight + 'px'
+				}], {
+					fill: 'both',
+					delay: containerAnimationDelay,
+					duration: 200,
+					easing: 'linear'
+				});
+
+				this._animations.push(containerAnimation);
+			},
+			_animateCourseTile: function(courseTile, fromPos, toPos, delayTime) {
+				// Use Web Animations API directly as neon-animation doesn't (effectively) support animation-fill-mode
+				var animation = courseTile.animate([
+					{transform: 'translate3d(' + fromPos.left + 'px,' + fromPos.top + 'px, 0)'},
+					{transform: 'translate3d(' + toPos.left + 'px,' + toPos.top + 'px, 0)'}
+				], {
+					fill: 'both',
+					delay: delayTime * 1000,
+					duration: 300,
+					easing: 'cubic-bezier(0.91, 0.03, 0.85, 0.36)'
+				});
+
+				animation.finished.then(function(animation, enrollmentId) {
+					this.fire('slide-animation-finished', {id: enrollmentId});
+				}.bind(this, animation, courseTile.enrollmentId));
+
+				this._animations.push(animation);
 			},
 			_animateTileSlide: function(isInsertion, enrollmentIndex, enrollment) {
 				var container = this.$$('.my-courses-container');
-				var courseTiles = container.querySelectorAll('d2l-course-tile');
 				var lastAnimatedCourseIndex = isInsertion ? 0 : (this.enrollments.length - 1);
 
 				this._animationState.isAnimating = true;
 				this._animationState.isInsertion = isInsertion;
 
 				if (this.enrollments.length > 0) {
-					this._animationState.lastAnimatedCourseTileId = this._getEnrollmentIdentifier(this.enrollments[lastAnimatedCourseIndex]);
+					this._animationState.lastAnimatedCourseTileId = this.getEnrollmentIdentifier(this.enrollments[lastAnimatedCourseIndex]);
 				} else {
 					this._animationState.slideAnimationComplete = true;
 				}
 
-				this._updateCourseTileGridInfo(courseTiles);
+				this._updateCourseTileGridInfo();
 
 				if (isInsertion) {
 					// If inserting, set tile as in transition, and listen for DOM change to know when new course tile is added and tiles can be animated
-					this._tilesInPinStateTransition.push(this._getEnrollmentIdentifier(enrollment));
+					this._tilesInPinStateTransition.push(this.getEnrollmentIdentifier(enrollment));
 					this.unshift('enrollments', enrollment);
 
 					var gridTemplate = container.querySelector('template');
@@ -119,6 +177,97 @@
 					gridTemplate.addEventListener('dom-change', this._domChangeListener);
 				} else {
 					this._doTileSlideAnimation(false, enrollmentIndex, container, this._numCols);
+				}
+			},
+			_cancelAnimations: function() {
+				// Cancel all animations regardless of play state - if this is called, then the layout is ready
+				// to be switched to relative positioning
+				for (var i = 0; i < this._animations.length; i++) {
+					this._animations[i].cancel();
+				}
+
+				this._animations.length = 0;
+			},
+			_checkAnimationComplete: function() {
+				if (this._animationState.isAnimating) {
+					if (this._animationState.scaleAnimationComplete &&
+						this._animationState.slideAnimationComplete) {
+
+						if (this._animationState.isInsertion) {
+							this.toggleClass('animate-insertion', false, this._animationState.newCourseTile);
+						}
+
+						var container = this.$$('.my-courses-container');
+						this.toggleClass('animate', false, container);
+
+						this._cancelAnimations();
+						this._clearAnimationState();
+
+						return true;
+					}
+				}
+
+				return false;
+			},
+			_clearAnimationState: function() {
+				this._animationState = this._animationState || {};
+
+				this._animationState.isAnimating = false;
+				this._animationState.isInsertion = false;
+				this._animationState.scaleAnimationComplete = false;
+				this._animationState.slideAnimationComplete = false;
+				this._animationState.lastAnimatedCourseTileId = null;
+				this._animationState.newCourseTile = null;
+			},
+			_doTileSlideAnimation: function(isInsertion, tileIndex, container, columns) {
+				var courseTiles = container.querySelectorAll('d2l-course-tile');
+				var containerAnimationDelay = 0;
+
+				if (this._domChangeListener) {
+					this.$.enrollmentsTemplate.removeEventListener('dom-change', this._domChangeListener);
+					this._domChangeListener = null;
+				}
+
+				if (isInsertion) {
+					// If inserting a tile, we need to insert offset data for it.
+					var newTileBoundingRect = {
+						width: courseTiles[0].offsetWidth,
+						height: courseTiles[0].offsetHeight,
+						left: courseTiles[0].offsetLeft,
+						top: courseTiles[0].offsetTop
+					};
+
+					this._courseTileBoundingRects.unshift(newTileBoundingRect);
+				}
+
+				var newLayoutInfo = this._getNewTileLayout(this._courseTileBoundingRects, columns, isInsertion, tileIndex, this._containerWidth);
+				var delayPerTile = 0.05;
+
+				if (this._courseTileBoundingRects.length > 0) {
+					delayPerTile = Math.min(delayPerTile, 0.2 / this._courseTileBoundingRects.length);
+				}
+
+				if (isInsertion) {
+					courseTiles[0].customStyle['--insertion-delay'] = (delayPerTile * (courseTiles.length + 0.25)) + 's';
+					this.updateStyles();
+				} else {
+					containerAnimationDelay =  ((courseTiles.length - 1 - tileIndex) * delayPerTile * 1000) + 300;
+				}
+
+				this.toggleClass('animate', true, container);
+				this._animateContainer(container, newLayoutInfo.newContainerHeight, containerAnimationDelay);
+
+				// Animate each course tile to its new position
+				for (var i = 0; i < courseTiles.length; i++) {
+					var delayTime = 0;
+
+					if (isInsertion) {
+						delayTime = ((courseTiles.length - 1) - i) * delayPerTile;
+					} else {
+						delayTime = 0.1 + ((i - tileIndex) * delayPerTile);
+					}
+
+					this._animateCourseTile(courseTiles[i], this._courseTileBoundingRects[i], newLayoutInfo.newPositions[i], delayTime);
 				}
 			},
 			/*
@@ -173,121 +322,28 @@
 					newContainerHeight: maxYPx
 				};
 			},
-			_doTileSlideAnimation: function(isInsertion, tileIndex, container, columns) {
-				var courseTiles = container.querySelectorAll('d2l-course-tile');
-				var containerAnimationDelay = 0;
-
-				if (this._domChangeListener) {
-					this.$.enrollmentsTemplate.removeEventListener('dom-change', this._domChangeListener);
-					this._domChangeListener = null;
-				}
-
-				if (isInsertion) {
-					// If inserting a tile, we need to insert offset data for it.
-					var newTileBoundingRect = {
-						width: courseTiles[0].offsetWidth,
-						height: courseTiles[0].offsetHeight,
-						left: courseTiles[0].offsetLeft,
-						top: courseTiles[0].offsetTop
-					};
-
-					this._courseTileBoundingRects.unshift(newTileBoundingRect);
-				}
-
-				var newLayoutInfo = this._getNewTileLayout(this._courseTileBoundingRects, columns, isInsertion, tileIndex, this._containerWidth);
-				var delayPerTile = 0.05;
-
-				if (this._courseTileBoundingRects.length > 0) {
-					delayPerTile = Math.min(delayPerTile, 0.2 / this._courseTileBoundingRects.length);
-				}
-
-				if (isInsertion) {
-					courseTiles[0].customStyle['--insertion-delay'] = (delayPerTile * (courseTiles.length + 0.25)) + 's';
-					this.updateStyles();
-				} else {
-					containerAnimationDelay =  ((courseTiles.length - 1 - tileIndex) * delayPerTile * 1000) + 300;
-				}
-
-				this.toggleClass('animate', true, container);
-				this._animateContainer(container, newLayoutInfo.newContainerHeight, containerAnimationDelay);
-
-				// Animate each course tile to its new position
-				for (var i = 0; i < courseTiles.length; i++) {
-					var delayTime = 0;
-
-					if (isInsertion) {
-						delayTime = ((courseTiles.length - 1) - i) * delayPerTile;
-					} else {
-						delayTime = 0.1 + ((i - tileIndex) * delayPerTile);
-					}
-
-					this._animateCourseTile(courseTiles[i], this._courseTileBoundingRects[i], newLayoutInfo.newPositions[i], delayTime);
-				}
-			},
-			removeEnrollmentFromTransitionList: function(enrollment) {
-				var enrollmentId = this._getEnrollmentIdentifier(enrollment);
-				var index = this._tilesInPinStateTransition.indexOf(enrollmentId);
-
-				if (index !== -1) {
-					this._tilesInPinStateTransition.splice(index, 1);
-					return true;
-				}
-
-				return false;
-			},
-			getCourseTileItemCount: function() {
-				return this.enrollments.length;
-			},
-			_onTileInsertionComplete: function(e) {
-				if (this._animationState.isAnimating) {
-					this._animationState.scaleAnimationComplete = true;
-					this._animationState.newCourseTile = Polymer.dom(e).rootTarget;
-					this._checkAnimationComplete(e);
-				}
+			_onCourseTilesChanged: function() {
+				var courseTiles = Polymer.dom(this.root).querySelectorAll('d2l-course-tile');
+				this.$$('d2l-touch-menu').touchTargets = Array.prototype.slice.call(courseTiles);
 			},
 			_onEnrollmentPinAction: function(e) {
 				// If an enrollment was (un)pinned from this grid (ie. a course tile had a pin action invoked on it, such that it (should) leave
 				// this grid), then we need to slide other tiles in to fill its place
-				var modifiedEnrollmentId = this._getEnrollmentIdentifier(e.detail.enrollment);
+				var modifiedEnrollmentId = this.getEnrollmentIdentifier(e.detail.enrollment);
 
 				for (var i = 0; i < this.enrollments.length; i++) {
-					var enrollmentId = this._getEnrollmentIdentifier(this.enrollments[i]);
+					var enrollmentId = this.getEnrollmentIdentifier(this.enrollments[i]);
 					if (enrollmentId === modifiedEnrollmentId) {
 						this._animateTileSlide(false, i);
 						break;
 					}
 				}
 			},
-			_clearAnimationState: function() {
-				this._animationState = this._animationState || {};
-
-				this._animationState.isAnimating = false;
-				this._animationState.isInsertion = false;
-				this._animationState.scaleAnimationComplete = false;
-				this._animationState.slideAnimationComplete = false;
-				this._animationState.lastAnimatedCourseTileId = null;
-				this._animationState.newCourseTile = null;
-			},
-			_checkAnimationComplete: function() {
-				if (this._animationState.isAnimating) {
-					if (this._animationState.scaleAnimationComplete &&
-						this._animationState.slideAnimationComplete) {
-
-						if (this._animationState.isInsertion) {
-							this.toggleClass('animate-insertion', false, this._animationState.newCourseTile);
-						}
-
-						var container = this.$$('.my-courses-container');
-						this.toggleClass('animate', false, container);
-
-						this._cancelAnimations();
-						this._clearAnimationState();
-
-						return true;
-					}
+			_onEnrollmentsQueueChanged: function(enrollments) {
+				if (enrollments.base && enrollments.base.length > 0) {
+					var newEnrollments = this.splice('enrollmentsQueue', 0, 1);
+					this._animateTileSlide(true, 0, newEnrollments[0]);
 				}
-
-				return false;
 			},
 			_onSlideAnimationComplete: function(e) {
 				if (this._animationState.isAnimating) {
@@ -297,50 +353,34 @@
 					}
 				}
 			},
+			_onTileInsertionComplete: function(e) {
+				if (this._animationState.isAnimating) {
+					this._animationState.scaleAnimationComplete = true;
+					this._animationState.newCourseTile = Polymer.dom(e).rootTarget;
+					this._checkAnimationComplete(e);
+				}
+			},
 			_onTileRemoveComplete: function(e) {
 				if (this._animationState.isAnimating) {
 					this._animationState.scaleAnimationComplete = true;
 					this._checkAnimationComplete(e);
 				}
 			},
-			_cancelAnimations: function() {
-				// Cancel all animations regardless of play state - if this is called, then the layout is ready
-				// to be switched to relative positioning
-				for (var i = 0; i < this._animations.length; i++) {
-					this._animations[i].cancel();
-				}
-
-				this._animations.length = 0;
+			_onTouchPinSelect: function(e) {
+				e.detail.element.pinClickHandler(true);
 			},
-			/*
-			* Caches information position/size information
-			*/
-			_updateCourseTileGridInfo: function(courseTiles) {
-				var elements = courseTiles || Polymer.dom(this.root).querySelectorAll('d2l-course-tile');
-				this._courseTileBoundingRects.length = 0;
-				this._containerBoundingRect = this.$$('.my-courses-container').getBoundingClientRect();
-
-				Array.prototype.forEach.call(elements, function(element) {
-					var offsetData = {
-						width: element.offsetWidth,
-						height: element.offsetHeight,
-						top: element.offsetTop,
-						left: element.offsetLeft
-					};
-
-					this._courseTileBoundingRects.push(offsetData);
-				}.bind(this));
+			_onTouchMenuOpen: function(e) {
+				e.detail.element.setTouchMenuOpen(true);
 			},
-			_onCourseTilesChanged: function() {
-				var courseTiles = Polymer.dom(this.root).querySelectorAll('d2l-course-tile');
-				this.$$('d2l-touch-menu').touchTargets = Array.prototype.slice.call(courseTiles);
+			_onTouchMenuClose: function(e) {
+				e.detail.element.setTouchMenuOpen(false);
 			},
 			_onUnpinHover: function(e) {
 				var pinTouchMenuItem = this.$$('d2l-touch-menu-item');
 				var courseTile = e.detail.element;
 
 				// Get pin state of element and update touch menu
-				if (courseTile._pinned) {
+				if (courseTile.pinned) {
 					Polymer.dom(pinTouchMenuItem).setAttribute('text', this.localize('unpin'));
 					Polymer.dom(pinTouchMenuItem).setAttribute('background-image', 'd2l-tier1:pin-hollow');
 					Polymer.dom(pinTouchMenuItem).setAttribute('action-description', this.localize('unpinCourse', 'course', courseTile._organization.properties.name));
@@ -352,57 +392,36 @@
 
 				e.detail.element._onUnpinHover(e);
 			},
-			_onTouchPinSelect: function(e) {
-				e.detail.element._pinClickHandler(true);
-			},
-			_onTouchMenuOpen: function(e) {
-				e.detail.element._setTouchMenuOpen(true);
-			},
-			_onTouchMenuClose: function(e) {
-				e.detail.element._setTouchMenuOpen(false);
-			},
-			_animateCourseTile: function(courseTile, fromPos, toPos, delayTime) {
-				// Use Web Animations API directly as neon-animation doesn't (effectively) support animation-fill-mode
-				var animation = courseTile.animate([
-					{transform: 'translate3d(' + fromPos.left + 'px,' + fromPos.top + 'px, 0)'},
-					{transform: 'translate3d(' + toPos.left + 'px,' + toPos.top + 'px, 0)'}
-				], {
-					fill: 'both',
-					delay: delayTime * 1000,
-					duration: 300,
-					easing: 'cubic-bezier(0.91, 0.03, 0.85, 0.36)'
-				});
+			_removeEnrollmentFromTransitionList: function(enrollment) {
+				var enrollmentId = this.getEnrollmentIdentifier(enrollment);
+				var index = this._tilesInPinStateTransition.indexOf(enrollmentId);
 
-				animation.finished.then(function(animation, enrollmentId) {
-					this.fire('slide-animation-finished', {id: enrollmentId});
-				}.bind(this, animation, courseTile.enrollmentId));
+				if (index !== -1) {
+					this._tilesInPinStateTransition.splice(index, 1);
+					return true;
+				}
 
-				this._animations.push(animation);
+				return false;
 			},
-			_animateContainer: function(container, newHeight, containerAnimationDelay) {
-				// Expand/contract container
-				var containerAnimation = container.animate([{
-					width: this._containerBoundingRect.width + 'px',
-					height: this._containerBoundingRect.height + 'px'
-				}, {
-					width: this._containerBoundingRect.width + 'px',
-					height: newHeight + 'px'
-				}], {
-					fill: 'both',
-					delay: containerAnimationDelay,
-					duration: 200,
-					easing: 'linear'
-				});
+			/*
+			* Caches information position/size information
+			*/
+			_updateCourseTileGridInfo: function() {
+				var courseTiles = Polymer.dom(this.root).querySelectorAll('d2l-course-tile');
+				this._courseTileBoundingRects.length = 0;
+				this._containerBoundingRect = this.$$('.my-courses-container').getBoundingClientRect();
 
-				this._animations.push(containerAnimation);
-			},
-			_animationState: null,
-			_tilesInPinStateTransition: null,
-			_animations: null,
-			_domChangeListener: null,
-			_containerBoundingRect: null,
-			_courseTileBoundingRects: null,
-			_containerWidth: 0
+				Array.prototype.forEach.call(courseTiles, function(element) {
+					var offsetData = {
+						width: element.offsetWidth,
+						height: element.offsetHeight,
+						top: element.offsetTop,
+						left: element.offsetLeft
+					};
+
+					this._courseTileBoundingRects.push(offsetData);
+				}.bind(this));
+			}
 		});
 	</script>
 </dom-module>
