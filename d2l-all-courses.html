@@ -14,24 +14,25 @@
 	<template>
 		<style include="d2l-all-courses-styles"></style>
 
-		<div class="dialog-content">
-			<h2 class="d2l-heading-3">{{localize('pinnedCourses')}}</h2>
-			<template is="dom-if" if="[[!_hasPinnedEnrollments]]">
-				<d2l-alert visible="[[!_hasPinnedEnrollments]]">
-					{{localize('noPinnedCoursesMessage')}}
-				</d2l-alert>
-			</template>
-			<d2l-course-tile-grid
-				enrollments="{{pinnedEnrollments}}"
-				enrollments-queue="{{pinnedEnrollmentsQueue}}">
-			</d2l-course-tile-grid>
+		<h2 class="d2l-heading-3">{{localize('pinnedCourses')}}</h2>
 
-			<h2 class="d2l-heading-3">{{localize('unpinnedCourses')}}</h2>
-			<d2l-course-tile-grid
-				enrollments="{{unpinnedEnrollments}}"
-				enrollments-queue="{{unpinnedEnrollmentsQueue}}">
-			</d2l-course-tile-grid>
-		</div>
+		<template is="dom-if" if="[[!_hasPinnedEnrollments]]">
+			<d2l-alert visible="[[!_hasPinnedEnrollments]]">
+				{{localize('noPinnedCoursesMessage')}}
+			</d2l-alert>
+		</template>
+
+		<d2l-course-tile-grid
+			enrollments="{{pinnedEnrollments}}"
+			enrollments-queue="{{pinnedEnrollmentsQueue}}">
+		</d2l-course-tile-grid>
+
+		<h2 class="d2l-heading-3">{{localize('unpinnedCourses')}}</h2>
+
+		<d2l-course-tile-grid
+			enrollments="{{unpinnedEnrollments}}"
+			enrollments-queue="{{unpinnedEnrollmentsQueue}}">
+		</d2l-course-tile-grid>
 	</template>
 
 	<script>
@@ -46,12 +47,10 @@
 			],
 			ready: function() {
 				this.usePendingLists = true;
-			},
-			created: function() {
-				var courseTileGrids = Polymer.dom(this.root).querySelectorAll('d2l-course-tile-grid');
 
+				// Both course tile grids in this view should have the same number of columns, so use a custom getter
+				var courseTileGrids = Polymer.dom(this.root).querySelectorAll('d2l-course-tile-grid');
 				for (var i = 0; i < courseTileGrids.length; i++) {
-					// Use global course tile count for each course tile grid
 					courseTileGrids[i].getCourseTileItemCount = this.getCourseTileItemCount.bind(this);
 				}
 			},
@@ -81,17 +80,6 @@
 				var itemCount = Math.max(this.pinnedEnrollments.length, this.unpinnedEnrollments.length);
 
 				return itemCount;
-			},
-			_getOverlayWidth: function() {
-				return this._getAvailableWidth(this.$$('.dialog-content'));
-			},
-			_rescaleCourseTileRegions: function(forcedWidth) {
-				var itemCount = this.getCourseTileItemCount();
-				var courseTileGrids = Polymer.dom(this.root).querySelectorAll('d2l-course-tile-grid');
-
-				for (var i = 0; i < courseTileGrids.length; i++) {
-					courseTileGrids[i]._rescaleCourseTileRegions(forcedWidth, itemCount);
-				}
 			}
 		});
 	</script>

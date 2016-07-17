@@ -71,6 +71,12 @@
 
 		Polymer({
 			is: 'd2l-my-courses',
+
+			/*
+			* Fired when enrollments are received, to trigger recalculation of the number of columns
+			* @event recalculate-columns
+			*/
+
 			properties: {
 				/*
 				* Allows for delaying the call to `enrollmentsUrl` (required by tests)
@@ -185,7 +191,7 @@
 						this._alertMessage = this.localize('noPinnedCoursesMessage');
 					}
 
-					this.$$('d2l-course-tile-grid')._rescaleCourseTileRegions();
+					this.fire('recalculate-columns');
 				}
 			},
 			_openAllCoursesView: function(e) {
@@ -194,8 +200,8 @@
 				this.$$('d2l-simple-overlay').open();
 
 				setTimeout(function() {
-					var allCourses = this.$$('d2l-all-courses');
-					allCourses._rescaleCourseTileRegions(allCourses._getOverlayWidth());
+					// Slight delay to allow for overlay to get a DOM width before triggering the recalculation
+					this.fire('recalculate-columns');
 				}.bind(this), 50);
 			},
 			_refreshPage: function() {
