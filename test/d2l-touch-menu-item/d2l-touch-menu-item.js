@@ -43,13 +43,13 @@ describe('<d2l-touch-menu-item>', function() {
 
 	describe('interaction', function() {
 		beforeEach(function() {
-			sinon.stub( touchMenuItem, 'width', {
+			sinon.stub(touchMenuItem, 'width', {
 				get: function()	{
 					return 24;
 				}
 			});
 
-			sinon.stub( touchMenuItem, 'height', {
+			sinon.stub(touchMenuItem, 'height', {
 				get: function() {
 					return 24;
 				}
@@ -74,7 +74,7 @@ describe('<d2l-touch-menu-item>', function() {
 
 		it('should not register a point outside its touch region', function() {
 			var point = {
-				x: touchMenuItem.touchRegion.top - 10,
+				x: touchMenuItem.touchRegion.top - 40, // Includes _touchRadiusPadding
 				y: touchMenuItem.touchRegion.left - 10
 			};
 
