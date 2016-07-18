@@ -89,6 +89,7 @@ describe('smoke test', function() {
 	});
 
 	beforeEach(function() {
+		// Not actually required, but avoids a bunch of errors in the test output
 		server = sinon.fakeServer.create();
 		server.respondImmediately = true;
 		server.respondWith(
@@ -97,9 +98,6 @@ describe('smoke test', function() {
 			[200, {}, JSON.stringify(organization)]);
 
 		widget = fixture('d2l-all-courses-fixture');
-
-		widget.pinnedEnrollments = [pinnedEnrollmentEntity];
-		widget.unpinnedEnrollments = [unpinnedEnrollmentEntity];
 	});
 
 	afterEach(function() {
@@ -108,6 +106,25 @@ describe('smoke test', function() {
 
 	it('should load', function() {
 		expect(widget).to.exist;
+	});
+
+	it('should return the correct value from getCourseTileItemCount', function() {
+		widget.pinnedEnrollments = [pinnedEnrollmentEntity, pinnedEnrollmentEntity, pinnedEnrollmentEntity];
+		widget.unpinnedEnrollments = [unpinnedEnrollmentEntity];
+
+		expect(widget.getCourseTileItemCount()).to.equal(3);
+	});
+
+	it('should set getCourseTileItemCount on its child course-tile-grids', function() {
+		widget.pinnedEnrollments = [pinnedEnrollmentEntity, pinnedEnrollmentEntity, pinnedEnrollmentEntity];
+		widget.unpinnedEnrollments = [unpinnedEnrollmentEntity];
+
+		var courseTileGrids = widget.querySelectorAll('d2l-course-tile-grid');
+		expect(courseTileGrids.length).to.equal(2);
+
+		for (var i = 0; i < courseTileGrids.length; i++) {
+			expect(courseTileGrids[i].getCourseTileItemCount()).to.equal(3);
+		}
 	});
 
 	describe('A11Y', function() {
