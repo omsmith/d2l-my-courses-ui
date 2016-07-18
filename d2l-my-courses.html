@@ -9,6 +9,7 @@
 <link rel="import" href="localize-behavior.html">
 <link rel="import" href="d2l-course-management-behavior.html">
 <link rel="import" href="d2l-course-tile-grid.html">
+<link rel="import" href="../d2l-loading-spinner/d2l-loading-spinner.html">
 
 <!--
 `<d2l-my-courses>` is the main component for My Courses widget
@@ -33,23 +34,27 @@
 			on-response="_onEnrollmentsSearchResponse">
 		</d2l-ajax>
 
-		<d2l-alert visible="[[!_hasPinnedEnrollments]]">
-			{{_alertMessage}}
-			<a is="d2l-link"
-				href="Javascript:void(0);"
+		<d2l-loading-spinner></d2l-loading-spinner>
+
+		<div class="my-courses-content d2l-hidden">
+			<d2l-alert visible="[[!_hasPinnedEnrollments]]">
+				{{_alertMessage}}
+				<a is="d2l-link"
+					href="Javascript:void(0);"
 				hidden$="[[_hasEnrollments]]"
 				on-tap="_refreshPage">{{localize('refresh')}}</a>
-		</d2l-alert>
+			</d2l-alert>
 
-		<d2l-course-tile-grid
+			<d2l-course-tile-grid
 			enrollments="{{pinnedEnrollments}}">
-		</d2l-course-tile-grid>
+			</d2l-course-tile-grid>
 
-		<button class="all-courses-button"
+			<button class="all-courses-button"
 			hidden$="{{!_hasEnrollments}}"
 			on-tap="_openAllCoursesView">
-			{{localize('viewAllCourses')}}
-		</button>
+				{{localize('viewAllCourses')}}
+			</button>
+		</div>
 
 		<d2l-simple-overlay
 			id="all-courses"
@@ -162,6 +167,8 @@
 					this._enrollmentsSearchUrl += queryString;
 
 					this.$.enrollmentsSearchRequest.generateRequest();
+				} else {
+					this._showContent();
 				}
 			},
 			_onEnrollmentsSearchResponse: function(response) {
@@ -193,6 +200,8 @@
 
 					this.fire('recalculate-columns');
 				}
+
+				this._showContent();
 			},
 			_openAllCoursesView: function(e) {
 				e.preventDefault();
@@ -206,6 +215,10 @@
 			},
 			_refreshPage: function() {
 				document.location.reload(true);
+			},
+			_showContent: function() {
+				this.toggleClass('d2l-hidden', true, this.$$('d2l-loading-spinner'));
+				this.toggleClass('d2l-hidden', false, this.$$('.my-courses-content'));
 			}
 		});
 	</script>
