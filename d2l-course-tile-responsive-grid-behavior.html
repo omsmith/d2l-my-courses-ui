@@ -16,24 +16,18 @@
 		* @polymerBehavior
 		*/
 		Polymer.D2L.MyCourses.CourseTileResponsiveGridBehavior = {
-			properties: {
-				/*
-				* Function that dictates what should happen when the window is resized
-				* @type {Object}
-				*/
-				_windowResizeHandler: {
-					type: Object,
-					readOnly: true,
-					value: function() {
-						return this._handleWindowResize.bind(this);
-					}
-				}
-			},
 			attached: function() {
-				this._addThrottledEventListener('resize', this._windowResizeHandler);
-			},
-			detached: function() {
-				window.removeEventListener('resize', this._windowResizeHandler);
+				window.addEventListener('recalculate-columns', this._rescaleCourseTileRegions.bind(this));
+
+				// Set up a throttled event listener (every 100ms) to rescale on resize
+				var timeout = false,
+					delay = 100;
+
+				var self = this;
+				window.addEventListener('resize', function() {
+					clearTimeout(timeout);
+					timeout = setTimeout(self.fire.bind(self, 'recalculate-columns'), delay);
+				});
 			},
 			/*
 			* Count of `d2l-course-tile` elements in grid. Must be implemented by behavior consumer.
@@ -43,15 +37,6 @@
 				throw 'Must implement getCourseTileItemCount in behavior consumer';
 			},
 			_numCols: 0,
-			_addThrottledEventListener: function(eventName, eventHandler) {
-				var timeout = false,
-					delay = 100;
-
-				window.addEventListener(eventName, function() {
-					clearTimeout(timeout);
-					timeout = setTimeout(eventHandler, delay);
-				});
-			},
 			_calcNumColumns: function(width, itemCount) {
 				var numCols = 1;
 
@@ -97,16 +82,9 @@
 
 				return this._getAvailableWidth(node.parentElement);
 			},
-			_handleWindowResize: function() {
-				this._rescaleCourseTileRegions();
-			},
-			_rescaleCourseTileRegions: function(forcedWidth, itemCount) {
-				var _itemCount = itemCount || this.getCourseTileItemCount();
-
-				this._setupColumns(_itemCount, forcedWidth);
-			},
-			_setupColumns: function(itemCount, forcedWidth) {
-				var containers = Polymer.dom(this.root).querySelectorAll('.my-courses-container');
+			_rescaleCourseTileRegions: function() {
+				var itemCount = this.getCourseTileItemCount();
+				var containers = Polymer.dom(this.root).querySelectorAll('.course-tile-container');
 				var colClasses = ['columns-2', 'columns-3', 'columns-4'];
 				var currentColClass = function(domNode) {
 					var foundClass = '';
@@ -119,11 +97,11 @@
 				};
 
 				containers.forEach(function(container) {
-					var width = forcedWidth || this._getAvailableWidth(container);
-					var domNode = Polymer.dom(container);
-					var oldClassName = currentColClass(domNode);
+					var width = this._getAvailableWidth(container);
 					this._numCols = this._calcNumColumns(width, itemCount);
 
+					var domNode = Polymer.dom(container);
+					var oldClassName = currentColClass(domNode);
 					if (this._numCols > 1) {
 						var newClassName = 'columns-' + this._numCols;
 

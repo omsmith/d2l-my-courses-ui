@@ -21,7 +21,7 @@
 			</d2l-alert>
 		</template>
 
-		<div class="my-courses-container">
+		<div class="course-tile-container">
 			<template id="enrollmentsTemplate" is="dom-repeat" items="[[enrollments]]">
 				<d2l-course-tile
 					enrollment="[[item]]"
@@ -153,7 +153,7 @@
 				this._animations.push(animation);
 			},
 			_animateTileSlide: function(isInsertion, enrollmentIndex, enrollment) {
-				var container = this.$$('.my-courses-container');
+				var container = this.$$('.course-tile-container');
 				var lastAnimatedCourseIndex = isInsertion ? 0 : (this.enrollments.length - 1);
 
 				this._animationState.isAnimating = true;
@@ -197,7 +197,7 @@
 							this.toggleClass('animate-insertion', false, this._animationState.newCourseTile);
 						}
 
-						var container = this.$$('.my-courses-container');
+						var container = this.$$('.course-tile-container');
 						this.toggleClass('animate', false, container);
 
 						this._cancelAnimations();
@@ -409,7 +409,7 @@
 			_updateCourseTileGridInfo: function() {
 				var courseTiles = Polymer.dom(this.root).querySelectorAll('d2l-course-tile');
 				this._courseTileBoundingRects.length = 0;
-				this._containerBoundingRect = this.$$('.my-courses-container').getBoundingClientRect();
+				this._containerBoundingRect = this.$$('.course-tile-container').getBoundingClientRect();
 
 				Array.prototype.forEach.call(courseTiles, function(element) {
 					var offsetData = {

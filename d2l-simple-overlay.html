@@ -40,6 +40,12 @@ The overlay supports using different animations and transitions for desktop and 
 
 		Polymer({
 			is: 'd2l-simple-overlay',
+
+			/*
+			* Fired when the overlay is closed, to trigger recalculation of the number of columns
+			* @event recalculate-columns
+			*/
+
 			behaviors: [
 				Polymer.IronOverlayBehavior,
 				Polymer.NeonAnimationRunnerBehavior,
@@ -130,6 +136,7 @@ The overlay supports using different animations and transitions for desktop and 
 			},
 			_handleClose: function() {
 				this.close();
+				this.fire('recalculate-columns');
 			},
 			_isMobile: function() {
 				var width = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
