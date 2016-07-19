@@ -155,6 +155,13 @@ describe('<d2l-course-tile>', function() {
 				'/organizations/1?embedDepth=1',
 				[200, {}, JSON.stringify(organization)]);
 
+			server.respondWith(
+				'GET',
+				'/d2l/lp/auth/xsrf-tokens',
+				[200, {}, JSON.stringify({
+					referrerToken: 'foo'
+				})]);
+
 			widget.$.organizationRequest.addEventListener('response', function() {
 				// Ensure organization has been received before doing tests
 				done();
