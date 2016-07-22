@@ -129,8 +129,6 @@
 			},
 			attached: function() {
 				if (!this.delayLoad) {
-					// TODO: Remove this override once the LMS is updated
-					this.enrollmentsUrl = '/d2l/api/hm/enrollments';
 					this.$.enrollmentsRootRequest.generateRequest();
 				}
 			},
