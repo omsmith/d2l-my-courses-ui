@@ -88,7 +88,7 @@ describe('<d2l-course-tile>', function() {
 
 		var organizationSpy = sinon.spy(widget.$.organizationRequest, 'generateRequest');
 
-		widget.$.organizationRequest.addEventListener('response', function() {
+		widget.$.organizationRequest.addEventListener('iron-ajax-response', function() {
 			expect(organizationSpy.called);
 			done();
 		});
@@ -103,7 +103,7 @@ describe('<d2l-course-tile>', function() {
 				'/organizations/1?embedDepth=1',
 				[200, {}, JSON.stringify(organization)]);
 
-			widget.$.organizationRequest.addEventListener('response', function() {
+			widget.$.organizationRequest.addEventListener('iron-ajax-response', function() {
 				// Ensure organization has been received before doing tests
 				done();
 			});
@@ -162,7 +162,7 @@ describe('<d2l-course-tile>', function() {
 					referrerToken: 'foo'
 				})]);
 
-			widget.$.organizationRequest.addEventListener('response', function() {
+			widget.$.organizationRequest.addEventListener('iron-ajax-response', function() {
 				// Ensure organization has been received before doing tests
 				done();
 			});
