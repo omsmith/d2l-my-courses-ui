@@ -25,7 +25,7 @@ in that organization - student, teacher, TA, etc.
 			id="organizationRequest"
 			url="[[_organizationUrl]]"
 			headers='{ "Accept": "application/vnd.siren+json" }'
-			on-response="_onOrganizationResponse">
+			on-iron-ajax-response="_onOrganizationResponse">
 		</d2l-ajax>
 
 		<d2l-ajax
@@ -34,8 +34,8 @@ in that organization - student, teacher, TA, etc.
 			method="[[_enrollmentPinMethod]]"
 			body="[[_enrollmentPinBody]]"
 			headers='{ "Accept": "application/vnd.siren+json", "Content-Type": "application/x-www-form-urlencoded" }'
-			on-response="_onEnrollmentPinResponse"
-			on-error="_onEnrollmentPinError">
+			on-iron-ajax-response="_onEnrollmentPinResponse"
+			on-iron-ajax-error="_onEnrollmentPinError">
 		</d2l-ajax>
 
 		<div class="tile-container"

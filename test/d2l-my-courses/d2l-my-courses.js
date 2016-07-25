@@ -151,7 +151,7 @@ describe('d2l-my-courses', function() {
 
 			widget.$.enrollmentsRootRequest.generateRequest();
 
-			widget.$.enrollmentsRootRequest.addEventListener('error', function() {
+			widget.$.enrollmentsRootRequest.addEventListener('iron-ajax-error', function() {
 				expect(enrollmentsSearchSpy.callCount === 0);
 				widget.$.enrollmentsSearchRequest.generateRequest.restore();
 				done();
@@ -179,7 +179,7 @@ describe('d2l-my-courses', function() {
 
 			widget.$.enrollmentsRootRequest.generateRequest();
 
-			widget.$.enrollmentsSearchRequest.addEventListener('response', function() {
+			widget.$.enrollmentsSearchRequest.addEventListener('iron-ajax-response', function() {
 				expect(enrollmentsSearchSpy.called);
 				widget._onEnrollmentsSearchResponse.restore();
 				done();
@@ -207,7 +207,7 @@ describe('d2l-my-courses', function() {
 
 			widget.$.enrollmentsRootRequest.generateRequest();
 
-			widget.$.enrollmentsSearchRequest.addEventListener('response', function() {
+			widget.$.enrollmentsSearchRequest.addEventListener('iron-ajax-response', function() {
 				expect(gridRescaleSpy.called);
 				widget.$$('d2l-course-tile-grid')._rescaleCourseTileRegions.restore();
 				done();
@@ -231,7 +231,7 @@ describe('d2l-my-courses', function() {
 
 			widget.$.enrollmentsRootRequest.generateRequest();
 
-			widget.$.enrollmentsSearchRequest.addEventListener('response', function() {
+			widget.$.enrollmentsSearchRequest.addEventListener('iron-ajax-response', function() {
 				expect(widget._hasEnrollments).to.equal(false);
 				expect(widget._alertMessage).to.equal('Your courses aren\'t quite ready. Please check back soon.');
 				done();
@@ -255,7 +255,7 @@ describe('d2l-my-courses', function() {
 
 			widget.$.enrollmentsRootRequest.generateRequest();
 
-			widget.$.enrollmentsSearchRequest.addEventListener('response', function() {
+			widget.$.enrollmentsSearchRequest.addEventListener('iron-ajax-response', function() {
 				expect(widget._hasEnrollments).to.equal(true);
 				expect(widget._alertMessage).to.equal('You don\'t have any pinned courses. Pin your favorite courses to make them easier to find.');
 				done();
@@ -282,7 +282,7 @@ describe('d2l-my-courses', function() {
 			widget.$.enrollmentsRootRequest.generateRequest();
 
 			// Wait until the second (search) request finishes before checking things
-			widget.$.enrollmentsSearchRequest.addEventListener('response', function() {
+			widget.$.enrollmentsSearchRequest.addEventListener('iron-ajax-response', function() {
 				done();
 			});
 		});

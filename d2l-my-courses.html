@@ -24,14 +24,14 @@
 			id="enrollmentsRootRequest"
 			url="[[enrollmentsUrl]]"
 			headers='{ "Accept": "application/vnd.siren+json" }'
-			on-response="_onEnrollmentsRootResponse">
+			on-iron-ajax-response="_onEnrollmentsRootResponse">
 		</d2l-ajax>
 
 		<d2l-ajax
 			id="enrollmentsSearchRequest"
 			url="[[_enrollmentsSearchUrl]]"
 			headers='{ "Accept": "application/vnd.siren+json" }'
-			on-response="_onEnrollmentsSearchResponse">
+			on-iron-ajax-response="_onEnrollmentsSearchResponse">
 		</d2l-ajax>
 
 		<d2l-loading-spinner size="100"></d2l-loading-spinner>
