@@ -266,14 +266,14 @@ in that organization - student, teacher, TA, etc.
 			_onAnimationComplete: function(e) {
 				var tileContainer = this.$$('.tile-container');
 
-				if (e.animationName.includes('scale-and-fade-out')) {
+				if (e.animationName.indexOf('scale-and-fade-out') > -1) {
 					this.fire('tile-remove-complete', {enrollment: this.enrollment, pinned: this._pendingPinAction});
-				} else if (e.animationName.includes('scale-and-fade-in')) {
+				} else if (e.animationName.indexOf('scale-and-fade-in') > -1) {
 					this.toggleClass('animate-insertion', false, tileContainer);
 					this.toggleClass('animate-insertion', false, this);
 					this.toggleClass('animate-insertion', false, this.$$('.tile-container'));
 					this.fire('tile-insert-complete', {enrollment: this.enrollment, pinned: this._pendingPinAction});
-				} else if (e.animationName.includes('tile-pre-insertion')) {
+				} else if (e.animationName.indexOf('tile-pre-insertion') > -1) {
 					this.toggleClass('animate-insertion-pre', false, this);
 					this.toggleClass('animate-insertion', true, tileContainer);
 					this.toggleClass('animate-insertion', true, this);
