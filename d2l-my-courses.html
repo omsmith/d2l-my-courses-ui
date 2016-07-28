@@ -201,30 +201,17 @@
 					}
 
 					var searchAction = enrollmentsRoot.getActionByName('search-my-enrollments');
-					this._enrollmentsSearchUrl = searchAction.href + '?';
 
-					var query = {};
-					if (searchAction.hasFieldByName('pageSize')) {
-						query.pageSize = 20;
-					}
-					if (searchAction.hasFieldByName('embedDepth')) {
-						query.embedDepth = 1;
-					}
-
-					var queryString = Object.keys(query).map(function(key) {
-						return key + '=' + query[key];
-					}).join('&');
-					this._enrollmentsSearchUrl = searchAction.href + '?' + queryString;
+					var query = {
+						pageSize: 20,
+						embedDepth: 1
+					};
+					this._enrollmentsSearchUrl = this.createActionUrl(searchAction, query);
 					this.$.enrollmentsSearchRequest.generateRequest();
 
-					// Update the recent courses list URL to sort by last accessed
-					if (searchAction.hasFieldByName('sortBy')) {
-						query.sortBy = 'lastAccessed';
-					}
-					queryString = Object.keys(query).map(function(key) {
-						return key + '=' + query[key];
-					}).join('&');
-					this._recentEnrollmentsSearchUrl = searchAction.href + '?' + queryString;
+					query.pageSize = 10;
+					query.sortBy = 'lastAccessed';
+					this._recentEnrollmentsSearchUrl = this.createActionUrl(searchAction, query);
 				} else {
 					this._showContent();
 				}
