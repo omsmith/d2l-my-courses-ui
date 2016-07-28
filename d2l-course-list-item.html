@@ -9,6 +9,34 @@ This is really just a simple list element - similar to a course tile, but in a m
 See the course tile docs for an important note about and enrollment vs an organization.
 -->
 <dom-module id="d2l-course-list-item">
+	<style>
+		:host {
+			display: block;
+			padding-bottom: 10px;
+			clear: both;
+		}
+		.course-image {
+			height: 43px;
+			width: 100px;
+			border-top-left-radius: 10px;
+			border-top-right-radius: 10px;
+			background: var(--d2l-color-pressicus);
+			overflow: hidden;
+			z-index: 0;
+			float: left;
+			margin-right: 10px;
+		}
+		.course-image img {
+			width: 100%;
+			height: 100%;
+			object-fit: cover;
+			margin: auto;
+		}
+		.course-text {
+			line-height: 43px;
+		}
+	</style>
+
 	<template>
 
 		<d2l-ajax
@@ -18,8 +46,13 @@ See the course tile docs for an important note about and enrollment vs an organi
 			on-iron-ajax-response="_onOrganizationResponse">
 		</d2l-ajax>
 
-		<a href="[[_organizationHomepageUrl]]">
-			{{_organization.properties.name}}
+		<a href$="[[_organizationHomepageUrl]]">
+			<div class="course-image">
+				<img aria-hidden="true" />
+			</div>
+			<div class="course-text d2l-heading-4">
+				{{_organization.properties.name}}
+			</div>
 		</a>
 
 	</template>
@@ -44,6 +77,20 @@ See the course tile docs for an important note about and enrollment vs an organi
 					observer: '_enrollmentChanged'
 				},
 				/*
+				* The organization that the `enrollment` relates to
+				* @type {Entity}
+				*/
+				_organization: {
+					type: Object
+				},
+				/*
+				* URL of the `organization` homepage
+				* @type {String}
+				*/
+				_organizationHomepageUrl: {
+					type: String
+				},
+				/*
 				* The URL to fetch the `_organization` Entity from (determined from the `enrollment`'s Links)
 				* @type {String}
 				*/
@@ -60,6 +107,13 @@ See the course tile docs for an important note about and enrollment vs an organi
 				if (response.detail.status === 200) {
 					var parser = document.createElement('d2l-siren-parser');
 					var organization = parser.parse(response.detail.xhr.response);
+
+					var courseImageEntity = organization.getSubEntityByClass('course-image');
+					if (courseImageEntity) {
+						var courseImageLink = courseImageEntity.getLinkByRel('alternate');
+						var courseImage = this.$$('.course-image img');
+						Polymer.dom(courseImage).setAttribute('src', courseImageLink.href);
+					}
 
 					this._organization = organization;
 					this._organizationHomepageUrl = organization.getLinkByRel(/\/organization-homepage$/).href;

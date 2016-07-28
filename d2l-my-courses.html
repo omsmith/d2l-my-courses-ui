@@ -50,8 +50,35 @@
 			.hidden {
 				display: none;
 			}
+			.button-bar {
+				margin-bottom: 10px;
+				display: block;
+				overflow: auto;
+			}
+			.button-bar .view-button {
+				margin-right: 10px;
+				float: left;
+				display: block;
+				position: relative;
+			}
+			.view-button {
+				@apply(--d2l-small-text);
+				/* overrides to d2l-small-text */
+				font-size: 1rem;
+				color: var(--d2l-color-galena);
+				/* end overrides */
+				background: none;
+				border: none;
+				padding: 0;
+				cursor: pointer;
+			}
+			.view-button-selected {
+				font-weight: 700;
+				color: var(--d2l-color-ferrite);
+			}
 			d2l-alert {
-				margin-bottom: 30px;
+				padding-bottom: 30px;
+				clear: both;
 			}
 			d2l-loading-spinner {
 				display: block;
@@ -76,6 +103,25 @@
 		<d2l-loading-spinner size="100"></d2l-loading-spinner>
 
 		<div class="my-courses-content hidden">
+			<div class="button-bar">
+				<button
+					id="recentViewButton"
+					class="view-button view-button-selected"
+					on-tap="_selectRecentView">
+					Last Accessed
+				</button>
+				<button
+					id="tileViewButton"
+					class="view-button"
+					on-tap="_selectTileView">
+					My Courses
+				</button>
+			</div>
+
+			<d2l-course-list
+				enrollments-url="[[_recentEnrollmentsSearchUrl]]">
+			</d2l-course-list>
+
 			<d2l-alert visible="[[!_hasPinnedEnrollments]]">
 				{{_alertMessage}}
 				<a
@@ -84,7 +130,6 @@
 					hidden$="[[_hasEnrollments]]"
 					on-tap="_refreshPage">{{localize('refresh')}}</a>
 			</d2l-alert>
-
 			<d2l-course-tile-grid
 				enrollments="{{pinnedEnrollments}}">
 			</d2l-course-tile-grid>
@@ -96,10 +141,6 @@
 				{{localize('viewAllCourses')}}
 			</button>
 		</div>
-
-		<d2l-course-list
-			enrollments-url="[[_recentEnrollmentsSearchUrl]]">
-		</d2l-course-list>
 
 		<d2l-simple-overlay
 			id="all-courses"
@@ -164,6 +205,14 @@
 				*/
 				_recentEnrollmentsSearchUrl: {
 					type: String
+				},
+				/*
+				* Currently-selected tab - set by paper-tabs, used by iron-pages
+				* @type {Number}
+				*/
+				_selectedTab: {
+					type: Number,
+					value: 0
 				}
 			},
 			behaviors: [
@@ -174,6 +223,10 @@
 			],
 			ready: function() {
 				this._alertMessage = this.localize('noCoursesMessage');
+
+				// Hide the secondary (tile) view initially
+				this.toggleClass('hidden', true, this.$$('d2l-alert'));
+				this.toggleClass('hidden', true, this.$$('d2l-course-tile-grid'));
 
 				var overlay = this.$$('d2l-simple-overlay');
 				var allCourses = this.$$('d2l-all-courses');
@@ -209,7 +262,7 @@
 					this._enrollmentsSearchUrl = this.createActionUrl(searchAction, query);
 					this.$.enrollmentsSearchRequest.generateRequest();
 
-					query.pageSize = 10;
+					query.pageSize = 5;
 					query.sortBy = 'lastAccessed';
 					this._recentEnrollmentsSearchUrl = this.createActionUrl(searchAction, query);
 				} else {
@@ -261,6 +314,20 @@
 			},
 			_refreshPage: function() {
 				document.location.reload(true);
+			},
+			_selectRecentView: function() {
+				this.toggleClass('hidden', true, this.$$('d2l-alert'));
+				this.toggleClass('hidden', true, this.$$('d2l-course-tile-grid'));
+				this.toggleClass('hidden', false, this.$$('d2l-course-list'));
+				this.toggleClass('view-button-selected', true, this.$.recentViewButton);
+				this.toggleClass('view-button-selected', false, this.$.tileViewButton);
+			},
+			_selectTileView: function() {
+				this.toggleClass('hidden', false, this.$$('d2l-alert'));
+				this.toggleClass('hidden', false, this.$$('d2l-course-tile-grid'));
+				this.toggleClass('hidden', true, this.$$('d2l-course-list'));
+				this.toggleClass('view-button-selected', false, this.$.recentViewButton);
+				this.toggleClass('view-button-selected', true, this.$.tileViewButton);
 			},
 			_showContent: function() {
 				this.toggleClass('hidden', true, this.$$('d2l-loading-spinner'));
