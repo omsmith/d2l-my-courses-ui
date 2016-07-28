@@ -2,13 +2,14 @@
 <link rel="import" href="../d2l-ajax/d2l-ajax.html">
 <link rel="import" href="../d2l-siren-parser/d2l-siren-parser.html">
 <link rel="import" href="../d2l-link/d2l-link.html">
+<link rel="import" href="../d2l-loading-spinner/d2l-loading-spinner.html">
 <link rel="import" href="d2l-alert.html">
 <link rel="import" href="d2l-simple-overlay.html">
 <link rel="import" href="d2l-all-courses.html">
+<link rel="import" href="d2l-course-tile-grid.html">
+<link rel="import" href="d2l-course-list.html">
 <link rel="import" href="localize-behavior.html">
 <link rel="import" href="d2l-course-management-behavior.html">
-<link rel="import" href="d2l-course-tile-grid.html">
-<link rel="import" href="../d2l-loading-spinner/d2l-loading-spinner.html">
 
 <!--
 `<d2l-my-courses>` is the main component for My Courses widget
@@ -77,22 +78,28 @@
 		<div class="my-courses-content hidden">
 			<d2l-alert visible="[[!_hasPinnedEnrollments]]">
 				{{_alertMessage}}
-				<a is="d2l-link"
+				<a
+					is="d2l-link"
 					href="Javascript:void(0);"
-				hidden$="[[_hasEnrollments]]"
-				on-tap="_refreshPage">{{localize('refresh')}}</a>
+					hidden$="[[_hasEnrollments]]"
+					on-tap="_refreshPage">{{localize('refresh')}}</a>
 			</d2l-alert>
 
 			<d2l-course-tile-grid
-			enrollments="{{pinnedEnrollments}}">
+				enrollments="{{pinnedEnrollments}}">
 			</d2l-course-tile-grid>
 
-			<button class="all-courses-button"
-			hidden$="{{!_hasEnrollments}}"
-			on-tap="_openAllCoursesView">
+			<button
+				class="all-courses-button"
+				hidden$="{{!_hasEnrollments}}"
+				on-tap="_openAllCoursesView">
 				{{localize('viewAllCourses')}}
 			</button>
 		</div>
+
+		<d2l-course-list
+			enrollments-url="[[_recentEnrollmentsSearchUrl]]">
+		</d2l-course-list>
 
 		<d2l-simple-overlay
 			id="all-courses"
@@ -150,6 +157,13 @@
 				*/
 				_enrollmentsSearchUrl: {
 					type: String
+				},
+				/*
+				* URL constructed to fetch a user's recent enrollments with the enrollments search Action
+				* @type {String}
+				*/
+				_recentEnrollmentsSearchUrl: {
+					type: String
 				}
 			},
 			behaviors: [
@@ -196,13 +210,21 @@
 					if (searchAction.hasFieldByName('embedDepth')) {
 						query.embedDepth = 1;
 					}
+
 					var queryString = Object.keys(query).map(function(key) {
 						return key + '=' + query[key];
 					}).join('&');
-
-					this._enrollmentsSearchUrl += queryString;
-
+					this._enrollmentsSearchUrl = searchAction.href + '?' + queryString;
 					this.$.enrollmentsSearchRequest.generateRequest();
+
+					// Update the recent courses list URL to sort by last accessed
+					if (searchAction.hasFieldByName('sortBy')) {
+						query.sortBy = 'lastAccessed';
+					}
+					queryString = Object.keys(query).map(function(key) {
+						return key + '=' + query[key];
+					}).join('&');
+					this._recentEnrollmentsSearchUrl = searchAction.href + '?' + queryString;
 				} else {
 					this._showContent();
 				}
@@ -226,6 +248,7 @@
 
 					this.set('pinnedEnrollments', pinnedEnrollments);
 					this.set('unpinnedEnrollments', unpinnedEnrollments);
+					this.set('enrollments', enrollmentEntities);
 
 					this._hasPinnedEnrollments = this.pinnedEnrollments.length > 0;
 					this._hasEnrollments = this._hasPinnedEnrollments || this.unpinnedEnrollments.length > 0;

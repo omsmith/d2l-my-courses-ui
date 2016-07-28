@@ -1,0 +1,71 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../d2l-ajax/d2l-ajax.html">
+<link rel="import" href="../d2l-siren-parser/d2l-siren-parser.html">
+
+<!--
+`<d2l-course-list-item>` is a single entry in a `<d2l-course-list>`.
+
+This is really just a simple list element - similar to a course tile, but in a more traditional list view.
+See the course tile docs for an important note about and enrollment vs an organization.
+-->
+<dom-module id="d2l-course-list-item">
+	<template>
+
+		<d2l-ajax
+			id="organizationRequest"
+			url="[[_organizationUrl]]"
+			headers='{ "Accept": "application/vnd.siren+json" }'
+			on-iron-ajax-response="_onOrganizationResponse">
+		</d2l-ajax>
+
+		<a href="[[_organizationHomepageUrl]]">
+			{{_organization.properties.name}}
+		</a>
+
+	</template>
+
+	<script>
+		'use strict';
+
+		Polymer({
+			is: 'd2l-course-list-item',
+
+			properties: {
+				/*
+				* Course list item enrollment
+				*
+				* When the enrollment is set, the list item will automatically fetch information about the
+				* organization the enrollment is is.
+				*
+				* @type {Entity}
+				*/
+				enrollment: {
+					type: Object,
+					observer: '_enrollmentChanged'
+				},
+				/*
+				* The URL to fetch the `_organization` Entity from (determined from the `enrollment`'s Links)
+				* @type {String}
+				*/
+				_organizationUrl: {
+					type: String
+				}
+			},
+			_enrollmentChanged: function(enrollment) {
+				var organizationLink = enrollment.getLinkByRel(/\/organization$/);
+				this._organizationUrl = organizationLink.href + '?embedDepth=1';
+				this.$.organizationRequest.generateRequest();
+			},
+			_onOrganizationResponse: function(response) {
+				if (response.detail.status === 200) {
+					var parser = document.createElement('d2l-siren-parser');
+					var organization = parser.parse(response.detail.xhr.response);
+
+					this._organization = organization;
+					this._organizationHomepageUrl = organization.getLinkByRel(/\/organization-homepage$/).href;
+				}
+
+			}
+		});
+	</script>
+</dom-module>

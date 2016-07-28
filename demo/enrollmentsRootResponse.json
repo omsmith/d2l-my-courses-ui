@@ -23,6 +23,11 @@
           "name": "embedDepth",
           "type": "number",
           "value": 0
+        },
+        {
+          "name": "sortBy",
+          "type": "radio",
+          "value": ""
         }
       ]
     }
