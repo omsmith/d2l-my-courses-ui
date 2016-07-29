@@ -1,12 +1,19 @@
 <link rel="import" href="../polymer/polymer.html">
-<link rel="import" href="d2l-touch-menu-styles.html">
 
 <!--
 `<d2l-touch-menu>` is a menu intended for use with mobile interfaces.
 -->
 <dom-module id="d2l-touch-menu">
 	<template>
-		<style include="d2l-touch-menu-styles"></style>
+		<style>
+			.long-press-menu {
+				display: inline-block;
+				font-size: 3em;
+				visibility: hidden;
+				z-index: 2000;
+				position: fixed;
+			}
+		</style>
 
 		<div class="long-press-menu">
 			<content></content>
