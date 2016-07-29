@@ -1,5 +1,4 @@
 <link rel="import" href="../polymer/polymer.html">
-<link rel="import" href="d2l-all-courses-styles.html">
 <link rel="import" href="d2l-course-tile-grid.html">
 <link rel="import" href="d2l-course-tile-responsive-grid-behavior.html">
 <link rel="import" href="localize-behavior.html">
@@ -12,7 +11,20 @@
 -->
 <dom-module id="d2l-all-courses">
 	<template>
-		<style include="d2l-all-courses-styles"></style>
+		<style>
+			:host {
+				display: block;
+			}
+			h2 {
+				/* overrides to d2l-heading-3 */
+				margin: 20px 0 10px 0;
+				font-size: 20px;
+				/* end overrides */
+			}
+			d2l-alert {
+				margin-bottom: 20px;
+			}
+		</style>
 
 		<h2 class="d2l-heading-3">{{localize('pinnedCourses')}}</h2>
 
