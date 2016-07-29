@@ -11,29 +11,37 @@
 			tap-highlight-color: rgba(0,0,0,0);
 			touch-action: pan-x pan-y;
 		}
-
 		.course-tile-container {
 			position: relative;
-			width: calc(100% + 10px); /* 10px to account for negative margin, below */
+			width: calc(100% + 20px);
 			display: flex;
 			flex-wrap: wrap;
 			flex-direction: row;
 			align-items: flex-start;
-			margin-left: -10px;	/* To offset 10px left padding on tile containers, where tile image left edge must align with headers */
+			/* To offset 10px left padding on tile containers, where tile image left edge must align with headers */
+			margin-left: -10px;
 		}
 		.course-tile-container.animate > d2l-course-tile {
 			margin-right: 0;
 			margin-left: 0;
 		}
-
-		d2l-course-tile {
-			width: 100%;
-		}
-
+		/*
+		* Yay math!
+		*
+		* The overall width of an n-column layout should be 100%, which is to say:
+		*	100% = n(tile width) + 2n(margin) - 2(margin),
+		* Since the leftmost and rightmost tiles have zero margin on their left and right, respectively.
+		*
+		* Move things around, let x = tile width and y = margin width (n is number of columns)
+		* 	x = (1 + 2y - 2ny) / n
+		*
+		* We can therefore find x (tile width) for any given y (margin).
+		* The following all use a 1% margin and the formula above.
+		*/
 		.columns-2 > d2l-course-tile {
-			width: 47.5%;
-			margin-left: 0.833%;
-			margin-right: 0.833%;
+			width: 49.5%;
+			margin-left: 0.5%;
+			margin-right: 0.5%;
 		}
 		.columns-2 > d2l-course-tile:nth-child(2n) {
 			margin-right: 0;
@@ -41,11 +49,10 @@
 		.columns-2 > d2l-course-tile:nth-child(2n+1) {
 			margin-left: 0;
 		}
-
 		.columns-3 > d2l-course-tile {
-			width: 32.213%;
-			margin-left: 0.56%;
-			margin-right: 0.56%;
+			width: 32.667%;
+			margin-left: 0.5%;
+			margin-right: 0.5%;
 		}
 		.columns-3 > d2l-course-tile:nth-child(3n) {
 			margin-right: 0;
@@ -53,11 +60,10 @@
 		.columns-3 > d2l-course-tile:nth-child(3n+1) {
 			margin-left: 0;
 		}
-
 		.columns-4 > d2l-course-tile {
-			width: 24.1%;
-			margin-left: 0.45%;
-			margin-right: 0.45%;
+			width: 24.25%;
+			margin-left: 0.5%;
+			margin-right: 0.5%;
 		}
 		.columns-4 > d2l-course-tile:nth-child(4n) {
 			margin-right: 0;
