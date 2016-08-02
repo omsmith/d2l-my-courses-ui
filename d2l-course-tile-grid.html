@@ -15,12 +15,6 @@
 		<style include="d2l-my-courses-styles"></style>
 		<style include="d2l-course-tile-grid-styles"></style>
 
-		<template is="dom-if" if="[[alertVisible]]">
-			<d2l-alert visible="[[alertVisible]]">
-				{{alertMessage}}
-			</d2l-alert>
-		</template>
-
 		<div class="course-tile-container">
 			<template id="enrollmentsTemplate" is="dom-repeat" items="[[enrollments]]">
 				<d2l-course-tile

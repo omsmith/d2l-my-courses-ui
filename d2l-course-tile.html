@@ -41,7 +41,7 @@ in that organization - student, teacher, TA, etc.
 		<div class="tile-container"
 			on-mouseover="_hoverCourseTile"
 			on-mouseout="_onTileMouseOut">
-			<a href="[[_organizationHomepageUrl]]" class="no-tap-interaction"
+			<a href$="[[_organizationHomepageUrl]]" class="no-tap-interaction"
 				on-focus="_hoverCourseTile"
 				on-blur="_unhoverCourseTile">
 				<div class="course-image-container">
@@ -99,6 +99,13 @@ in that organization - student, teacher, TA, etc.
 
 			properties: {
 				/*
+				* TODO: Figure out what this is... Friday night brain isn't allowing me to understand this.
+				* @type {Boolean}
+				*/
+				animateInsertion: {
+					type: Boolean
+				},
+				/*
 				* Course tile enrollment
 				*
 				* When the enrollment is set, the course tile will automatically fetch information about the
@@ -111,12 +118,27 @@ in that organization - student, teacher, TA, etc.
 					observer: '_enrollmentChanged'
 				},
 				/*
+				* TODO: Erm... same thing. Something something animation?
+				* @type {Boolean}
+				*/
+				enrollmentId: {
+					type: Number
+				},
+				/*
 				* Specifies whether the (desktop) hover menu is enabled on the course tile
 				* @type {Boolean}
 				*/
 				hoverEnabled: {
 					type: Boolean,
 					value: true
+				},
+				/*
+				* Whether the enrollment represented by this course tile is pinned or not
+				* @type {Boolean}
+				*/
+				pinned: {
+					type: Boolean,
+					observer: '_pinnedChanged'
 				},
 				/*
 				* Specifies whether the (mobile) touch menu is enabled on the course tile
@@ -127,18 +149,25 @@ in that organization - student, teacher, TA, etc.
 					value: true
 				},
 				/*
-				* TODO: Figure out what this is... Friday night brain isn't allowing me to understand this.
-				* @type {Boolean}
+				* Body sent for pin/unpin action
+				* @type {String}
 				*/
-				animateInsertion: {
-					type: Boolean
+				_enrollmentPinBody: {
+					type: String
 				},
 				/*
-				* TODO: Erm... same thing. Something something animation?
-				* @type {Boolean}
+				* HTTP method used by the pin/unpin action
+				* @type {String}
 				*/
-				enrollmentId: {
-					type: Number
+				_enrollmentPinMethod: {
+					type: String
+				},
+				/*
+				* URL used by the pin/unpin action
+				* @type {String}
+				*/
+				_enrollmentPinUrl: {
+					type: String
 				},
 				/*
 				* The organization, fetched by the course tile when the `enrollment` Entity is changed
@@ -148,13 +177,6 @@ in that organization - student, teacher, TA, etc.
 					type: Object
 				},
 				/*
-				* The URL to fetch the `_organization` Entity from (determined from the `enrollment`'s Links)
-				* @type {String}
-				*/
-				_organizationUrl: {
-					type: String
-				},
-				/*
 				* The URL to of the `_organization`'s homepage - when the course tile is clicked, this is the URL we go to
 				* @type {String}
 				*/
@@ -162,12 +184,11 @@ in that organization - student, teacher, TA, etc.
 					type: String
 				},
 				/*
-				* Whether the enrollment represented by this course tile is pinned or not
-				* @type {Boolean}
+				* The URL to fetch the `_organization` Entity from (determined from the `enrollment`'s Links)
+				* @type {String}
 				*/
-				pinned: {
-					type: Boolean,
-					observer: '_pinnedChanged'
+				_organizationUrl: {
+					type: String
 				}
 			},
 			behaviors: [
