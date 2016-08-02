@@ -5,7 +5,7 @@ sudo: false
 addons:
   firefox: "47.0.1"
 before_script:
-- npm run test:lint
+- npm run test:lint:js && npm run test:lint:wc
 script:
 - xvfb-run wct
 after_success:
