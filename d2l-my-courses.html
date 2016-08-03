@@ -46,6 +46,9 @@
 			.all-courses-button:hover {
 				text-decoration: underline;
 			}
+			.hidden {
+				display: none;
+			}
 			d2l-alert {
 				margin-bottom: 30px;
 			}
@@ -71,7 +74,7 @@
 
 		<d2l-loading-spinner size="100"></d2l-loading-spinner>
 
-		<div class="my-courses-content d2l-hidden">
+		<div class="my-courses-content hidden">
 			<d2l-alert visible="[[!_hasPinnedEnrollments]]">
 				{{_alertMessage}}
 				<a is="d2l-link"
@@ -250,8 +253,8 @@
 				document.location.reload(true);
 			},
 			_showContent: function() {
-				this.toggleClass('d2l-hidden', true, this.$$('d2l-loading-spinner'));
-				this.toggleClass('d2l-hidden', false, this.$$('.my-courses-content'));
+				this.toggleClass('hidden', true, this.$$('d2l-loading-spinner'));
+				this.toggleClass('hidden', false, this.$$('.my-courses-content'));
 			}
 		});
 	</script>

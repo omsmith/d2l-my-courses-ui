@@ -143,7 +143,7 @@ The overlay supports using different animations and transitions for desktop and 
 				return width < 768;
 			},
 			_onNeonAnimationFinish: function() {
-				document.body.classList.toggle('d2l-shim-body-overflow', this.opened);
+				document.body.classList.toggle('hide-overflow', this.opened);
 
 				if (this.opened) {
 					this._finishRenderOpened();
