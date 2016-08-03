@@ -63,7 +63,15 @@
 				*/
 				visible: {
 					type: Boolean,
-					value: false
+					value: false,
+					observer: '_visibleChanged'
+				}
+			},
+			_visibleChanged: function(visible) {
+				if (visible) {
+					this.style.display = 'block';
+				} else {
+					this.style.display = 'none';
 				}
 			}
 		});
