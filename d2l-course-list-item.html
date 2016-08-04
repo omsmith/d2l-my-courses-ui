@@ -12,12 +12,21 @@ See the course tile docs for an important note about and enrollment vs an organi
 	<style>
 		:host {
 			display: block;
-			padding-bottom: 10px;
+			overflow: auto;
+			margin-bottom: 10px;
 			clear: both;
 		}
+		a {
+			text-decoration: none;
+			font-weight: 400;
+			color: var(--d2l-color-ferrite);
+		}
+		.course-code {
+			font-weight: 300;
+		}
 		.course-image {
-			height: 43px;
-			width: 100px;
+			height: 64.5px;
+			width: 150px;
 			border-top-left-radius: 10px;
 			border-top-right-radius: 10px;
 			background: var(--d2l-color-pressicus);
@@ -31,9 +40,6 @@ See the course tile docs for an important note about and enrollment vs an organi
 			height: 100%;
 			object-fit: cover;
 			margin: auto;
-		}
-		.course-text {
-			line-height: 43px;
 		}
 	</style>
 
@@ -50,8 +56,11 @@ See the course tile docs for an important note about and enrollment vs an organi
 			<div class="course-image">
 				<img aria-hidden="true" />
 			</div>
-			<div class="course-text d2l-heading-4">
+			<div>
 				{{_organization.properties.name}}
+			</div>
+			<div class="course-code">
+				{{_organization.properties.code}}
 			</div>
 		</a>
 
