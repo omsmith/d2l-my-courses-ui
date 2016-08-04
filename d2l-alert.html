@@ -14,7 +14,6 @@
 		<style>
 			:host {
 				@apply(--d2l-small-text);
-				display: block;
 			}
 			.message-wrapper {
 				position: relative;
@@ -63,15 +62,7 @@
 				*/
 				visible: {
 					type: Boolean,
-					value: false,
-					observer: '_visibleChanged'
-				}
-			},
-			_visibleChanged: function(visible) {
-				if (visible) {
-					this.style.display = 'block';
-				} else {
-					this.style.display = 'none';
+					value: false
 				}
 			}
 		});
