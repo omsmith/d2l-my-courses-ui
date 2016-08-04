@@ -1,0 +1,153 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../iron-menu-behavior/iron-menu-behavior.html">
+<link rel="import" href="../d2l-dropdown/d2l-dropdown.html">
+
+<dom-module id="d2l-search-listbox">
+	<template>
+		<style include="d2l-typography-shared-styles"></style>
+		<style>
+			:host {
+				box-sizing: border-box;
+				display: block;
+				width: 100%;
+			}
+
+			::content > * {
+				border: 1px solid var(--d2l-color-titanius);
+				border-top-color: var(--d2l-color-gypsum);
+				border-bottom-color: transparent;
+				color: var(--d2l-color-ferrite);
+				list-style-type: none;
+				width: 100%;
+				line-height: 3rem;
+				padding-left: 30px;
+			}
+
+			::content > *:not([disabled]):focus,
+			::content > *:not([disabled]):hover {
+				background-color: var(--d2l-color-celestine-light-1);
+				border: 1px solid var(--d2l-color-celestine-light-2);
+				color: var(--d2l-color-celestine);
+			}
+
+			::content > [data-list-title] {
+				line-height: 4rem;
+				font-weight: 700;
+			}
+		</style>
+		<content></content>
+	</template>
+	<script>
+		'use strict';
+
+		Polymer({
+			is: 'd2l-search-listbox',
+
+			properties: {
+				// The associated input element if this is part of a combobox; for control wrapping
+				owner: Object
+			},
+
+			hostAttributes: {
+				'role': 'listbox',
+				'tabindex': -1
+			},
+
+			behaviors: [
+				Polymer.IronMenuBehavior
+			],
+
+			listeners: {
+				'keypress': '_onKeyPress'
+			},
+
+			hasItems: function() {
+				var selectableItems = this.items.filter( function(item) {
+					if (item.tagName === 'OPTION' && !item.hasAttribute('disabled')) {
+						return true;
+					}
+				});
+				return selectableItems.length > 0;
+			},
+
+			// Public function to allow last selectable to be selected
+			focusLast: function() {
+				var length = this.items.length;
+
+				for (var i = length - 1; i >= 0; i--) {
+					var item = this.items[i];
+					if (!item.hasAttribute('disabled')) {
+						this._setFocusedItem(item);
+						return;
+					}
+				}
+			},
+
+			/* override IronMenuBehavior::_resetTabindices to disable tab focus of all items */
+			_resetTabindices: function() {
+				for (var i = 0; i < this.items.length; i++) {
+					this.items[i].setAttribute('tabindex', -1);
+				}
+			},
+
+			/* override IronMenuBehavior::_focusedItemChanged to do nothing but focus the desired item */
+			_focusedItemChanged: function(focusedItem) {
+				if (focusedItem) {
+					focusedItem.focus();
+				}
+			},
+
+			// override IronMenuBehavior::_focusPrevious so that the listbox owner can be selected, if one exists
+			_focusPrevious: function() {
+				var length = this.items.length;
+				var curFocusIndex = Number(this.indexOf(this.focusedItem));
+
+				for (var i = 1; i < length + 1; i++) {
+					var newItemIndex = (curFocusIndex - i + length) % length;
+					var item = this.items[newItemIndex];
+
+					if (this.owner && newItemIndex === length - 1) {
+						this._setFocusedItem(null);
+						this.owner.focus();
+						return;
+					} else if (!item.hasAttribute('disabled')) {
+						this._setFocusedItem(item);
+						return;
+					}
+				}
+			},
+
+			// override IronMenuBehavior::_focusNext so that the listbox owner can be selected, if one exists
+			_focusNext: function() {
+				var length = this.items.length;
+				var curFocusIndex = Number(this.indexOf(this.focusedItem));
+
+				for (var i = 1; i < length + 1; i++) {
+					var newItemIndex = (curFocusIndex + i) % length;
+					var item = this.items[newItemIndex];
+
+					if (this.owner && (curFocusIndex > newItemIndex) && (newItemIndex === 0)) {
+						this._setFocusedItem(null);
+						this.owner.focus();
+						return;
+					} else if (!item.hasAttribute('disabled')) {
+						this._setFocusedItem(item);
+						return;
+					}
+				}
+			},
+
+			// Allow ability to select listbox items at listbox level
+			_onKeyPress: function(e) {
+				switch (e.keyCode) {
+					case 13:
+					case 32:
+						if (this.focusedItem && !this.focusedItem.hasAttribute('disabled')) {
+							this.fire('iron-select', {item: this.focusedItem});
+						}
+				}
+			}
+
+		});
+	</script>
+</dom-module>

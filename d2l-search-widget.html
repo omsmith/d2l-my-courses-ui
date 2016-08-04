@@ -1,0 +1,465 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../iron-dropdown/iron-dropdown.html">
+<link rel="import" href="../iron-input/iron-input.html">
+<link rel="import" href="d2l-search-listbox.html">
+<link rel="import" href="../d2l-ajax/d2l-ajax.html">
+<link rel="import" href="../d2l-siren-parser/d2l-siren-parser.html">
+<link rel="import" href="../iron-pages/iron-pages.html">
+<link rel="import" href="../d2l-typography/d2l-typography-shared-styles.html">
+
+<dom-module id="d2l-search-widget">
+	<template>
+		<style>
+			:host {
+				position: relative;
+				display: block;
+				min-width: 100px;
+				min-height: 60px;
+				padding: 0;
+				margin: 0;
+			}
+
+			input {
+				width: 100%;
+				border: none;
+				height: 35px;
+				line-height: 15px;
+			}
+
+			iron-dropdown {
+				width: 100%;
+				position: absolute;
+				border: 1px solid blue;
+				overflow: hidden;
+				transition: width 2s linear;
+			}
+
+			.dropdown-content {
+				background-color: white;
+			}
+
+			d2l-dropdown {
+				min-width: 100%;
+			}
+
+			.search-bar {
+				display: flex;
+				flex-direction: row;
+				align-items: center;
+				border: 1px solid #EFEFEF;
+				border-radius: 5px;
+				height: 2rem;
+				background-color: var(--d2l-color-white);
+				box-sizing: border-box;
+				outline: none;
+				width: 100%;
+				height: 60px;
+				padding: 0.9rem 1rem;
+				line-height: 1.2rem;
+				white-space: nowrap;
+				position: relative;
+				-webkit-box-shadow: inset 0px 1px 3px 0px rgba(136,136,136,0.5);
+				-moz-box-shadow: inset 0px 1px 3px 0px rgba(136,136,136,0.5);
+				box-shadow: inset 0px 1px 3px 0px rgba(136,136,136,0.5);
+			}
+
+			.search-icon {
+				flex-grow: 0;
+				background: none;
+				border: none;
+				margin: 0;
+				cursor: pointer;
+			}
+
+			.search-icon iron-icon {
+				width: 24px;
+				height: 24px;
+				color: var(--d2l-color-tungsten);
+			}
+
+		</style>
+
+		<d2l-ajax
+			id="organizationsSearchRootRequest"
+			url="[[organizationsUrl]]"
+			headers='{ "Accept": "application/vnd.siren+json" }'
+			on-iron-ajax-response="_onOrganizationsSearchRootResponse">
+		</d2l-ajax>
+
+		<d2l-ajax
+			id="coursesSearchRequest"
+			url="[[_organizationsSearchUrl]]"
+			headers='{ "Accept": "application/vnd.siren+json" }'
+			on-iron-ajax-response="_onCoursesSearchResponse">
+		</d2l-ajax>
+
+		<div class="search-bar">
+			<button on-click="_onSearchButtonClick" class="search-icon">
+				<iron-icon icon="d2l-tier1:search"></iron-icon>
+			</button>
+
+			<input
+				is="iron-input"
+				bind-value="{{_searchString}}"
+				role="combobox"
+				aria-autocomplete="list"
+				label="search"
+				class="dropdown-trigger"
+				placeholder="Find a course"
+				on-keydown="onSearchInputKeyPressed">
+			</input>
+
+			<button type="button" on-click="_clearSearchResults" class="search-icon clear-search-button">
+				<iron-icon icon="d2l-tier1:close-default"></iron-icon>
+			</button>
+		</div>
+
+		<d2l-dropdown
+			no-pointer
+			no-auto-close
+			no-auto-focus
+			id="dropdown"
+			vertical-offset="0">
+
+			<div class="dropdown-content">
+				<iron-pages selectable=".search-results-listbox-page" selected="0">
+					<div class="search-results-listbox-page">
+						<d2l-search-listbox id="previous-searches-listbox">
+							<div data-list-title disabled>Recent Searches</div>
+							<template is="dom-repeat" items="[[_previousSearches]]">
+								<option selectable data-text$="[[item]]" data-href$="[[_computePreviousSearchLink(item)]]">
+									[[item]]
+								</option>
+							</template>
+						</d2l-search-listbox>
+					</div>
+
+					<div class="search-results-listbox-page">
+						<d2l-search-listbox id="search-results-listbox">
+							<template id="courseSearchResultsTemplate" is="dom-repeat" items="[[_courseSearchResults]]">
+								<option selectable data-text$="[[item.name]]" data-href$="[[item.href]]">
+									[[item.name]]
+								</option>
+							</template>
+							<template is="dom-if" if="[[_showNoResults]]">
+								<div>No results.</div>
+							</template>
+						</d2l-search-listbox>
+					</div>
+				</iron-pages>
+		</d2l-dropdown>
+	</template>
+	<script>
+		'use strict';
+
+		Polymer({
+			is: 'd2l-search-widget',
+
+			properties: {
+
+				organizationsUrl: String,
+
+				/*
+				* The search string updated by the course search input
+				* @type {String}
+				*/
+				_searchString: {
+					type: String,
+					value: function() {
+						return '';
+					},
+					observer: '_onSearchStringChanged'
+				},
+
+				_courseSearchResults: {
+					type: Array,
+					value: function() {
+						return [];
+					}
+				},
+				/*
+				* List of strings containing previously searched terms/selected courses
+				* @type {Array}
+				*/
+				_previousSearches: {
+					type: Array,
+					value: function() {
+						return [];
+					}
+				},
+
+				/*
+				* Boolean indicating whether the "No Results" message should be displayed in the search results dropdown
+				* @type {Boolean}
+				*/
+				_showNoResults: {
+					type: Boolean,
+					value: false
+				}
+			},
+
+			listeners: {
+				'iron-select': '_onIronSelect'
+			},
+
+			attached: function() {
+				var i = 0;
+
+				var searchBarElements = this.$$('.search-bar').children;
+
+				for (i = 0; i < searchBarElements.length; i++) {
+					this.listen(searchBarElements[i], 'blur', '_onElementBlur');
+					this.listen(searchBarElements[i], 'focus', '_onElementFocus');
+				}
+
+				this._listboxes = Polymer.dom(this.root).querySelectorAll('d2l-search-listbox').slice();
+				this._activateSearchDropdownPage(0);
+
+				for (i = 0; i < this._listboxes.length; i++) {
+					this._listboxes[i].owner = this.$$('input');
+				}
+
+				this._initializePreviousSearches();
+				this.$.organizationsSearchRootRequest.generateRequest();
+			},
+
+			detached: function() {
+				var searchBarElements = this.$$('.search-bar').children;
+				for (var i = 0; i < searchBarElements.length; i++) {
+					this.unlisten(searchBarElements[i], 'blur', '_onElementBlur');
+					this.unlisten(searchBarElements[i], 'focus', '_onElementFocus');
+				}
+			},
+
+			_initializePreviousSearches: function() {
+				if (window.localStorage.getItem('myCourses.previousSearches')) {
+					try {
+						var prevSearchObject = JSON.parse(window.localStorage.getItem('myCourses.previousSearches'));
+
+						if (prevSearchObject.hasOwnProperty('searches') && prevSearchObject.searches instanceof Array) {
+							this._previousSearches = prevSearchObject.searches;
+						}
+					} catch (exception) {
+						window.localStorage.removeItem('myCourses.previousSearches');
+						this._previousSearches = [];
+					}
+				}
+			},
+
+			_liveSearch: function() {
+				if (this._searchString) {
+					var queryString  = this._createCourseSearchQuery(this._searchString, 1, 5);
+
+					if (queryString) {
+						this._organizationsSearchUrl = queryString;
+						this.$.coursesSearchRequest.generateRequest();
+					}
+				}
+			},
+
+			_advancedSearch: function(searchString) {
+				if (searchString) {
+					var queryString = this._advancedSearchUrl + searchString;
+					this._addSearchToHistory(searchString);
+					window.location.href = queryString;
+				}
+			},
+
+			_onSearchButtonClick: function() {
+				this.$.dropdown.open(this.$.opener);
+				this._advancedSearch(this._searchString);
+			},
+
+			_clearSearchResults: function() {
+
+				this._showNoResults = false;
+				this._searchString = '';
+				this.set('_courseSearchResults', []);
+
+			},
+
+			_onSearchStringChanged: function(newString) {
+				if (this._listboxes) {
+					if (newString.length > 0) {
+						this._liveSearch();
+						this._activateSearchDropdownPage(1);
+					} else {
+						this._clearSearchResults();
+						this._activateSearchDropdownPage(0);
+					}
+				}
+			},
+
+			onSearchInputKeyPressed: function(e) {
+				switch (e.keyCode) {
+					case this._keyCodes.ENTER:
+						this._advancedSearch(this._searchString);
+						break;
+
+					case this._keyCodes.DOWN:
+						if (this._currentListbox.hasItems()) {
+							this._currentListbox.focus();
+						}
+						e.preventDefault();
+						break;
+
+					case this._keyCodes.UP:
+						if (this._currentListbox.hasItems()) {
+							this._currentListbox.focusLast();
+						}
+						e.preventDefault();
+						break;
+				}
+			},
+
+			_addSearchToHistory: function(searchTerm) {
+				// Remove prior existence of this search term if it exists
+				var currSearchHistoryIndex = this._previousSearches.indexOf(searchTerm);
+
+				if (currSearchHistoryIndex !== -1) {
+					this.splice('_previousSearches', currSearchHistoryIndex, 1);
+				}
+
+				if (this.unshift('_previousSearches', searchTerm) > 5) {
+					this.splice('_previousSearches', this._previousSearches.length - 1, 1);
+				}
+
+				window.localStorage.setItem(
+					'myCourses.previousSearches',
+					JSON.stringify({
+						searches: this._previousSearches
+					})
+				);
+			},
+
+			_computePreviousSearchLink: function(searchTerm) {
+				return this._advancedSearchUrl + searchTerm;
+			},
+
+			_onOrganizationsSearchRootResponse: function(response) {
+				if (response.detail.status === 200) {
+					var parser = document.createElement('d2l-siren-parser');
+					var organizationsResponse = parser.parse(response.detail.xhr.response);
+
+					this._organizationsSearchAction = organizationsResponse.getActionByName('search-course-collection');
+				}
+			},
+
+			_onCoursesSearchResponse: function(response) {
+				if (response.detail.status === 200) {
+					var parser = document.createElement('d2l-siren-parser');
+					var organizationResponse = parser.parse(response.detail.xhr.response);
+					var organizationEntities = organizationResponse.entities;
+					var courseSearchResults = [];
+
+					for (var i = 0; i < organizationEntities.length; i++) {
+						courseSearchResults.push({
+							name: organizationEntities[i].properties.name,
+							href: organizationEntities[i].getLinkByRel(/\/organization-homepage$/).href
+						});
+					}
+
+					this.set('_courseSearchResults', courseSearchResults);
+				}
+			},
+
+			_createCourseSearchQuery: function(searchTerm, pageCount, pageSize) {
+				var requestString = null;
+
+				if (this._organizationsSearchAction) {
+					this._organizationsSearchUrl = '/d2l/api/hm/organizations?';
+					requestString = this._organizationsSearchUrl;
+
+					var query = {};
+					if (searchTerm && this._organizationsSearchAction.hasFieldByName('search')) {
+						query.search = searchTerm;
+					}
+					if (pageCount && this._organizationsSearchAction.hasFieldByName('page')) {
+						query.page = pageCount;
+					}
+					if (pageSize && this._organizationsSearchAction.hasFieldByName('pageSize')) {
+						query.pageSize = pageSize;
+					}
+
+					query.embedDepth = 1;
+
+					var queryString = Object.keys(query).map(function(key) {
+						return key + '=' + query[key];
+					}).join('&');
+
+					requestString += queryString;
+				} else {
+					requestString = 'organizationsSearchResponse.json';
+				}
+
+				return requestString;
+			},
+
+			_onIronSelect: function(e) {
+				if (e.detail.item.dataset.href) {
+					if (e.detail.item.dataset.text) {
+						this._addSearchToHistory(e.detail.item.dataset.text);
+					}
+
+					window.location.href = e.detail.item.dataset.href;
+				}
+			},
+
+			_activateSearchDropdownPage: function(page) {
+				this._currentListbox = this._listboxes[page];
+				this.$$('iron-pages').select(page);
+			},
+
+			_keyCodes: {
+				DOWN: 40,
+				ENTER: 13,
+				ESCAPE: 27,
+				LEFT: 37,
+				SPACE: 32,
+				RIGHT: 39,
+				UP: 38,
+				TAB: 9,
+				LSHIFT: 16
+			},
+
+			/* Hack, for now */
+			_advancedSearchUrl: 'le/manageCourses/search/6606?searchTerm=',
+
+			__onAutoClose: function(e) {
+				if (!this.$.dropdown.opened) {
+					return;
+				}
+
+				setTimeout(function() {
+					if (!this.$.dropdown.opened || !document.activeElement) {
+						return;
+					}
+
+					//console.log(e.path);
+
+					for (var i = 0; i < e.path.length; i++) {
+						if (e.path[i] === this) {
+							return;
+						}
+					}
+					this.$.dropdown.close();
+				}.bind(this), 0);
+			},
+
+			_onElementFocus: function() {
+				if (!this.$$('d2l-dropdown').opened) {
+					this.$$('d2l-dropdown').open(this.$$('search-bar'));
+				}
+			},
+
+			_onElementBlur: function(e) {
+				if (this.$$('d2l-dropdown').opened) {
+					if (!e.relatedTarget || !Polymer.dom(this).deepContains(e.relatedTarget)) {
+						this.$.dropdown.close();
+					}
+				}
+			}
+
+		});
+	</script>
+</dom-module>

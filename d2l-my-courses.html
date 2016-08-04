@@ -10,6 +10,7 @@
 <link rel="import" href="d2l-course-list.html">
 <link rel="import" href="localize-behavior.html">
 <link rel="import" href="d2l-course-management-behavior.html">
+<link rel="import" href="d2l-search-widget.html">
 
 <!--
 `<d2l-my-courses>` is the main component for My Courses widget
@@ -103,6 +104,10 @@
 		</d2l-ajax>
 
 		<d2l-loading-spinner size="100"></d2l-loading-spinner>
+		
+		<d2l-search-widget
+			organizations-url="/d2l/api/hm/organizations">
+		</d2l-search-widget>
 
 		<div class="my-courses-content hidden">
 			<div class="button-bar" hidden$="[[!_hasManyEnrollments]]">
