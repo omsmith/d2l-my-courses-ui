@@ -1,13 +1,4 @@
-.d2l-max-width {
+.max-width {
 	margin: 0 auto;
 	max-width: 1230px;
-}
-
-.d2l-shim-body-overflow {
-	overflow: hidden;
-	position: fixed;
-}
-
-.d2l-hidden {
-	display: none !important;
 }
