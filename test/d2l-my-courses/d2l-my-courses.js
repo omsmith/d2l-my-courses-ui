@@ -27,9 +27,13 @@ describe('d2l-my-courses', function() {
 					type: 'number',
 					value: 0
 				}, {
-					name: 'sortBy',
+					name: 'sortField',
 					type: 'radio',
 					value: ''
+				}, {
+					name: 'sortDescending',
+					type: 'checkbox',
+					value: false
 				}]
 			}],
 			links: [{

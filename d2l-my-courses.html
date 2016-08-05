@@ -263,7 +263,8 @@
 					this.$.enrollmentsSearchRequest.generateRequest();
 
 					query.pageSize = 5;
-					query.sortBy = 'lastAccessed';
+					query.sortField = 'lastAccessed';
+					query.sortDescending = true;
 					this._recentEnrollmentsSearchUrl = this.createActionUrl(searchAction, query);
 				} else {
 					this._showContent();
