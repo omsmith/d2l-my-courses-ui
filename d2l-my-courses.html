@@ -120,28 +120,31 @@
 				</button>
 			</div>
 
-			<d2l-course-list
-				enrollments-url="[[_recentEnrollmentsSearchUrl]]">
-			</d2l-course-list>
+			<div id="recentView">
+				<d2l-course-list
+					enrollments-url="[[_recentEnrollmentsSearchUrl]]">
+				</d2l-course-list>
+			</div>
 
-			<d2l-alert visible="[[!_hasPinnedEnrollments]]">
-				{{_alertMessage}}
-				<a
-					is="d2l-link"
-					href="Javascript:void(0);"
-					hidden$="[[_hasEnrollments]]"
-					on-tap="_refreshPage">{{localize('refresh')}}</a>
-			</d2l-alert>
-			<d2l-course-tile-grid
-				enrollments="{{pinnedEnrollments}}">
-			</d2l-course-tile-grid>
-
-			<button
-				class="all-courses-button"
-				hidden$="{{!_hasEnrollments}}"
-				on-tap="_openAllCoursesView">
-				{{localize('viewAllCourses')}}
-			</button>
+			<div id="tileView">
+				<d2l-alert visible="[[!_hasPinnedEnrollments]]">
+					{{_alertMessage}}
+					<a
+						is="d2l-link"
+						href="Javascript:void(0);"
+						hidden$="[[_hasEnrollments]]"
+						on-tap="_refreshPage">{{localize('refresh')}}</a>
+				</d2l-alert>
+				<d2l-course-tile-grid
+					enrollments="{{pinnedEnrollments}}">
+				</d2l-course-tile-grid>
+				<button
+					class="all-courses-button"
+					hidden$="{{!_hasEnrollments}}"
+					on-tap="_openAllCoursesView">
+					{{localize('viewAllCourses')}}
+				</button>
+			</div>
 		</div>
 
 		<d2l-simple-overlay
@@ -210,9 +213,8 @@
 			ready: function() {
 				this._alertMessage = this.localize('noCoursesMessage');
 
-				this.toggleClass('hidden', true, this.$$('d2l-alert'));
-				this.toggleClass('hidden', true, this.$$('d2l-course-tile-grid'));
-				this.toggleClass('hidden', true, this.$$('d2l-course-list'));
+				this.toggleClass('hidden', true, this.$.courseTiles);
+				this.toggleClass('hidden', true, this.$.courseList);
 
 				var overlay = this.$$('d2l-simple-overlay');
 				var allCourses = this.$$('d2l-all-courses');
@@ -307,18 +309,16 @@
 				document.location.reload(true);
 			},
 			_selectRecentView: function() {
-				this.toggleClass('hidden', true, this.$$('d2l-alert'));
-				this.toggleClass('hidden', true, this.$$('d2l-course-tile-grid'));
-				this.toggleClass('hidden', false, this.$$('d2l-course-list'));
+				this.toggleClass('hidden', false, this.$.recentView);
+				this.toggleClass('hidden', true, this.$.tileView);
 				this.toggleClass('view-button-selected', true, this.$.recentViewButton);
 				this.toggleClass('view-button-selected', false, this.$.tileViewButton);
 				this.$.recentViewButton.setAttribute('aria-pressed', true);
 				this.$.tileViewButton.setAttribute('aria-pressed', false);
 			},
 			_selectTileView: function() {
-				this.toggleClass('hidden', false, this.$$('d2l-alert'));
-				this.toggleClass('hidden', false, this.$$('d2l-course-tile-grid'));
-				this.toggleClass('hidden', true, this.$$('d2l-course-list'));
+				this.toggleClass('hidden', true, this.$.recentView);
+				this.toggleClass('hidden', false, this.$.tileView);
 				this.toggleClass('view-button-selected', false, this.$.recentViewButton);
 				this.toggleClass('view-button-selected', true, this.$.tileViewButton);
 				this.$.recentViewButton.setAttribute('aria-pressed', false);
