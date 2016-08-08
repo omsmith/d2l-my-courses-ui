@@ -103,7 +103,7 @@
 		<d2l-loading-spinner size="100"></d2l-loading-spinner>
 
 		<div class="my-courses-content hidden">
-			<div class="button-bar">
+			<div class="button-bar" hidden$="[[!_hasManyEnrollments]]">
 				<button
 					id="recentViewButton"
 					class="view-button view-button-selected"
@@ -210,9 +210,9 @@
 			ready: function() {
 				this._alertMessage = this.localize('noCoursesMessage');
 
-				// Hide the secondary (tile) view initially
 				this.toggleClass('hidden', true, this.$$('d2l-alert'));
 				this.toggleClass('hidden', true, this.$$('d2l-course-tile-grid'));
+				this.toggleClass('hidden', true, this.$$('d2l-course-list'));
 
 				var overlay = this.$$('d2l-simple-overlay');
 				var allCourses = this.$$('d2l-all-courses');
@@ -242,7 +242,7 @@
 					var searchAction = enrollmentsRoot.getActionByName('search-my-enrollments');
 
 					var query = {
-						pageSize: 20,
+						pageSize: 25,
 						embedDepth: 1
 					};
 					this._enrollmentsSearchUrl = this.createActionUrl(searchAction, query);
@@ -279,6 +279,10 @@
 
 					this._hasPinnedEnrollments = this.pinnedEnrollments.length > 0;
 					this._hasEnrollments = this._hasPinnedEnrollments || this.unpinnedEnrollments.length > 0;
+
+					// Only show Recent Courses view to users with >20 enrollments
+					this._hasManyEnrollments = this.enrollments.length > 20;
+					this._hasManyEnrollments ? this._selectRecentView() : this._selectTileView();
 
 					if (this._hasEnrollments) {
 						this._alertMessage = this.localize('noPinnedCoursesMessage');

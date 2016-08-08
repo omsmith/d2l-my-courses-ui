@@ -320,6 +320,11 @@ describe('d2l-my-courses', function() {
 			expect(widget._hasEnrollments).to.be.true;
 			expect(widget._hasPinnedEnrollments).to.be.true;
 		});
+
+		it('should not display the Last Accessed course list for users with a small number of enrollments', function() {
+			expect(widget._hasManyEnrollments).to.be.false;
+			expect(widget.$$('d2l-course-list').classList.contains('hidden')).to.be.true;
+		});
 	});
 
 	describe('User interaction', function() {
