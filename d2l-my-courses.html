@@ -107,13 +107,15 @@
 				<button
 					id="recentViewButton"
 					class="view-button view-button-selected"
-					on-tap="_selectRecentView">
+					on-tap="_selectRecentView"
+					aria-pressed="true">
 					Last Accessed
 				</button>
 				<button
 					id="tileViewButton"
 					class="view-button"
-					on-tap="_selectTileView">
+					on-tap="_selectTileView"
+					aria-pressed="false">
 					My Courses
 				</button>
 			</div>
@@ -182,38 +184,22 @@
 				* URL that is called by the widget to fetch enrollments
 				* @type {String}
 				*/
-				enrollmentsUrl: {
-					type: String
-				},
+				enrollmentsUrl: String,
 				/*
 				* Message to display in alert if no enrollments are found
 				* @type {String}
 				*/
-				_alertMessage: {
-					type: String
-				},
+				_alertMessage: String,
 				/*
 				* URL constructed to fetch a user's enrollments with the enrollments search Action
 				* @type {String}
 				*/
-				_enrollmentsSearchUrl: {
-					type: String
-				},
+				_enrollmentsSearchUrl: String,
 				/*
 				* URL constructed to fetch a user's recent enrollments with the enrollments search Action
 				* @type {String}
 				*/
-				_recentEnrollmentsSearchUrl: {
-					type: String
-				},
-				/*
-				* Currently-selected tab - set by paper-tabs, used by iron-pages
-				* @type {Number}
-				*/
-				_selectedTab: {
-					type: Number,
-					value: 0
-				}
+				_recentEnrollmentsSearchUrl: String
 			},
 			behaviors: [
 				Polymer.D2L.MyCourses.CourseTileResponsiveGridBehavior,
@@ -322,6 +308,8 @@
 				this.toggleClass('hidden', false, this.$$('d2l-course-list'));
 				this.toggleClass('view-button-selected', true, this.$.recentViewButton);
 				this.toggleClass('view-button-selected', false, this.$.tileViewButton);
+				this.$.recentViewButton.setAttribute('aria-pressed', true);
+				this.$.tileViewButton.setAttribute('aria-pressed', false);
 			},
 			_selectTileView: function() {
 				this.toggleClass('hidden', false, this.$$('d2l-alert'));
@@ -329,6 +317,8 @@
 				this.toggleClass('hidden', true, this.$$('d2l-course-list'));
 				this.toggleClass('view-button-selected', false, this.$.recentViewButton);
 				this.toggleClass('view-button-selected', true, this.$.tileViewButton);
+				this.$.recentViewButton.setAttribute('aria-pressed', false);
+				this.$.tileViewButton.setAttribute('aria-pressed', true);
 			},
 			_showContent: function() {
 				this.toggleClass('hidden', true, this.$$('d2l-loading-spinner'));
