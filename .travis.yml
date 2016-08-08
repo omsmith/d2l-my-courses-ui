@@ -3,21 +3,14 @@ node_js:
 - 4
 sudo: false
 addons:
-  firefox: 47.0.1
-  sauce_connect:
-    username:
-      secure: yN/xQWi11Qn78JoUOcQjG1BRNtvH8vb2lvyr4ORT4A1J6F5CR5VkB+i1oUWgQALVGAgvhW+N9jifFXmFAlGTaq0aXE8ReLmiOI89EguQzywubJJs2EZ/hKqfA1LuRXaUJRlygzu4RyYMBSb6IIRYRl1D2G9fQpL2j70gXadUJH/Jh4zxA1quK6gZd/sInfB3LZNk3+TWnsapeYsea9A4CoWwPJmZLERmAspntAac9If441jwJRREQ53r/FiYq1VTgsjtwW0tCIdT7k5Buet7/X7SsigGxDmUdQqJ3TQM48kr2rs0Uq7L1P4RGMmLSPGUSPnEeSuXuKqrjMjDLzPmWQz7wtawmbfBcqK5nl3u7bNY5S6A5fhttrfFidUVV4e0hKsS7U0RD8UT9x74en6QGD4wcnwi1ydZwBTDJrVYccidEt7qBxkmz3qyhpb1DCnCFgbULlgw5QaDP+8ZKo3gL+opMyT1U8NE8Plxa+yDKlIPoEvHYgVcJRzk4/LbE2D+D9Liiu/HBAM/d1bx7DknkRsSvTuWOfXAE7xYa3RKAaqsQVseSavTcdMiU/mHFIs/6KuEDgIEhQM296NUUQpWdP2IhnwLP6kDRqKK0xaIPJqnu6o4pkZPi0PhjEsN5OI/wA1+Ah9Wpy0e4XKye2Wu+G92pqyKN9Y+Sk9jQvL35q8=
-    access_key:
-      secure: T6suTtvPdAh6SPsLX/Lm/itkouq2qVRDR4T0utOZ63X114wi3GXm/807UodsauSrh530FA2GYUCkLw7dORh9xyJoLFpj7Ug0f04DbSW6BilsTot8FlSAmi7QZp434uk27LICKKxo2SNFC5aqhEa9DkC/XL376EZ1DrSgCTHo3LlDcAOaSB+IJNTTt9j6YbvXx2lMCHcdBbdxjdt1LT9g1rsrtF2rqCmR66q1iNBd/CSxYP0N4EKAgTaHd6AFXxZQcG3TgzdrU8hboN6szmtYGJfppACtSDWrQuIt4fqESte2bRV/19I93XLHMK2z6eFPaTr/SPbvIjzMIulAwkPk14YJyau887g2HUogmgSMQUoh/cHBC/kz+RiVQqvgNGybrbQM8Z+U9ECnG9/Fsoa1WmsEoDEwXlZRaNyCSCr1I5l70RWZq2x1D+USkFsBDd7SYu/ZXUFigrKgcOWCvkwUew+7QOYP0F6vN5asAxaxUqUUcBtWwL9ODIOfr4aYrGkiMUaqVtBPHng7je+4BdARq+0ElnnJCb7Pnh9pzFCPUq0EV06T728eXSQBFJ2v1bMdF0+FlFjHiFqemMNmGHBvfjGV1pDZ7bwTWbhAGonehku2PJmcqEQ+gsj1K97fIBlgCZ9YiicOynPEBNCmdbFwPpjS9qie76u515KqPs1abR8=
+  firefox: "47.0.1"
 before_script:
-- npm run test:lint:js
-- npm run test:lint:wc
+- npm run test:lint:js && npm run test:lint:wc
 script:
-- wct --skip-plugin local
+- xvfb-run wct
 after_success:
 - '[ "$TRAVIS_SECURE_ENV_VARS" = "true" ] && [ "x$TRAVIS_TAG" != "x" ] && npm run publish:cdn'
 env:
   global:
     # CDN_SECRET
     - secure: CzFjtv/fVK41C4vV7bbXzTEIgtYJbT6hseHxOLrv/Oxan3lkgj0+H3tsHzYjwjXORcRbqlZrURKeh2RZFbduWuXVtqa6Q2O/NSgao5JBtIL0A8hQM8kmGyAMbNJ9sAKJlf4RTE4ORNASwwN9v3l9/kWtD2bL5LbDXxTLy/qYUNIHn4KbUWFiRntXIo9bH2XezLqJPoTo2pNYfgafzuRNJFTo+tMQrKfzMMtByg0p8QFZOJbJd53Z4HpumS7DWO1TUlcByX8rpIWGBeG02SXJHY1JFrl9+H+1q5ZjMlRcUWcU6l2ctCYrPdHGIdR6ANf9Fn1h5xCSup9vDKBDRQbD2gjqD4rdt00fe0jWkwKTD6mEaTs/Rh+0IffU2tgwFj8kayyYOD6vet5etKu8mUf92X7ePIxW31lvSvcU4scOgk5ReMA/ZcCdcZ9GMsaSr64t9i9nEKbdBuZuEdTslDE5l0uGCQPLALYWNWELDqK115f/AP96LaL2H+7jaXw6xM1cSiefHlImiPahu9T+N0ApN8JGUZo7tMkKnCvUXOQQk0XeX8tyA1gJ5V9QpjegIq2HehPwvxjh0ANmCfeG6W6PGALpQRDmYXgp0pXEK066E5Fd7jpJuxizdRQlKwfp3PHYCtIlEPOWm5GoJXKaA2BmcH5ZQj7mx4lY6i2iNihhrYg=
-
