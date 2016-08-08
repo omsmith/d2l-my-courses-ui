@@ -8,7 +8,6 @@ describe('d2l-my-courses', function() {
 		// Using relative URLs here so that d2l-ajax just uses cookies (no need to mock the token fetching this way)
 		rootHref = '/enrollments',
 		searchHref = '/enrollments/users/169',
-		searchQuery = '?pageSize=20&embedDepth=1',
 		enrollmentsRootResponse = {
 			class: ['enrollments', 'root'],
 			actions: [{
@@ -27,6 +26,14 @@ describe('d2l-my-courses', function() {
 					name: 'embedDepth',
 					type: 'number',
 					value: 0
+				}, {
+					name: 'sortField',
+					type: 'radio',
+					value: ''
+				}, {
+					name: 'sortDescending',
+					type: 'checkbox',
+					value: false
 				}]
 			}],
 			links: [{
@@ -169,7 +176,7 @@ describe('d2l-my-courses', function() {
 
 			server.respondWith(
 				'GET',
-				searchHref + searchQuery,
+				new RegExp(searchHref),
 				function(req) {
 					expect(req.requestHeaders['accept']).to.equal('application/vnd.siren+json');
 					req.respond(200, {}, JSON.stringify(enrollmentsSearchResponse));
@@ -186,6 +193,24 @@ describe('d2l-my-courses', function() {
 			});
 		});
 
+		it('should set the request URL for lastAccessed courses, sortDescending', function(done) {
+			server.respondWith(
+				'GET',
+				widget.enrollmentsUrl,
+				function(req) {
+					expect(req.requestHeaders['accept']).to.equal('application/vnd.siren+json');
+					req.respond(200, {}, JSON.stringify(enrollmentsRootResponse));
+				});
+
+			widget.$.enrollmentsRootRequest.generateRequest();
+
+			widget.$.enrollmentsRootRequest.addEventListener('iron-ajax-response', function() {
+				expect(widget._recentEnrollmentsSearchUrl).to.match(/sortField=lastAccessed/);
+				expect(widget._recentEnrollmentsSearchUrl).to.match(/sortDescending=true/);
+				done();
+			});
+		});
+
 		it('should rescale the course tile grid on search response', function(done) {
 			server.respondWith(
 				'GET',
@@ -197,7 +222,7 @@ describe('d2l-my-courses', function() {
 
 			server.respondWith(
 				'GET',
-				searchHref + searchQuery,
+				new RegExp(searchHref),
 				function(req) {
 					expect(req.requestHeaders['accept']).to.equal('application/vnd.siren+json');
 					req.respond(200, {}, JSON.stringify(enrollmentsSearchResponse));
@@ -224,7 +249,7 @@ describe('d2l-my-courses', function() {
 
 			server.respondWith(
 				'GET',
-				searchHref + searchQuery,
+				new RegExp(searchHref),
 				function(req) {
 					req.respond(200, {}, JSON.stringify(noEnrollmentsResponse));
 				});
@@ -248,7 +273,7 @@ describe('d2l-my-courses', function() {
 
 			server.respondWith(
 				'GET',
-				searchHref + searchQuery,
+				new RegExp(searchHref),
 				function(req) {
 					req.respond(200, {}, JSON.stringify(noPinnedEnrollmentsResponse));
 				});
@@ -274,7 +299,7 @@ describe('d2l-my-courses', function() {
 
 			server.respondWith(
 				'GET',
-				searchHref + searchQuery,
+				new RegExp(searchHref),
 				function(req) {
 					req.respond(200, {}, JSON.stringify(enrollmentsSearchResponse));
 				});

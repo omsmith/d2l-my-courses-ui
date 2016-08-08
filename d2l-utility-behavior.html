@@ -16,6 +16,30 @@
 	*/
 	Polymer.D2L.MyCourses.UtilityBehavior = {
 		/*
+		* Creates a URL with a query from an Action and an object of required parameters
+		* @param {Action} action
+		* @param {Object} parameters Query parameters, as { parameterName: desiredValue, ... }
+		*/
+		createActionUrl: function(action, parameters) {
+			parameters = parameters || {};
+			action.fields = action.fields || [];
+			var query = {};
+
+			action.fields.forEach(function(field) {
+				if (parameters.hasOwnProperty(field.name)) {
+					query[field.name] = parameters[field.name];
+				} else {
+					query[field.name] = field.value;
+				}
+			});
+
+			var queryString = Object.keys(query).map(function(key) {
+				return key + '=' + query[key];
+			}).join('&');
+
+			return queryString ? action.href + '?' + queryString : action.href;
+		},
+		/*
 		* Creates a unique identifier for an enrollment (really just the self Link href)
 		* @param {Entity} enrollment
 		* @return {String}

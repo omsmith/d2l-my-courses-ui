@@ -1,0 +1,77 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../d2l-ajax/d2l-ajax.html">
+<link rel="import" href="../d2l-siren-parser/d2l-siren-parser.html">
+<link rel="import" href="d2l-course-list-item.html">
+
+<!--
+`<d2l-course-list>` creates a list of `<d2l-course-list-item`> elements.
+-->
+<dom-module id="d2l-course-list">
+	<style>
+		ul {
+			list-style-type: none;
+			padding-left: 0;
+		}
+	</style>
+
+	<template>
+		<d2l-ajax
+			id="enrollmentsRequest"
+			url="[[enrollmentsUrl]]"
+			headers='{ "Accept": "application/vnd.siren+json" }'
+			on-iron-ajax-response="_onEnrollmentsResponse">
+		</d2l-ajax>
+
+		<ul>
+			<template is="dom-repeat" items="[[_enrollments]]">
+				<li>
+					<d2l-course-list-item
+						enrollment="[[item]]">
+					</d2l-course-list-item>
+				</li>
+			</template>
+		</ul>
+	</template>
+
+	<script>
+		'use strict';
+
+		Polymer({
+			is: 'd2l-course-list',
+
+			properties: {
+				/*
+				* URL that is called to fetch the enrollments to list
+				* @type {String}
+				*/
+				enrollmentsUrl: {
+					type: String,
+					observer: '_enrollmentsUrlChanged'
+				},
+				/*
+				* Set of enrollment entities for which to display course-list-items
+				* @type {Array<Entity>}
+				*/
+				_enrollments: {
+					type: Array,
+					notify: true,
+					value: function() {
+						return [];
+					}
+				}
+			},
+			_enrollmentsUrlChanged: function() {
+				this.$.enrollmentsRequest.generateRequest();
+			},
+			_onEnrollmentsResponse: function(response) {
+				if (response.detail.status === 200) {
+					var parser = document.createElement('d2l-siren-parser');
+					var enrollments = parser.parse(response.detail.xhr.response);
+
+					this._enrollments = enrollments.entities;
+				}
+			}
+		});
+	</script>
+
+</dom-module>

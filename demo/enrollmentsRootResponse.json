@@ -23,6 +23,16 @@
           "name": "embedDepth",
           "type": "number",
           "value": 0
+        },
+        {
+          "name": "sortField",
+          "type": "radio",
+          "value": ""
+        },
+        {
+          "name": "sortDescending",
+          "type": "checkbox",
+          "value": false
         }
       ]
     }

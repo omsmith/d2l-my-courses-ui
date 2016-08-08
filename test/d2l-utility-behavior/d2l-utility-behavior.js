@@ -37,9 +37,37 @@ describe('d2l-utility-behavior', function() {
 		component = fixture('default-fixture');
 	});
 
-	it('should get the unique enrollment ID based off the self link', function() {
-		var id = component.getEnrollmentIdentifier(enrollmentEntity);
+	describe('createActionUrl', function() {
+		it('should return the URL with default values if no parameters are specified', function() {
+			var url = component.createActionUrl(enrollmentEntity.getActionByName('unpin-course'));
 
-		expect(id).to.equal(enrollment.links[1].href);
+			expect(url).to.equal(enrollment.actions[0].href + '?pinned=false');
+		});
+
+		it('should return the URL with the specified query parameter(s)', function() {
+			var url = component.createActionUrl(
+				enrollmentEntity.getActionByName('unpin-course'),
+				{ pinned: 'foo' }
+			);
+
+			expect(url).to.equal(enrollment.actions[0].href + '?pinned=foo');
+		});
+
+		it('should not add any fields that are not on the action', function() {
+			var url = component.createActionUrl(
+				enrollmentEntity.getActionByName('unpin-course'),
+				{ foo: 'bar' }
+			);
+
+			expect(url).to.not.match(/foo=bar/);
+		});
+	});
+
+	describe('getEnrollmentIdentifier', function() {
+		it('should get the unique enrollment ID based off the self link', function() {
+			var id = component.getEnrollmentIdentifier(enrollmentEntity);
+
+			expect(id).to.equal(enrollment.links[1].href);
+		});
 	});
 });
