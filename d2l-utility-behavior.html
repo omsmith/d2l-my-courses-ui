@@ -19,8 +19,9 @@
 		* Creates a URL with a query from an Action and an object of required parameters
 		* @param {Action} action
 		* @param {Object} parameters Query parameters, as { parameterName: desiredValue, ... }
+		* @param {embedDepth} Embed depth of response entity
 		*/
-		createActionUrl: function(action, parameters) {
+		createActionUrl: function(action, parameters, embedDepth) {
 			parameters = parameters || {};
 			action.fields = action.fields || [];
 			var query = {};
@@ -32,6 +33,11 @@
 					query[field.name] = field.value;
 				}
 			});
+
+			// Temporary override, as some actions don't specify embedDepth as a parameter on the action. Could invert above logic or, well, fix in LMS
+			if (embedDepth) {
+				query['embedDepth'] = embedDepth;
+			}
 
 			var queryString = Object.keys(query).map(function(key) {
 				return key + '=' + query[key];

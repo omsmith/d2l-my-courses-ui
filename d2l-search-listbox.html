@@ -1,6 +1,6 @@
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../iron-menu-behavior/iron-menu-behavior.html">
-<link rel="import" href="../d2l-dropdown/d2l-dropdown.html">
+<link rel="import" href="../iron-a11y-keys/iron-a11y-keys.html">
 
 <dom-module id="d2l-search-listbox">
 	<template>
@@ -43,8 +43,16 @@
 		Polymer({
 			is: 'd2l-search-listbox',
 
+			/*
+			* Fired when a list item is selected
+			* @event iron-select
+			*/
+
 			properties: {
-				// The associated input element if this is part of a combobox; for control wrapping
+				/*
+				* The associated input element if this is part of a combobox; for control wrapping
+				* @type {Element}
+				*/
 				owner: Object
 			},
 
@@ -54,13 +62,13 @@
 			},
 
 			behaviors: [
-				Polymer.IronMenuBehavior
+				Polymer.IronMenuBehavior,
+				Polymer.IronA11yKeysBehavior
 			],
 
-			listeners: {
-				'keypress': '_onKeyPress'
-			},
-
+			/*
+			* @return {Boolean} Indicates if the listbox has selectable items
+			*/
 			hasItems: function() {
 				var selectableItems = this.items.filter( function(item) {
 					if (item.tagName === 'OPTION' && !item.hasAttribute('disabled')) {
@@ -70,7 +78,9 @@
 				return selectableItems.length > 0;
 			},
 
-			// Public function to allow last selectable to be selected
+			/*
+			* Focus the last selectable listbox item
+			*/
 			focusLast: function() {
 				var length = this.items.length;
 
@@ -83,21 +93,9 @@
 				}
 			},
 
-			/* override IronMenuBehavior::_resetTabindices to disable tab focus of all items */
-			_resetTabindices: function() {
-				for (var i = 0; i < this.items.length; i++) {
-					this.items[i].setAttribute('tabindex', -1);
-				}
-			},
-
-			/* override IronMenuBehavior::_focusedItemChanged to do nothing but focus the desired item */
-			_focusedItemChanged: function(focusedItem) {
-				if (focusedItem) {
-					focusedItem.focus();
-				}
-			},
-
-			// override IronMenuBehavior::_focusPrevious so that the listbox owner can be selected, if one exists
+			/*
+			* Override IronMenuBehavior._focusPrevious so that the listbox owner can be focused
+			*/
 			_focusPrevious: function() {
 				var length = this.items.length;
 				var curFocusIndex = Number(this.indexOf(this.focusedItem));
@@ -117,7 +115,9 @@
 				}
 			},
 
-			// override IronMenuBehavior::_focusNext so that the listbox owner can be selected, if one exists
+			/*
+			* Override IronMenuBehavior._focusNext so that the listbox owner can be focused
+			*/
 			_focusNext: function() {
 				var length = this.items.length;
 				var curFocusIndex = Number(this.indexOf(this.focusedItem));
@@ -137,14 +137,32 @@
 				}
 			},
 
-			// Allow ability to select listbox items at listbox level
-			_onKeyPress: function(e) {
-				switch (e.keyCode) {
-					case 13:
-					case 32:
-						if (this.focusedItem && !this.focusedItem.hasAttribute('disabled')) {
-							this.fire('iron-select', {item: this.focusedItem});
-						}
+			/*
+			* Handle keyboard selection of listbox items, as IronMenuBehavior leaves it to the item to handle
+			*/
+			_onKeydown: function(e) {
+				if (event.detail.event === 'keydown' && this.keyboardEventMatchesKeys(e, 'space enter')) {
+					if (this.focusedItem && !this.focusedItem.hasAttribute('disabled')) {
+						this.fire('iron-select', {item: this.focusedItem});
+					}
+				}
+			},
+
+			/*
+			* Override IronMenuBehavior._resetTabindices to disable tab focus of all items
+			*/
+			_resetTabindices: function() {
+				for (var i = 0; i < this.items.length; i++) {
+					this.items[i].setAttribute('tabindex', -1);
+				}
+			},
+
+			/*
+			* Override IronMenuBehavior._focusedItemChanged to do nothing but focus the desired item
+			*/
+			_focusedItemChanged: function(focusedItem) {
+				if (focusedItem) {
+					focusedItem.focus();
 				}
 			}
 
