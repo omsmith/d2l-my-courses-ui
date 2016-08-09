@@ -109,11 +109,11 @@
 
 		<d2l-loading-spinner size="100"></d2l-loading-spinner>
 
-		<d2l-search-widget
-			organizations-url="/d2l/api/hm/organizations">
-		</d2l-search-widget>
-
 		<div class="my-courses-content hidden">
+			<d2l-search-widget
+				organizations-url="/d2l/api/hm/organizations">
+			</d2l-search-widget>
+
 			<div class="button-bar" hidden$="[[!_hasManyEnrollments]]">
 				<button
 					id="tileViewButton"
