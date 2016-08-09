@@ -104,18 +104,18 @@
 		<div class="my-courses-content hidden">
 			<div class="button-bar" hidden$="[[!_hasManyEnrollments]]">
 				<button
+					id="tileViewButton"
+					class="view-button"
+					on-tap="_selectTileView"
+					aria-pressed="false">
+					Pinned Courses
+				</button>
+				<button
 					id="recentViewButton"
 					class="view-button view-button-selected"
 					on-tap="_selectRecentView"
 					aria-pressed="true">
 					Last Accessed
-				</button>
-				<button
-					id="tileViewButton"
-					class="view-button"
-					on-tap="_selectTileView"
-					aria-pressed="false">
-					My Courses
 				</button>
 			</div>
 
