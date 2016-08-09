@@ -97,6 +97,17 @@
 				_hasEnrollments: {
 					type: Boolean,
 					value: false
+				},
+				/*
+				* True when user has "a lot" of enrollments.
+				*
+				* Used to determine whether to show recent courses list as well as tile view.
+				*
+				* @type {Boolean}
+				*/
+				_hasManyEnrollments: {
+					type: Boolean,
+					value: false
 				}
 			},
 			listeners: {
