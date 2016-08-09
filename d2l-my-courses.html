@@ -105,14 +105,14 @@
 			<div class="button-bar" hidden$="[[!_hasManyEnrollments]]">
 				<button
 					id="tileViewButton"
-					class="view-button"
+					class="view-button view-button-selected"
 					on-tap="_selectTileView"
 					aria-pressed="false">
 					Pinned Courses
 				</button>
 				<button
 					id="recentViewButton"
-					class="view-button view-button-selected"
+					class="view-button"
 					on-tap="_selectRecentView"
 					aria-pressed="true">
 					Last Accessed
@@ -283,7 +283,7 @@
 
 					// Only show Recent Courses view to users with >20 enrollments
 					this._hasManyEnrollments = this.enrollments.length > 20;
-					this._hasManyEnrollments ? this._selectRecentView() : this._selectTileView();
+					this._selectTileView();
 
 					if (this._hasEnrollments) {
 						this._alertMessage = this.localize('noPinnedCoursesMessage');
