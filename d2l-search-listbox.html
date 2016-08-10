@@ -187,7 +187,7 @@
 			},
 
 			/*
-			* Override IronMenuBehavior._focusedItemChanged to do nothing but focus the desired item
+			* Update classes for first/last items when listbox items change
 			*/
 			_onItemsChanged: function() {
 				if (this.items.length > 0) {
@@ -202,7 +202,7 @@
 			},
 
 			keyBindings: {
-				'space enter' : '_onKeydown'
+				'space' : '_onKeydown'
 			}
 
 		});

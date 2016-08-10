@@ -140,9 +140,9 @@
 			vertical-offset="10">
 
 			<div class="dropdown-content">
-				<iron-pages selectable=".search-results-listbox-page" selected="0">
-					<div class="search-results-listbox-page">
-						<d2l-search-listbox id="previous-searches-listbox">
+				<iron-pages selectable=".search-results-listbox-page" attr-for-selected="data-page-name" selected="recent-searches-page">
+					<div class="search-results-listbox-page" data-page-name="recent-searches-page">
+						<d2l-search-listbox>
 							<div class="d2l-heading-4" data-list-title disabled>{{localize('recentSearches')}}</div>
 							<template is="dom-repeat" items="[[_previousSearches]]">
 								<option selectable data-text$="[[item]]" data-href$="[[_computePreviousSearchLink(item)]]">
@@ -152,8 +152,8 @@
 						</d2l-search-listbox>
 					</div>
 
-					<div class="search-results-listbox-page">
-						<d2l-search-listbox id="search-results-listbox">
+					<div class="search-results-listbox-page" data-page-name="search-results-page">
+						<d2l-search-listbox>
 							<template id="courseSearchResultsTemplate" is="dom-repeat" items="[[_courseSearchResults]]">
 								<option selectable data-text$="[[item.name]]" data-href$="[[item.href]]">
 									[[item.name]]
@@ -162,8 +162,8 @@
 						</d2l-search-listbox>
 					</div>
 
-					<div class="search-results-listbox-page">
-						<d2l-search-listbox id="no-results-listbox">
+					<div class="search-results-listbox-page" data-page-name="no-results-page">
+						<d2l-search-listbox>
 							<div disabled>{{localize('noSearchResults')}}</div>
 						</d2l-search-listbox>
 					</div>
@@ -195,7 +195,7 @@
 
 				/*
 				* An array of objects containing the results of the search-course-collection action
-				* @type {Array}
+				* @type {Array<Object>}
 				*/
 				_courseSearchResults: {
 					type: Array,
@@ -208,7 +208,7 @@
 
 				/*
 				* List of strings containing previously searched terms/selected courses
-				* @type {Array}
+				* @type {Array<String>}
 				*/
 				_previousSearches: {
 					type: Array,
@@ -217,8 +217,6 @@
 					}
 				}
 			},
-
-			_currentSearchPage: -1,
 
 			listeners: {
 				'iron-select': '_onIronSelect'
@@ -244,7 +242,6 @@
 					this._listboxes[i].owner = this.$$('input');
 				}
 
-				this._activateSearchDropdownPage(0);
 				this._initializePreviousSearches();
 				this.$.organizationsSearchRootRequest.generateRequest();
 			},
@@ -280,6 +277,8 @@
 			*/
 			_liveSearch: function() {
 				if (this._searchString) {
+					this.cancelDebouncer('liveSearchJob');
+
 					var queryParams = {
 						search: this._searchString,
 						page: 1,
@@ -312,7 +311,8 @@
 			},
 
 			_clearSearchResults: function() {
-				this._activateSearchDropdownPage(0);
+				this.cancelDebouncer('liveSearchJob');
+				this.$$('iron-pages').select('recent-searches-page');
 				this._searchString = '';
 				this.set('_courseSearchResults', []);
 			},
@@ -320,7 +320,9 @@
 			_onSearchStringChanged: function(newString) {
 				if (this._listboxes) {
 					if (newString.length > 0) {
-						this._liveSearch();
+						if (!this.isDebouncerActive('liveSearchJob')) {
+							this.debounce('liveSearchJob', this._liveSearch.bind(this), 250);
+						}
 					} else {
 						this._clearSearchResults();
 					}
@@ -365,12 +367,16 @@
 					this.splice('_previousSearches', this._previousSearches.length - 1, 1);
 				}
 
-				window.localStorage.setItem(
-					'myCourses.previousSearches',
-					JSON.stringify({
-						searches: this._previousSearches
-					})
-				);
+				try {
+					window.localStorage.setItem(
+						'myCourses.previousSearches',
+						JSON.stringify({
+							searches: this._previousSearches
+						})
+					);
+				} catch (e) {
+					// Local storage not available/full - oh well.
+				}
 			},
 
 			/*
@@ -398,7 +404,7 @@
 			* @param {Object}
 			*/
 			_onCoursesSearchResponse: function(response) {
-				if (response.detail.status === 200) {
+				if (response.detail.status === 200 && this._searchString) {
 					var parser = document.createElement('d2l-siren-parser');
 					var organizationResponse = parser.parse(response.detail.xhr.response);
 					var organizationEntities = organizationResponse.entities;
@@ -412,8 +418,7 @@
 					}
 
 					this.set('_courseSearchResults', courseSearchResults);
-
-					this._activateSearchDropdownPage(courseSearchResults.length > 0 ? 1 : 2);
+					this.$$('iron-pages').select(courseSearchResults.length > 0 ? 'search-results-page' : 'no-results-page');
 				}
 			},
 
@@ -421,24 +426,24 @@
 			* Handles iron-select events, fired when listbox items are selected
 			*/
 			_onIronSelect: function(e) {
-				if (e.detail.item.dataset.href) {
-					if (e.detail.item.dataset.text) {
-						this._addSearchToHistory(e.detail.item.dataset.text);
-					}
+				switch (e.target.nodeName) {
+					case 'IRON-PAGES':
+						// @TODO: Not a fan of any of this "current listbox" handling - necessary right now due to Iron Behavios regressions.
+						// Should find a better way.
+						var ironPages = this.$$('iron-pages');
+						var pageIndex = ironPages.indexOf(ironPages.selectedItem);
+						this._currentListbox = this._listboxes[pageIndex];
+						break;
 
-					window.location.href = e.detail.item.dataset.href;
-				}
-			},
+					case 'D2L-SEARCH-LISTBOX':
+						if (e.detail.item.dataset.href) {
+							if (e.detail.item.dataset.text) {
+								this._addSearchToHistory(e.detail.item.dataset.text);
+							}
 
-			/*
-			* Indicates which dropdown context should be open.
-			* @param {Number} Page number to activate
-			*/
-			_activateSearchDropdownPage: function(page) {
-				if (page !== this._currentSearchPage) {
-					this._currentSearchPage = page;
-					this._currentListbox = this._listboxes[page];
-					this.$$('iron-pages').select(page);
+							window.location.href = e.detail.item.dataset.href;
+						}
+						break;
 				}
 			},
 
