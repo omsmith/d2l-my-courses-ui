@@ -283,16 +283,11 @@
 						newPositions.push(currPositions[currIndex]);
 					} else {
 						// Tile will shift into new position
-						var leftMarginPct = [
-							[0], //1 column
-							[0, .01666], //2 columns
-							[0, .01175, .023], //3 columns
-							[0, .00934, .01867, .02801] //4 columns
-						];
 						var newCol = newIndex % columns;
 						var newXPx = currPositions[currIndex].width * newCol;
+						var leftMarginPct = 0.01 * (newCol);
 
-						newXPx = newXPx + (leftMarginPct[columns - 1][newCol] * containerWidth);
+						newXPx = newXPx + (leftMarginPct * containerWidth);
 
 						newPositions.push({
 							width: currPositions[currIndex].width,
