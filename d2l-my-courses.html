@@ -71,6 +71,9 @@
 				padding: 0;
 				cursor: pointer;
 			}
+			.view-button:hover, .view-button:focus {
+				text-decoration: underline;
+			}
 			.view-button-selected {
 				font-weight: 700;
 				color: var(--d2l-color-ferrite);
@@ -108,14 +111,14 @@
 					class="view-button view-button-selected"
 					on-tap="_selectTileView"
 					aria-pressed="false">
-					Pinned Courses
+					{{localize('pinnedCoursesTab')}}
 				</button>
 				<button
 					id="recentViewButton"
 					class="view-button"
 					on-tap="_selectRecentView"
 					aria-pressed="true">
-					Last Accessed
+					{{localize('lastAccessedTab')}}
 				</button>
 			</div>
 
