@@ -1,0 +1,210 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../iron-menu-behavior/iron-menu-behavior.html">
+<link rel="import" href="../iron-a11y-keys/iron-a11y-keys.html">
+<link rel="import" href="../d2l-typography/d2l-typography-shared-styles.html">
+
+<dom-module id="d2l-search-listbox">
+	<template>
+		<style include="d2l-typography-shared-styles"></style>
+		<style>
+			:host {
+				box-sizing: border-box;
+				display: block;
+				width: 100%;
+				background: -moz-linear-gradient(top, var(--d2l-color-regolith) 0%, var(--d2l-color-white) 80px);
+				background: -webkit-linear-gradient(top, var(--d2l-color-regolith) 0%, var(--d2l-color-white) 80px);
+				background: linear-gradient(to bottom, var(--d2l-color-regolith) 0%, var(--d2l-color-white) 80px);
+			}
+
+			::content > * {
+				border: 1px solid var(--d2l-color-titanius);
+				border-top-color: var(--d2l-color-gypsum);
+				border-bottom-color: transparent;
+				color: var(--d2l-color-ferrite);
+				list-style-type: none;
+				width: 100%;
+				line-height: 3rem;
+				padding-left: 30px;
+				font-weight: 300;
+			}
+
+			::content > .list-item-first {
+				border-top-left-radius: 6px;
+				border-top-right-radius: 6px;
+			}
+
+			::content > .list-item-last {
+				border-bottom-left-radius: 6px;
+				border-bottom-right-radius: 6px;
+			}
+
+			::content > *:not([disabled]):focus,
+			::content > *:not([disabled]):hover {
+				background-color: var(--d2l-color-celestine-light-1);
+				border: 1px solid var(--d2l-color-celestine-light-2);
+				color: var(--d2l-color-celestine);
+			}
+
+			::content > [data-list-title] {
+				line-height: 4rem;
+				font-weight: 400;
+			}
+		</style>
+		<content></content>
+	</template>
+	<script>
+		'use strict';
+
+		Polymer({
+			is: 'd2l-search-listbox',
+
+			/*
+			* Fired when a list item is selected
+			* @event iron-select
+			*/
+
+			properties: {
+				/*
+				* The associated input element if this is part of a combobox; for control wrapping
+				* @type {Element}
+				*/
+				owner: Object
+			},
+
+			hostAttributes: {
+				'role': 'listbox',
+				'tabindex': -1
+			},
+
+			behaviors: [
+				Polymer.IronMenuBehavior,
+				Polymer.IronA11yKeysBehavior
+			],
+
+			listeners: {
+				'iron-items-changed': '_onItemsChanged'
+			},
+
+			/*
+			* @return {Boolean} Indicates if the listbox has selectable items
+			*/
+			hasItems: function() {
+				var selectableItems = this.items.filter( function(item) {
+					if (item.tagName === 'OPTION' && !item.hasAttribute('disabled')) {
+						return true;
+					}
+				});
+				return selectableItems.length > 0;
+			},
+
+			/*
+			* Focus the last selectable listbox item
+			*/
+			focusLast: function() {
+				var length = this.items.length;
+
+				for (var i = length - 1; i >= 0; i--) {
+					var item = this.items[i];
+					if (!item.hasAttribute('disabled')) {
+						this._setFocusedItem(item);
+						return;
+					}
+				}
+			},
+
+			/*
+			* Override IronMenuBehavior._focusPrevious so that the listbox owner can be focused
+			*/
+			_focusPrevious: function() {
+				var length = this.items.length;
+				var curFocusIndex = this.indexOf(this.focusedItem);
+
+				for (var i = 1; i < length + 1; i++) {
+					var newItemIndex = (curFocusIndex - i + length) % length;
+					var item = this.items[newItemIndex];
+
+					if (this.owner && newItemIndex === length - 1) {
+						this._setFocusedItem(null);
+						this.owner.focus();
+						return;
+					} else if (!item.hasAttribute('disabled')) {
+						this._setFocusedItem(item);
+						return;
+					}
+				}
+			},
+
+			/*
+			* Override IronMenuBehavior._focusNext so that the listbox owner can be focused
+			*/
+			_focusNext: function() {
+				var length = this.items.length;
+				var curFocusIndex = this.indexOf(this.focusedItem);
+
+				for (var i = 1; i < length + 1; i++) {
+					var newItemIndex = (curFocusIndex + i) % length;
+					var item = this.items[newItemIndex];
+
+					if (this.owner && (curFocusIndex > newItemIndex) && (newItemIndex === 0)) {
+						this._setFocusedItem(null);
+						this.owner.focus();
+						return;
+					} else if (!item.hasAttribute('disabled')) {
+						this._setFocusedItem(item);
+						return;
+					}
+				}
+			},
+
+			/*
+			* Handle keyboard selection of listbox items, as IronMenuBehavior leaves it to the item to handle
+			*/
+			_onKeydown: function(e) {
+				if (e.detail.event === 'keydown' && this.keyboardEventMatchesKeys(e, 'space enter')) {
+					e.preventDefault();
+					if (this.focusedItem && !this.focusedItem.hasAttribute('disabled')) {
+						this.fire('iron-select', {item: this.focusedItem});
+					}
+				}
+			},
+
+			/*
+			* Override IronMenuBehavior._resetTabindices to disable tab focus of all items
+			*/
+			_resetTabindices: function() {
+				for (var i = 0; i < this.items.length; i++) {
+					this.items[i].setAttribute('tabindex', -1);
+				}
+			},
+
+			/*
+			* Override IronMenuBehavior._focusedItemChanged to do nothing but focus the desired item
+			*/
+			_focusedItemChanged: function(focusedItem) {
+				if (focusedItem) {
+					focusedItem.focus();
+				}
+			},
+
+			/*
+			* Update classes for first/last items when listbox items change
+			*/
+			_onItemsChanged: function() {
+				if (this.items.length > 0) {
+					for (var i = 0; i < this.items.length; i++) {
+						this.toggleClass('list-item-first', false, this.items[i]);
+						this.toggleClass('list-item-last', false, this.items[i]);
+					}
+
+					this.toggleClass('list-item-first', true, this.items[0]);
+					this.toggleClass('list-item-last', true, this.items[this.items.length - 1]);
+				}
+			},
+
+			keyBindings: {
+				'space' : '_onKeydown'
+			}
+
+		});
+	</script>
+</dom-module>
