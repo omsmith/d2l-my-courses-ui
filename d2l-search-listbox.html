@@ -1,6 +1,7 @@
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../iron-menu-behavior/iron-menu-behavior.html">
 <link rel="import" href="../iron-a11y-keys/iron-a11y-keys.html">
+<link rel="import" href="../d2l-typography/d2l-typography-shared-styles.html">
 
 <dom-module id="d2l-search-listbox">
 	<template>
@@ -10,10 +11,9 @@
 				box-sizing: border-box;
 				display: block;
 				width: 100%;
-				background: -moz-linear-gradient(top, rgba(249,250,251,1) 0%, rgba(255,255,255,1) 100%); /* FF3.6-15 */
-				background: -webkit-linear-gradient(top, rgba(249,250,251,1) 0%,rgba(255,255,255,1) 100%); /* Chrome10-25,Safari5.1-6 */
-				background: linear-gradient(to bottom, rgba(249,250,251,1) 0%,rgba(255,255,255,1) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
-				background-repeat: repeat-y:
+				background: -moz-linear-gradient(top, var(--d2l-color-regolith) 0%, var(--d2l-color-white) 80px);
+				background: -webkit-linear-gradient(top, var(--d2l-color-regolith) 0%, var(--d2l-color-white) 80px);
+				background: linear-gradient(to bottom, var(--d2l-color-regolith) 0%, var(--d2l-color-white) 80px);
 			}
 
 			::content > * {
@@ -25,14 +25,15 @@
 				width: 100%;
 				line-height: 3rem;
 				padding-left: 30px;
+				font-weight: 300;
 			}
 
-			::content > *:nth-child(1) {
+			::content > .list-item-first {
 				border-top-left-radius: 6px;
 				border-top-right-radius: 6px;
 			}
 
-			::content > *:nth-last-child(1) {
+			::content > .list-item-last {
 				border-bottom-left-radius: 6px;
 				border-bottom-right-radius: 6px;
 			}
@@ -46,7 +47,7 @@
 
 			::content > [data-list-title] {
 				line-height: 4rem;
-				font-weight: 700;
+				font-weight: 400;
 			}
 		</style>
 		<content></content>
@@ -79,6 +80,10 @@
 				Polymer.IronMenuBehavior,
 				Polymer.IronA11yKeysBehavior
 			],
+
+			listeners: {
+				'iron-items-changed': '_onItemsChanged'
+			},
 
 			/*
 			* @return {Boolean} Indicates if the listbox has selectable items
@@ -155,7 +160,8 @@
 			* Handle keyboard selection of listbox items, as IronMenuBehavior leaves it to the item to handle
 			*/
 			_onKeydown: function(e) {
-				if (event.detail.event === 'keydown' && this.keyboardEventMatchesKeys(e, 'space enter')) {
+				if (e.detail.event === 'keydown' && this.keyboardEventMatchesKeys(e, 'space enter')) {
+					e.preventDefault();
 					if (this.focusedItem && !this.focusedItem.hasAttribute('disabled')) {
 						this.fire('iron-select', {item: this.focusedItem});
 					}
@@ -178,6 +184,25 @@
 				if (focusedItem) {
 					focusedItem.focus();
 				}
+			},
+
+			/*
+			* Override IronMenuBehavior._focusedItemChanged to do nothing but focus the desired item
+			*/
+			_onItemsChanged: function() {
+				if (this.items.length > 0) {
+					for (var i = 0; i < this.items.length; i++) {
+						this.toggleClass('list-item-first', false, this.items[i]);
+						this.toggleClass('list-item-last', false, this.items[i]);
+					}
+
+					this.toggleClass('list-item-first', true, this.items[0]);
+					this.toggleClass('list-item-last', true, this.items[this.items.length - 1]);
+				}
+			},
+
+			keyBindings: {
+				'space enter' : '_onKeydown'
 			}
 
 		});

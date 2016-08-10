@@ -24,8 +24,8 @@
 			input {
 				width: 100%;
 				height: 60px;
-				background-color: #fff;
-				border-color: #d3d9e3;
+				background-color: var(--d2l-color-white);
+				border-color: var(--d2l-color-titanius);
 				border-width: 1px;
 				box-shadow: inset 0 2px 0 0 rgba(185,194,208,.2);
 				padding: .4rem 1rem;
@@ -43,41 +43,60 @@
 				transition-timing-function: ease;
 				-webkit-transition-property: background-color,border-color;
 				transition-property: background-color,border-color;
+				padding-left: 65px;
+				padding-right: 65px;
 			}
 
 			input:focus,
 			input:hover {
-				border-color: #006FC1;
+				border-color: var(--d2l-color-celestine);
 				border-width: 2px;
 				outline-width: 0;
 				padding: -webkit-calc(.4rem - 1px) -webkit-calc(1rem - 1px);
 				padding: calc(.4rem - 1px) calc(1rem - 1px);
+				padding-left: 64px;
+				padding-right: 64px;
 			}
 
 			.dropdown-content {
-				background-color: white;
+				background: transparent;
 			}
 
 			d2l-dropdown {
 				min-width: 100%;
 			}
 
+			d2l-search-listbox {
+				border-radius: 6px;
+			}
+
 			.search-icon {
 				position: absolute;
-				left: 0.25rem;
-				top: 0.45rem;
+				top: 0px;
+				padding: 15px;
 				background: none;
 				border: none;
 				margin: 0;
 				cursor: pointer;
+				opacity: 0.7;
 			}
-
+			.search-icon:focus,
+			.search-icon:hover {
+				opacity: 1.0;
+			}
 			.search-icon iron-icon {
-				width: 24px;
-				height: 24px;
+				width: 30px;
+				height: 30px;
 				color: var(--d2l-color-tungsten);
 			}
 
+			.search-button {
+				left: 5px;
+			}
+
+			.clear-search-button {
+				right: 5px;
+			}
 		</style>
 
 		<d2l-ajax
@@ -95,7 +114,7 @@
 		</d2l-ajax>
 
 		<div class="search-bar" id="opener">
-			<button on-click="_onSearchButtonClick" class="search-icon">
+			<button type="button" on-tap="_onSearchButtonClick" class="search-icon search-button">
 				<iron-icon icon="d2l-tier1:search"></iron-icon>
 			</button>
 
@@ -108,11 +127,9 @@
 				on-keydown="_onSearchInputKeyPressed">
 			</input>
 
-			<!--
-			<button type="button" on-click="_clearSearchResults" class="search-icon clear-search-button">
+			<button type="button" on-tap="_clearSearchResults" class="search-icon clear-search-button">
 				<iron-icon icon="d2l-tier1:close-default"></iron-icon>
 			</button>
-			-->
 		</div>
 
 		<d2l-search-dropdown
@@ -142,9 +159,12 @@
 									[[item.name]]
 								</option>
 							</template>
-							<template is="dom-if" if="[[_showNoResults]]">
-								<div disabled>{{localize('noSearchResults')}}</div>
-							</template>
+						</d2l-search-listbox>
+					</div>
+
+					<div class="search-results-listbox-page">
+						<d2l-search-listbox id="no-results-listbox">
+							<div disabled>{{localize('noSearchResults')}}</div>
 						</d2l-search-listbox>
 					</div>
 				</iron-pages>
@@ -195,14 +215,10 @@
 					value: function() {
 						return [];
 					}
-				},
-
-				/*
-				* Boolean indicating whether the "No Results" message should be displayed in the search results dropdown
-				* @type {Boolean}
-				*/
-				_showNoResults: Boolean
+				}
 			},
+
+			_currentSearchPage: -1,
 
 			listeners: {
 				'iron-select': '_onIronSelect'
@@ -296,7 +312,7 @@
 			},
 
 			_clearSearchResults: function() {
-				this._showNoResults = false;
+				this._activateSearchDropdownPage(0);
 				this._searchString = '';
 				this.set('_courseSearchResults', []);
 			},
@@ -305,10 +321,8 @@
 				if (this._listboxes) {
 					if (newString.length > 0) {
 						this._liveSearch();
-						this._activateSearchDropdownPage(1);
 					} else {
 						this._clearSearchResults();
-						this._activateSearchDropdownPage(0);
 					}
 				}
 			},
@@ -398,7 +412,8 @@
 					}
 
 					this.set('_courseSearchResults', courseSearchResults);
-					this._showNoResults = organizationEntities.length === 0;
+
+					this._activateSearchDropdownPage(courseSearchResults.length > 0 ? 1 : 2);
 				}
 			},
 
@@ -420,8 +435,11 @@
 			* @param {Number} Page number to activate
 			*/
 			_activateSearchDropdownPage: function(page) {
-				this._currentListbox = this._listboxes[page];
-				this.$$('iron-pages').select(page);
+				if (page !== this._currentSearchPage) {
+					this._currentSearchPage = page;
+					this._currentListbox = this._listboxes[page];
+					this.$$('iron-pages').select(page);
+				}
 			},
 
 			_keyCodes: {
@@ -457,7 +475,6 @@
 					}
 				}
 			}
-
 		});
 	</script>
 </dom-module>
