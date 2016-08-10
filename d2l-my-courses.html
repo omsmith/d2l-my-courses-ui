@@ -111,6 +111,7 @@
 
 		<div class="my-courses-content hidden">
 			<d2l-search-widget
+				hidden$="[[!_hasManyEnrollments]]"
 				organizations-url="/d2l/api/hm/organizations">
 			</d2l-search-widget>
 
