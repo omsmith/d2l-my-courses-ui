@@ -19,7 +19,8 @@
 					enrollment="[[item]]"
 					hover-enabled="[[_hoverInteractionEnabled]]"
 					animate-insertion="[[_removeEnrollmentFromTransitionList(item)]]"
-					enrollment-id="[[getEnrollmentIdentifier(item)]]">
+					enrollment-id="[[getEnrollmentIdentifier(item)]]"
+					delay-load="[[delayCourseTileLoad]]">
 				</d2l-course-tile>
 			</template>
 		</div>
@@ -46,6 +47,11 @@
 			*/
 
 			properties: {
+				/*
+				* Sets the delay-load property on the course tiles
+				* @type {Boolean}
+				*/
+				delayCourseTileLoad: Boolean,
 				/*
 				* Set of enrollment entities for which to display course tiles
 				* @type {Array<Entity>}

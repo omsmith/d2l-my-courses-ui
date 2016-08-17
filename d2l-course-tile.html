@@ -106,6 +106,14 @@ in that organization - student, teacher, TA, etc.
 					type: Boolean
 				},
 				/*
+				* Delays initial loading of the organization until explicitly triggered by `loadOrganization`
+				* @type {Boolean}
+				*/
+				delayLoad: {
+					type: Boolean,
+					observer: '_delayLoadChanged'
+				},
+				/*
 				* Course tile enrollment
 				*
 				* When the enrollment is set, the course tile will automatically fetch information about the
@@ -193,7 +201,9 @@ in that organization - student, teacher, TA, etc.
 
 				var organizationLink = this.enrollment.getLinkByRel(/\/organization$/);
 				this._organizationUrl = organizationLink.href + '?embedDepth=1';
-				this.$.organizationRequest.generateRequest();
+				if (!this.delayLoad) {
+					this.$.organizationRequest.generateRequest();
+				}
 			},
 			/*
 			* Handler that triggers the API call to change an enrollment's pin state when the user says DO IT
@@ -248,6 +258,11 @@ in that organization - student, teacher, TA, etc.
 			},
 			_pendingPinAction: false,
 			_pinAnimationInProgress: false,
+			_delayLoadChanged: function(delayLoad) {
+				if (!delayLoad && !this._organization) {
+					this.$.organizationRequest.generateRequest();
+				}
+			},
 			_hoverCourseTile: function() {
 				if (this.hoverEnabled) {
 					this._setCourseTileHovered(true);

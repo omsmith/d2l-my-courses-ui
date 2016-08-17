@@ -36,14 +36,16 @@
 
 		<d2l-course-tile-grid
 			enrollments="{{pinnedEnrollments}}"
-			enrollments-queue="{{pinnedEnrollmentsQueue}}">
+			enrollments-queue="{{pinnedEnrollmentsQueue}}"
+			delay-course-tile-load="true">
 		</d2l-course-tile-grid>
 
 		<h2 class="d2l-heading-3">{{localize('unpinnedCourses')}}</h2>
 
 		<d2l-course-tile-grid
 			enrollments="{{unpinnedEnrollments}}"
-			enrollments-queue="{{unpinnedEnrollmentsQueue}}">
+			enrollments-queue="{{unpinnedEnrollmentsQueue}}"
+			delay-course-tile-load="true">
 		</d2l-course-tile-grid>
 	</template>
 
@@ -92,6 +94,11 @@
 				var itemCount = Math.max(this.pinnedEnrollments.length, this.unpinnedEnrollments.length);
 
 				return itemCount;
+			},
+			loadCourseTiles: function() {
+				Polymer.dom(this.root).querySelectorAll('d2l-course-tile-grid').forEach(function(grid) {
+					grid.delayCourseTileLoad = false;
+				});
 			}
 		});
 	</script>

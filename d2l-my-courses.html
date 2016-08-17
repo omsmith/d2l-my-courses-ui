@@ -311,6 +311,7 @@
 				e.preventDefault();
 				e.stopPropagation();
 				this.$$('d2l-simple-overlay').open();
+				this.$$('d2l-all-courses').loadCourseTiles();
 
 				setTimeout(function() {
 					// Slight delay to allow for overlay to get a DOM width before triggering the recalculation
