@@ -197,6 +197,12 @@ in that organization - student, teacher, TA, etc.
 				}
 			},
 			ready: function() {
+				// Currently only needed in tests, but it is entirely possible
+				// to render the element without an enrollment initially
+				if (!this.enrollment) {
+					return;
+				}
+
 				this.pinned = this.enrollment.hasClass('pinned');
 
 				var organizationLink = this.enrollment.getLinkByRel(/\/organization$/);
