@@ -227,14 +227,21 @@
 				Polymer.D2L.MyCourses.UtilityBehavior
 			],
 
+			ready: function() {
+				this._handleFocusBound = this._handleFocus.bind(this);
+				this._handleClickBound = this._handleClick.bind(this);
+			},
+
 			attached: function() {
 				var i = 0;
 				var searchBarElements = this.$$('.search-bar').children;
 
 				for (i = 0; i < searchBarElements.length; i++) {
-					this.listen(searchBarElements[i], 'blur', '_onElementBlur');
 					this.listen(searchBarElements[i], 'focus', '_onElementFocus');
 				}
+
+				document.body.addEventListener('focus', this._handleFocusBound, true);
+				document.body.addEventListener('click', this._handleClickBound, true);
 
 				this._listboxes = Polymer.dom(this.root).querySelectorAll('d2l-search-listbox').slice();
 
@@ -249,9 +256,11 @@
 			detached: function() {
 				var searchBarElements = this.$$('.search-bar').children;
 				for (var i = 0; i < searchBarElements.length; i++) {
-					this.unlisten(searchBarElements[i], 'blur', '_onElementBlur');
 					this.unlisten(searchBarElements[i], 'focus', '_onElementFocus');
 				}
+
+				document.body.removeEventListener('focus', this._handleFocusBound, true);
+				document.body.removeEventListener('click', this._handleClickBound, true);
 			},
 
 			/*
@@ -356,22 +365,24 @@
 			 * @param {String} Search string
 			 */
 			_addSearchToHistory: function(searchTerm) {
+				var previousSearches = this._previousSearches.slice();
+
 				// Remove prior existence of this search term if it exists
-				var currSearchHistoryIndex = this._previousSearches.indexOf(searchTerm);
+				var currSearchHistoryIndex = previousSearches.indexOf(searchTerm);
 
 				if (currSearchHistoryIndex !== -1) {
-					this.splice('_previousSearches', currSearchHistoryIndex, 1);
+					previousSearches.splice(currSearchHistoryIndex, 1);
 				}
 
-				if (this.unshift('_previousSearches', searchTerm) > 5) {
-					this.splice('_previousSearches', this._previousSearches.length - 1, 1);
+				if (previousSearches.unshift(searchTerm) > 5) {
+					previousSearches.splice(previousSearches.length - 1, 1);
 				}
 
 				try {
 					window.localStorage.setItem(
 						'myCourses.previousSearches',
 						JSON.stringify({
-							searches: this._previousSearches
+							searches: previousSearches
 						})
 					);
 				} catch (e) {
@@ -423,7 +434,7 @@
 			},
 
 			/*
-			* Handles iron-select events, fired when listbox items are selected
+			* Handles iron-select events, which are fired when listbox items are selected and dropdown pages are changed
 			*/
 			_onIronSelect: function(e) {
 				switch (e.target.nodeName) {
@@ -469,16 +480,40 @@
 			},
 
 			/*
-			* Called when an element within the search bar loses focus.
-			* If the search bar isn't an ancestor of the newly focused item (e.relatedTarget),
-			* the search listbox is closed.
+			 * Handles loss of focus of this element due to focus event.
+			 */
+			_handleFocus: function() {
+				this._checkFocusLost(document.activeElement);
+			},
+
+			/*
+			 * Handles loss of focus of this element due to click event.
+			 */
+			_handleClick: function(e) {
+				this._checkFocusLost(Polymer.dom(e).rootTarget);
+			},
+
+			/*
+			* Determines whether the widget has lost focus, and closes the dropdown if it has.
 			*/
-			_onElementBlur: function(e) {
-				if (this.$.dropdown.opened) {
-					if (!e.relatedTarget || !Polymer.dom(this).deepContains(e.relatedTarget)) {
-						this.$.dropdown.close();
-					}
+			_checkFocusLost: function(focusedElement) {
+				if (this.$.dropdown.opened && !this._isDescendant(focusedElement)) {
+					this.$.dropdown.close();
 				}
+			},
+
+			/*
+			 * Determines whether the given element is a descendant of this element.
+			 */
+			_isDescendant: function(element) {
+				var parentNode = element.parentNode;
+				while (parentNode) {
+					if (Polymer.dom(parentNode).node === this) {
+						return true;
+					}
+					parentNode = parentNode.parentNode;
+				}
+				return false;
 			}
 		});
 	</script>
