@@ -36,14 +36,16 @@
 
 		<d2l-course-tile-grid
 			enrollments="{{pinnedEnrollments}}"
-			enrollments-queue="{{pinnedEnrollmentsQueue}}">
+			enrollments-queue="{{pinnedEnrollmentsQueue}}"
+			delay-course-tile-load="[[delayCourseTileLoad]]">
 		</d2l-course-tile-grid>
 
 		<h2 class="d2l-heading-3">{{localize('unpinnedCourses')}}</h2>
 
 		<d2l-course-tile-grid
 			enrollments="{{unpinnedEnrollments}}"
-			enrollments-queue="{{unpinnedEnrollmentsQueue}}">
+			enrollments-queue="{{unpinnedEnrollmentsQueue}}"
+			delay-course-tile-load="[[delayCourseTileLoad]]">
 		</d2l-course-tile-grid>
 	</template>
 
@@ -52,6 +54,16 @@
 
 		Polymer({
 			is: 'd2l-all-courses',
+			properties: {
+				/*
+				* Sets the delay-load property on the course tile grid
+				* @type {Boolean}
+				*/
+				delayCourseTileLoad: {
+					type: Boolean,
+					value: true
+				}
+			},
 			behaviors: [
 				Polymer.D2L.MyCourses.CourseTileResponsiveGridBehavior,
 				Polymer.D2L.MyCourses.LocalizeBehavior,
@@ -92,6 +104,9 @@
 				var itemCount = Math.max(this.pinnedEnrollments.length, this.unpinnedEnrollments.length);
 
 				return itemCount;
+			},
+			loadCourseTiles: function() {
+				this.delayCourseTileLoad = false;
 			}
 		});
 	</script>

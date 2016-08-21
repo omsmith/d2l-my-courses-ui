@@ -80,20 +80,21 @@ describe('<d2l-course-tile>', function() {
 		expect(widget).to.exist;
 	});
 
-	it('should fetch the organization when the enrollment is changed', function(done) {
+	it('should fetch the organization on ready', function(done) {
 		server.respondWith(
 			'GET',
 			'/organizations/1?embedDepth=1',
 			[200, {}, JSON.stringify(organization)]);
 
-		var organizationSpy = sinon.spy(widget.$.organizationRequest, 'generateRequest');
-
 		widget.$.organizationRequest.addEventListener('iron-ajax-response', function() {
-			expect(organizationSpy.called);
+			expect(widget._organization.properties).to.be.an('object');
 			done();
 		});
 
 		widget.enrollment = enrollmentEntity;
+		// The widget will generate a ready signal before we've set the
+		// enrollment, so manually call it again after we have
+		widget.ready();
 	});
 
 	describe('setting the enrollment attribute', function() {
@@ -109,10 +110,8 @@ describe('<d2l-course-tile>', function() {
 			});
 
 			widget.enrollment = enrollmentEntity;
-		});
-
-		it('should parse and update the internal Siren representation', function() {
-			expect(widget._organization.properties).to.be.an('object');
+			// Setting the enrollment post-ready, so call it again once it's set
+			widget.ready();
 		});
 
 		it('should have the correct href', function() {
@@ -146,6 +145,47 @@ describe('<d2l-course-tile>', function() {
 		});
 	});
 
+	describe('delay-load attribute', function() {
+		it('should not fetch the organization if delay-load=true', function() {
+			var delayedWidget = fixture('d2l-course-tile-fixture-delayed');
+
+			server.respondWith(
+				'GET',
+				'/organizations/1?embedDepth=1',
+				[200, {}, JSON.stringify(organization)]);
+
+			var organizationSpy = sinon.spy(delayedWidget.$.organizationRequest, 'generateRequest');
+
+			delayedWidget.enrollment = enrollmentEntity;
+			delayedWidget.ready();
+
+			expect(organizationSpy.called).to.be.false;
+		});
+
+		it('should fetch the organization if delay-load is set to false', function(done) {
+			var delayedWidget = fixture('d2l-course-tile-fixture-delayed');
+
+			server.respondWith(
+				'GET',
+				'/organizations/1?embedDepth=1',
+				[200, {}, JSON.stringify(organization)]);
+
+			var organizationSpy = sinon.spy(delayedWidget.$.organizationRequest, 'generateRequest');
+
+			delayedWidget.$.organizationRequest.addEventListener('iron-ajax-response', function() {
+				expect(delayedWidget._organization.properties).to.be.an('object');
+				done();
+			});
+
+			delayedWidget.enrollment = enrollmentEntity;
+			delayedWidget.ready();
+
+			expect(organizationSpy.called).to.be.false;
+
+			delayedWidget.delayLoad = false;
+		});
+	});
+
 	describe('changing the pinned state', function() {
 		var event = { preventDefault: function() {} };
 
@@ -168,6 +208,7 @@ describe('<d2l-course-tile>', function() {
 			});
 
 			widget.enrollment = enrollmentEntity;
+			widget.ready();
 		});
 
 		afterEach(function() {

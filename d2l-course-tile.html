@@ -106,6 +106,14 @@ in that organization - student, teacher, TA, etc.
 					type: Boolean
 				},
 				/*
+				* Delays initial loading of the organization until explicitly triggered by `loadOrganization`
+				* @type {Boolean}
+				*/
+				delayLoad: {
+					type: Boolean,
+					observer: '_delayLoadChanged'
+				},
+				/*
 				* Course tile enrollment
 				*
 				* When the enrollment is set, the course tile will automatically fetch information about the
@@ -113,17 +121,12 @@ in that organization - student, teacher, TA, etc.
 				*
 				* @type {Entity}
 				*/
-				enrollment: {
-					type: Object,
-					observer: '_enrollmentChanged'
-				},
+				enrollment: Object,
 				/*
 				* TODO: Erm... same thing. Something something animation?
 				* @type {Boolean}
 				*/
-				enrollmentId: {
-					type: Number
-				},
+				enrollmentId: Number,
 				/*
 				* Specifies whether the (desktop) hover menu is enabled on the course tile
 				* @type {Boolean}
@@ -152,44 +155,32 @@ in that organization - student, teacher, TA, etc.
 				* Body sent for pin/unpin action
 				* @type {String}
 				*/
-				_enrollmentPinBody: {
-					type: String
-				},
+				_enrollmentPinBody: String,
 				/*
 				* HTTP method used by the pin/unpin action
 				* @type {String}
 				*/
-				_enrollmentPinMethod: {
-					type: String
-				},
+				_enrollmentPinMethod: String,
 				/*
 				* URL used by the pin/unpin action
 				* @type {String}
 				*/
-				_enrollmentPinUrl: {
-					type: String
-				},
+				_enrollmentPinUrl: String,
 				/*
 				* The organization, fetched by the course tile when the `enrollment` Entity is changed
 				* @type {Entity}
 				*/
-				_organization: {
-					type: Object
-				},
+				_organization: Object,
 				/*
 				* The URL to of the `_organization`'s homepage - when the course tile is clicked, this is the URL we go to
 				* @type {String}
 				*/
-				_organizationHomepageUrl: {
-					type: String
-				},
+				_organizationHomepageUrl: String,
 				/*
 				* The URL to fetch the `_organization` Entity from (determined from the `enrollment`'s Links)
 				* @type {String}
 				*/
-				_organizationUrl: {
-					type: String
-				}
+				_organizationUrl: String
 			},
 			behaviors: [
 				Polymer.D2L.MyCourses.LocalizeBehavior
@@ -203,6 +194,21 @@ in that organization - student, teacher, TA, etc.
 			attached: function() {
 				if (this.animateInsertion) {
 					this.toggleClass('animate-insertion-pre', true, this);
+				}
+			},
+			ready: function() {
+				// Currently only needed in tests, but it is entirely possible
+				// to render the element without an enrollment initially
+				if (!this.enrollment) {
+					return;
+				}
+
+				this.pinned = this.enrollment.hasClass('pinned');
+
+				var organizationLink = this.enrollment.getLinkByRel(/\/organization$/);
+				this._organizationUrl = organizationLink.href + '?embedDepth=1';
+				if (!this.delayLoad) {
+					this.$.organizationRequest.generateRequest();
 				}
 			},
 			/*
@@ -258,14 +264,8 @@ in that organization - student, teacher, TA, etc.
 			},
 			_pendingPinAction: false,
 			_pinAnimationInProgress: false,
-			_enrollmentChanged: function(enrollment) {
-				this.pinned = enrollment.hasClass('pinned');
-
-				// The enrollment is updated (i.e. this handler is called) upon a pin/unpin response as well, but
-				// there's no need to update the organization in that case
-				if (!this._organization) {
-					var organizationLink = enrollment.getLinkByRel(/\/organization$/);
-					this._organizationUrl = organizationLink.href + '?embedDepth=1';
+			_delayLoadChanged: function(delayLoad) {
+				if (!delayLoad && !this._organization) {
 					this.$.organizationRequest.generateRequest();
 				}
 			},
@@ -306,9 +306,11 @@ in that organization - student, teacher, TA, etc.
 			},
 			_onEnrollmentPinResponse: function(response) {
 				if (response.detail.status === 200) {
-					// The pin action returns the updated enrollment, so update this.enrollment with the modified one
+					// The pin action returns the updated enrollment, so update
+					// this.enrollment with the modified one
 					var parser = document.createElement('d2l-siren-parser');
 					this.enrollment = parser.parse(response.detail.xhr.response);
+					this.pinned = this.enrollment.hasClass('pinned');
 				}
 			},
 			_onOrganizationResponse: function(response) {
