@@ -255,17 +255,22 @@
 
 					var searchAction = enrollmentsRoot.getActionByName('search-my-enrollments');
 
-					var query = {
+					var pinDateQuery = {
 						pageSize: 25,
-						embedDepth: 1
+						embedDepth: 1,
+						sortField: 'pinDate',
+						sortDescending: true
 					};
-					this._enrollmentsSearchUrl = this.createActionUrl(searchAction, query);
+					this._enrollmentsSearchUrl = this.createActionUrl(searchAction, pinDateQuery);
 					this.$.enrollmentsSearchRequest.generateRequest();
 
-					query.pageSize = 5;
-					query.sortField = 'lastAccessed';
-					query.sortDescending = true;
-					this._recentEnrollmentsSearchUrl = this.createActionUrl(searchAction, query);
+					var lastAccessedQuery = {
+						pageSize: 5,
+						embedDepth: 1,
+						sortField: 'lastAccessed',
+						sortDescending: true
+					};
+					this._recentEnrollmentsSearchUrl = this.createActionUrl(searchAction, lastAccessedQuery);
 				} else {
 					this._showContent();
 				}
