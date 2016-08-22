@@ -193,24 +193,6 @@ describe('d2l-my-courses', function() {
 			});
 		});
 
-		it('should set the request URL for lastAccessed courses, sortDescending', function(done) {
-			server.respondWith(
-				'GET',
-				widget.enrollmentsUrl,
-				function(req) {
-					expect(req.requestHeaders['accept']).to.equal('application/vnd.siren+json');
-					req.respond(200, {}, JSON.stringify(enrollmentsRootResponse));
-				});
-
-			widget.$.enrollmentsRootRequest.generateRequest();
-
-			widget.$.enrollmentsRootRequest.addEventListener('iron-ajax-response', function() {
-				expect(widget._recentEnrollmentsSearchUrl).to.match(/sortField=lastAccessed/);
-				expect(widget._recentEnrollmentsSearchUrl).to.match(/sortDescending=true/);
-				done();
-			});
-		});
-
 		it('should set the request URL for pinned courses, sortDescending', function(done) {
 			server.respondWith(
 				'GET',
@@ -337,12 +319,6 @@ describe('d2l-my-courses', function() {
 		it('should correctly evaluate whether it has pinned/unpinned enrollments', function() {
 			expect(widget._hasEnrollments).to.be.true;
 			expect(widget._hasPinnedEnrollments).to.be.true;
-		});
-
-		it('should not display the Last Accessed course list for users with a small number of enrollments', function() {
-			expect(widget._hasManyEnrollments).to.be.false;
-			expect(widget.$.recentView.classList.contains('hidden')).to.be.true;
-			expect(widget.$$('d2l-course-list').offsetParent).is.null;
 		});
 	});
 
