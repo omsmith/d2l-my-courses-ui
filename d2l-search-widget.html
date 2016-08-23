@@ -145,9 +145,9 @@
 						<d2l-search-listbox>
 							<div class="d2l-heading-4" data-list-title disabled>{{localize('recentSearches')}}</div>
 							<template is="dom-repeat" items="[[_previousSearches]]">
-								<option selectable data-text$="[[item]]" data-href$="[[_computePreviousSearchLink(item)]]">
+								<div selectable data-text$="[[item]]" data-href$="[[_computePreviousSearchLink(item)]]" role="option">
 									[[item]]
-								</option>
+								</div>
 							</template>
 						</d2l-search-listbox>
 					</div>
@@ -155,9 +155,9 @@
 					<div class="search-results-listbox-page" data-page-name="search-results-page">
 						<d2l-search-listbox>
 							<template id="courseSearchResultsTemplate" is="dom-repeat" items="[[_courseSearchResults]]">
-								<option selectable data-text$="[[item.name]]" data-href$="[[item.href]]">
+								<div selectable data-text$="[[item.name]]" data-href$="[[item.href]]" role="option">
 									[[item.name]]
-								</option>
+								</div>
 							</template>
 						</d2l-search-listbox>
 					</div>

@@ -92,7 +92,9 @@
 			*/
 			hasItems: function() {
 				var selectableItems = this.items.filter( function(item) {
-					if (item.tagName === 'OPTION' && !item.hasAttribute('disabled')) {
+					if (item.hasAttribute('role') &&
+						item.getAttribute('role') === 'option' &&
+						!item.hasAttribute('disabled')) {
 						return true;
 					}
 				});
