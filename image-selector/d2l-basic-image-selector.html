@@ -1,0 +1,27 @@
+<link rel="import" href="../../polymer/polymer.html">
+<link rel="import" href="../localize-behavior.html">
+<link rel="import" href="d2l-image-tile-grid.html">
+
+<dom-module id="d2l-basic-image-selector">
+	<template>
+		<style></style>
+		<d2l-image-tile-grid></d2l-image-tile-grid>
+	</template>
+	<script>
+		'use strict';
+
+		Polymer({
+			is: 'd2l-basic-image-selector',
+			ready: function() {},
+			properties: {},
+			focusableNodesOverride: function() {
+				var imageTileFocusables = [];
+				var grid = this.$$('d2l-image-tile-grid');
+				[].forEach.call(grid.querySelectorAll('d2l-image-selector-tile'), function(imageTile) {
+					Array.prototype.push.apply(imageTileFocusables, Polymer.dom(imageTile.root).querySelectorAll('button'));
+				});
+				return imageTileFocusables;
+			}
+		});
+	</script>
+</dom-module>

@@ -1,0 +1,146 @@
+<link rel="import" href="../../polymer/polymer.html">
+<link rel="import" href="../localize-behavior.html">
+<link rel="import" href="../d2l-course-tile-responsive-grid-behavior.html">
+<link rel="import" href="../bower_components/vui-grid-system/grid-system.scss">
+<link rel="import" href="../d2l-course-tile-grid-styles.html">
+
+<dom-module id="d2l-image-selector-tile">
+	<template>
+		<style include="d2l-course-tile-grid-styles"></style>
+		<style>
+			:host {}
+
+			.d2l-image-tile {
+				position: absolute;
+				width: 100%;
+				height: 100%;
+				top: 0;
+				left: 0;
+				overflow: hidden;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+			}
+
+			.d2l-image-tile-overlay	{
+				z-index: 2;
+				position: absolute;
+				width: 100%;
+				height: 100%;
+				top: 0;
+				left: 0;
+
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				background: none;
+
+				pointer-events: none;
+				transition: box-shadow 1s, opacity 1s;
+				opacity: 0;
+				box-shadow: 10px 6px 20px rgba(0, 0, 0, 0.3);
+			}
+
+			.d2l-image-tile-content {
+				position: absolute;
+				height: 100%;
+				min-height: 100%;
+				min-width: 100%;
+				top: 0;
+				left: 0;
+				transition: transform 1s, saturate 1s;
+				transform: scale(1.0) translateZ(0);
+				background-color: lightblue;
+			}
+
+			.d2l-image-tile:hover .d2l-image-tile-content,
+			.mobile-selected .d2l-image-tile-content {
+				transform: scale(1.5) translateZ(0);
+				-webkit-filter: saturate(1.15);
+				filter: saturate(1.15);
+			}
+
+			.d2l-image-tile:hover .d2l-image-tile-overlay,
+			.mobile-selected .d2l-image-tile-overlay {
+				box-shadow: 3px 2px 10px rgba(0, 0, 0, 0);
+				opacity: 1;
+			}
+
+			.click-overlay {
+				position: absolute;
+				width: 100%;
+				height: 100%;
+				top: 0;
+				left: 0;
+				z-index: 3;
+			}
+
+			.d2l-image-tile:hover .click-overlay {
+				pointer-events: none;
+			}
+
+			.overlay-button {
+				z-index: 4;
+				background-color: black;
+				border: 0;
+				border-radius: 3px;
+				padding: 10px;
+				color: white;
+				opacity: 0.7;
+
+				margin-top: -30px;
+				transition: margin-top 0.5s;
+				font-family: inherit;
+				pointer-events:all;
+			}
+
+			.d2l-image-tile:hover .d2l-image-tile-overlay .overlay-button,
+			.mobile-selected .d2l-image-tile-overlay .overlay-button {
+				margin-top: 0;
+				cursor: pointer;
+			}
+		</style>
+
+		<!-- How does the tab flow work? -->
+		<div class="d2l-image-tile">
+			<div class="padding"></div>
+			<div class="click-overlay"
+				on-click="_toggleOverlayOn"
+				on-blur="_toggleOverlayOff"
+				tabindex="-1">
+			</div>
+			<div class="d2l-image-tile-overlay">
+				<button class="overlay-button" on-click="_alertClicked" on-focus="_toggleOverlayOn" on-blur="_toggleOverlayOff">
+					{{localize('useThisImage')}}
+				</button>
+			</div>
+			<div class="d2l-image-tile-content">
+				TILETILET ILETILETILE TILETILETI LETILETILETILET ILETILETILE
+			</div>
+		</div>
+
+	</template>
+
+	<script>
+		'use strict';
+
+		Polymer({
+			is: 'd2l-image-selector-tile',
+			ready: function() {},
+			properties: {},
+			behaviors: [
+				Polymer.D2L.MyCourses.LocalizeBehavior
+			],
+			_toggleOverlayOn: function() {
+				// NOTE: setTimeout may be needed
+				this.toggleClass('mobile-selected', true, this.$$('.d2l-image-tile'));
+			},
+			_toggleOverlayOff: function() {
+				this.toggleClass('mobile-selected', false, this.$$('.d2l-image-tile'));
+			},
+			_alertClicked: function() {
+				console.log('clicked');
+			}
+		});
+	</script>
+</dom-module>

@@ -50,6 +50,7 @@ in that organization - student, teacher, TA, etc.
 					</div>
 				</div>
 				<div class="course-text d2l-heading-4">{{_organization.properties.name}}</div>
+				<button on-click="_launchCourseTileImageSelector">Choose Image</button>
 			</a>
 
 			<div class="hover-menu no-tap-interaction">
@@ -68,6 +69,7 @@ in that organization - student, teacher, TA, etc.
 						>{{localize('unpin')}}</span>
 				</button>
 			</div>
+
 		</div>
 	</template>
 
@@ -190,6 +192,10 @@ in that organization - student, teacher, TA, etc.
 			},
 			created: function() {
 				this.setAttribute('role', 'link');
+
+				//var overlay = this.$$('d2l-simple-overlay');
+				//var allCourses = this.$$('d2l-basic-image-selector');
+				//overlay.focusableNodesOverride = allCourses.focusableNodesOverride.bind(allCourses);
 			},
 			attached: function() {
 				if (this.animateInsertion) {
@@ -268,6 +274,14 @@ in that organization - student, teacher, TA, etc.
 				if (!delayLoad && !this._organization) {
 					this.$.organizationRequest.generateRequest();
 				}
+			},
+			_launchCourseTileImageSelector: function(e) {
+				e.preventDefault();
+				e.stopPropagation();
+
+				this.fire('openChangeImageView', {
+					enrollment: this.enrollment // NOTE: this is assuming that we can get the enrollmentId from the enrollment
+				});
 			},
 			_hoverCourseTile: function() {
 				if (this.hoverEnabled) {

@@ -1,0 +1,36 @@
+<link rel="import" href="../../polymer/polymer.html">
+<link rel="import" href="d2l-image-selector-tile.html">
+<link rel="import" href="../d2l-course-tile-grid-styles.html">
+
+<!-- Put this inside the d2l-basic image selector -->
+<!-- May not really be too much of a thing, since no image resizing is needed -->
+<dom-module id="d2l-image-tile-grid">
+	<template>
+		<style include="d2l-course-tile-grid-styles"></style>
+
+		<div class="image-selector-tile-container responsive-columns-3-2-1 grid-container">
+			<template id="enrollmentsTemplate" is="dom-repeat" items="[[images]]">
+				<d2l-image-selector-tile
+					image="[[item]]"
+					class="grid-child">
+				</d2l-image-selector-tile>
+			</template>
+		</div>
+
+	</template>
+	<script>
+		'use strict';
+
+		Polymer({
+			is: 'd2l-image-tile-grid',
+			properties: {
+				images: {
+					type: Array
+				}
+			},
+			ready: function() {
+				this.images = ['','','','','','','','','','','',''];
+			}
+		});
+	</script>
+</dom-module>

@@ -10,8 +10,21 @@
 			-moz-tap-highlight-color: rgba(0,0,0,0);
 			tap-highlight-color: rgba(0,0,0,0);
 			touch-action: pan-x pan-y;
+
+			--two-column-width: 49.5%;
+			--three-column-width: 32.667%;
+			--four-column-width: 24.25%;
+
+			/*
+				Height has to be 73% of the width to maintain the image aspect ratio,
+				use padding, as it sizes in relation to the width of the screen as opposed to the height (yay css!)
+			*/
+			--one-column-height: 73%;
+			--two-column-height: 36.135%;
+			--three-column-height: 23.847%;
 		}
-		.course-tile-container {
+
+		.grid-container {
 			position: relative;
 			width: calc(100% + 20px);
 			display: flex;
@@ -38,42 +51,85 @@
 		* We can therefore find x (tile width) for any given y (margin).
 		* The following all use a 1% margin and the formula above.
 		*/
-		d2l-course-tile {
+		.grid-child {
 			width: 100%;
 		}
 
-		.columns-2 > d2l-course-tile {
-			width: 49.5%;
+		.columns-2 > .grid-child {
+			width: var(--two-column-width);
+		}
+
+		.columns-3 > .grid-child {
+			width: var(--three-column-width);
+		}
+
+		.columns-4 > .grid-child {
+			width: var(--four-column-width);
+		}
+
+		.columns-2 > .grid-child,
+		.columns-3 > .grid-child,
+		.columns-4 > .grid-child {
 			margin-left: 0.5%;
 			margin-right: 0.5%;
 		}
-		.columns-2 > d2l-course-tile:nth-child(2n) {
+
+		.columns-2 > .grid-child:nth-child(2n),
+		.columns-3 > .grid-child:nth-child(3n),
+		.columns-4 > .grid-child:nth-child(4n) {
 			margin-right: 0;
 		}
-		.columns-2 > d2l-course-tile:nth-child(2n+1) {
+
+		.columns-2 > .grid-child:nth-child(2n+1),
+		.columns-3 > .grid-child:nth-child(3n+1),
+		.columns-4 > .grid-child:nth-child(4n+1) {
 			margin-left: 0;
 		}
-		.columns-3 > d2l-course-tile {
-			width: 32.667%;
-			margin-left: 0.5%;
-			margin-right: 0.5%;
+
+		.responsive-columns-3-2-1 > .grid-child {
+			height: auto;
+			position: relative;
 		}
-		.columns-3 > d2l-course-tile:nth-child(3n) {
-			margin-right: 0;
+
+		/* TODO: perhaps larger margins */
+		@media screen and (min-width: 992px) {
+			.responsive-columns-3-2-1 > .grid-child {
+				width: var(--three-column-width);
+				padding-top: var(--three-column-height);
+				margin: 0.5%;
+			}
+
+			.responsive-columns-3-2-1 > .grid-child:nth-child(3n) {
+				margin-right: 0;
+			}
+
+			.responsive-columns-3-2-1 > .grid-child:nth-child(3n+1) {
+				margin-left: 0;
+			}
 		}
-		.columns-3 > d2l-course-tile:nth-child(3n+1) {
-			margin-left: 0;
+
+		@media screen and (max-width: 991px) and (min-width: 768px) {
+			.responsive-columns-3-2-1 > .grid-child {
+				width: var(--two-column-width);
+				padding-top: var(--two-column-height);
+				margin: 0.5%;
+			}
+
+			.responsive-columns-3-2-1 > .grid-child:nth-child(2n) {
+				margin-right: 0;
+			}
+
+			.responsive-columns-3-2-1 > .grid-child:nth-child(2n+1) {
+				margin-left: 0;
+			}
 		}
-		.columns-4 > d2l-course-tile {
-			width: 24.25%;
-			margin-left: 0.5%;
-			margin-right: 0.5%;
-		}
-		.columns-4 > d2l-course-tile:nth-child(4n) {
-			margin-right: 0;
-		}
-		.columns-4 > d2l-course-tile:nth-child(4n+1) {
-			margin-left: 0;
+
+		@media screen and (max-width: 767px) {
+			.responsive-columns-3-2-1 > .grid-child {
+				width: 100%;
+				padding-top: var(--one-column-height);
+				margin: 0.5% 0;
+			}
 		}
 		</style>
 	</template>
