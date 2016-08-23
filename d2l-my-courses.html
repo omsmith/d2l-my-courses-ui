@@ -166,6 +166,9 @@
 				Polymer.D2L.MyCourses.InteractionDetectionBehavior,
 				Polymer.D2L.MyCourses.CourseManagementBehavior
 			],
+			listeners: {
+				'open-change-image-view': '_openChangeImageView'
+			},
 			ready: function() {
 				this._alertMessage = this.localize('noCoursesMessage');
 
@@ -175,8 +178,6 @@
 				var allCoursesOverlay = this.$$('#all-courses');
 				var allCourses = this.$$('d2l-all-courses');
 				allCoursesOverlay.focusableNodesOverride = allCourses.focusableNodesOverride.bind(allCourses);
-
-				this.addEventListener('openChangeImageView', this._openChangeImageView);
 			},
 			attached: function() {
 				if (!this.delayLoad) {

@@ -15,13 +15,19 @@
 			--three-column-width: 32.667%;
 			--four-column-width: 24.25%;
 
+			/* 3-2-1 grid vars */
+			--breakpoint-gutter-width: 1.3%;
+
+			--breakpoint-two-column-width: 48.7%;
+			--breakpoint-three-column-width: 31.6%;
+
 			/*
 				Height has to be 73% of the width to maintain the image aspect ratio,
 				use padding, as it sizes in relation to the width of the screen as opposed to the height (yay css!)
 			*/
-			--one-column-height: 73%;
-			--two-column-height: 36.135%;
-			--three-column-height: 23.847%;
+			--breakpoint-one-column-height: 73%;
+			--breakpoint-two-column-height: 35.551%;
+			--breakpoint-three-column-height: 23.068%;
 		}
 
 		.grid-container {
@@ -86,17 +92,22 @@
 			margin-left: 0;
 		}
 
+		.responsive-columns-3-2-1 {
+			/* This needs to be a block so that we get the width-based padding-top for it's children on firefox */
+			display: block;
+		}
+
 		.responsive-columns-3-2-1 > .grid-child {
 			height: auto;
 			position: relative;
+			display: inline-block;
 		}
 
-		/* TODO: perhaps larger margins */
 		@media screen and (min-width: 992px) {
 			.responsive-columns-3-2-1 > .grid-child {
-				width: var(--three-column-width);
-				padding-top: var(--three-column-height);
-				margin: 0.5%;
+				width: var(--breakpoint-three-column-width);
+				padding-top: var(--breakpoint-three-column-height);
+				margin: var(--breakpoint-gutter-width);
 			}
 
 			.responsive-columns-3-2-1 > .grid-child:nth-child(3n) {
@@ -110,9 +121,9 @@
 
 		@media screen and (max-width: 991px) and (min-width: 768px) {
 			.responsive-columns-3-2-1 > .grid-child {
-				width: var(--two-column-width);
-				padding-top: var(--two-column-height);
-				margin: 0.5%;
+				width: var(--breakpoint-two-column-width);
+				padding-top: var(--breakpoint-two-column-height);
+				margin: var(--breakpoint-gutter-width);
 			}
 
 			.responsive-columns-3-2-1 > .grid-child:nth-child(2n) {
@@ -127,8 +138,8 @@
 		@media screen and (max-width: 767px) {
 			.responsive-columns-3-2-1 > .grid-child {
 				width: 100%;
-				padding-top: var(--one-column-height);
-				margin: 0.5% 0;
+				padding-top: var(--breakpoint-one-column-height);
+				margin: var(--breakpoint-gutter-width) 0;
 			}
 		}
 		</style>

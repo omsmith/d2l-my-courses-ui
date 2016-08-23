@@ -52,7 +52,8 @@ The overlay supports using different animations and transitions for desktop and 
 				Polymer.D2L.MyCourses.LocalizeBehavior
 			],
 			listeners: {
-				'neon-animation-finish': '_onNeonAnimationFinish'
+				'neon-animation-finish': '_onNeonAnimationFinish',
+				'close-simple-overlay': '_handleCloseSimpleOverlay'
 			},
 			properties: {
 				/*
@@ -137,6 +138,11 @@ The overlay supports using different animations and transitions for desktop and 
 			_handleClose: function() {
 				this.close();
 				this.fire('recalculate-columns');
+			},
+			_handleCloseSimpleOverlay: function(e) {
+				e.preventDefault();
+				e.stopPropagation();
+				this._handleClose();
 			},
 			_isMobile: function() {
 				var width = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);

@@ -3,6 +3,7 @@
 <link rel="import" href="../d2l-course-tile-responsive-grid-behavior.html">
 <link rel="import" href="../bower_components/vui-grid-system/grid-system.scss">
 <link rel="import" href="../d2l-course-tile-grid-styles.html">
+<link rel="import" href="../../d2l-icons/d2l-icons.html">
 
 <dom-module id="d2l-image-selector-tile">
 	<template>
@@ -36,9 +37,8 @@
 				background: none;
 
 				pointer-events: none;
-				transition: box-shadow 1s, opacity 1s;
+				transition: opacity 0.35s;
 				opacity: 0;
-				box-shadow: 10px 6px 20px rgba(0, 0, 0, 0.3);
 			}
 
 			.d2l-image-tile-content {
@@ -48,14 +48,14 @@
 				min-width: 100%;
 				top: 0;
 				left: 0;
-				transition: transform 1s, saturate 1s;
+				transition: transform 0.35s, saturate 0.35s;
 				transform: scale(1.0) translateZ(0);
 				background-color: lightblue;
 			}
 
 			.d2l-image-tile:hover .d2l-image-tile-content,
 			.mobile-selected .d2l-image-tile-content {
-				transform: scale(1.5) translateZ(0);
+				transform: scale(1.2) translateZ(0);
 				-webkit-filter: saturate(1.15);
 				filter: saturate(1.15);
 			}
@@ -84,14 +84,35 @@
 				background-color: black;
 				border: 0;
 				border-radius: 3px;
-				padding: 10px;
+				padding: 15px;
 				color: white;
-				opacity: 0.7;
+				opacity: 0.5;
 
 				margin-top: -30px;
-				transition: margin-top 0.5s;
+				transition: margin-top 0.35s;
 				font-family: inherit;
+				font-size: inherit;
 				pointer-events:all;
+			}
+
+			.overlay-button-inner {
+				height: 100%;
+				width: 100%;
+				display: flex;
+				align-items: center;
+			}
+
+			.overlay-button-text {
+				padding-top: 3px;
+				font-size: 0.8em;
+			}
+
+			.overlay-button:hover, .overlay-button:focus {
+				opacity: 0.7;
+			}
+
+			.camera-icon {
+				margin-right: 10px;
 			}
 
 			.d2l-image-tile:hover .d2l-image-tile-overlay .overlay-button,
@@ -110,15 +131,17 @@
 				tabindex="-1">
 			</div>
 			<div class="d2l-image-tile-overlay">
-				<button class="overlay-button" on-click="_alertClicked" on-focus="_toggleOverlayOn" on-blur="_toggleOverlayOff">
-					{{localize('useThisImage')}}
+				<button class="overlay-button" on-tap="_selectImage" on-focus="_toggleOverlayOn" on-blur="_toggleOverlayOff">
+					<div class="overlay-button-inner">
+						<iron-icon class="camera-icon" icon="d2l-tier1:pic" aria-hidden="true"></iron-icon>
+						<span class="overlay-button-text">{{localize('useThisImage')}}</span>
+					</div>
 				</button>
 			</div>
 			<div class="d2l-image-tile-content">
-				TILETILET ILETILETILE TILETILETI LETILETILETILET ILETILETILE
+				TILE FILLER TILE FILLER TILE FILLER TILE FILLER TILE FILLER TILE FILLER TILE FILLER
 			</div>
 		</div>
-
 	</template>
 
 	<script>
@@ -132,14 +155,13 @@
 				Polymer.D2L.MyCourses.LocalizeBehavior
 			],
 			_toggleOverlayOn: function() {
-				// NOTE: setTimeout may be needed
 				this.toggleClass('mobile-selected', true, this.$$('.d2l-image-tile'));
 			},
 			_toggleOverlayOff: function() {
 				this.toggleClass('mobile-selected', false, this.$$('.d2l-image-tile'));
 			},
-			_alertClicked: function() {
-				console.log('clicked');
+			_selectImage: function() {
+				this.fire('close-simple-overlay');
 			}
 		});
 	</script>

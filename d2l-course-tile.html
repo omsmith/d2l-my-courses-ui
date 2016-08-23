@@ -279,8 +279,8 @@ in that organization - student, teacher, TA, etc.
 				e.preventDefault();
 				e.stopPropagation();
 
-				this.fire('openChangeImageView', {
-					enrollment: this.enrollment // NOTE: this is assuming that we can get the enrollmentId from the enrollment
+				this.fire('open-change-image-view', {
+					enrollment: this.enrollment
 				});
 			},
 			_hoverCourseTile: function() {
