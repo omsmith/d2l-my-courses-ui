@@ -211,6 +211,24 @@ describe('d2l-my-courses', function() {
 			});
 		});
 
+		it('should set the request URL for pinned courses, sortDescending', function(done) {
+			server.respondWith(
+				'GET',
+				widget.enrollmentsUrl,
+				function(req) {
+					expect(req.requestHeaders['accept']).to.equal('application/vnd.siren+json');
+					req.respond(200, {}, JSON.stringify(enrollmentsRootResponse));
+				});
+
+			widget.$.enrollmentsRootRequest.generateRequest();
+
+			widget.$.enrollmentsRootRequest.addEventListener('iron-ajax-response', function() {
+				expect(widget._enrollmentsSearchUrl).to.match(/sortField=pinDate/);
+				expect(widget._enrollmentsSearchUrl).to.match(/sortDescending=true/);
+				done();
+			});
+		});
+
 		it('should rescale the course tile grid on search response', function(done) {
 			server.respondWith(
 				'GET',
