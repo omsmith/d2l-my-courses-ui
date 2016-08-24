@@ -69,6 +69,7 @@ in that organization - student, teacher, TA, etc.
 						>{{localize('unpin')}}</span>
 				</button>
 			</div>
+
 		</div>
 	</template>
 
@@ -191,6 +192,10 @@ in that organization - student, teacher, TA, etc.
 			},
 			created: function() {
 				this.setAttribute('role', 'link');
+
+				//var overlay = this.$$('d2l-simple-overlay');
+				//var allCourses = this.$$('d2l-basic-image-selector');
+				//overlay.focusableNodesOverride = allCourses.focusableNodesOverride.bind(allCourses);
 			},
 			attached: function() {
 				if (this.animateInsertion) {

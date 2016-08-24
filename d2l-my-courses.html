@@ -58,9 +58,12 @@
 				display: block;
 				margin: auto;
 			}
-			#basic-image-selector-overlay {
-				--simple-overlay-content-width: {
-					padding: 0 10px;
+
+			@media screen and (max-width: 767px) {
+				#basic-image-selector-overlay {
+					--simple-overlay-content-width: {
+						padding: 0 10px;
+					}
 				}
 			}
 		</style>
@@ -120,10 +123,7 @@
 			locale="[[locale]]"
 			with-backdrop>
 
-			<d2l-basic-image-selector
-				enrollmentId="[[imageSelectorEnrollment]]"
-				locale="[[locale]]">
-			</d2l-basic-image-selector>
+			<d2l-basic-image-selector locale="[[locale]]"></d2l-basic-image-selector>
 		</d2l-simple-overlay>
 
 	</template>
