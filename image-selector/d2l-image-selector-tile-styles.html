@@ -1,0 +1,116 @@
+
+<dom-module id="d2l-image-selector-tile-styles">
+	<template>
+		<style>
+			.d2l-image-tile {
+				position: absolute;
+				width: 100%;
+				height: 100%;
+				top: 0;
+				left: 0;
+				overflow: hidden;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+			}
+
+			.d2l-image-tile-overlay	{
+				z-index: 2;
+				position: absolute;
+				width: 100%;
+				height: 100%;
+				top: 0;
+				left: 0;
+
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				background: none;
+
+				pointer-events: none;
+				transition: opacity 0.35s;
+				opacity: 0;
+			}
+
+			.d2l-image-tile-content {
+				position: absolute;
+				height: 100%;
+				min-height: 100%;
+				min-width: 100%;
+				top: 0;
+				left: 0;
+				transition: transform 0.35s, saturate 0.35s;
+				transform: scale(1.0) translateZ(0);
+				background-color: lightblue;
+			}
+
+			.d2l-image-tile:hover .d2l-image-tile-content,
+			.mobile-selected .d2l-image-tile-content {
+				transform: scale(1.2) translateZ(0);
+				-webkit-filter: saturate(1.15);
+				filter: saturate(1.15);
+			}
+
+			.d2l-image-tile:hover .d2l-image-tile-overlay,
+			.mobile-selected .d2l-image-tile-overlay {
+				box-shadow: 3px 2px 10px rgba(0, 0, 0, 0);
+				opacity: 1;
+			}
+
+			.click-overlay {
+				position: absolute;
+				width: 100%;
+				height: 100%;
+				top: 0;
+				left: 0;
+				z-index: 3;
+			}
+
+			.d2l-image-tile:hover .click-overlay {
+				pointer-events: none;
+			}
+
+			.overlay-button {
+				z-index: 4;
+				background-color: black;
+				border: 0;
+				border-radius: 3px;
+				padding: 15px;
+				color: white;
+				opacity: 0.5;
+
+				margin-top: -30px;
+				transition: margin-top 0.35s;
+				font-family: inherit;
+				font-size: inherit;
+				pointer-events:all;
+			}
+
+			.overlay-button-inner {
+				height: 100%;
+				width: 100%;
+				display: flex;
+				align-items: center;
+			}
+
+			.overlay-button-text {
+				padding-top: 2px;
+				font-size: 0.8em;
+			}
+
+			.overlay-button:hover, .overlay-button:focus {
+				opacity: 0.7;
+			}
+
+			.camera-icon {
+				margin-right: 10px;
+			}
+
+			.d2l-image-tile:hover .d2l-image-tile-overlay .overlay-button,
+			.mobile-selected .d2l-image-tile-overlay .overlay-button {
+				margin-top: 0;
+				cursor: pointer;
+			}
+		</style>
+	</template>
+</dom-module>
