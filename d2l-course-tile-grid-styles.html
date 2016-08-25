@@ -11,6 +11,19 @@
 			tap-highlight-color: rgba(0,0,0,0);
 			touch-action: pan-x pan-y;
 
+			/*
+			* Yay math!
+			*
+			* The overall width of an n-column layout should be 100%, which is to say:
+			*	100% = n(tile width) + 2n(margin) - 2(margin),
+			* Since the leftmost and rightmost tiles have zero margin on their left and right, respectively.
+			*
+			* Move things around, let x = tile width and y = margin width (n is number of columns)
+			* 	x = (1 + 2y - 2ny) / n
+			*
+			* We can therefore find x (tile width) for any given y (margin).
+			* The following all use a 1% margin and the formula above.
+			*/
 			--two-column-width: 49.5%;
 			--three-column-width: 32.667%;
 			--four-column-width: 24.25%;
@@ -30,19 +43,7 @@
 			margin-right: 0;
 			margin-left: 0;
 		}
-		/*
-		* Yay math!
-		*
-		* The overall width of an n-column layout should be 100%, which is to say:
-		*	100% = n(tile width) + 2n(margin) - 2(margin),
-		* Since the leftmost and rightmost tiles have zero margin on their left and right, respectively.
-		*
-		* Move things around, let x = tile width and y = margin width (n is number of columns)
-		* 	x = (1 + 2y - 2ny) / n
-		*
-		* We can therefore find x (tile width) for any given y (margin).
-		* The following all use a 1% margin and the formula above.
-		*/
+
 		.grid-child {
 			width: 100%;
 		}

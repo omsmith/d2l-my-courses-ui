@@ -53,7 +53,7 @@ The overlay supports using different animations and transitions for desktop and 
 			],
 			listeners: {
 				'neon-animation-finish': '_onNeonAnimationFinish',
-				'close-simple-overlay': '_handleCloseSimpleOverlay'
+				'close-simple-overlay': '_handleCloseSimpleOverlayEvent'
 			},
 			properties: {
 				/*
@@ -139,7 +139,7 @@ The overlay supports using different animations and transitions for desktop and 
 				this.close();
 				this.fire('recalculate-columns');
 			},
-			_handleCloseSimpleOverlay: function(e) {
+			_handleCloseSimpleOverlayEvent: function(e) {
 				e.preventDefault();
 				e.stopPropagation();
 				this._handleClose();

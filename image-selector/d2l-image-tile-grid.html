@@ -1,14 +1,17 @@
 <link rel="import" href="../../polymer/polymer.html">
 <link rel="import" href="d2l-image-selector-tile.html">
-<link rel="import" href="../d2l-course-tile-grid-styles.html">
 
 <dom-module id="d2l-image-tile-grid">
 	<template>
-		<style include="d2l-course-tile-grid-styles"></style>
 		<style>
 		:host {
 			--breakpoint-gutter-width: 1.3%;
 
+
+			/*
+			*	100% = n(tile width) + 2n(margin) - 2(margin),
+			*	see d2l-course-tile-grid-styles.html for a more in-depth description
+			*/
 			--breakpoint-two-column-width: 48.7%;
 			--breakpoint-three-column-width: 31.6%;
 
@@ -19,6 +22,19 @@
 			--breakpoint-one-column-height: 73%;
 			--breakpoint-two-column-height: 35.551%;
 			--breakpoint-three-column-height: 23.068%;
+		}
+
+		.grid-child {
+			width: 100%;
+		}
+
+		.grid-container {
+			position: relative;
+			width: calc(100% + 20px);
+			display: flex;
+			flex-wrap: wrap;
+			flex-direction: row;
+			align-items: flex-start;
 		}
 
 		.responsive-columns-3-2-1 {
