@@ -269,6 +269,14 @@ in that organization - student, teacher, TA, etc.
 					this.$.organizationRequest.generateRequest();
 				}
 			},
+			_launchCourseTileImageSelector: function(e) {
+				e.preventDefault();
+				e.stopPropagation();
+
+				this.fire('open-change-image-view', {
+					enrollment: this.enrollment
+				});
+			},
 			_hoverCourseTile: function() {
 				if (this.hoverEnabled) {
 					this._setCourseTileHovered(true);

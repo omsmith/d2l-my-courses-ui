@@ -9,6 +9,7 @@
 <link rel="import" href="d2l-course-tile-grid.html">
 <link rel="import" href="localize-behavior.html">
 <link rel="import" href="d2l-course-management-behavior.html">
+<link rel="import" href="./image-selector/d2l-basic-image-selector.html">
 
 <!--
 `<d2l-my-courses>` is the main component for My Courses widget
@@ -56,6 +57,12 @@
 			d2l-loading-spinner {
 				display: block;
 				margin: auto;
+			}
+
+			#basic-image-selector-overlay {
+				--simple-overlay-content-width: {
+					padding: 0;
+				}
 			}
 		</style>
 
@@ -108,6 +115,15 @@
 			</d2l-all-courses>
 		</d2l-simple-overlay>
 
+		<d2l-simple-overlay
+			id="basic-image-selector-overlay"
+			title$="{{localize('changeImage')}}"
+			locale="[[locale]]"
+			with-backdrop>
+
+			<d2l-basic-image-selector locale="[[locale]]"></d2l-basic-image-selector>
+		</d2l-simple-overlay>
+
 	</template>
 
 	<script>
@@ -153,15 +169,18 @@
 				Polymer.D2L.MyCourses.InteractionDetectionBehavior,
 				Polymer.D2L.MyCourses.CourseManagementBehavior
 			],
+			listeners: {
+				'open-change-image-view': '_openChangeImageView'
+			},
 			ready: function() {
 				this._alertMessage = this.localize('noCoursesMessage');
 
 				this.toggleClass('hidden', true, this.$.courseTiles);
 				this.toggleClass('hidden', true, this.$.courseList);
 
-				var overlay = this.$$('d2l-simple-overlay');
+				var allCoursesOverlay = this.$$('#all-courses');
 				var allCourses = this.$$('d2l-all-courses');
-				overlay.focusableNodesOverride = allCourses.focusableNodesOverride.bind(allCourses);
+				allCoursesOverlay.focusableNodesOverride = allCourses.focusableNodesOverride.bind(allCourses);
 			},
 			attached: function() {
 				if (!this.delayLoad) {
@@ -231,10 +250,17 @@
 
 				this._showContent();
 			},
+			_openChangeImageView: function() {
+				var changeImageOverlay = this.$$('#basic-image-selector-overlay');
+				var basicImageSelector = this.$$('d2l-basic-image-selector');
+				changeImageOverlay.focusableNodesOverride = basicImageSelector.focusableNodesOverride.bind(basicImageSelector);
+
+				this.$$('#basic-image-selector-overlay').open();
+			},
 			_openAllCoursesView: function(e) {
 				e.preventDefault();
 				e.stopPropagation();
-				this.$$('d2l-simple-overlay').open();
+				this.$$('#all-courses').open();
 				this.$$('d2l-all-courses').loadCourseTiles();
 
 				setTimeout(function() {
