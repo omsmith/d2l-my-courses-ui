@@ -35,7 +35,7 @@ Testing from within LMS:
 
 1. Checkout brightspace/d2l-my-courses-ui and brightspace/brightspace-integration
 
-2. In brightspace-integration project, ensure you're in the correct branch (c12i12)
+2. In brightspace-integration project, ensure you're in the correct branch (master)
 
 3. In d2l-my-courses-ui directory, run
 	```shell
