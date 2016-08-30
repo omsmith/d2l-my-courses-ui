@@ -11,16 +11,22 @@
 				width: 100%;
 			}
 
+			:host .d2l-dropdown-content-position {
+				max-width: 100%;
+				width: 100%;
+			}
+
 			:host .d2l-dropdown-content-container {
 				background: transparent;
-				max-width: 100%;
-				position: relative;
 				width: 100%;
 			}
 
 		</style>
-		<div class="d2l-dropdown-content-container">
-			<content></content>
+
+		<div class="d2l-dropdown-content-position">
+			<div class="d2l-dropdown-content-container">
+				<content></content>
+			</div>
 		</div>
 	</template>
 
