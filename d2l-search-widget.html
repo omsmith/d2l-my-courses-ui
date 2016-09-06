@@ -101,17 +101,17 @@
 		</style>
 
 		<d2l-ajax
-			id="organizationsSearchRootRequest"
-			url="[[organizationsUrl]]"
+			id="searchRootRequest"
+			url="[[searchRootUrl]]"
 			headers='{ "Accept": "application/vnd.siren+json" }'
-			on-iron-ajax-response="_onOrganizationsSearchRootResponse">
+			on-iron-ajax-response="_onSearchRootResponse">
 		</d2l-ajax>
 
 		<d2l-ajax
-			id="coursesSearchRequest"
-			url="[[_organizationsSearchUrl]]"
+			id="searchRequest"
+			url="[[_searchUrl]]"
 			headers='{ "Accept": "application/vnd.siren+json" }'
-			on-iron-ajax-response="_onCoursesSearchResponse">
+			on-iron-ajax-response="_onSearchResponse">
 		</d2l-ajax>
 
 		<d2l-dropdown no-auto-open>
@@ -155,7 +155,7 @@
 
 						<div class="search-results-listbox-page" data-page-name="search-results-page">
 							<d2l-search-listbox>
-								<template id="courseSearchResultsTemplate" is="dom-repeat" items="[[_courseSearchResults]]">
+								<template id="courseSearchResultsTemplate" is="dom-repeat" items="[[_searchResults]]">
 									<div selectable data-text$="[[item.name]]" data-href$="[[item.href]]" role="option">
 										[[item.name]]
 									</div>
@@ -180,8 +180,25 @@
 			is: 'd2l-search-widget',
 
 			properties: {
+				/*
+				* Root search URL, which should have the search Action in the response
+				* @type {String}
+				*/
+				searchRootUrl: {
+					type: String,
+					observer: '_onSearchRootUrlChanged'
+				},
 
-				organizationsUrl: String,
+				/*
+				* Array of parent organization IDs by which to limit the search results
+				* @type {String}
+				*/
+				parentOrganizationIds: {
+					type: Array,
+					value: function() {
+						return [];
+					}
+				},
 
 				/*
 				* The search string updated by the course search input
@@ -196,17 +213,17 @@
 				},
 
 				/*
-				* An array of objects containing the results of the search-course-collection action
+				* An array of objects containing the results of the search-my-enrollments action
 				* @type {Array<Object>}
 				*/
-				_courseSearchResults: {
+				_searchResults: {
 					type: Array,
 					value: function() {
 						return [];
 					}
 				},
 
-				_organizationsSearchUrl: String,
+				_searchUrl: String,
 
 				/*
 				* List of strings containing previously searched terms/selected courses
@@ -252,7 +269,6 @@
 				}
 
 				this._initializePreviousSearches();
-				this.$.organizationsSearchRootRequest.generateRequest();
 			},
 
 			detached: function() {
@@ -284,7 +300,7 @@
 			},
 
 			/*
-			* Calls the search-course-collection action, used to populate live search results in the listbox
+			* Calls the search-my-enrollments action, used to populate live search results in the listbox
 			*/
 			_liveSearch: function() {
 				if (this._searchString) {
@@ -293,16 +309,16 @@
 					var queryParams = {
 						search: this._searchString,
 						page: 1,
-						pageSize: 5
+						pageSize: 5,
+						parentOrganizationIds: this.parentOrganizationIds.join(',')
 					};
 
-					this._organizationsSearchUrl = this.createActionUrl(
-						this._organizationsSearchAction,
-						queryParams,
-						1
+					this._searchUrl = this.createActionUrl(
+						this._searchAction,
+						queryParams
 					);
 
-					this.$.coursesSearchRequest.generateRequest();
+					this.$.searchRequest.generateRequest();
 				}
 			},
 
@@ -325,7 +341,7 @@
 				this.cancelDebouncer('liveSearchJob');
 				this.$$('iron-pages').select('recent-searches-page');
 				this._searchString = '';
-				this.set('_courseSearchResults', []);
+				this.set('_searchResults', []);
 			},
 
 			_onSearchStringChanged: function(newString) {
@@ -400,38 +416,55 @@
 				return this._advancedSearchUrl + searchTerm;
 			},
 
-			_onOrganizationsSearchRootResponse: function(response) {
+			_onSearchRootUrlChanged: function(url) {
+				if (url) {
+					this.$.searchRootRequest.generateRequest();
+				}
+			},
+
+			_onSearchRootResponse: function(response) {
 				if (response.detail.status === 200) {
 					var parser = document.createElement('d2l-siren-parser');
-					var organizationsResponse = parser.parse(response.detail.xhr.response);
+					var searchRootResponse = parser.parse(response.detail.xhr.response);
 
-					this._organizationsSearchAction = organizationsResponse.getActionByName('search-course-collection');
-
-					// Temporarily override action href as actions won't work with canonical API until routes fixed
-					this._organizationsSearchAction.href = '/d2l/api/hm/organizations';
+					this._searchAction = searchRootResponse.getActionByName('search-my-enrollments');
 				}
 			},
 
 			/*
-			* Called when search-course-collection response received
+			* Called when search-my-enrollments response received
 			* @param {Object}
 			*/
-			_onCoursesSearchResponse: function(response) {
+			_onSearchResponse: function(response) {
 				if (response.detail.status === 200 && this._searchString) {
 					var parser = document.createElement('d2l-siren-parser');
-					var organizationResponse = parser.parse(response.detail.xhr.response);
-					var organizationEntities = organizationResponse.entities;
-					var courseSearchResults = [];
+					var searchResponse = parser.parse(response.detail.xhr.response);
+					var enrollmentEntities = searchResponse.entities;
 
-					for (var i = 0; i < organizationEntities.length; i++) {
-						courseSearchResults.push({
-							name: organizationEntities[i].properties.name,
-							href: organizationEntities[i].getLinkByRel(/\/organization-homepage$/).href
-						});
+					this._searchResults = [];
+					for (var i = 0; i < enrollmentEntities.length; i++) {
+						// Fetch each search result's organization's information
+						// Needs to be done in a closure since XHR is async
+						(function (index, self) {
+							var enrollment = enrollmentEntities[i];
+							var xhr = new XMLHttpRequest();
+							xhr.open("GET", enrollment.getLinkByRel(/\/organization$/).href, true);
+							xhr.onload = function() {
+								if (xhr.readyState === 4) {
+									if (xhr.status === 200 || xhr.status === 304) {
+										var organizationParser = document.createElement('d2l-siren-parser');
+										var organization = organizationParser.parse(xhr.response);
+										self.push('_searchResults', {
+											name: organization.properties.name,
+											href: organization.getLinkByRel(/\/organization-homepage$/).href
+										});
+										self.$$('iron-pages').select(self._searchResults.length > 0 ? 'search-results-page' : 'no-results-page');
+									}
+								}
+							};
+							xhr.send(null);
+						})(i, this);
 					}
-
-					this.set('_courseSearchResults', courseSearchResults);
-					this.$$('iron-pages').select(courseSearchResults.length > 0 ? 'search-results-page' : 'no-results-page');
 				}
 			},
 
@@ -441,7 +474,7 @@
 			_onIronSelect: function(e) {
 				switch (e.target.nodeName) {
 					case 'IRON-PAGES':
-						// @TODO: Not a fan of any of this "current listbox" handling - necessary right now due to Iron Behavios regressions.
+						// @TODO: Not a fan of any of this "current listbox" handling - necessary right now due to Iron Behavior regressions.
 						// Should find a better way.
 						var ironPages = this.$$('iron-pages');
 						var pageIndex = ironPages.indexOf(ironPages.selectedItem);
