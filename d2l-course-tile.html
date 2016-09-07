@@ -55,22 +55,20 @@ in that organization - student, teacher, TA, etc.
 
 			<div class="hover-menu no-tap-interaction">
 				<d2l-dropdown>
-					<button	class="menu-item no-tap-interaction d2l-dropdown-opener">
+					<button	class="menu-item no-tap-interaction d2l-dropdown-opener" aria-label$="[[_courseSettingsLabel]]">
 						<iron-icon class="menu-icon" style="width:18px;height:18px;" icon="d2l-tier1:more"></iron-icon>
 						<span aria-label="Overflow menu"></span>
 					</button>
 					<d2l-dropdown-menu id="overlow-dropdown">
-						<d2l-menu role="menu" style="width:200px;">
+						<d2l-menu label$="[[_courseSettingsLabel]]">
 							<template is="dom-if" if="{{_organizationChangeImageHref}}" restamp="true">
 								<d2l-menu-item-link id="change-image-link"
-									role="menuitem"
-									text="Change image"
+									text="{{localize('changeImage')}}"
 									href="{{_organizationChangeImageHref}}">
 								</d2l-menu-item-link>
 							</template>
 							<d2l-menu-item id="pin-button"
-								role="menuitem"
-								text="{{localize('pin')}}"
+								text$="[[_pinLabel]]"
 								on-select="_hoverPinClickHandler"
 								on-focus="_hoverPinMenuItem"
 								on-blur="_unhoverPinMenuItem"
@@ -198,7 +196,17 @@ in that organization - student, teacher, TA, etc.
 				* The url to pass to the 'Change Image' link
 				* @type {String}
 				*/
-				_organizationChangeImageHref: String
+				_organizationChangeImageHref: String,
+				/*
+				* The term used for the text of the pin/unpin menu item
+				* @type {String}
+				*/
+				_pinLabel: String,
+				/*
+				* The term of the course settings label
+				* @type {String}
+				*/
+				_courseSettingsLabel: String
 			},
 			behaviors: [
 				Polymer.D2L.MyCourses.LocalizeBehavior
@@ -362,6 +370,7 @@ in that organization - student, teacher, TA, etc.
 					this._organizationHomepageUrl = organization.getLinkByRel(/\/organization-homepage$/).href;
 					this._organizationChangeImageHref = this._getChangeCourseImageLink(organization);
 					this._pinnedChanged(); // Update aria-label with orginization
+					this._courseSettingsLabel = this.localize('courseSettings', 'course', this._organization.properties.name);
 				}
 			},
 			_onTileMouseOut: function() {
@@ -371,13 +380,8 @@ in that organization - student, teacher, TA, etc.
 				this.toggleClass('unpin-hovered', e.detail.hoverState, this);
 			},
 			_pinnedChanged: function(pinned) {
-				var pinButton = this.$$('#pin-button');
 				this._pinned = pinned === undefined ? this._pinned : pinned;
-				if (this._organization) {
-					Polymer.dom(pinButton).setAttribute('aria-label', this.localize(this._pinned ?
-						'unpinCourse' : 'pinCourse', 'course', this._organization.properties.name));
-				}
-				Polymer.dom(pinButton).setAttribute('text', this.localize(this._pinned ? 'unpin' : 'pin'));
+				this._pinLabel = this.localize(this._pinned ? 'unpin' : 'pin');
 			},
 			_setCourseTileHovered: function(isHovered) {
 				this.toggleClass('hover', isHovered, this.$$('.tile-container'));
@@ -394,6 +398,7 @@ in that organization - student, teacher, TA, etc.
 				this._onUnpinHover({detail: {hoverState: false}});
 			},
 			_getChangeCourseImageLink: function(organization) {
+				var rel = /edit-image-page/;
 				var editImagePage = organization && organization.getLinkByRel(rel);
 				if (editImagePage) {
 					return editImagePage.href;
