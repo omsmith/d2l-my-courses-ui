@@ -359,9 +359,9 @@ in that organization - student, teacher, TA, etc.
 					}
 
 					this._organization = organization;
+					this._organizationHomepageUrl = organization.getLinkByRel(/\/organization-homepage$/).href;
 					this._organizationChangeImageHref = this._getChangeCourseImageLink(organization);
 					this._pinnedChanged(); // Update aria-label with orginization
-					this._organizationHomepageUrl = organization.getLinkByRel(/\/organization-homepage$/).href;
 				}
 			},
 			_onTileMouseOut: function() {
