@@ -394,9 +394,9 @@ in that organization - student, teacher, TA, etc.
 				this._onUnpinHover({detail: {hoverState: false}});
 			},
 			_getChangeCourseImageLink: function(organization) {
-				var rel = /edit-image-page/;
-				if (organization && organization.hasLinkByRel(rel)) {
-					return this._organization.getLinkByRel(rel).href;
+				var editImagePage = organization && organization.getLinkByRel(rel);
+				if (editImagePage) {
+					return editImagePage.href;
 				}
 			},
 			_onFocus: function() {
