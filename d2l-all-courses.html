@@ -33,14 +33,14 @@
 			}
 			.filter-button {
 				@apply(--d2l-small-text);
- 				/* overrides to d2l-small-text */
- 				font-size: 1rem;
- 				color: var(--d2l-color-ferrite);
- 				/* end overrides */
- 				background: none;
- 				border: none;
- 				padding: 0;
- 				cursor: pointer;
+				/* overrides to d2l-small-text */
+				font-size: 1rem;
+				color: var(--d2l-color-ferrite);
+				/* end overrides */
+				background: none;
+				border: none;
+				padding: 0;
+				cursor: pointer;
 			}
 			.filter-item {
 				display: block;
@@ -50,7 +50,7 @@
 				display: flex;
 				align-items: center;
 				justify-content: space-between;
-					margin-bottom: 60px;
+				margin-bottom: 60px;
 			}
 			.search-and-filter > d2l-search-widget {
 				width: 50%;
@@ -60,6 +60,38 @@
 			}
 			.search-and-filter .dropdown-icon {
 				margin-left: 12px;
+			}
+			.view-button {
+				@apply(--d2l-small-text);
+				/* overrides to d2l-small-text */
+				color: var(--d2l-color-ferrite);
+				/* end overrides */
+				background: none;
+				border: none;
+				padding: 0;
+				cursor: pointer;
+			}
+			.view-button-selected {
+				color: var(--d2l-color-celestine);
+			}
+			.hidden {
+				display: none;
+			}
+			.clear-button {
+				@apply(--d2l-small-text);
+				/* overrides to d2l-small-text */
+				font-size: 1rem;
+				color: var(--d2l-color-celestine);
+				/* end overrides */
+				background: none;
+				border: none;
+				padding: 0;
+				cursor: pointer;
+			}
+			.filter-and-clear {
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
 			}
 		</style>
 
@@ -91,25 +123,52 @@
 						<iron-icon class="dropdown-icon" icon="d2l-tier1:chevron-down" aria-hidden="true"></iron-icon>
 					</div>
 					<d2l-dropdown-content>
-						Filter by
-						<template is="dom-repeat" items="[[_semesterOrganizations]]">
-							<div class="filter-item">
-								<input
-									type="checkbox"
-									value="[[item.properties.id]]"
-									on-click="_updateParentOrganizations"
-									>[[item.properties.name]]</input>
-							</div>
-						</template>
-						<template is="dom-repeat" items="[[_departmentOrganizations]]">
-							<div class="filter-item">
-								<input
-									type="checkbox"
-									value="[[item.properties.id]]"
-									on-click="_updateParentOrganizations"
-									>[[item.properties.name]]</input>
-							</div>
-						</template>
+						<div class="filter-and-clear">
+							<span>Filter by</span>
+							<button on-tap="_clearFilters">Clear</button>
+						</div>
+						<div class="button-bar">
+							<button
+								id="semesterListButton"
+								class="view-button view-button-selected"
+								on-tap="_selectSemesterList"
+								aria-pressed="true">
+								Semester
+							</button>
+							<button
+								id="departmentListButton"
+								class="view-button"
+								on-tap="_selectDepartmentList"
+								aria-pressed="false">
+								Department
+							</button>
+						</div>
+						<div id="semesterList">
+							<template is="dom-repeat" items="[[_semesterOrganizations]]">
+								<div class="filter-item">
+									<label>
+										<input
+											type="checkbox"
+											value="[[item.properties.id]]"
+											on-click="_updateParentOrganizations" />
+										[[item.properties.name]]
+									</label>
+								</div>
+							</template>
+						</div>
+						<div id="departmentList" class="hidden">
+							<template is="dom-repeat" items="[[_departmentOrganizations]]">
+								<div class="filter-item">
+									<label>
+										<input
+											type="checkbox"
+											value="[[item.properties.id]]"
+											on-click="_updateParentOrganizations">
+										[[item.properties.name]]
+									</label>
+								</div>
+							</template>
+						</div>
 					</d2l-dropdown-content>
 				</d2l-dropdown>
 
@@ -243,6 +302,11 @@
 			loadCourseTiles: function() {
 				this.delayCourseTileLoad = false;
 			},
+			_clearFilters: function() {
+				Polymer.dom(this.root).querySelectorAll('.filter-item > input').forEach(function(checkbox) {
+					checkbox.checked = false;
+				});
+			},
 			_onFilterDropdownClick: function() {
 				if (!this._semesterOrganizations) {
 					this.$.semestersRequest.generateRequest();
@@ -262,6 +326,22 @@
 					var semesters = parser.parse(response.detail.xhr.response);
 					this._semesterOrganizations = semesters.entities;
 				}
+			},
+			_selectSemesterList: function() {
+				this.toggleClass('hidden', false, this.$.semesterList);
+				this.toggleClass('hidden', true, this.$.departmentList);
+				this.toggleClass('view-button-selected', true, this.$.semesterListButton);
+				this.toggleClass('view-button-selected', false, this.$.departmentListButton);
+				this.$.semesterListButton.setAttribute('aria-pressed', true);
+				this.$.departmentListButton.setAttribute('aria-pressed', false);
+			},
+			_selectDepartmentList: function() {
+				this.toggleClass('hidden', true, this.$.semesterList);
+				this.toggleClass('hidden', false, this.$.departmentList);
+				this.toggleClass('view-button-selected', false, this.$.semesterListButton);
+				this.toggleClass('view-button-selected', true, this.$.departmentListButton);
+				this.$.semesterListButton.setAttribute('aria-pressed', false);
+				this.$.departmentListButton.setAttribute('aria-pressed', true);
 			},
 			_updateParentOrganizations: function(e) {
 				if (e.target.checked) {
