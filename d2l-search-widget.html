@@ -200,6 +200,13 @@
 					}
 				},
 
+				_organizationRequests: {
+					type: Array,
+					value: function() {
+						return [];
+					}
+				},
+
 				/*
 				* The search string updated by the course search input
 				* @type {String}
@@ -317,6 +324,10 @@
 						this._searchAction,
 						queryParams
 					);
+
+					this._organizationRequests.forEach(function(req) {
+						req.abort();
+					});
 
 					this.$.searchRequest.generateRequest();
 				}
@@ -448,6 +459,7 @@
 						(function (index, self) {
 							var enrollment = enrollmentEntities[i];
 							var xhr = new XMLHttpRequest();
+							self.push('_organizationRequests', xhr);
 							xhr.open("GET", enrollment.getLinkByRel(/\/organization$/).href, true);
 							xhr.onload = function() {
 								if (xhr.readyState === 4) {
