@@ -8,6 +8,7 @@
 <link rel="import" href="d2l-touch-menu.html">
 <link rel="import" href="d2l-touch-menu-item.html">
 <link rel="import" href="../d2l-dropdown/d2l-dropdown.html">
+<link rel="import" href="../d2l-polymer-behaviors/d2l-dom.html">
 
 <!--
 `<d2l-course-tile>` is a clickable, interactable tile that represents a course
@@ -41,8 +42,7 @@ in that organization - student, teacher, TA, etc.
 
 		<div class="tile-container"
 			on-mouseover="_hoverCourseTile"
-			on-mouseout="_onTileMouseOut"
-			on-focusout="_focusOut">
+			on-mouseout="_onTileMouseOut">
 			<a href$="[[_organizationHomepageUrl]]" class="no-tap-interaction"
 				on-focus="_hoverCourseTile">
 				<div class="course-image-container">
@@ -55,9 +55,7 @@ in that organization - student, teacher, TA, etc.
 
 			<div class="hover-menu no-tap-interaction">
 				<d2l-dropdown>
-					<button
-						class="menu-item no-tap-interaction d2l-dropdown-opener"
-						on-click="_overflowMenuClickHandler">
+					<button	class="menu-item no-tap-interaction d2l-dropdown-opener">
 						<iron-icon class="menu-icon" style="width:18px;height:18px;" icon="d2l-tier1:more"></iron-icon>
 						<span aria-label="Overflow menu"></span>
 					</button>
@@ -216,8 +214,8 @@ in that organization - student, teacher, TA, etc.
 					this.toggleClass('animate-insertion-pre', true, this);
 				}
 				var tileContainerEl = this.$$('.tile-container');
-				tileContainerEl.addEventListener('blur', this._focusOutBound, true);
-				tileContainerEl.addEventListener('focus', this._focusInBound, true);
+				document.body.addEventListener('focus', this._onFocusBound, true);
+				tileContainerEl.addEventListener('focus', this._hoverCourseTileBound, true);
 			},
 			ready: function() {
 				// Currently only needed in tests, but it is entirely possible
@@ -234,9 +232,9 @@ in that organization - student, teacher, TA, etc.
 				if (!this.delayLoad) {
 					this.$.organizationRequest.generateRequest();
 				}
-				this._focusOutBound = this._focusOut.bind(this);
-				this._focusInBound = this._focusIn.bind(this);
+				this._onFocusBound = this._onFocus.bind(this);
 				this._closeDropdownBound = this._closeDropdown.bind(this);
+				this._hoverCourseTileBound = this._hoverCourseTile.bind(this);
 			},
 			/*
 			* Handler that triggers the API call to change an enrollment's pin state when the user says DO IT
@@ -372,9 +370,6 @@ in that organization - student, teacher, TA, etc.
 			_onUnpinHover: function(e) {
 				this.toggleClass('unpin-hovered', e.detail.hoverState, this);
 			},
-			_overflowMenuClickHandler: function() {
-				dropdown.toggleOpen();
-			},
 			_pinnedChanged: function(pinned) {
 				var pinButton = this.$$('#pin-button');
 				this._pinned = pinned === undefined ? this._pinned : pinned;
@@ -392,7 +387,6 @@ in that organization - student, teacher, TA, etc.
 			_unhoverCourseTile: function(force) {
 				var noHover = Polymer.dom(this.root).querySelectorAll(':hover').length === 0;
 				if ((force === true || noHover) && !this._pinAnimationInProgress) {
-					this._setCourseTileHovered(false);
 					window.setTimeout(this._closeDropdownBound);
 				}
 			},
@@ -405,32 +399,18 @@ in that organization - student, teacher, TA, etc.
 					return this._organization.getLinkByRel(rel).href;
 				}
 			},
-
-			/*
-			 * Determines whether the given element is a descendant of this element.
-			 */
-			_isDescendant: function(element) {
-				var parentNode = element ? element.parentNode : null;
-				while (parentNode) {
-					if (Polymer.dom(parentNode).node === this) {
-						return true;
+			_onFocus: function() {
+				/* timeout needed to work around lack of support for relatedTarget */
+				setTimeout(function() {
+					if (!document.activeElement	|| document.activeElement === document.body) {
+						return;
 					}
-					parentNode = parentNode.parentNode;
-				}
-				return false;
+					var activeElement = Polymer.dom(document.activeElement).node;
+					if (!D2L.Dom.isComposedAncestor(this, activeElement)) {
+						this._unhoverCourseTile();
+					}
+				}.bind(this), 0);
 			},
-
-			_focusOut: function(e) {
-				var target = !e.relatedTarget ? e.target : e.relatedTarget; // IE fix
-				if (!this._isDescendant(target)) {
-					this._unhoverCourseTile();
-				}
-			},
-
-			_focusIn: function() {
-				this._hoverCourseTile();
-			},
-
 			_closeDropdown: function() {
 				if (Polymer.dom(this.root).querySelectorAll(':hover').length === 0) {
 					var dropdown = this.$$('#overlow-dropdown');
