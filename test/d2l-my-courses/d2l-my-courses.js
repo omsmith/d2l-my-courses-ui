@@ -68,6 +68,33 @@ describe('d2l-my-courses', function() {
 				href: searchHref
 			}]
 		},
+		enrollmentsNextPageSearchResponse = {
+			entities: [{
+				class: ['pinned', 'enrollment'],
+				rel: ['https://api.brightspace.com/rels/user-enrollment'],
+				actions: [{
+					name: 'unpin-course',
+					method: 'PUT',
+					href: '/enrollments/users/169/organizations/2',
+					fields: [{
+						name: 'pinned',
+						type: 'hidden',
+						value: false
+					}]
+				}],
+				links: [{
+					rel: ['https://api.brightspace.com/rels/organization'],
+					href: '/organizations/2'
+				}, {
+					rel: ['self'],
+					href: '/enrollments/users/169/organizations/2'
+				}]
+			}],
+			links: [{
+				rel: ['self'],
+				href: searchHref
+			}]
+		},
 		noEnrollmentsResponse = {
 			entities: []
 		},
@@ -190,6 +217,45 @@ describe('d2l-my-courses', function() {
 				expect(enrollmentsSearchSpy.called);
 				widget._onEnrollmentsSearchResponse.restore();
 				done();
+			});
+		});
+
+		it('should append enrollments on successive search requests', function(done) {
+			server.respondWith(
+				'GET',
+				widget.enrollmentsUrl,
+				function(req) {
+					expect(req.requestHeaders['accept']).to.equal('application/vnd.siren+json');
+					req.respond(200, {}, JSON.stringify(enrollmentsRootResponse));
+				});
+
+			server.respondWith(
+				'GET',
+				new RegExp(searchHref),
+				function() {
+					var reqCount = 0;
+					return function(req) {
+						expect(req.requestHeaders['accept']).to.equal('application/vnd.siren+json');
+						if (reqCount++ === 0) {
+							req.respond(200, {}, JSON.stringify(enrollmentsSearchResponse));
+						} else {
+							req.respond(200, {}, JSON.stringify(enrollmentsNextPageSearchResponse));
+						}
+					};
+				}());
+
+			var enrollmentsSearchSpy = sinon.spy(widget, '_onEnrollmentsSearchResponse');
+
+			widget.$.enrollmentsRootRequest.generateRequest();
+
+			widget.$.enrollmentsSearchRequest.addEventListener('iron-ajax-response', function() {
+				if (enrollmentsSearchSpy.calledOnce) {
+					widget.$.enrollmentsSearchRequest.generateRequest();
+				} else if (enrollmentsSearchSpy.calledTwice) {
+					expect(widget.pinnedEnrollments.length).to.equal(2);
+					widget._onEnrollmentsSearchResponse.restore();
+					done();
+				}
 			});
 		});
 
