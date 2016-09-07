@@ -56,8 +56,7 @@ in that organization - student, teacher, TA, etc.
 			<div class="hover-menu no-tap-interaction">
 				<d2l-dropdown>
 					<button	class="menu-item no-tap-interaction d2l-dropdown-opener" aria-label$="[[_courseSettingsLabel]]">
-						<iron-icon class="menu-icon" style="width:18px;height:18px;" icon="d2l-tier1:more"></iron-icon>
-						<span aria-label="Overflow menu"></span>
+						<iron-icon class="menu-icon" icon="d2l-tier1:more"></iron-icon>
 					</button>
 					<d2l-dropdown-menu id="overlow-dropdown">
 						<d2l-menu label$="[[_courseSettingsLabel]]">
@@ -76,7 +75,7 @@ in that organization - student, teacher, TA, etc.
 								on-mouseout="_unhoverPinMenuItem">
 							</d2l-menu-item>
 						</d2l-menu>
-	    		</d2l-dropdown-menu>
+					</d2l-dropdown-menu>
 				</d2l-dropdown>
 			</div>
 		</div>
@@ -369,7 +368,7 @@ in that organization - student, teacher, TA, etc.
 					this._organization = organization;
 					this._organizationHomepageUrl = organization.getLinkByRel(/\/organization-homepage$/).href;
 					this._organizationChangeImageHref = this._getChangeCourseImageLink(organization);
-					this._pinnedChanged(); // Update aria-label with orginization
+					this._pinnedChanged();
 					this._courseSettingsLabel = this.localize('courseSettings', 'course', this._organization.properties.name);
 				}
 			},
