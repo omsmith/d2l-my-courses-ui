@@ -330,8 +330,11 @@
 					);
 
 					this._organizationRequests.forEach(function(req) {
-						req.abort();
+						if (req.abort) {
+							req.abort();
+						}
 					});
+					this.set('_organizationRequests', []);
 
 					this.$.searchRequest.generateRequest();
 				}
@@ -457,29 +460,26 @@
 					var enrollmentEntities = searchResponse.entities;
 
 					this._searchResults = [];
+					var parser = document.createElement('d2l-siren-parser');
 					for (var i = 0; i < enrollmentEntities.length; i++) {
 						// Fetch each search result's organization's information
-						// Needs to be done in a closure since XHR is async
-						(function(index, self) {
-							var enrollment = enrollmentEntities[i];
-							var xhr = new XMLHttpRequest();
-							self.push('_organizationRequests', xhr);
-							xhr.open('GET', enrollment.getLinkByRel(/\/organization$/).href, true);
-							xhr.onload = function() {
-								if (xhr.readyState === 4) {
-									if (xhr.status === 200 || xhr.status === 304) {
-										var organizationParser = document.createElement('d2l-siren-parser');
-										var organization = organizationParser.parse(xhr.response);
-										self.push('_searchResults', {
-											name: organization.properties.name,
-											href: organization.getLinkByRel(/\/organization-homepage$/).href
-										});
-										self.$$('iron-pages').select(self._searchResults.length > 0 ? 'search-results-page' : 'no-results-page');
-									}
+						(function(enrollment, self, parser) {
+							var ajax = document.createElement('d2l-ajax');
+							ajax.url = enrollment.getLinkByRel(/\/organization$/).href;
+							ajax.method = 'GET';
+							ajax.onResponse = function(response) {
+								if (response.detail.status === 200 || response.detail.status === 304) {
+									var organization = parser.parse(response.detail.response);
+									self.push('_searchResults', {
+										name: organization.properties.name,
+										href: organization.getLinkByRel(/\/organization-homepage$/).href
+									});
+									self.$$('iron-pages').select(self._searchResults.length > 0 ? 'search-results-page' : 'no-results-page');
 								}
 							};
-							xhr.send(null);
-						})(i, this);
+							ajax.generateRequest();
+							self.push('_organizationRequests', ajax);
+						})(enrollmentEntities[i], this, parser);
 					}
 				}
 			},
