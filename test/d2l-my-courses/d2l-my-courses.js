@@ -232,17 +232,14 @@ describe('d2l-my-courses', function() {
 			server.respondWith(
 				'GET',
 				new RegExp(searchHref),
-				function() {
-					var reqCount = 0;
-					return function(req) {
-						expect(req.requestHeaders['accept']).to.equal('application/vnd.siren+json');
-						if (reqCount++ === 0) {
-							req.respond(200, {}, JSON.stringify(enrollmentsSearchResponse));
-						} else {
-							req.respond(200, {}, JSON.stringify(enrollmentsNextPageSearchResponse));
-						}
-					};
-				}());
+				function(req) {
+					expect(req.requestHeaders['accept']).to.equal('application/vnd.siren+json');
+					if (widget.pinnedEnrollments.length === 0) {
+						req.respond(200, {}, JSON.stringify(enrollmentsSearchResponse));
+					} else {
+						req.respond(200, {}, JSON.stringify(enrollmentsNextPageSearchResponse));
+					}
+				});
 
 			var enrollmentsSearchSpy = sinon.spy(widget, '_onEnrollmentsSearchResponse');
 
