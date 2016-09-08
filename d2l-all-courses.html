@@ -4,6 +4,8 @@
 <link rel="import" href="../d2l-dropdown/d2l-dropdown-button.html">
 <link rel="import" href="../d2l-dropdown/d2l-dropdown-content.html">
 <link rel="import" href="../d2l-icons/d2l-icons.html">
+<link rel="import" href="../d2l-menu/d2l-menu.html">
+<link rel="import" href="../d2l-menu/d2l-menu-item.html">
 <link rel="import" href="d2l-course-tile-grid.html">
 <link rel="import" href="d2l-course-tile-responsive-grid-behavior.html">
 <link rel="import" href="localize-behavior.html">
@@ -93,6 +95,20 @@
 				align-items: center;
 				justify-content: space-between;
 			}
+			.sort-button {
+				@apply(--d2l-small-text);
+				/* overrides to d2l-small-text */
+				font-size: 1rem;
+				/* end overrides */
+				display: block;
+				background: none;
+				border: none;
+				padding: 0;
+				cursor: pointer;
+			}
+			.sort-button-selected {
+				color: var(--d2l-color-celestine);
+			}
 		</style>
 
 		<d2l-ajax
@@ -113,11 +129,12 @@
 			<d2l-search-widget
 				hidden$="[[_hasEnrollments]]"
 				search-root-url="[[searchUrl]]"
-				parent-organization-ids="[[_parentOrganizationIds]]">
+				parent-organization-ids="[[_parentOrganizationIds]]"
+				sort-field="[[_sortField]]">
 			</d2l-search-widget>
 
 			<div>
-				<d2l-dropdown>
+				<d2l-dropdown id="filterDropdown" no-auto-open>
 					<div class="d2l-dropdown-opener">
 						<button class="d2l-dropdown-opener filter-button">Filter</button>
 						<iron-icon class="dropdown-icon" icon="d2l-tier1:chevron-down" aria-hidden="true"></iron-icon>
@@ -150,7 +167,7 @@
 										<input
 											type="checkbox"
 											value="[[item.properties.id]]"
-											on-click="_updateParentOrganizations" />
+											on-click="_updateFilter" />
 										[[item.properties.name]]
 									</label>
 								</div>
@@ -163,7 +180,7 @@
 										<input
 											type="checkbox"
 											value="[[item.properties.id]]"
-											on-click="_updateParentOrganizations">
+											on-click="_updateFilter">
 										[[item.properties.name]]
 									</label>
 								</div>
@@ -172,20 +189,15 @@
 					</d2l-dropdown-content>
 				</d2l-dropdown>
 
-				<d2l-dropdown>
+				<d2l-dropdown id="sortDropdown">
 					<div class="d2l-dropdown-opener">
-						<button class="d2l-dropdown-opener filter-button">Sort</button>
+						<button class="d2l-dropdown-opener filter-button">Sort: Date Pinned</button>
 						<iron-icon class="dropdown-icon" icon="d2l-tier1:chevron-down" aria-hidden="true"></iron-icon>
 					</div>
 					<d2l-dropdown-content>
 						Sort by
-						<ul>
-							<li>Course Code</li>
-							<li>Course Name</li>
-							<li>Date Pinned</li>
-							<li>Department</li>
-							<li>Last Accessed</li>
-						</ul>
+						<button class="sort-button sort-button-selected" value="pinDate" on-tap="_updateSortBy">Date Pinned</a>
+						<button class="sort-button" value="lastAccessed" on-tap="_updateSortBy">Last Accessed</a>
 					</d2l-dropdown-content>
 				</d2l-dropdown>
 			</div>
@@ -245,6 +257,7 @@
 					type: String,
 					value: '/d2l/api/hm/organizations?embedDepth=1&organizationTypeIds=5'
 				},
+				_sortField: String,
 				_parentOrganizationIds: {
 					type: Array,
 					value: function() {
@@ -318,6 +331,14 @@
 					var parser = document.createElement('d2l-siren-parser');
 					var departments = parser.parse(response.detail.xhr.response);
 					this._departmentOrganizations = departments.entities;
+
+					if (this._semesterOrganizations) {
+						// We delay the opening of the menu until we have a response, so that the
+						// dropdown is sized correctly. Once we have the semesters and departments,
+						// we can just immediately open it on future clicks
+						this.$.filterDropdown.removeAttribute('no-auto-open', false);
+						this.$.filterDropdown.toggleOpen();
+					}
 				}
 			},
 			_onSemestersResponse: function(response) {
@@ -325,6 +346,14 @@
 					var parser = document.createElement('d2l-siren-parser');
 					var semesters = parser.parse(response.detail.xhr.response);
 					this._semesterOrganizations = semesters.entities;
+
+					if (this._departmentOrganizations) {
+						// We delay the opening of the menu until we have a response, so that the
+						// dropdown is sized correctly. Once we have the semesters and departments,
+						// we can just immediately open it on future clicks
+						this.$.filterDropdown.removeAttribute('no-auto-open', false);
+						this.$.filterDropdown.toggleOpen();
+					}
 				}
 			},
 			_selectSemesterList: function() {
@@ -343,13 +372,25 @@
 				this.$.semesterListButton.setAttribute('aria-pressed', false);
 				this.$.departmentListButton.setAttribute('aria-pressed', true);
 			},
-			_updateParentOrganizations: function(e) {
+			_updateFilter: function(e) {
 				if (e.target.checked) {
 					this.push('_parentOrganizationIds', e.target.value);
 				} else {
 					var index = this._parentOrganizationIds.indexOf(e.target.value);
 					this.splice('_parentOrganizationIds', index, 1);
 				}
+			},
+			_updateSortBy: function(e) {
+				this._sortField = e.target.value;
+
+				var buttons = Polymer.dom(this.root).querySelectorAll('#sortDropdown .sort-button');
+				buttons.forEach(function(button) {
+					this.toggleClass('sort-button-selected', button.value === e.target.value, button);
+				}.bind(this));
+
+				this.$$('#sortDropdown button.d2l-dropdown-opener').innerHTML = "Sort: " + e.target.innerHTML;
+
+				this.$.sortDropdown.toggleOpen();
 			}
 		});
 	</script>

@@ -190,6 +190,12 @@
 				},
 
 				/*
+				* Parameter to be sent as `sortField` parameter when searching
+				* @type {String}
+				*/
+				sortField: String,
+
+				/*
 				* Array of parent organization IDs by which to limit the search results
 				* @type {String}
 				*/
@@ -200,6 +206,10 @@
 					}
 				},
 
+				/*
+				* Outstanding /organizations XHRs, which are cancelled when a new search starts
+				* @Type {Array}
+				*/
 				_organizationRequests: {
 					type: Array,
 					value: function() {
@@ -317,7 +327,8 @@
 						search: this._searchString,
 						page: 1,
 						pageSize: 5,
-						parentOrganizationIds: this.parentOrganizationIds.join(',')
+						parentOrganizationIds: this.parentOrganizationIds.join(','),
+						sortField: this.sortField
 					};
 
 					this._searchUrl = this.createActionUrl(
