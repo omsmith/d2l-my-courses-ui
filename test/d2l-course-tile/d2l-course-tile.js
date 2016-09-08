@@ -133,16 +133,6 @@ describe('<d2l-course-tile>', function() {
 			var courseImage = widget.$$('.course-image img');
 			expect(courseImage.getAttribute('aria-hidden')).to.equal('true');
 		});
-
-		it('should have an aria-label for pin button', function() {
-			var pinButton = widget.$$('.menu-text.pin');
-			expect(pinButton.getAttribute('aria-label')).to.equal('Pin ' + organizationEntity.properties.name);
-		});
-
-		it('should have an aria-label for unpin button', function() {
-			var pinButton = widget.$$('.menu-text.unpin');
-			expect(pinButton.getAttribute('aria-label')).to.equal('Unpin ' + organizationEntity.properties.name);
-		});
 	});
 
 	describe('delay-load attribute', function() {
@@ -220,15 +210,6 @@ describe('<d2l-course-tile>', function() {
 
 			expect(widget._enrollmentPinUrl).to.equal('/enrollments/users/169/organizations/1');
 			expect(widget._enrollmentPinMethod).to.equal('PUT');
-		});
-
-		it('should update the icon', function() {
-			var pinIcon = widget.$$('.menu-item iron-icon.menu-icon');
-
-			widget.pinned = false;
-			expect(pinIcon.icon).to.equal('d2l-tier1:pin-filled');
-			widget.pinned = true;
-			expect(pinIcon.icon).to.equal('d2l-tier1:pin-hollow');
 		});
 
 		it('should call the pinning API', function(done) {

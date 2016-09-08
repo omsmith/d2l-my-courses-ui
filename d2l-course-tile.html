@@ -1,9 +1,13 @@
 <link rel="import" href="../polymer/polymer.html">
-<link rel="import" href="../d2l-siren-parser/d2l-siren-parser.html">
 <link rel="import" href="../iron-icon/iron-icon.html">
 <link rel="import" href="../d2l-ajax/d2l-ajax.html">
-<link rel="import" href="d2l-course-tile-styles.html">
+<link rel="import" href="../d2l-dropdown/d2l-dropdown.html">
+<link rel="import" href="../d2l-dropdown/d2l-dropdown-menu.html">
 <link rel="import" href="../d2l-icons/d2l-icons.html">
+<link rel="import" href="../d2l-menu/d2l-menu-item-link.html">
+<link rel="import" href="../d2l-polymer-behaviors/d2l-dom.html">
+<link rel="import" href="../d2l-siren-parser/d2l-siren-parser.html">
+<link rel="import" href="d2l-course-tile-styles.html">
 <link rel="import" href="localize-behavior.html">
 <link rel="import" href="d2l-touch-menu.html">
 <link rel="import" href="d2l-touch-menu-item.html">
@@ -42,8 +46,7 @@ in that organization - student, teacher, TA, etc.
 			on-mouseover="_hoverCourseTile"
 			on-mouseout="_onTileMouseOut">
 			<a href$="[[_organizationHomepageUrl]]" class="no-tap-interaction"
-				on-focus="_hoverCourseTile"
-				on-blur="_unhoverCourseTile">
+				on-focus="_hoverCourseTile">
 				<div class="course-image-container">
 					<div class="course-image">
 						<img aria-hidden="true" />
@@ -53,20 +56,29 @@ in that organization - student, teacher, TA, etc.
 			</a>
 
 			<div class="hover-menu no-tap-interaction">
-				<button class="menu-item no-tap-interaction"
-					on-click="_hoverPinClickHandler"
-					on-focus="_hoverPinMenuItem"
-					on-blur="_unhoverPinMenuItem"
-					on-mouseover="_hoverPinMenuItem"
-					on-mouseout="_unhoverPinMenuItem">
-					<iron-icon class="menu-icon" icon="d2l-tier1:pin-filled" aria-hidden="true"></iron-icon>
-					<span class="menu-text pin"
-						aria-label$="[[localize('pinCourse', 'course', _organization.properties.name)]]"
-						>{{localize('pin')}}</span>
-					<span class="menu-text unpin"
-						aria-label$="[[localize('unpinCourse', 'course', _organization.properties.name)]]"
-						>{{localize('unpin')}}</span>
-				</button>
+				<d2l-dropdown>
+					<button	class="menu-item no-tap-interaction d2l-dropdown-opener" aria-label$="[[_courseSettingsLabel]]">
+						<iron-icon class="menu-icon" icon="d2l-tier1:more"></iron-icon>
+					</button>
+					<d2l-dropdown-menu id="overflow-dropdown">
+						<d2l-menu label$="[[_courseSettingsLabel]]">
+							<template is="dom-if" if="{{_organizationChangeImageHref}}" restamp="true">
+								<d2l-menu-item-link id="change-image-link"
+									text="{{localize('changeImage')}}"
+									href="{{_organizationChangeImageHref}}">
+								</d2l-menu-item-link>
+							</template>
+							<d2l-menu-item id="pin-button"
+								text$="[[_pinLabel]]"
+								on-select="_hoverPinClickHandler"
+								on-focus="_hoverPinMenuItem"
+								on-blur="_unhoverPinMenuItem"
+								on-mouseover="_hoverPinMenuItem"
+								on-mouseout="_unhoverPinMenuItem">
+							</d2l-menu-item>
+						</d2l-menu>
+					</d2l-dropdown-menu>
+				</d2l-dropdown>
 			</div>
 		</div>
 	</template>
@@ -180,7 +192,22 @@ in that organization - student, teacher, TA, etc.
 				* The URL to fetch the `_organization` Entity from (determined from the `enrollment`'s Links)
 				* @type {String}
 				*/
-				_organizationUrl: String
+				_organizationUrl: String,
+				/*
+				* The url to pass to the 'Change Image' link
+				* @type {String}
+				*/
+				_organizationChangeImageHref: String,
+				/*
+				* The term used for the text of the pin/unpin menu item
+				* @type {String}
+				*/
+				_pinLabel: String,
+				/*
+				* The term of the course settings label
+				* @type {String}
+				*/
+				_courseSettingsLabel: String
 			},
 			behaviors: [
 				Polymer.D2L.MyCourses.LocalizeBehavior
@@ -195,6 +222,9 @@ in that organization - student, teacher, TA, etc.
 				if (this.animateInsertion) {
 					this.toggleClass('animate-insertion-pre', true, this);
 				}
+				var tileContainerEl = this.$$('.tile-container');
+				document.body.addEventListener('focus', this._onFocus, true);
+				tileContainerEl.addEventListener('focus', this._hoverCourseTile, true);
 			},
 			ready: function() {
 				// Currently only needed in tests, but it is entirely possible
@@ -207,9 +237,13 @@ in that organization - student, teacher, TA, etc.
 
 				var organizationLink = this.enrollment.getLinkByRel(/\/organization$/);
 				this._organizationUrl = organizationLink.href + '?embedDepth=1';
+
 				if (!this.delayLoad) {
 					this.$.organizationRequest.generateRequest();
 				}
+				this._onFocus = this._onFocus.bind(this);
+				this._closeDropdown = this._closeDropdown.bind(this);
+				this._hoverCourseTile = this._hoverCourseTile.bind(this);
 			},
 			/*
 			* Handler that triggers the API call to change an enrollment's pin state when the user says DO IT
@@ -335,6 +369,9 @@ in that organization - student, teacher, TA, etc.
 
 					this._organization = organization;
 					this._organizationHomepageUrl = organization.getLinkByRel(/\/organization-homepage$/).href;
+					this._organizationChangeImageHref = this._getChangeCourseImageLink(organization);
+					this._pinnedChanged();
+					this._courseSettingsLabel = this.localize('courseSettings', 'course', this._organization.properties.name);
 				}
 			},
 			_onTileMouseOut: function() {
@@ -344,19 +381,8 @@ in that organization - student, teacher, TA, etc.
 				this.toggleClass('unpin-hovered', e.detail.hoverState, this);
 			},
 			_pinnedChanged: function(pinned) {
-				var pinIcon = this.$$('.menu-item iron-icon.menu-icon'),
-					pinText = this.$$('.menu-item .menu-text.pin'),
-					unpinText = this.$$('.menu-item .menu-text.unpin');
-
-				if (pinned) {
-					Polymer.dom(pinIcon).setAttribute('icon', 'd2l-tier1:pin-hollow');
-					Polymer.dom(pinText).setAttribute('style', 'display: none');
-					Polymer.dom(unpinText).setAttribute('style', 'display: inline');
-				} else {
-					Polymer.dom(pinIcon).setAttribute('icon', 'd2l-tier1:pin-filled');
-					Polymer.dom(pinText).setAttribute('style', 'display: inline');
-					Polymer.dom(unpinText).setAttribute('style', 'display: none');
-				}
+				this._pinned = pinned === undefined ? this._pinned : pinned;
+				this._pinLabel = this.localize(this._pinned ? 'unpin' : 'pin');
 			},
 			_setCourseTileHovered: function(isHovered) {
 				this.toggleClass('hover', isHovered, this.$$('.tile-container'));
@@ -364,14 +390,39 @@ in that organization - student, teacher, TA, etc.
 				this.toggleClass('hover', isHovered, this.$$('.course-image-container'));
 			},
 			_unhoverCourseTile: function(force) {
-				if ((force === true || Polymer.dom(this.root).querySelectorAll(':hover').length === 0) &&
-					!this._pinAnimationInProgress) {
-					this._setCourseTileHovered(false);
+				var noHover = Polymer.dom(this.root).querySelectorAll(':hover').length === 0;
+				if ((force === true || noHover) && !this._pinAnimationInProgress) {
+					window.setTimeout(this._closeDropdown);
 				}
 			},
 			_unhoverPinMenuItem: function() {
 				this._onUnpinHover({detail: {hoverState: false}});
-				this._unhoverCourseTile();
+			},
+			_getChangeCourseImageLink: function(organization) {
+				var rel = /edit-image-page/;
+				var editImagePage = organization && organization.getLinkByRel(rel);
+				if (editImagePage) {
+					return editImagePage.href;
+				}
+			},
+			_onFocus: function() {
+				/* timeout needed to work around lack of support for relatedTarget */
+				setTimeout(function() {
+					if (!document.activeElement	|| document.activeElement === document.body) {
+						return;
+					}
+					var activeElement = Polymer.dom(document.activeElement).node;
+					if (!D2L.Dom.isComposedAncestor(this, activeElement)) {
+						this._unhoverCourseTile();
+					}
+				}.bind(this), 0);
+			},
+			_closeDropdown: function() {
+				if (Polymer.dom(this.root).querySelectorAll(':hover').length === 0) {
+					var dropdown = this.$$('#overflow-dropdown');
+					dropdown.close();
+					this._setCourseTileHovered(false);
+				}
 			}
 		});
 	</script>
