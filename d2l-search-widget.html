@@ -190,6 +190,12 @@
 				},
 
 				/*
+				* Value to send for the `sortField` parameter in the search query
+				* @type {String}
+				*/
+				sortField: String,
+
+				/*
 				* Array of parent organization IDs by which to limit the search results
 				* @type {String}
 				*/
@@ -321,7 +327,8 @@
 						search: this._searchString,
 						page: 1,
 						pageSize: 5,
-						parentOrganizationIds: this.parentOrganizationIds.join(',')
+						parentOrganizationIds: this.parentOrganizationIds.join(','),
+						sortField: this.sortField
 					};
 
 					this._searchUrl = this.createActionUrl(
@@ -459,8 +466,9 @@
 					var searchResponse = parser.parse(response.detail.xhr.response);
 					var enrollmentEntities = searchResponse.entities;
 
+					this.$$('iron-pages').select(enrollmentEntities.length > 0 ? 'search-results-page' : 'no-results-page');
+
 					this._searchResults = [];
-					var parser = document.createElement('d2l-siren-parser');
 					for (var i = 0; i < enrollmentEntities.length; i++) {
 						// Fetch each search result's organization's information
 						(function(enrollment, self, parser) {
@@ -474,7 +482,6 @@
 										name: organization.properties.name,
 										href: organization.getLinkByRel(/\/organization-homepage$/).href
 									});
-									self.$$('iron-pages').select(self._searchResults.length > 0 ? 'search-results-page' : 'no-results-page');
 								}
 							};
 							ajax.generateRequest();
