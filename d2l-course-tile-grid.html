@@ -171,7 +171,7 @@
 					this._tilesInPinStateTransition.push(this.getEnrollmentIdentifier(enrollment));
 					this.unshift('enrollments', enrollment);
 
-					var gridTemplate = container.querySelector('template');
+					var gridTemplate = this.$.enrollmentsTemplate;
 					this._domChangeListener = this._doTileSlideAnimation.bind(this, true, enrollmentIndex, container, this._numCols);
 					gridTemplate.addEventListener('dom-change', this._domChangeListener);
 				} else {
