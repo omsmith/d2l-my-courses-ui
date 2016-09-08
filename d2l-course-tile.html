@@ -1,16 +1,16 @@
 <link rel="import" href="../polymer/polymer.html">
-<link rel="import" href="../d2l-siren-parser/d2l-siren-parser.html">
 <link rel="import" href="../iron-icon/iron-icon.html">
 <link rel="import" href="../d2l-ajax/d2l-ajax.html">
-<link rel="import" href="d2l-course-tile-styles.html">
+<link rel="import" href="../d2l-dropdown/d2l-dropdown.html">
+<link rel="import" href="../d2l-dropdown/d2l-dropdown-menu.html">
 <link rel="import" href="../d2l-icons/d2l-icons.html">
+<link rel="import" href="../d2l-menu/d2l-menu-item-link.html">
+<link rel="import" href="../d2l-polymer-behaviors/d2l-dom.html">
+<link rel="import" href="../d2l-siren-parser/d2l-siren-parser.html">
+<link rel="import" href="d2l-course-tile-styles.html">
 <link rel="import" href="localize-behavior.html">
 <link rel="import" href="d2l-touch-menu.html">
 <link rel="import" href="d2l-touch-menu-item.html">
-<link rel="import" href="../d2l-dropdown/d2l-dropdown.html">
-<link rel="import" href="../d2l-dropdown/d2l-dropdown-menu.html">
-<link rel="import" href="../d2l-menu/d2l-menu-item-link.html">
-<link rel="import" href="../d2l-polymer-behaviors/d2l-dom.html">
 
 <!--
 `<d2l-course-tile>` is a clickable, interactable tile that represents a course
@@ -60,7 +60,7 @@ in that organization - student, teacher, TA, etc.
 					<button	class="menu-item no-tap-interaction d2l-dropdown-opener" aria-label$="[[_courseSettingsLabel]]">
 						<iron-icon class="menu-icon" icon="d2l-tier1:more"></iron-icon>
 					</button>
-					<d2l-dropdown-menu id="overlow-dropdown">
+					<d2l-dropdown-menu id="overflow-dropdown">
 						<d2l-menu label$="[[_courseSettingsLabel]]">
 							<template is="dom-if" if="{{_organizationChangeImageHref}}" restamp="true">
 								<d2l-menu-item-link id="change-image-link"
@@ -223,8 +223,8 @@ in that organization - student, teacher, TA, etc.
 					this.toggleClass('animate-insertion-pre', true, this);
 				}
 				var tileContainerEl = this.$$('.tile-container');
-				document.body.addEventListener('focus', this._onFocusBound, true);
-				tileContainerEl.addEventListener('focus', this._hoverCourseTileBound, true);
+				document.body.addEventListener('focus', this._onFocus, true);
+				tileContainerEl.addEventListener('focus', this._hoverCourseTile, true);
 			},
 			ready: function() {
 				// Currently only needed in tests, but it is entirely possible
@@ -241,9 +241,9 @@ in that organization - student, teacher, TA, etc.
 				if (!this.delayLoad) {
 					this.$.organizationRequest.generateRequest();
 				}
-				this._onFocusBound = this._onFocus.bind(this);
-				this._closeDropdownBound = this._closeDropdown.bind(this);
-				this._hoverCourseTileBound = this._hoverCourseTile.bind(this);
+				this._onFocus = this._onFocus.bind(this);
+				this._closeDropdown = this._closeDropdown.bind(this);
+				this._hoverCourseTile = this._hoverCourseTile.bind(this);
 			},
 			/*
 			* Handler that triggers the API call to change an enrollment's pin state when the user says DO IT
@@ -392,7 +392,7 @@ in that organization - student, teacher, TA, etc.
 			_unhoverCourseTile: function(force) {
 				var noHover = Polymer.dom(this.root).querySelectorAll(':hover').length === 0;
 				if ((force === true || noHover) && !this._pinAnimationInProgress) {
-					window.setTimeout(this._closeDropdownBound);
+					window.setTimeout(this._closeDropdown);
 				}
 			},
 			_unhoverPinMenuItem: function() {
@@ -419,7 +419,7 @@ in that organization - student, teacher, TA, etc.
 			},
 			_closeDropdown: function() {
 				if (Polymer.dom(this.root).querySelectorAll(':hover').length === 0) {
-					var dropdown = this.$$('#overlow-dropdown');
+					var dropdown = this.$$('#overflow-dropdown');
 					dropdown.close();
 					this._setCourseTileHovered(false);
 				}
