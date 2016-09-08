@@ -190,12 +190,6 @@
 				},
 
 				/*
-				* Parameter to be sent as `sortField` parameter when searching
-				* @type {String}
-				*/
-				sortField: String,
-
-				/*
 				* Array of parent organization IDs by which to limit the search results
 				* @type {String}
 				*/
@@ -207,8 +201,8 @@
 				},
 
 				/*
-				* Outstanding /organizations XHRs, which are cancelled when a new search starts
-				* @Type {Array}
+ 				* Outstanding /organizations XHRs, which are cancelled when a new search starts
+ 				* @type {Array}
 				*/
 				_organizationRequests: {
 					type: Array,
@@ -327,8 +321,7 @@
 						search: this._searchString,
 						page: 1,
 						pageSize: 5,
-						parentOrganizationIds: this.parentOrganizationIds.join(','),
-						sortField: this.sortField
+						parentOrganizationIds: this.parentOrganizationIds.join(',')
 					};
 
 					this._searchUrl = this.createActionUrl(
@@ -467,11 +460,11 @@
 					for (var i = 0; i < enrollmentEntities.length; i++) {
 						// Fetch each search result's organization's information
 						// Needs to be done in a closure since XHR is async
-						(function (index, self) {
+						(function(index, self) {
 							var enrollment = enrollmentEntities[i];
 							var xhr = new XMLHttpRequest();
 							self.push('_organizationRequests', xhr);
-							xhr.open("GET", enrollment.getLinkByRel(/\/organization$/).href, true);
+							xhr.open('GET', enrollment.getLinkByRel(/\/organization$/).href, true);
 							xhr.onload = function() {
 								if (xhr.readyState === 4) {
 									if (xhr.status === 200 || xhr.status === 304) {

@@ -193,7 +193,17 @@
 				* Object containing the IDs of previously loaded pinned enrollments, to avoid duplicates
 				* @type Object
 				*/
-				_pinnedCoursesMap: Object
+				_pinnedCoursesMap: Object,
+				/*
+				* URL used by the search widget to fetch semester-type organizations
+				* @type {String}
+				*/
+				_semestersUrl: String,
+				/*
+				* URL used by the search widget to fetch department-type organizations
+				* @type {String}
+				*/
+				_departmentsUrl: String
 			},
 			behaviors: [
 				Polymer.D2L.MyCourses.CourseTileResponsiveGridBehavior,

@@ -70,11 +70,13 @@
 				/* end overrides */
 				background: none;
 				border: none;
-				padding: 0;
+				padding: 10px;
 				cursor: pointer;
 			}
 			.view-button-selected {
 				color: var(--d2l-color-celestine);
+				border-top-width: 2px;
+				border-top-style: solid;
 			}
 			.hidden {
 				display: none;
@@ -82,15 +84,15 @@
 			.clear-button {
 				@apply(--d2l-small-text);
 				/* overrides to d2l-small-text */
-				font-size: 1rem;
 				color: var(--d2l-color-celestine);
 				/* end overrides */
 				background: none;
 				border: none;
 				padding: 0;
 				cursor: pointer;
+				margin: 0;
 			}
-			.filter-and-clear {
+			.filter-and-clear, .button-bar {
 				display: flex;
 				align-items: center;
 				justify-content: space-between;
@@ -103,7 +105,6 @@
 				display: block;
 				background: none;
 				border: none;
-				padding: 0;
 				cursor: pointer;
 			}
 			.sort-button-selected {
@@ -142,7 +143,9 @@
 					<d2l-dropdown-content>
 						<div class="filter-and-clear">
 							<span>Filter by</span>
-							<button on-tap="_clearFilters">Clear</button>
+							<template is="dom-if" if="[[_isFiltered]]">
+								<button class="clear-button" on-tap="_clearFilters">Clear</button>
+							</template>
 						</div>
 						<div class="button-bar">
 							<button
@@ -180,7 +183,7 @@
 										<input
 											type="checkbox"
 											value="[[item.properties.id]]"
-											on-click="_updateFilter">
+											on-click="_updateFilter" />
 										[[item.properties.name]]
 									</label>
 								</div>
@@ -252,6 +255,10 @@
 					type: String,
 					value: '/d2l/api/hm/organizations?embedDepth=1&organizationTypeIds=203'
 				},
+				_isFiltered: {
+					type: Boolean,
+					value: false
+				},
 				_semesterOrganizations: Object,
 				_semestersUrl: {
 					type: String,
@@ -316,9 +323,12 @@
 				this.delayCourseTileLoad = false;
 			},
 			_clearFilters: function() {
-				Polymer.dom(this.root).querySelectorAll('.filter-item > input').forEach(function(checkbox) {
+				Polymer.dom(this.root).querySelectorAll('.filter-item input').forEach(function(checkbox) {
 					checkbox.checked = false;
 				});
+				this._isFiltered = false;
+				this._parentOrganizationIds = [];
+				this.$$('.filter-button').innerHTML = 'Filter';
 			},
 			_onFilterDropdownClick: function() {
 				if (!this._semesterOrganizations) {
@@ -375,9 +385,19 @@
 			_updateFilter: function(e) {
 				if (e.target.checked) {
 					this.push('_parentOrganizationIds', e.target.value);
+					this._isFiltered = true;
 				} else {
 					var index = this._parentOrganizationIds.indexOf(e.target.value);
 					this.splice('_parentOrganizationIds', index, 1);
+				}
+
+				var filterButton = this.$$('.filter-button');
+				if (this._parentOrganizationIds.length === 0) {
+					filterButton.innerHTML = 'Filter';
+				} else if (this._parentOrganizationIds.length === 1) {
+					filterButton.innerHTML = 'Filter: 1 Filter';
+				} else {
+					filterButton.innerHTML = 'Filter: ' + this._parentOrganizationIds.length + ' Filters';
 				}
 			},
 			_updateSortBy: function(e) {
@@ -388,7 +408,7 @@
 					this.toggleClass('sort-button-selected', button.value === e.target.value, button);
 				}.bind(this));
 
-				this.$$('#sortDropdown button.d2l-dropdown-opener').innerHTML = "Sort: " + e.target.innerHTML;
+				this.$$('#sortDropdown button.d2l-dropdown-opener').innerHTML = 'Sort: ' + e.target.innerHTML;
 
 				this.$.sortDropdown.toggleOpen();
 			}
