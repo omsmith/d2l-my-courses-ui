@@ -33,17 +33,21 @@
 			d2l-alert {
 				margin-bottom: 20px;
 			}
-			.filter-button {
+			.dropdown-text {
 				@apply(--d2l-small-text);
 				/* overrides to d2l-small-text */
 				font-size: 1rem;
-				color: var(--d2l-color-ferrite);
 				/* end overrides */
-				background: none;
-				border: none;
-				padding: 0;
 				cursor: pointer;
 				margin-left: 30px;
+				padding: 0;
+			}
+			.dropdown-button {
+				background: none;
+				border: none;
+				cursor: pointer;
+				margin-left: 12px;
+				padding: 0;
 			}
 			.filter-item {
 				display: block;
@@ -58,14 +62,8 @@
 			.search-and-filter > d2l-search-widget {
 				width: 50%;
 			}
-			.search-and-filter .dropdown-icon {
-				margin-left: 12px;
-			}
 			.view-button {
 				@apply(--d2l-small-text);
-				/* overrides to d2l-small-text */
-				color: var(--d2l-color-ferrite);
-				/* end overrides */
 				background: none;
 				border: none;
 				padding: 10px;
@@ -86,9 +84,9 @@
 				/* end overrides */
 				background: none;
 				border: none;
-				padding: 0;
 				cursor: pointer;
 				margin: 0;
+				padding: 0;
 			}
 			.filter-and-clear, .button-bar {
 				display: flex;
@@ -133,9 +131,11 @@
 			</d2l-search-widget>
 
 			<div>
-				<button class="filter-button" on-tap="_toggleFilterDropdown">Filter</button>
+				<span id="filterText" class="dropdown-text" on-tap="_toggleFilterDropdown">Filter</span>
 				<d2l-dropdown id="filterDropdown">
-					<iron-icon class="d2l-dropdown-opener dropdown-icon" icon="d2l-tier1:chevron-down" aria-hidden="true"></iron-icon>
+					<button class="d2l-dropdown-opener dropdown-button">
+						<iron-icon class="dropdown-icon" icon="d2l-tier1:chevron-down" aria-hidden="true"></iron-icon>
+					</button>
 					<d2l-dropdown-content>
 						<div class="filter-and-clear">
 							<span>Filter by</span>
@@ -188,9 +188,11 @@
 					</d2l-dropdown-content>
 				</d2l-dropdown>
 
-				<button class="filter-button" on-tap="_toggleSortDropdown">Sort: Date Pinned</button>
+				<span id="sortText" class="dropdown-text" on-tap="_toggleSortDropdown">Sort: Date Pinned</span>
 				<d2l-dropdown id="sortDropdown">
-					<iron-icon class="d2l-dropdown-opener dropdown-icon" icon="d2l-tier1:chevron-down" aria-hidden="true"></iron-icon>
+					<button class="d2l-dropdown-opener dropdown-button">
+						<iron-icon class="dropdown-icon" icon="d2l-tier1:chevron-down" aria-hidden="true"></iron-icon>
+					</button>
 					<d2l-dropdown-content>
 						Sort by
 						<button class="sort-button sort-button-selected" value="pinDate" on-tap="_updateSortBy">Date Pinned</a>
@@ -319,7 +321,7 @@
 				});
 				this._isFiltered = false;
 				this._parentOrganizationIds = [];
-				this.$$('.filter-button').textContent = 'Filter';
+				this.$.filterText.textContent = 'Filter';
 			},
 			_onDepartmentsResponse: function(response) {
 				if (response.detail.status === 200) {
@@ -366,13 +368,12 @@
 					this.splice('_parentOrganizationIds', index, 1);
 				}
 
-				var filterButton = this.$$('.filter-button');
 				if (this._parentOrganizationIds.length === 0) {
-					filterButton.textContent = 'Filter';
+					this.$.filterText.textContent = 'Filter';
 				} else if (this._parentOrganizationIds.length === 1) {
-					filterButton.textContent = 'Filter: 1 Filter';
+					this.$.filterText.textContent = 'Filter: 1 Filter';
 				} else {
-					filterButton.textContent = 'Filter: ' + this._parentOrganizationIds.length + ' Filters';
+					this.$.filterText.textContent = 'Filter: ' + this._parentOrganizationIds.length + ' Filters';
 				}
 			},
 			_updateSortBy: function(e) {
@@ -383,7 +384,7 @@
 					this.toggleClass('sort-button-selected', button.value === e.target.value, button);
 				}.bind(this));
 
-				this.$$('#sortDropdown button.d2l-dropdown-opener').textContent = 'Sort: ' + e.target.textContent;
+				this.$.sortText.textContent = 'Sort: ' + e.target.textContent;
 
 				this.$.sortDropdown.toggleOpen();
 			}
