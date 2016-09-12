@@ -253,6 +253,7 @@ describe('<d2l-course-tile>', function() {
 				[200, {}, JSON.stringify(enrollment)]);
 
 			widget._hoverPinClickHandler(event);
+			expect(widget.pinned).to.be.false;
 
 			var pinButton = widget.$$('#pin-button');
 			expect(pinButton.text).to.equal('Pin');
