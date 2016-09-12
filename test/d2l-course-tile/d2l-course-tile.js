@@ -133,6 +133,11 @@ describe('<d2l-course-tile>', function() {
 			var courseImage = widget.$$('.course-image img');
 			expect(courseImage.getAttribute('aria-hidden')).to.equal('true');
 		});
+
+		it('should have an unpin button if the course is pinned', function() {
+			var pinButton = widget.$$('#pin-button');
+			expect(pinButton.text).to.equal('Unpin');
+		});
 	});
 
 	describe('delay-load attribute', function() {
@@ -239,6 +244,18 @@ describe('<d2l-course-tile>', function() {
 				expect(widget.pinned).to.be.true;
 				done();
 			}, 10);
+		});
+
+		it('should update the overflow menu button with the new pinned state', function() {
+			server.respondWith(
+				'PUT',
+				'/enrollments/users/169/organizations/1',
+				[200, {}, JSON.stringify(enrollment)]);
+
+			widget._hoverPinClickHandler(event);
+
+			var pinButton = widget.$$('#pin-button');
+			expect(pinButton.text).to.equal('Pin');
 		});
 	});
 });
