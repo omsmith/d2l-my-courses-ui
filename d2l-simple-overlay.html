@@ -131,8 +131,8 @@ The overlay supports using different animations and transitions for desktop and 
 					focusables = Polymer.IronOverlayBehaviorImpl.__lookupGetter__('_focusableNodes').call(this);
 				}
 
-				focusables.push(Polymer.dom(this.root).querySelector('.close-button'));
-				focusables.push(Polymer.dom(this.root).querySelector('content'));
+				focusables.push(this.$$('.close-button'));
+				focusables.push(this.$$('content'));
 
 				return focusables;
 			},
