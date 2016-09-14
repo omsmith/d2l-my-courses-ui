@@ -417,6 +417,13 @@
 			},
 			_numSemesterFilters: 0,
 			_numDepartmentFilters: 0,
+			_sortTextOptions: {
+				'courseCode': 'sorting.sortCourseCode',
+				'courseName': 'sorting.sortCourseName',
+				'pinDate': 'sorting.sortDatePinned',
+				'department': 'sorting.sortDepartment',
+				'lastAccessed': 'sorting.sortLastAccessed'
+			},
 			_clearFilters: function() {
 				Polymer.dom(this.root).querySelectorAll('.dropdown-content-item input').forEach(function(checkbox) {
 					checkbox.checked = false;
@@ -505,24 +512,7 @@
 					this.toggleClass('dropdown-content-item-selected', button.value === e.target.value, button);
 				}.bind(this));
 
-				var sortText;
-				switch (this._sortField) {
-					case 'courseCode':
-						sortText = this.localize('sorting.sortCourseCode');
-						break;
-					case 'courseName':
-						sortText = this.localize('sorting.sortCourseName');
-						break;
-					case 'pinDate':
-						sortText = this.localize('sorting.sortDatePinned');
-						break;
-					case 'department':
-						sortText = this.localize('sorting.sortDepartment');
-						break;
-					case 'lastAccessed':
-						sortText = this.localize('sorting.sortLastAccessed');
-						break;
-				}
+				var sortText = this.localize(this._sortTextOptions[this._sortField] || '');
 
 				this.$.sortText.textContent = sortText;
 			}
