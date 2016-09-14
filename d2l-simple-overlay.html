@@ -123,18 +123,7 @@ The overlay supports using different animations and transitions for desktop and 
 				this._updateBackdropStyle();
 			},
 			get _focusableNodes() {
-				var focusables;
-
-				if (this.focusableNodesOverride !== null) {
-					focusables = this.focusableNodesOverride.call(this);
-				} else {
-					focusables = Polymer.IronOverlayBehaviorImpl.__lookupGetter__('_focusableNodes').call(this);
-				}
-
-				focusables.push(this.$$('.close-button'));
-				focusables.push(this.$$('content'));
-
-				return focusables;
+				return [this.$$('.close-button'), this.$$('content')];
 			},
 			_handleClose: function() {
 				this.close();
