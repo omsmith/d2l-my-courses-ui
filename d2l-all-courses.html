@@ -451,24 +451,18 @@
 				}
 			},
 			_selectSemesterList: function() {
-				this.toggleClass('hidden', false, this.$.semesterList);
-				this.toggleClass('hidden', true, this.$.departmentList);
-				this.toggleClass('dropdown-content-tab-button-selected', true, this.$.semesterListButton);
-				this.toggleClass('dropdown-content-tab-button-selected', false, this.$.departmentListButton);
-				this.toggleClass('invisible', false, this.$.semesterListHighlight);
-				this.toggleClass('invisible', true, this.$.departmentListHighlight);
-				this.$.semesterListButton.setAttribute('aria-pressed', true);
-				this.$.departmentListButton.setAttribute('aria-pressed', false);
+				this._toggleSelectedList(this.$.semesterList, this.$.semesterListButton, this.$.semesterListHighlight, true);
+				this._toggleSelectedList(this.$.departmentList, this.$.departmentListButton, this.$.departmentListHighlight, false);
 			},
 			_selectDepartmentList: function() {
-				this.toggleClass('hidden', true, this.$.semesterList);
-				this.toggleClass('hidden', false, this.$.departmentList);
-				this.toggleClass('dropdown-content-tab-button-selected', false, this.$.semesterListButton);
-				this.toggleClass('dropdown-content-tab-button-selected', true, this.$.departmentListButton);
-				this.toggleClass('invisible', true, this.$.semesterListHighlight);
-				this.toggleClass('invisible', false, this.$.departmentListHighlight);
-				this.$.semesterListButton.setAttribute('aria-pressed', false);
-				this.$.departmentListButton.setAttribute('aria-pressed', true);
+				this._toggleSelectedList(this.$.departmentList, this.$.departmentListButton, this.$.departmentListHighlight, true);
+				this._toggleSelectedList(this.$.semesterList, this.$.semesterListButton, this.$.semesterListHighlight, false);
+			},
+			_toggleSelectedList(list, button, highlight, selected) {
+				this.toggleClass('hidden', !selected, list);
+				this.toggleClass('dropdown-content-tab-button-selected', selected, button);
+				this.toggleClass('invisible', !selected, highlight);
+				button.setAttribute('aria-pressed', selected);
 			},
 			_toggleFilterDropdown: function() {
 				this.$.filterDropdown.toggleOpen();
