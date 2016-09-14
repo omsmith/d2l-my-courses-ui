@@ -50,13 +50,25 @@
 				@apply(--d2l-small-text);
 				/* overrides to d2l-small-text */
 				font-size: 1rem;
+				font-weight: 300;
+				color: var(--d2l-color-tungsten);
 				/* end overrides */
 				cursor: pointer;
-				margin-left: 30px;
-				margin-right: 12px;
 				padding: 0;
+				margin-left: 1rem;
+				padding-right: 0.3rem;
 			}
-			.selected {
+			.dropdown-text:hover,
+			.dropdown-text:focus {
+				color: var(--d2l-color-celestine);
+				text-decoration: underline;
+			}
+			.dropdown-text:hover + d2l-dropdown button,
+			.dropdown-text:focus + d2l-dropdown button {
+				color: var(--d2l-color-celestine);
+			}
+			d2l-dropdown > button:hover,
+			d2l-dropdown > button:focus {
 				color: var(--d2l-color-celestine);
 			}
 			.dropdown-button {
@@ -64,10 +76,12 @@
 				border: none;
 				cursor: pointer;
 				padding: 0;
+				color: var(--d2l-color-tungsten);
 			}
 			iron-icon {
-				--iron-icon-height: 10px;
-				--iron-icon-width: 10px;
+				--iron-icon-height: 15px;
+				--iron-icon-width: 15px;
+				margin-top: -0.35rem;
 			}
 			.clear-button {
 				@apply(--d2l-small-text);
@@ -129,11 +143,14 @@
 				border: none;
 				cursor: pointer;
 				margin: 0;
-				padding-top: 10px;
-				padding-bottom: 10px;
+				padding-top: 20px;
+				padding-bottom: 20px;
 				padding-left: 20px;
 				width: 100%;
 				text-align: left;
+			}
+			.dropdown-content-item input[type=checkbox] {
+				margin-right: 15px;
 			}
 			.dropdown-content-item input[type=checkbox]:after {
 				content: '';
@@ -141,8 +158,6 @@
 				visibility: visible;
 				width: 1rem;
 				height: 1rem;
-				margin-top: -0.1rem;
-				margin-right: 0.5rem;
 				margin-left: -0.2rem;
 				border-radius: 0.3rem;
 				border-style: solid;
@@ -159,22 +174,27 @@
 				background-image: url('../images/tier1/check.svg');
 				background-position: center center;
 				background-repeat: no-repeat;
+				background-size: 13px;
 			}
 			.dropdown-content-item > iron-icon {
 				visibility: hidden;
 				margin-right: 20px;
+				margin-top: -5px;
 				--iron-icon-height: 20px;
 				--iron-icon-width: 20px;
-			}
-			.dropdown-content-item-selected {
-				color: var(--d2l-color-celestine);
-			}
-			.dropdown-content-item-selected > iron-icon {
-				visibility: visible;
 			}
 			#sortDropdown d2l-dropdown-content button {
 				border-bottom: 1px solid var(--d2l-color-gypsum);
 				font-size: 1rem;
+			}
+			.selected {
+				color: var(--d2l-color-celestine);
+			}
+			.selected > iron-icon {
+				visibility: visible;
+			}
+			.highlight {
+				text-decoration: underline;
 			}
 		</style>
 
@@ -203,7 +223,11 @@
 			<div>
 				<span id="filterText" class="dropdown-text" on-tap="_toggleFilterDropdown">{{localize('filtering.filter')}}</span>
 				<d2l-dropdown id="filterDropdown">
-					<button id="filterButton" class="d2l-dropdown-opener dropdown-button">
+					<button
+						id="filterButton"
+						on-mouseenter="_onFocusFilterText"
+						on-mouseout="_onBlurFilterText"
+						class="d2l-dropdown-opener dropdown-button">
 						<iron-icon icon="d2l-tier1:chevron-down" aria-hidden="true"></iron-icon>
 					</button>
 					<d2l-dropdown-content no-padding min-width="350">
@@ -268,7 +292,11 @@
 
 				<span id="sortText" class="dropdown-text" on-tap="_toggleSortDropdown">{{localize('sorting.sortDatePinned')}}</span>
 				<d2l-dropdown id="sortDropdown">
-					<button id="sortButton" class="d2l-dropdown-opener dropdown-button">
+					<button
+						id="sortButton"
+						on-mouseenter="_onFocusSortText"
+						on-mouseout="_onBlurSortText"
+						class="d2l-dropdown-opener dropdown-button">
 						<iron-icon icon="d2l-tier1:chevron-down" aria-hidden="true"></iron-icon>
 					</button>
 					<d2l-dropdown-content no-padding min-width="350">
@@ -284,7 +312,7 @@
 								<iron-icon icon="d2l-tier1:check" aria-hidden="true"></iron-icon>
 								{{localize('sorting.courseName')}}
 							</button>
-							<button class="dropdown-content-item dropdown-content-item-selected" value="pinDate" on-tap="_updateSortBy">
+							<button class="dropdown-content-item selected" value="pinDate" on-tap="_updateSortBy">
 								<iron-icon icon="d2l-tier1:check" aria-hidden="true"></iron-icon>
 								{{localize('sorting.datePinned')}}
 							</button>
@@ -385,18 +413,6 @@
 				this.$.semestersRequest.generateRequest();
 				this.$.departmentsRequest.generateRequest();
 			},
-			attached: function() {
-				this.listen(this.$.filterDropdown, 'd2l-dropdown-open', '_onFilterDropdownOpen');
-				this.listen(this.$.filterDropdown, 'd2l-dropdown-close', '_onFilterDropdownClose');
-				this.listen(this.$.sortDropdown, 'd2l-dropdown-open', '_onSortDropdownOpen');
-				this.listen(this.$.sortDropdown, 'd2l-dropdown-close', '_onSortDropdownClose');
-			},
-			detached: function() {
-				this.unlisten(this.$.filterDropdown, 'd2l-dropdown-open', '_onFilterDropdownOpen');
-				this.unlisten(this.$.filterDropdown, 'd2l-dropdown-open', '_onFilterDropdownClose');
-				this.unlisten(this.$.sortDropdown, 'd2l-dropdown-open', '_onSortDropdownOpen');
-				this.unlisten(this.$.sortDropdown, 'd2l-dropdown-close', '_onSortDropdownClose');
-			},
 			/*
 			* Fetches set of focusable elements (all `<d2l-course-tile>`s)
 			*
@@ -448,6 +464,22 @@
 				this._numSemesterFilters = 0;
 				this._numDepartmentFilters = 0;
 			},
+			_onBlurFilterText: function() {
+				this.toggleClass('highlight', false, this.$.filterText);
+				this.toggleClass('selected', false, this.$.filterText);
+			},
+			_onBlurSortText: function() {
+				this.toggleClass('highlight', false, this.$.sortText);
+				this.toggleClass('selected', false, this.$.sortText);
+			},
+			_onFocusFilterText: function() {
+				this.toggleClass('highlight', true, this.$.filterText);
+				this.toggleClass('selected', true, this.$.filterText);
+			},
+			_onFocusSortText: function() {
+				this.toggleClass('highlight', true, this.$.sortText);
+				this.toggleClass('selected', true, this.$.sortText);
+			},
 			_onDepartmentsResponse: function(response) {
 				if (response.detail.status === 200) {
 					var parser = document.createElement('d2l-siren-parser');
@@ -461,22 +493,6 @@
 					var semesters = parser.parse(response.detail.xhr.response);
 					this._semesterOrganizations = semesters.entities;
 				}
-			},
-			_onFilterDropdownOpen: function() {
-				this.toggleClass('selected', true, this.$.filterText);
-				this.toggleClass('selected', true, this.$.filterButton);
-			},
-			_onFilterDropdownClose: function() {
-				this.toggleClass('selected', false, this.$.filterText);
-				this.toggleClass('selected', false, this.$.filterButton);
-			},
-			_onSortDropdownOpen: function() {
-				this.toggleClass('selected', true, this.$.sortText);
-				this.toggleClass('selected', true, this.$.sortButton);
-			},
-			_onSortDropdownClose: function() {
-				this.toggleClass('selected', false, this.$.sortText);
-				this.toggleClass('selected', false, this.$.sortButton);
 			},
 			_selectSemesterList: function() {
 				this._toggleSelectedList(this.$.semesterList, this.$.semesterListButton, this.$.semesterListHighlight, true);
@@ -531,7 +547,7 @@
 
 				var buttons = Polymer.dom(this.root).querySelectorAll('#sortDropdown .dropdown-content-item');
 				buttons.forEach(function(button) {
-					this.toggleClass('dropdown-content-item-selected', button.value === e.target.value, button);
+					this.toggleClass('selected', button.value === e.target.value, button);
 				}.bind(this));
 
 				var sortText = this.localize(this._sortTextOptions[this._sortField] || '');
