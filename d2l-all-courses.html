@@ -34,6 +34,9 @@
 			.hidden {
 				display: none;
 			}
+			.invisible {
+				visibility: hidden;
+			}
 			.search-and-filter {
 				display: flex;
 				align-items: center;
@@ -95,19 +98,26 @@
 				margin-left: 20px;
 				margin-right: 20px;
 			}
+			.dropdown-content-tab {
+				flex: 1;
+			}
 			.dropdown-content-tab-button {
 				@apply(--d2l-small-text);
 				background: none;
 				border: none;
-				border-top: 3px solid transparent;
 				padding: 10px;
 				cursor: pointer;
-				flex: 1;
+				display: inherit;
 			}
 			.dropdown-content-tab-button-selected {
 				color: var(--d2l-color-celestine);
-				border-top-width: 3px;
-				border-top-color: var(--d2l-color-celestine);
+			}
+			.dropdown-content-tab-highlight {
+				background-color: var(--d2l-color-celestine);
+				border-bottom-left-radius: 4px;
+				border-bottom-right-radius: 4px;
+				height: 4px;
+				width: 100%;
 			}
 			.dropdown-content-item {
 				@apply(--d2l-small-text);
@@ -205,20 +215,26 @@
 						</div>
 						<div class="dropdown-content-gradient">
 							<div class="dropdown-content-tabs">
-								<button
-									id="semesterListButton"
-									class="dropdown-content-tab-button dropdown-content-tab-button-selected"
-									on-tap="_selectSemesterList"
-									aria-pressed="true">
-									{{localize('filtering.semester')}}
-								</button>
-								<button
-									id="departmentListButton"
-									class="dropdown-content-tab-button"
-									on-tap="_selectDepartmentList"
-									aria-pressed="false">
-									{{localize('filtering.department')}}
-								</button>
+								<div class="dropdown-content-tab">
+									<div class="dropdown-content-tab-highlight" id="semesterListHighlight"></div>
+									<button
+										id="semesterListButton"
+										class="dropdown-content-tab-button dropdown-content-tab-button-selected"
+										on-tap="_selectSemesterList"
+										aria-pressed="true">
+										{{localize('filtering.semester')}}
+									</button>
+								</div>
+								<div class="dropdown-content-tab">
+									<div class="dropdown-content-tab-highlight invisible" id="departmentListHighlight"></div>
+									<button
+										id="departmentListButton"
+										class="dropdown-content-tab-button"
+										on-tap="_selectDepartmentList"
+										aria-pressed="false">
+										{{localize('filtering.department')}}
+									</button>
+								</div>
 							</div>
 						</div>
 						<div id="semesterList">
@@ -432,6 +448,8 @@
 				this.toggleClass('hidden', true, this.$.departmentList);
 				this.toggleClass('dropdown-content-tab-button-selected', true, this.$.semesterListButton);
 				this.toggleClass('dropdown-content-tab-button-selected', false, this.$.departmentListButton);
+				this.toggleClass('invisible', false, this.$.semesterListHighlight);
+				this.toggleClass('invisible', true, this.$.departmentListHighlight);
 				this.$.semesterListButton.setAttribute('aria-pressed', true);
 				this.$.departmentListButton.setAttribute('aria-pressed', false);
 			},
@@ -440,6 +458,8 @@
 				this.toggleClass('hidden', false, this.$.departmentList);
 				this.toggleClass('dropdown-content-tab-button-selected', false, this.$.semesterListButton);
 				this.toggleClass('dropdown-content-tab-button-selected', true, this.$.departmentListButton);
+				this.toggleClass('invisible', true, this.$.semesterListHighlight);
+				this.toggleClass('invisible', false, this.$.departmentListHighlight);
 				this.$.semesterListButton.setAttribute('aria-pressed', false);
 				this.$.departmentListButton.setAttribute('aria-pressed', true);
 			},
