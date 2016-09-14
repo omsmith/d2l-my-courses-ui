@@ -471,14 +471,14 @@
 					this._searchResults = [];
 					for (var i = 0; i < enrollmentEntities.length; i++) {
 						// Fetch each search result's organization's information
-						(function(enrollment, self, parser) {
+						(function(enrollment, index, self, parser) {
 							var ajax = document.createElement('d2l-ajax');
 							ajax.url = enrollment.getLinkByRel(/\/organization$/).href;
 							ajax.method = 'GET';
 							ajax.onResponse = function(response) {
 								if (response.detail.status === 200 || response.detail.status === 304) {
 									var organization = parser.parse(response.detail.response);
-									self.push('_searchResults', {
+									self.splice('_searchResults', index, 0, {
 										name: organization.properties.name,
 										href: organization.getLinkByRel(/\/organization-homepage$/).href
 									});
@@ -486,7 +486,7 @@
 							};
 							ajax.generateRequest();
 							self.push('_organizationRequests', ajax);
-						})(enrollmentEntities[i], this, parser);
+						})(enrollmentEntities[i], i, this, parser);
 					}
 				}
 			},
