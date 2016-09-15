@@ -1,4 +1,10 @@
 <link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../d2l-ajax/d2l-ajax.html">
+<link rel="import" href="../d2l-dropdown/d2l-dropdown.html">
+<link rel="import" href="../d2l-dropdown/d2l-dropdown-content.html">
+<link rel="import" href="../d2l-icons/d2l-icons.html">
+<link rel="import" href="../d2l-menu/d2l-menu.html">
+<link rel="import" href="../d2l-menu/d2l-menu-item.html">
 <link rel="import" href="d2l-course-tile-grid.html">
 <link rel="import" href="d2l-course-tile-responsive-grid-behavior.html">
 <link rel="import" href="localize-behavior.html">
@@ -25,15 +31,304 @@
 			d2l-alert {
 				margin-bottom: 20px;
 			}
-			d2l-search-widget {
+			.hidden {
+				display: none;
+			}
+			.invisible {
+				visibility: hidden;
+			}
+			.search-and-filter {
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
 				margin-bottom: 60px;
+			}
+			.search-and-filter > d2l-search-widget {
+				width: 50%;
+			}
+			.dropdown-text {
+				@apply(--d2l-small-text);
+				/* overrides to d2l-small-text */
+				font-size: 1rem;
+				font-weight: 300;
+				color: var(--d2l-color-tungsten);
+				/* end overrides */
+				cursor: pointer;
+				padding: 0;
+				margin-left: 1rem;
+				padding-right: 0.3rem;
+			}
+			.dropdown-text:hover,
+			.dropdown-text:focus {
+				color: var(--d2l-color-celestine);
+				text-decoration: underline;
+			}
+			.dropdown-text:hover + d2l-dropdown button,
+			.dropdown-text:focus + d2l-dropdown button {
+				color: var(--d2l-color-celestine);
+			}
+			d2l-dropdown > button:hover,
+			d2l-dropdown > button:focus {
+				color: var(--d2l-color-celestine);
+			}
+			.dropdown-button {
+				background: none;
+				border: none;
+				cursor: pointer;
+				padding: 0;
+				color: var(--d2l-color-tungsten);
+			}
+			iron-icon {
+				--iron-icon-height: 15px;
+				--iron-icon-width: 15px;
+				margin-top: -0.35rem;
+			}
+			.clear-button {
+				@apply(--d2l-small-text);
+				/* overrides to d2l-small-text */
+				color: var(--d2l-color-celestine);
+				/* end overrides */
+				background: none;
+				border: none;
+				cursor: pointer;
+				margin: 0;
+				padding: 0;
+			}
+			.dropdown-content-header {
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				border-bottom: 1px solid var(--d2l-color-gypsum);
+				width: 100%;
+				padding: 20px;
+			}
+			.dropdown-content-header-text {
+				font-weight: bold;
+			}
+			.dropdown-content-gradient {
+				background: linear-gradient(to top, white, var(--d2l-color-regolith));
+			}
+			.dropdown-content-tabs {
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				margin-left: 20px;
+				margin-right: 20px;
+			}
+			.dropdown-content-tab {
+				flex: 1;
+			}
+			.dropdown-content-tab-button {
+				@apply(--d2l-small-text);
+				background: none;
+				border: none;
+				padding: 10px;
+				cursor: pointer;
+				display: inherit;
+			}
+			.dropdown-content-tab-highlight {
+				background-color: var(--d2l-color-celestine);
+				border-bottom-left-radius: 4px;
+				border-bottom-right-radius: 4px;
+				height: 4px;
+				width: 100%;
+			}
+			.dropdown-content-item {
+				@apply(--d2l-small-text);
+				/* overrides to d2l-small-text */
+				font-weight: lighter;
+				/* end overrides */
+				display: block;
+				background: none;
+				border: none;
+				cursor: pointer;
+				margin: 0;
+				padding-top: 20px;
+				padding-bottom: 20px;
+				padding-left: 20px;
+				width: 100%;
+				text-align: left;
+			}
+			.dropdown-content-item input[type=checkbox] {
+				margin-right: 15px;
+			}
+			.dropdown-content-item input[type=checkbox]:after {
+				content: '';
+				display: inline-block;
+				visibility: visible;
+				width: 1rem;
+				height: 1rem;
+				margin-left: -0.2rem;
+				border-radius: 0.3rem;
+				border-style: solid;
+				border-color: var(--d2l-color-titanius);
+				border-width: 1px;
+				background-color: var(--d2l-color-woolonardo);
+				box-sizing: border-box;
+			}
+			.dropdown-content-item input[type=checkbox]:focus::after {
+				border-color: var(--d2l-color-celestine);
+				border-width: 2px;
+			}
+			.dropdown-content-item input[type=checkbox]:checked::after {
+				background-image: url('../images/tier1/check.svg');
+				background-position: center center;
+				background-repeat: no-repeat;
+				background-size: 13px;
+			}
+			.dropdown-content-item > iron-icon {
+				visibility: hidden;
+				margin-right: 20px;
+				margin-top: -5px;
+				--iron-icon-height: 20px;
+				--iron-icon-width: 20px;
+			}
+			#sortDropdown d2l-dropdown-content button {
+				border-bottom: 1px solid var(--d2l-color-gypsum);
+				font-size: 1rem;
+			}
+			.selected {
+				color: var(--d2l-color-celestine);
+			}
+			.selected > iron-icon {
+				visibility: visible;
+			}
+			.highlight {
+				text-decoration: underline;
 			}
 		</style>
 
-		<d2l-search-widget
-			hidden$="[[_hasEnrollments]]"
-			organizations-url="/d2l/api/hm/organizations">
-		</d2l-search-widget>
+		<d2l-ajax
+			id="semestersRequest"
+			url="[[_semestersUrl]]"
+			headers='{ "Accept": "application/vnd.siren+json" }'
+			on-iron-ajax-response="_onSemestersResponse">
+		</d2l-ajax>
+
+		<d2l-ajax
+			id="departmentsRequest"
+			url="[[_departmentsUrl]]"
+			headers='{ "Accept": "application/vnd.siren+json" }'
+			on-iron-ajax-response="_onDepartmentsResponse">
+		</d2l-ajax>
+
+		<div class="search-and-filter">
+			<d2l-search-widget
+				hidden$="[[_hasEnrollments]]"
+				search-root-url="[[searchUrl]]"
+				parent-organization-ids="[[_parentOrganizationIds]]"
+				sort-field="[[_sortField]]">
+			</d2l-search-widget>
+
+			<div>
+				<span id="filterText" class="dropdown-text" on-tap="_toggleFilterDropdown">{{localize('filtering.filter')}}</span>
+				<d2l-dropdown id="filterDropdown">
+					<button
+						id="filterButton"
+						on-mouseenter="_onFocusFilterText"
+						on-mouseout="_onBlurFilterText"
+						class="d2l-dropdown-opener dropdown-button">
+						<iron-icon icon="d2l-tier1:chevron-down" aria-hidden="true"></iron-icon>
+					</button>
+					<d2l-dropdown-content no-padding min-width="350">
+						<div class="dropdown-content-header">
+							<span class="dropdown-content-header-text">{{localize('filtering.filterBy')}}</span>
+							<template is="dom-if" if="[[_isFiltered]]">
+								<button class="clear-button" on-tap="_clearFilters">{{localize('filtering.clear')}}</button>
+							</template>
+						</div>
+						<div class="dropdown-content-gradient">
+							<div class="dropdown-content-tabs">
+								<div class="dropdown-content-tab">
+									<div class="dropdown-content-tab-highlight" id="semesterListHighlight"></div>
+									<button
+										id="semesterListButton"
+										class="dropdown-content-tab-button selected"
+										on-tap="_selectSemesterList"
+										aria-pressed="true">
+										{{localize('filtering.semester')}}
+									</button>
+								</div>
+								<div class="dropdown-content-tab">
+									<div class="dropdown-content-tab-highlight invisible" id="departmentListHighlight"></div>
+									<button
+										id="departmentListButton"
+										class="dropdown-content-tab-button"
+										on-tap="_selectDepartmentList"
+										aria-pressed="false">
+										{{localize('filtering.department')}}
+									</button>
+								</div>
+							</div>
+						</div>
+						<div id="semesterList">
+							<template is="dom-repeat" items="[[_semesterOrganizations]]">
+								<div class="dropdown-content-item">
+									<label>
+										<input
+											type="checkbox"
+											value="[[item.properties.id]]"
+											on-click="_updateFilter" />
+										[[item.properties.name]]
+									</label>
+								</div>
+							</template>
+						</div>
+						<div id="departmentList" class="hidden">
+							<template is="dom-repeat" items="[[_departmentOrganizations]]">
+								<div class="dropdown-content-item">
+									<label>
+										<input
+											type="checkbox"
+											value="[[item.properties.id]]"
+											on-click="_updateFilter" />
+										[[item.properties.name]]
+									</label>
+								</div>
+							</template>
+						</div>
+					</d2l-dropdown-content>
+				</d2l-dropdown>
+
+				<span id="sortText" class="dropdown-text" on-tap="_toggleSortDropdown">{{localize('sorting.sortDatePinned')}}</span>
+				<d2l-dropdown id="sortDropdown">
+					<button
+						id="sortButton"
+						on-mouseenter="_onFocusSortText"
+						on-mouseout="_onBlurSortText"
+						class="d2l-dropdown-opener dropdown-button">
+						<iron-icon icon="d2l-tier1:chevron-down" aria-hidden="true"></iron-icon>
+					</button>
+					<d2l-dropdown-content no-padding min-width="350">
+						<div class="dropdown-content-header">
+							<span class="dropdown-content-header-text">{{localize('sorting.sortBy')}}</span>
+						</div>
+						<div class="dropdown-content-gradient">
+							<button class="dropdown-content-item" value="courseCode" on-tap="_updateSortBy">
+								<iron-icon icon="d2l-tier1:check" aria-hidden="true"></iron-icon>
+								{{localize('sorting.courseCode')}}
+							</button>
+							<button class="dropdown-content-item" value="courseName" on-tap="_updateSortBy">
+								<iron-icon icon="d2l-tier1:check" aria-hidden="true"></iron-icon>
+								{{localize('sorting.courseName')}}
+							</button>
+							<button class="dropdown-content-item selected" value="pinDate" on-tap="_updateSortBy">
+								<iron-icon icon="d2l-tier1:check" aria-hidden="true"></iron-icon>
+								{{localize('sorting.datePinned')}}
+							</button>
+							<button class="dropdown-content-item" value="department" on-tap="_updateSortBy">
+								<iron-icon icon="d2l-tier1:check" aria-hidden="true"></iron-icon>
+								{{localize('sorting.department')}}
+							</button>
+							<button class="dropdown-content-item" value="lastAccessed" on-tap="_updateSortBy">
+								<iron-icon icon="d2l-tier1:check" aria-hidden="true"></iron-icon>
+								{{localize('sorting.lastAccessed')}}
+							</button>
+						</div>
+					</d2l-dropdown-content>
+				</d2l-dropdown>
+			</div>
+		</div>
 
 		<h2 class="d2l-heading-3">{{localize('pinnedCourses')}}</h2>
 
@@ -71,6 +366,34 @@
 				delayCourseTileLoad: {
 					type: Boolean,
 					value: true
+				},
+				/*
+				* URL for search widget; should have search-my-enrollments Action
+				*/
+				searchUrl: {
+					type: String,
+					value: ''
+				},
+				_departmentOrganizations: Object,
+				_departmentsUrl: {
+					type: String,
+					value: '/d2l/api/hm/organizations?embedDepth=1&organizationTypeIds=203'
+				},
+				_isFiltered: {
+					type: Boolean,
+					value: false
+				},
+				_semesterOrganizations: Object,
+				_semestersUrl: {
+					type: String,
+					value: '/d2l/api/hm/organizations?embedDepth=1&organizationTypeIds=5'
+				},
+				_sortField: String,
+				_parentOrganizationIds: {
+					type: Array,
+					value: function() {
+						return [];
+					}
 				}
 			},
 			behaviors: [
@@ -86,6 +409,9 @@
 				for (var i = 0; i < courseTileGrids.length; i++) {
 					courseTileGrids[i].getCourseTileItemCount = this.getCourseTileItemCount.bind(this);
 				}
+
+				this.$.semestersRequest.generateRequest();
+				this.$.departmentsRequest.generateRequest();
 			},
 			/*
 			* Fetches set of focusable elements (all `<d2l-course-tile>`s)
@@ -116,6 +442,117 @@
 			},
 			loadCourseTiles: function() {
 				this.delayCourseTileLoad = false;
+			},
+			_numSemesterFilters: 0,
+			_numDepartmentFilters: 0,
+			_sortTextOptions: {
+				'courseCode': 'sorting.sortCourseCode',
+				'courseName': 'sorting.sortCourseName',
+				'pinDate': 'sorting.sortDatePinned',
+				'department': 'sorting.sortDepartment',
+				'lastAccessed': 'sorting.sortLastAccessed'
+			},
+			_clearFilters: function() {
+				Polymer.dom(this.root).querySelectorAll('.dropdown-content-item input').forEach(function(checkbox) {
+					checkbox.checked = false;
+				});
+				this._isFiltered = false;
+				this._parentOrganizationIds = [];
+				this.$.filterText.textContent = this.localize('filtering.filter');
+				this.$.semesterListButton.textContent = this.localize('filtering.semester');
+				this.$.departmentListButton.textContent = this.localize('filtering.department');
+				this._numSemesterFilters = 0;
+				this._numDepartmentFilters = 0;
+			},
+			_onBlurFilterText: function() {
+				this.toggleClass('highlight', false, this.$.filterText);
+				this.toggleClass('selected', false, this.$.filterText);
+			},
+			_onBlurSortText: function() {
+				this.toggleClass('highlight', false, this.$.sortText);
+				this.toggleClass('selected', false, this.$.sortText);
+			},
+			_onFocusFilterText: function() {
+				this.toggleClass('highlight', true, this.$.filterText);
+				this.toggleClass('selected', true, this.$.filterText);
+			},
+			_onFocusSortText: function() {
+				this.toggleClass('highlight', true, this.$.sortText);
+				this.toggleClass('selected', true, this.$.sortText);
+			},
+			_onDepartmentsResponse: function(response) {
+				if (response.detail.status === 200) {
+					var parser = document.createElement('d2l-siren-parser');
+					var departments = parser.parse(response.detail.xhr.response);
+					this._departmentOrganizations = departments.entities;
+				}
+			},
+			_onSemestersResponse: function(response) {
+				if (response.detail.status === 200) {
+					var parser = document.createElement('d2l-siren-parser');
+					var semesters = parser.parse(response.detail.xhr.response);
+					this._semesterOrganizations = semesters.entities;
+				}
+			},
+			_selectSemesterList: function() {
+				this._toggleSelectedList(this.$.semesterList, this.$.semesterListButton, this.$.semesterListHighlight, true);
+				this._toggleSelectedList(this.$.departmentList, this.$.departmentListButton, this.$.departmentListHighlight, false);
+			},
+			_selectDepartmentList: function() {
+				this._toggleSelectedList(this.$.departmentList, this.$.departmentListButton, this.$.departmentListHighlight, true);
+				this._toggleSelectedList(this.$.semesterList, this.$.semesterListButton, this.$.semesterListHighlight, false);
+			},
+			_toggleSelectedList: function(list, button, highlight, selected) {
+				this.toggleClass('hidden', !selected, list);
+				this.toggleClass('selected', selected, button);
+				this.toggleClass('invisible', !selected, highlight);
+				button.setAttribute('aria-pressed', selected);
+			},
+			_toggleFilterDropdown: function() {
+				this.$.filterDropdown.toggleOpen();
+			},
+			_toggleSortDropdown: function() {
+				this.$.sortDropdown.toggleOpen();
+			},
+			_updateFilter: function(e) {
+				var isSemester = this.$.semesterList.contains(e.target);
+
+				if (e.target.checked) {
+					this.push('_parentOrganizationIds', e.target.value);
+					isSemester ? this._numSemesterFilters++ : this._numDepartmentFilters++;
+				} else {
+					var index = this._parentOrganizationIds.indexOf(e.target.value);
+					this.splice('_parentOrganizationIds', index, 1);
+					isSemester ? this._numSemesterFilters-- : this._numDepartmentFilters--;
+				}
+
+				if (this._parentOrganizationIds.length === 0) {
+					this.$.filterText.textContent = this.localize('filtering.filter');
+				} else if (this._parentOrganizationIds.length === 1) {
+					this.$.filterText.textContent = this.localize('filtering.filterSingle');
+				} else {
+					this.$.filterText.textContent = this.localize('filtering.filterMultiple', 'num', this._parentOrganizationIds.length);
+				}
+
+				this._isFiltered = this._parentOrganizationIds.length > 0;
+				this.$.semesterListButton.textContent = this._numSemesterFilters > 0
+					? this.localize('filtering.semesterMultiple', 'num', this._numSemesterFilters)
+					: this.localize('filtering.semester');
+				this.$.departmentListButton.textContent = this._numDepartmentFilters > 0
+					? this.localize('filtering.departmentMultiple', 'num', this._numDepartmentFilters)
+					: this.localize('filtering.department');
+			},
+			_updateSortBy: function(e) {
+				this._sortField = e.target.value;
+
+				var buttons = Polymer.dom(this.root).querySelectorAll('#sortDropdown .dropdown-content-item');
+				buttons.forEach(function(button) {
+					this.toggleClass('selected', button.value === e.target.value, button);
+				}.bind(this));
+
+				var sortText = this.localize(this._sortTextOptions[this._sortField] || '');
+
+				this.$.sortText.textContent = sortText;
 			}
 		});
 	</script>
