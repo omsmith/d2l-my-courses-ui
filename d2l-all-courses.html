@@ -8,7 +8,7 @@
 <link rel="import" href="d2l-course-tile-responsive-grid-behavior.html">
 <link rel="import" href="localize-behavior.html">
 <link rel="import" href="d2l-course-management-behavior.html">
-<link rel="import" href="d2l-search-widget.html">
+<link rel="import" href="d2l-search-widget-custom.html">
 
 <!--
 `<d2l-all-courses>` displays both pinned and unpinned courses
@@ -116,6 +116,12 @@
 			}
 			.dropdown-content-tab {
 				flex: 1;
+			}
+			d2l-search-widget {
+				margin-left: 20px;
+				margin-right: 20px;
+				margin-top: 10px;
+				margin-bottom: 10px;
 			}
 			.dropdown-content-tab-button {
 				@apply(--d2l-small-text);
@@ -261,28 +267,34 @@
 							</div>
 						</div>
 						<div id="semesterList">
-							<d2l-search-widget></d2l-search-widget>
+							<d2l-search-widget
+								id="semesterSearchWidget"
+								search-action="[[_searchSemestersAction]]"
+								search-field-name="search"></d2l-search-widget>
 							<template is="dom-repeat" items="[[_semesterOrganizations]]">
 								<div class="dropdown-content-item">
 									<label>
 										<input
 											type="checkbox"
 											value="[[item.properties.id]]"
-											on-click="_updateFilter" />
+											on-tap="_updateFilter" />
 										[[item.properties.name]]
 									</label>
 								</div>
 							</template>
 						</div>
 						<div id="departmentList" class="hidden">
-							<d2l-search-widget></d2l-search-widget>
+							<d2l-search-widget
+								id="departmentSearchWidget"
+								search-action="[[_searchDepartmentsAction]]"
+								search-field-name="search"></d2l-search-widget>
 							<template is="dom-repeat" items="[[_departmentOrganizations]]">
 								<div class="dropdown-content-item">
 									<label>
 										<input
 											type="checkbox"
 											value="[[item.properties.id]]"
-											on-click="_updateFilter" />
+											on-tap="_updateFilter" />
 										[[item.properties.name]]
 									</label>
 								</div>
@@ -414,6 +426,14 @@
 				this.$.semestersRequest.generateRequest();
 				this.$.departmentsRequest.generateRequest();
 			},
+			attached: function() {
+				this.listen(this.$.semesterSearchWidget, 'search-results-changed', '_onSemesterSearchResults');
+				this.listen(this.$.departmentSearchWidget, 'search-results-changed', '_onDepartmentSearchResults');
+			},
+			detached: function() {
+				this.unlisten(this.$.semesterSearchWidget, 'search-results-changed', '_onSemesterSearchResults');
+				this.unlisten(this.$.departmentSearchWidget, 'search-results-changed', '_onDepartmentSearchResults');
+			},
 			/*
 			* Fetches set of focusable elements (all `<d2l-course-tile>`s)
 			*
@@ -485,15 +505,47 @@
 				if (response.detail.status === 200) {
 					var parser = document.createElement('d2l-siren-parser');
 					var departments = parser.parse(response.detail.xhr.response);
-					this._departmentOrganizations = departments.entities;
+					this.set('_departmentOrganizations', departments.entities);
+					this.set('_searchDepartmentsAction', departments.getActionByName('search-course-collection'));
 				}
 			},
 			_onSemestersResponse: function(response) {
 				if (response.detail.status === 200) {
 					var parser = document.createElement('d2l-siren-parser');
 					var semesters = parser.parse(response.detail.xhr.response);
-					this._semesterOrganizations = semesters.entities;
+					this.set('_semesterOrganizations', semesters.entities);
+					this.set('_searchSemestersAction', semesters.getActionByName('search-course-collection'));
 				}
+			},
+			_onDepartmentSearchResults: function(e) {
+				this.set('_departmentOrganizations', e.detail.value);
+
+				// There is a slight delay between this.set and the DOM being updated; we
+				// need this to run after the latter, so give it a bit of a delay
+				setTimeout(function() {
+					this.$.departmentList.querySelectorAll('input[type=checkbox]').forEach(function(checkbox) {
+						if (this._parentOrganizationIds.indexOf(checkbox.value) > -1) {
+							checkbox.checked = true;
+						} else {
+							checkbox.checked = false;
+						}
+					}.bind(this));
+				}.bind(this), 50);
+			},
+			_onSemesterSearchResults: function(e) {
+				this.set('_semesterOrganizations', e.detail.value);
+
+				// There is a slight delay between this.set and the DOM being updated; we
+				// need this to run after the latter, so give it a bit of a delay
+				setTimeout(function() {
+					this.$.semesterList.querySelectorAll('input[type=checkbox]').forEach(function(checkbox) {
+						if (this._parentOrganizationIds.indexOf(checkbox.value) > -1) {
+							checkbox.checked = true;
+						} else {
+							checkbox.checked = false;
+						}
+					}.bind(this));
+				}.bind(this), 50);
 			},
 			_selectSemesterList: function() {
 				this._toggleSelectedList(this.$.semesterList, this.$.semesterListButton, this.$.semesterListHighlight, true);
