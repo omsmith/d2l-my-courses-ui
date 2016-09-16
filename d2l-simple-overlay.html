@@ -10,6 +10,7 @@
 <link rel="import" href="../d2l-icons/d2l-icons.html">
 <link rel="import" href="d2l-simple-overlay-styles.html">
 <link rel="import" href="localize-behavior.html">
+<link rel="import" href="../d2l-polymer-behaviors/d2l-dom.html">
 
 <!--
 `<d2l-simple-overlay>` extends `iron-overlay` and adds some styling using various `neon` Polymer elements.
@@ -122,8 +123,15 @@ The overlay supports using different animations and transitions for desktop and 
 			created: function() {
 				this._updateBackdropStyle();
 			},
+			ready: function() {
+				var mutationObserver = new MutationObserver(this.invalidateTabbables.bind(this));
+				mutationObserver.observe(this, {
+					childList: true,
+					subtree: true
+				});
+			},
 			get _focusableNodes() {
-				return [this.$$('.close-button'), this.$$('content')];
+				return [D2L.Dom.Focus.getFirstFocusableDescendant(this), D2L.Dom.Focus.getLastFocusableDescendant(this)];
 			},
 			_handleClose: function() {
 				this.close();
