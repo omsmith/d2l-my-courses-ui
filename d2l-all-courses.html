@@ -203,20 +203,6 @@
 			}
 		</style>
 
-		<d2l-ajax
-			id="semestersRequest"
-			url="[[_semestersUrl]]"
-			headers='{ "Accept": "application/vnd.siren+json" }'
-			on-iron-ajax-response="_onSemestersResponse">
-		</d2l-ajax>
-
-		<d2l-ajax
-			id="departmentsRequest"
-			url="[[_departmentsUrl]]"
-			headers='{ "Accept": "application/vnd.siren+json" }'
-			on-iron-ajax-response="_onDepartmentsResponse">
-		</d2l-ajax>
-
 		<div class="search-and-filter">
 			<d2l-search-widget-custom
 				hidden$="[[_hasEnrollments]]"
@@ -388,19 +374,39 @@
 					value: ''
 				},
 				_departmentOrganizations: Object,
-				_departmentsUrl: {
-					type: String,
-					value: '/d2l/api/hm/organizations?embedDepth=1&organizationTypeIds=203'
-				},
 				_isFiltered: {
 					type: Boolean,
 					value: false
 				},
-				_semesterOrganizations: Object,
-				_semestersUrl: {
-					type: String,
-					value: '/d2l/api/hm/organizations?embedDepth=1&organizationTypeIds=5'
+				_searchSemestersAction: {
+					type: Object,
+					value: {
+						'name':'search-course-collection',
+						'method':'GET',
+						'href':'/d2l/api/hm/organizations',
+						'fields':[
+							{'name':'search', 'type':'search', 'value':''},
+							{'name':'page', 'type':'number', 'value':'1'},
+							{'name':'pageSize', 'type':'number', 'value':'20'},
+							{'name':'embedDepth', 'type':'number', 'value':'1'},
+							{'name':'organizationTypeIds', 'type':'hidden', 'value':'5'}]
+					}
 				},
+				_searchDepartmentsAction: {
+					type: Object,
+					value: {
+						'name':'search-course-collection',
+						'method':'GET',
+						'href':'/d2l/api/hm/organizations',
+						'fields':[
+							{'name':'search', 'type':'search', 'value':''},
+							{'name':'page', 'type':'number', 'value':'1'},
+							{'name':'pageSize', 'type':'number', 'value':'20'},
+							{'name':'embedDepth', 'type':'number', 'value':'1'},
+							{'name':'organizationTypeIds', 'type':'hidden', 'value':'203'}]
+					}
+				},
+				_semesterOrganizations: Object,
 				_sortField: String,
 				_parentOrganizationIds: {
 					type: Array,
@@ -422,13 +428,12 @@
 				for (var i = 0; i < courseTileGrids.length; i++) {
 					courseTileGrids[i].getCourseTileItemCount = this.getCourseTileItemCount.bind(this);
 				}
-
-				this.$.semestersRequest.generateRequest();
-				this.$.departmentsRequest.generateRequest();
 			},
 			attached: function() {
 				this.listen(this.$.semesterSearchWidget, 'search-results-changed', '_onSemesterSearchResults');
 				this.listen(this.$.departmentSearchWidget, 'search-results-changed', '_onDepartmentSearchResults');
+				this.$.semesterSearchWidget.search();
+				this.$.departmentSearchWidget.search();
 			},
 			detached: function() {
 				this.unlisten(this.$.semesterSearchWidget, 'search-results-changed', '_onSemesterSearchResults');
@@ -501,22 +506,6 @@
 				this.toggleClass('highlight', true, this.$.sortText);
 				this.toggleClass('selected', true, this.$.sortText);
 			},
-			_onDepartmentsResponse: function(response) {
-				if (response.detail.status === 200) {
-					var parser = document.createElement('d2l-siren-parser');
-					var departments = parser.parse(response.detail.xhr.response);
-					this.set('_departmentOrganizations', departments.entities);
-					this.set('_searchDepartmentsAction', departments.getActionByName('search-course-collection'));
-				}
-			},
-			_onSemestersResponse: function(response) {
-				if (response.detail.status === 200) {
-					var parser = document.createElement('d2l-siren-parser');
-					var semesters = parser.parse(response.detail.xhr.response);
-					this.set('_semesterOrganizations', semesters.entities);
-					this.set('_searchSemestersAction', semesters.getActionByName('search-course-collection'));
-				}
-			},
 			_onDepartmentSearchResults: function(e) {
 				this.set('_departmentOrganizations', e.detail.value);
 
@@ -530,7 +519,7 @@
 							checkbox.checked = false;
 						}
 					}.bind(this));
-				}.bind(this), 50);
+				}.bind(this), 10);
 			},
 			_onSemesterSearchResults: function(e) {
 				this.set('_semesterOrganizations', e.detail.value);
@@ -545,7 +534,7 @@
 							checkbox.checked = false;
 						}
 					}.bind(this));
-				}.bind(this), 50);
+				}.bind(this), 10);
 			},
 			_selectSemesterList: function() {
 				this._toggleSelectedList(this.$.semesterList, this.$.semesterListButton, this.$.semesterListHighlight, true);
