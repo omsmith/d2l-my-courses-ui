@@ -263,6 +263,7 @@
 										<input
 											type="checkbox"
 											value="[[item.properties.id]]"
+											checked="[[item.properties.checked]]"
 											on-tap="_updateFilter" />
 										[[item.properties.name]]
 									</label>
@@ -280,6 +281,7 @@
 										<input
 											type="checkbox"
 											value="[[item.properties.id]]"
+											checked="[[item.properties.checked]]"
 											on-tap="_updateFilter" />
 										[[item.properties.name]]
 									</label>
@@ -478,6 +480,11 @@
 				'department': 'sorting.sortDepartment',
 				'lastAccessed': 'sorting.sortLastAccessed'
 			},
+			_checkFilterEntities: function(entities) {
+				entities.forEach(function(entity) {
+					entity.properties.checked = this._parentOrganizationIds.indexOf(entity.properties.id.toString()) > -1;
+				}.bind(this));
+			},
 			_clearFilters: function() {
 				Polymer.dom(this.root).querySelectorAll('.dropdown-content-item input').forEach(function(checkbox) {
 					checkbox.checked = false;
@@ -507,34 +514,12 @@
 				this.toggleClass('selected', true, this.$.sortText);
 			},
 			_onDepartmentSearchResults: function(e) {
+				this._checkFilterEntities(e.detail.value);
 				this.set('_departmentOrganizations', e.detail.value);
-
-				// There is a slight delay between this.set and the DOM being updated; we
-				// need this to run after the latter, so give it a bit of a delay
-				setTimeout(function() {
-					this.$.departmentList.querySelectorAll('input[type=checkbox]').forEach(function(checkbox) {
-						if (this._parentOrganizationIds.indexOf(checkbox.value) > -1) {
-							checkbox.checked = true;
-						} else {
-							checkbox.checked = false;
-						}
-					}.bind(this));
-				}.bind(this), 10);
 			},
 			_onSemesterSearchResults: function(e) {
+				this._checkFilterEntities(e.detail.value);
 				this.set('_semesterOrganizations', e.detail.value);
-
-				// There is a slight delay between this.set and the DOM being updated; we
-				// need this to run after the latter, so give it a bit of a delay
-				setTimeout(function() {
-					this.$.semesterList.querySelectorAll('input[type=checkbox]').forEach(function(checkbox) {
-						if (this._parentOrganizationIds.indexOf(checkbox.value) > -1) {
-							checkbox.checked = true;
-						} else {
-							checkbox.checked = false;
-						}
-					}.bind(this));
-				}.bind(this), 10);
 			},
 			_selectSemesterList: function() {
 				this._toggleSelectedList(this.$.semesterList, this.$.semesterListButton, this.$.semesterListHighlight, true);
