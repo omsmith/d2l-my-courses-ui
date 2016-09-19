@@ -124,8 +124,7 @@ The overlay supports using different animations and transitions for desktop and 
 				this._updateBackdropStyle();
 			},
 			ready: function() {
-				var mutationObserver = new MutationObserver(this.invalidateTabbables.bind(this));
-				mutationObserver.observe(this, {
+				new MutationObserver(this.invalidateTabbables.bind(this)).observe(this, {
 					childList: true,
 					subtree: true
 				});
