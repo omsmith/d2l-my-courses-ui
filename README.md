@@ -45,7 +45,7 @@ to allow it to be linked from brightspace-integration
 
 4. In brightspace-integration directory, run
 	```shell
-	bower link d2l-my-courses-ui
+	bower link d2l-my-courses
 	```
 to link to the local d2l-my-courses-ui project
 
