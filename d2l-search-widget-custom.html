@@ -124,7 +124,11 @@
 
 		<d2l-dropdown no-auto-open>
 			<div class="search-bar d2l-dropdown-opener" id="opener">
-				<button type="button" on-tap="_onSearchButtonClick" class="search-icon search-button">
+				<button
+					type="button"
+					aria-label$="{{localize('search.searchCourses')}}"
+					on-tap="_onSearchButtonClick"
+					class="search-icon search-button">
 					<d2l-icon icon="d2l-tier1:search"></d2l-icon>
 				</button>
 
@@ -137,7 +141,11 @@
 					on-keydown="_onSearchInputKeyPressed">
 				</input>
 
-				<button type="button" on-tap="_clearSearchResults" class="search-icon clear-search-button">
+				<button
+					type="button"
+					aria-label$="{{localize('search.clearSearch')}}"
+					on-tap="_clearSearchResults"
+					class="search-icon clear-search-button">
 					<d2l-icon icon="d2l-tier1:close-default"></d2l-icon>
 				</button>
 			</div>
