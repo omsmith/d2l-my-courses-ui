@@ -40,6 +40,8 @@
 		<content></content>
 	</template>
 	<script>
+		'use strict';
+
 		Polymer({
 			is: 'd2l-menu-item-selectable',
 			properties: {
@@ -180,8 +182,6 @@
 				display: flex;
 				align-items: center;
 				justify-content: space-between;
-				margin-left: 20px;
-				margin-right: 20px;
 			}
 			.dropdown-content-tab {
 				flex: 1;
@@ -205,7 +205,8 @@
 				border-bottom-left-radius: 4px;
 				border-bottom-right-radius: 4px;
 				height: 4px;
-				width: 100%;
+				width: 80%;
+				margin: auto;
 			}
 			.dropdown-content-item {
 				@apply(--d2l-small-text);
@@ -223,6 +224,9 @@
 				width: 100%;
 				text-align: left;
 			}
+			button:focus,
+			button:hover,
+			.highlight,
 			.dropdown-content-item:focus,
 			.dropdown-content-item:hover {
 				text-decoration: underline;
@@ -261,22 +265,11 @@
 				--d2l-icon-height: 20px;
 				--d2l-icon-width: 20px;
 			}
-			#sortDropdown d2l-dropdown-content button {
-				border-bottom: 1px solid var(--d2l-color-gypsum);
-				font-size: 1rem;
-			}
 			.selected {
 				color: var(--d2l-color-celestine);
 			}
 			.selected > d2l-icon {
 				visibility: visible;
-			}
-			.highlight {
-				text-decoration: underline;
-			}
-			button:focus,
-			button:hover {
-				text-decoration: underline;
 			}
 		</style>
 
