@@ -51,7 +51,8 @@ describe('smoke test', function() {
 			class: ['active', 'course-offering'],
 			properties: {
 				name: 'Course name',
-				code: 'COURSE100'
+				code: 'COURSE100',
+				id: 12345
 			},
 			links: [{
 				rel: ['self'],
@@ -77,15 +78,44 @@ describe('smoke test', function() {
 				}]
 			}]
 		},
+		organizations = {
+			class: ['paged', 'organization', 'collection'],
+			entities: [{
+				rel: ['https://api.brightspace.com/rels/organization'],
+				class: ['active', 'course-offering'],
+				properties: {
+					name: 'Course name',
+					code: 'COURSE100',
+					id: 12345
+				},
+				links: [{
+					rel: ['self'],
+					href: '/organizations/1'
+				}, {
+					rel: ['https://api.brightspace.com/rels/organization-homepage'],
+					href: 'http://example.com/1/home',
+					type: 'text/html'
+				}]
+			}],
+			links: [{
+				rel: ['self'],
+				href: '/organizations'
+			}, {
+				rel: ['next'],
+				href: '/organizations?page=2'
+			}]
+		},
 		pinnedEnrollmentEntity,
 		unpinnedEnrollmentEntity,
-		organizationEntity;
+		organizationEntity,
+		organizationsEntity;
 
 	before(function() {
 		var parser = document.createElement('d2l-siren-parser');
 		pinnedEnrollmentEntity = parser.parse(pinnedEnrollment);
 		unpinnedEnrollmentEntity = parser.parse(unpinnedEnrollment);
 		organizationEntity = parser.parse(organization);
+		organizationsEntity = parser.parse(organizations);
 	});
 
 	beforeEach(function() {
@@ -125,6 +155,94 @@ describe('smoke test', function() {
 		for (var i = 0; i < courseTileGrids.length; i++) {
 			expect(courseTileGrids[i].getCourseTileItemCount()).to.equal(1);
 		}
+	});
+
+	describe('Filter list content', function() {
+		it('should parse and update initial departments from search widget', function() {
+			var sandbox = sinon.sandbox.create();
+
+			var checkEntitySpy = sandbox.spy(widget, '_checkFilterEntities');
+			var updateMoreParametersSpy = sandbox.spy(widget, '_updateMoreParameters');
+			var event = {
+				detail: {
+					value: organizationsEntity
+				}
+			};
+
+			widget._onDepartmentSearchResults(event);
+
+			sinon.assert.called(checkEntitySpy);
+			sinon.assert.calledWith(updateMoreParametersSpy, sinon.match.object, '_moreDepartmentsUrl', '_hasMoreDepartments');
+
+			sandbox.restore();
+		});
+
+		it('should parse and update initial semesters from search widget', function() {
+			var sandbox = sinon.sandbox.create();
+
+			var checkEntitySpy = sandbox.spy(widget, '_checkFilterEntities');
+			var updateMoreParametersSpy = sandbox.spy(widget, '_updateMoreParameters');
+			var event = {
+				detail: {
+					value: organizationsEntity
+				}
+			};
+
+			widget._onSemesterSearchResults(event);
+
+			sinon.assert.called(checkEntitySpy);
+			sinon.assert.calledWith(updateMoreParametersSpy, sinon.match.object, '_moreSemestersUrl', '_hasMoreSemesters');
+
+			sandbox.restore();
+		});
+
+		it('should parse and update lazily-loaded semesters', function() {
+			var sandbox = sinon.sandbox.create();
+
+			var checkEntitySpy = sandbox.spy(widget, '_checkFilterEntities');
+			var updateMoreParametersSpy = sandbox.spy(widget, '_updateMoreParameters');
+			var onMoreResponseSpy = sandbox.spy(widget, '_onMoreResponse');
+			var response = {
+				detail: {
+					status: 200,
+					xhr: {
+						response: organizations
+					}
+				}
+			};
+
+			widget._onMoreDepartmentsResponse(response);
+
+			sinon.assert.called(checkEntitySpy);
+			sinon.assert.calledWith(updateMoreParametersSpy, sinon.match.object, '_moreDepartmentsUrl', '_hasMoreDepartments');
+			sinon.assert.calledWith(onMoreResponseSpy, sinon.match.object, '_departmentOrganizations', '_moreDepartmentsUrl', '_hasMoreDepartments');
+
+			sandbox.restore();
+		});
+
+		it('should parse and update lazily-loaded departments', function() {
+			var sandbox = sinon.sandbox.create();
+
+			var checkEntitySpy = sandbox.spy(widget, '_checkFilterEntities');
+			var updateMoreParametersSpy = sandbox.spy(widget, '_updateMoreParameters');
+			var onMoreResponseSpy = sandbox.spy(widget, '_onMoreResponse');
+			var response = {
+				detail: {
+					status: 200,
+					xhr: {
+						response: organizations
+					}
+				}
+			};
+
+			widget._onMoreSemestersResponse(response);
+
+			sinon.assert.called(checkEntitySpy);
+			sinon.assert.calledWith(updateMoreParametersSpy, sinon.match.object, '_moreSemestersUrl', '_hasMoreSemesters');
+			sinon.assert.calledWith(onMoreResponseSpy, sinon.match.object, '_semesterOrganizations', '_moreSemestersUrl', '_hasMoreSemesters');
+
+			sandbox.restore();
+		});
 	});
 
 	describe('A11Y', function() {

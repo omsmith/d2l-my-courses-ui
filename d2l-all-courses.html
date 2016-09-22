@@ -390,7 +390,12 @@
 					type: String,
 					value: ''
 				},
-				_departmentOrganizations: Object,
+				_departmentOrganizations: {
+					type: Array,
+					value: function() {
+						return [];
+					}
+				},
 				_isFiltered: {
 					type: Boolean,
 					value: false
@@ -439,7 +444,12 @@
 							{'name':'organizationTypeIds', 'type':'hidden', 'value':'203'}]
 					}
 				},
-				_semesterOrganizations: Object,
+				_semesterOrganizations: {
+					type: Array,
+					value: function() {
+						return [];
+					}
+				},
 				_sortField: String,
 				_parentOrganizationIds: {
 					type: Array,
