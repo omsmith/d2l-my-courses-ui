@@ -336,10 +336,6 @@
 								<iron-icon icon="d2l-tier1:check" aria-hidden="true"></iron-icon>
 								{{localize('sorting.datePinned')}}
 							</button>
-							<button class="dropdown-content-item" value="department" on-tap="_updateSortBy">
-								<iron-icon icon="d2l-tier1:check" aria-hidden="true"></iron-icon>
-								{{localize('sorting.department')}}
-							</button>
 							<button class="dropdown-content-item" value="lastAccessed" on-tap="_updateSortBy">
 								<iron-icon icon="d2l-tier1:check" aria-hidden="true"></iron-icon>
 								{{localize('sorting.lastAccessed')}}
@@ -468,7 +464,7 @@
 			},
 			attached: function() {
 				this._onResize();
-				window.addEventListener('resize', this._onResize);
+				window.addEventListener('resize', this._onResize.bind(this));
 
 				this.listen(this.$.semesterSearchWidget, 'search-results-changed', '_onSemesterSearchResults');
 				this.listen(this.$.departmentSearchWidget, 'search-results-changed', '_onDepartmentSearchResults');
@@ -478,7 +474,7 @@
 				this.$.scrollThreshold.scrollTarget = this.$.filterDropdownContent.querySelector('.d2l-dropdown-content-container');
 			},
 			detached: function() {
-				window.removeEventListener('resize', this._onResize);
+				window.removeEventListener('resize', this._onResize.bind(this));
 
 				this.unlisten(this.$.semesterSearchWidget, 'search-results-changed', '_onSemesterSearchResults');
 				this.unlisten(this.$.departmentSearchWidget, 'search-results-changed', '_onDepartmentSearchResults');
@@ -519,8 +515,11 @@
 				'courseCode': 'sorting.sortCourseCode',
 				'courseName': 'sorting.sortCourseName',
 				'pinDate': 'sorting.sortDatePinned',
-				'department': 'sorting.sortDepartment',
 				'lastAccessed': 'sorting.sortLastAccessed'
+			},
+			_changeTextFocus: function(element, focused) {
+				this.toggleClass('highlight', focused, element);
+				this.toggleClass('selected', focused, element);
 			},
 			_checkFilterEntities: function(entities) {
 				entities.forEach(function(entity) {
@@ -553,62 +552,48 @@
 				this.$.scrollThreshold.clearTriggers();
 			},
 			_onBlurFilterText: function() {
-				this.toggleClass('highlight', false, this.$.filterText);
-				this.toggleClass('selected', false, this.$.filterText);
+				this._changeTextFocus(this.$.filterText, false);
 			},
 			_onBlurSortText: function() {
-				this.toggleClass('highlight', false, this.$.sortText);
-				this.toggleClass('selected', false, this.$.sortText);
+				this._changeTextFocus(this.$.sortText, false);
 			},
 			_onFocusFilterText: function() {
-				this.toggleClass('highlight', true, this.$.filterText);
-				this.toggleClass('selected', true, this.$.filterText);
+				this._changeTextFocus(this.$.filterText, true);
 			},
 			_onFocusSortText: function() {
-				this.toggleClass('highlight', true, this.$.sortText);
-				this.toggleClass('selected', true, this.$.sortText);
+				this._changeTextFocus(this.$.sortText, true);
+			},
+			_updateMoreParameters: function(entity, moreUrlPath, hasMorePath) {
+				this._checkFilterEntities(entity.entities);
+
+				this.set(hasMorePath, entity.hasLinkByRel('next'));
+				this.set(moreUrlPath, this[hasMorePath] ? entity.getLinkByRel('next').href : '');
 			},
 			_onDepartmentSearchResults: function(e) {
-				var entity = e.detail.value;
-
-				this._checkFilterEntities(entity.entities);
-				this.set('_departmentOrganizations', entity.entities);
-
-				this.set('_moreDepartmentsUrl', entity.hasLinkByRel('next') ? entity.getLinkByRel('next').href : '');
-				this.set('_hasMoreDepartments', this._moreDepartmentsUrl.length > 0);
+				this.set('_departmentOrganizations', e.detail.value.entities);
+				this._updateMoreParameters(e.detail.value, '_moreDepartmentsUrl', '_hasMoreDepartments');
 			},
 			_onSemesterSearchResults: function(e) {
-				var entity = e.detail.value;
+				this.set('_semesterOrganizations', e.detail.value.entities);
+				this._updateMoreParameters(e.detail.value, '_moreSemestersUrl', '_hasMoreSemesters');
+			},
+			_onMoreResponse: function(response, organizationsPath, moreUrlPath, hasMorePath) {
+				if (response.detail.status === 200 || response.detail.status === 304) {
+					var parser = document.createElement('d2l-siren-parser');
+					var responseEntity = parser.parse(response.detail.xhr.response);
 
-				this._checkFilterEntities(entity.entities);
-				this.set('_semesterOrganizations', entity.entities);
+					responseEntity.entities.forEach(function(entity) {
+						this.push(organizationsPath, entity);
+					}.bind(this));
 
-				this.set('_moreSemestersUrl', entity.hasLinkByRel('next') ? entity.getLinkByRel('next').href : '');
-				this.set('_hasMoreSemesters', this._moreSemestersUrl.length > 0);
+					this._updateMoreParameters(responseEntity, moreUrlPath, hasMorePath);
+				}
 			},
 			_onMoreDepartmentsResponse: function(response) {
-				if (response.detail.status === 200 || response.detail.status === 304) {
-					var parser = document.createElement('d2l-siren-parser');
-					var moreDepartments = parser.parse(response.detail.xhr.response);
-					moreDepartments.entities.forEach(function(department) {
-						this.push('_departmentOrganizations', department);
-					}.bind(this));
-
-					this.set('_moreDepartmentsUrl', moreDepartments.hasLinkByRel('next') ? moreDepartments.getLinkByRel('next').href : '');
-					this.set('_hasMoreDepartments', this._moreDepartmentsUrl.length > 0);
-				}
+				this._onMoreResponse(response, '_departmentOrganizations', '_moreDepartmentsUrl', '_hasMoreDepartments');
 			},
 			_onMoreSemestersResponse: function(response) {
-				if (response.detail.status === 200 || response.detail.status === 304) {
-					var parser = document.createElement('d2l-siren-parser');
-					var moreSemesters = parser.parse(response.detail.xhr.response);
-					moreSemesters.entities.forEach(function(semester) {
-						this.push('_semesterOrganizations', semester);
-					}.bind(this));
-
-					this.set('_moreSemestersUrl', moreSemesters.hasLinkByRel('next') ? moreSemesters.getLinkByRel('next').href : '');
-					this.set('_hasMoreSemesters', this._moreSemestersUrl.length > 0);
-				}
+				this._onMoreResponse(response, '_semesterOrganizations', '_moreSemestersUrl', '_hasMoreSemesters');
 			},
 			_onResize: function() {
 				this.toggleClass('hidden', window.innerWidth < 768, this.$.filterAndSort);
