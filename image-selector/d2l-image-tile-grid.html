@@ -1,5 +1,6 @@
 <link rel="import" href="../../polymer/polymer.html">
 <link rel="import" href="d2l-image-selector-tile.html">
+<link rel="import" href="../../d2l-ajax/d2l-ajax.html">
 
 <dom-module id="d2l-image-tile-grid">
 	<template>
@@ -96,6 +97,13 @@
 		}
 		</style>
 
+		<d2l-ajax
+			id="imagesRequest"
+			url="[[_courseImageCatalogLocation]]"
+			headers='{ "Accept": "application/vnd.siren+json" }'
+			on-iron-ajax-response="_onImagesRequestResponse">
+		</d2l-ajax>
+
 		<div class="image-selector-tile-container responsive-columns-3-2-1 grid-container">
 			<template id="enrollmentsTemplate" is="dom-repeat" items="[[images]]">
 				<d2l-image-selector-tile
@@ -114,10 +122,28 @@
 			properties: {
 				images: {
 					type: Array
+				},
+				_courseImageCatalogLocation: {
+					type: String,
+					value: ''
+				},
+				_sirenParser: {
+					type: Object,
+					value: document.createElement('d2l-siren-parser')
 				}
 			},
 			ready: function() {
-				this.images = ['','','','','','','','','','','',''];
+				// TODO: Hook these up to on open
+				this._courseImageCatalogLocation = this._getSearchStringValue('fabric');
+				this.$.imagesRequest.generateRequest();
+			},
+			_onImagesRequestResponse: function(response) {
+				if (response.detail.status === 200) {
+					this.images = this._sirenParser.parse(response.detail.xhr.response).entities || [];
+				}
+			},
+			_getSearchStringValue: function(search) {
+				return 'http://course-image-catalog-dev2.us-east-1.elasticbeanstalk.com/images?searchString=' + search;
 			}
 		});
 	</script>

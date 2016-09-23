@@ -25,7 +25,7 @@
 				</button>
 			</div>
 			<div class="d2l-image-tile-content">
-				<!-- image goes here -->
+				<img src="[[_getImageHref(image)]]"></img>
 			</div>
 		</div>
 	</template>
@@ -36,7 +36,11 @@
 		Polymer({
 			is: 'd2l-image-selector-tile',
 			ready: function() {},
-			properties: {},
+			properties: {
+				image: {
+					type: Object
+				}
+			},
 			behaviors: [
 				Polymer.D2L.MyCourses.LocalizeBehavior
 			],
@@ -45,6 +49,9 @@
 			},
 			_toggleOverlayOff: function() {
 				this.toggleClass('mobile-selected', false, this.$$('.d2l-image-tile'));
+			},
+			_getImageHref: function(image) {
+				return image && image.getLinkByClass('tile').href;
 			},
 			_selectImage: function() {
 				this.fire('close-simple-overlay');
