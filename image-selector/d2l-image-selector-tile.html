@@ -51,7 +51,10 @@
 				this.toggleClass('mobile-selected', false, this.$$('.d2l-image-tile'));
 			},
 			_getImageHref: function(image) {
-				return image && image.getLinkByClass('tile').href;
+				var tile = image && image.getLinkByClass('tile');
+				if (tile) {
+					return tile.href;
+				}
 			},
 			_selectImage: function() {
 				this.fire('close-simple-overlay');

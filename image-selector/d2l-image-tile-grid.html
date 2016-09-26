@@ -99,7 +99,7 @@
 
 		<d2l-ajax
 			id="imagesRequest"
-			url="[[_courseImageCatalogLocation]]"
+			url="[[_searchString]]"
 			headers='{ "Accept": "application/vnd.siren+json" }'
 			on-iron-ajax-response="_onImagesRequestResponse">
 		</d2l-ajax>
@@ -120,22 +120,22 @@
 		Polymer({
 			is: 'd2l-image-tile-grid',
 			properties: {
-				images: {
-					type: Array
-				},
-				_courseImageCatalogLocation: {
-					type: String,
-					value: ''
-				},
+				images: Array,
+				imageCatalogLocation: String,
+				_searchString: String,
 				_sirenParser: {
 					type: Object,
 					value: document.createElement('d2l-siren-parser')
 				}
 			},
 			ready: function() {
-				// TODO: Hook these up to on open
-				this._courseImageCatalogLocation = this._getSearchStringValue('fabric');
-				this.$.imagesRequest.generateRequest();
+				// TODO: put a real value in here ('fabric' is a tag which gives results with our limited image set)
+				this._searchString = this._getSearchStringValue('fabric');
+
+				if (this._searchString !== null) {
+					// TODO: Hook these up to on open
+					this.$.imagesRequest.generateRequest();
+				}
 			},
 			_onImagesRequestResponse: function(response) {
 				if (response.detail.status === 200) {
@@ -143,7 +143,12 @@
 				}
 			},
 			_getSearchStringValue: function(search) {
-				return 'http://course-image-catalog-dev2.us-east-1.elasticbeanstalk.com/images?searchString=' + search;
+				if (! this.imageCatalogLocation) {
+					return null;
+				}
+
+				var endSlash = this.imageCatalogLocation.slice(-1) === '/' ? '' : '/';
+				return this.imageCatalogLocation + endSlash + 'images?searchString=' + search;
 			}
 		});
 	</script>

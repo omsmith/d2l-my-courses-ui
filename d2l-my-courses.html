@@ -142,8 +142,7 @@
 			title$="{{localize('changeImage')}}"
 			locale="[[locale]]"
 			with-backdrop>
-
-			<d2l-basic-image-selector locale="[[locale]]"></d2l-basic-image-selector>
+			<d2l-basic-image-selector locale="[[locale]]" image-catalog-location="[[imageCatalogLocation]]"></d2l-basic-image-selector>
 		</d2l-simple-overlay>
 
 	</template>
@@ -174,6 +173,11 @@
 				* @type {String}
 				*/
 				enrollmentsUrl: String,
+				/*
+				* URL that is called by the widget to fetch results from the course image catalog
+				* @type {String}
+				*/
+				imageCatalogLocation: String,
 				/*
 				* Message to display in alert if no enrollments are found
 				* @type {String}

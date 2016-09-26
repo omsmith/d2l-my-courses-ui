@@ -5,7 +5,7 @@
 <dom-module id="d2l-basic-image-selector">
 	<template>
 		<style></style>
-		<d2l-image-tile-grid></d2l-image-tile-grid>
+		<d2l-image-tile-grid image-catalog-location="[[imageCatalogLocation]]"></d2l-image-tile-grid>
 	</template>
 	<script>
 		'use strict';
@@ -13,7 +13,9 @@
 		Polymer({
 			is: 'd2l-basic-image-selector',
 			ready: function() {},
-			properties: {},
+			properties: {
+				imageCatalogLocation: { type: String }
+			},
 			focusableNodesOverride: function() {
 				var imageTileFocusables = [];
 				var grid = this.$$('d2l-image-tile-grid');
