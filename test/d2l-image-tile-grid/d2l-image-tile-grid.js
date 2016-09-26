@@ -159,9 +159,11 @@ describe('<d2l-image-tile-grid>', function() {
 		template.render();
 
 		widget.$.imagesRequest.addEventListener('iron-ajax-response', function() {
-			var courseTiles = widget.querySelectorAll('d2l-image-selector-tile');
-			expect(courseTiles.length).to.equal(3);
-			done();
+			setTimeout(function() {
+				var courseTiles = widget.querySelectorAll('d2l-image-selector-tile');
+				expect(courseTiles.length).to.equal(3);
+				done();
+			}, 10);
 		});
 	});
 });
