@@ -123,11 +123,8 @@
 				images: Array,
 				imageCatalogLocation: String,
 				_searchString: String,
-				_sirenParser: {
-					type: Object,
-					value: document.createElement('d2l-siren-parser')
-				}
 			},
+			_sirenParser: document.createElement('d2l-siren-parser'),
 			ready: function() {
 				// TODO: put a real value in here ('fabric' is a tag which gives results with our limited image set)
 				this._searchString = this._getSearchStringValue('fabric');
@@ -143,7 +140,7 @@
 				}
 			},
 			_getSearchStringValue: function(search) {
-				if (! this.imageCatalogLocation) {
+				if (!this.imageCatalogLocation) {
 					return null;
 				}
 
