@@ -258,5 +258,16 @@ describe('<d2l-course-tile>', function() {
 			var pinButton = widget.$$('#pin-button');
 			expect(pinButton.text).to.equal('Pin');
 		});
+
+		it('should aria-announce the change in pin state', function() {
+			server.respondWith(
+				'PUT',
+				'/enrollments/users/169/organizations/1',
+				[200, {}, JSON.stringify(enrollment)]);
+
+			widget._hoverPinClickHandler(event);
+			expect(widget.pinned).to.be.false;
+			expect(widget.querySelector('d2l-offscreen').textContent).to.equal('Course name has been unpinned');
+		});
 	});
 });

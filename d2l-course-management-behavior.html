@@ -1,6 +1,5 @@
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../d2l-siren-parser/d2l-siren-parser.html">
-<link rel="import" href="../d2l-offscreen/d2l-offscreen.html">
 <link rel="import" href="d2l-utility-behavior.html">
 
 <script>
@@ -14,8 +13,7 @@
 		* Behavior that allows for course management
 		*
 		* "Management" in this case means having a pinned and unpinned list, and supporting switching an enrollment between the
-		* two. This also contains some A11Y functionality to aria-announce when an enrollment changes between pinned and
-		* unpinned.
+		* two.
 		*
 		* @polymerBehavior Polymer.D2L.MyCourses.CourseManagementBehavior
 		*/
@@ -100,8 +98,6 @@
 				}
 			},
 			listeners: {
-				'enrollment-pinned': '_onEnrollmentPinned',
-				'enrollment-unpinned': '_onEnrollmentUnpinned',
 				'tile-remove-complete': '_onTileRemoveComplete',
 				'enrollment-pin-complete': '_onEnrollmentPinComplete',
 				'enrollment-unpin-complete': '_onEnrollmentUnpinComplete'
@@ -111,22 +107,6 @@
 			],
 			created: function() {
 				this._tilesInPinStateTransition = [];
-			},
-			ready: function() {
-				this._announceElement = document.createElement('d2l-offscreen');
-				this._announceElement.setAttribute('aria-live', 'polite');
-			},
-			/*
-			* A11Y `d2l-offscreen` announcement text
-			* @type {String}
-			*/
-			get ariaMessage() {
-				return this._announceElement.textContent;
-			},
-			_announceElement: null,
-			_ariaAnnounce: function(message) {
-				this._announceElement.textContent = '';
-				this._announceElement.textContent = message;
 			},
 			_moveEnrollmentToPinnedList: function(enrollment) {
 				// Remove enrollment from unpinned list, add to pinned
@@ -173,12 +153,6 @@
 						break;
 					}
 				}
-			},
-			_onEnrollmentPinned: function(e) {
-				this._ariaAnnounce(this.localize('pinActionResult', 'course', e.detail.organization.properties.name));
-			},
-			_onEnrollmentUnpinned: function(e) {
-				this._ariaAnnounce(this.localize('unpinActionResult', 'course', e.detail.organization.properties.name));
 			},
 			_onPinnedEnrollmentsChanged: function(newArray) {
 				this._hasPinnedEnrollments = !newArray.base || newArray.base.length > 0;
