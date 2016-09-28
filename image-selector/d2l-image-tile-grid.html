@@ -1,5 +1,6 @@
 <link rel="import" href="../../polymer/polymer.html">
 <link rel="import" href="d2l-image-selector-tile.html">
+<link rel="import" href="../../d2l-ajax/d2l-ajax.html">
 
 <dom-module id="d2l-image-tile-grid">
 	<template>
@@ -29,7 +30,7 @@
 
 		.grid-container {
 			position: relative;
-			width: calc(100% + 20px);
+			width: 100%;
 			display: flex;
 			flex-wrap: wrap;
 			flex-direction: row;
@@ -96,6 +97,13 @@
 		}
 		</style>
 
+		<d2l-ajax
+			id="imagesRequest"
+			url="[[_searchString]]"
+			headers='{ "Accept": "application/vnd.siren+json" }'
+			on-iron-ajax-response="_onImagesRequestResponse">
+		</d2l-ajax>
+
 		<div class="image-selector-tile-container responsive-columns-3-2-1 grid-container">
 			<template id="enrollmentsTemplate" is="dom-repeat" items="[[images]]">
 				<d2l-image-selector-tile
@@ -112,12 +120,32 @@
 		Polymer({
 			is: 'd2l-image-tile-grid',
 			properties: {
-				images: {
-					type: Array
+				images: Array,
+				imageCatalogLocation: String,
+				_searchString: String,
+			},
+			_sirenParser: document.createElement('d2l-siren-parser'),
+			ready: function() {
+				// TODO: put a real value in here ('fabric' is a tag which gives results with our limited image set)
+				this._searchString = this._getSearchStringValue('fabric');
+
+				if (this._searchString !== null) {
+					// TODO: Hook these up to on open
+					this.$.imagesRequest.generateRequest();
 				}
 			},
-			ready: function() {
-				this.images = ['','','','','','','','','','','',''];
+			_onImagesRequestResponse: function(response) {
+				if (response.detail.status === 200) {
+					this.images = this._sirenParser.parse(response.detail.xhr.response).entities || [];
+				}
+			},
+			_getSearchStringValue: function(search) {
+				if (!this.imageCatalogLocation) {
+					return null;
+				}
+
+				var endSlash = this.imageCatalogLocation.slice(-1) === '/' ? '' : '/';
+				return this.imageCatalogLocation + endSlash + 'images?searchString=' + search;
 			}
 		});
 	</script>

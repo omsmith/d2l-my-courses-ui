@@ -118,6 +118,11 @@ The overlay supports using different animations and transitions for desktop and 
 				/* TODO: No longer required? */
 				_restoreViewportContent: {
 					type: Boolean
+				},
+				// For restoring the document overflow when the overlay is closed
+				_oldBodyOverflow: {
+					type: String,
+					value: null
 				}
 			},
 			created: function() {
@@ -146,8 +151,6 @@ The overlay supports using different animations and transitions for desktop and 
 				return width < 768;
 			},
 			_onNeonAnimationFinish: function() {
-				document.body.classList.toggle('hide-overflow', this.opened);
-
 				if (this.opened) {
 					this._finishRenderOpened();
 				} else {
@@ -156,6 +159,7 @@ The overlay supports using different animations and transitions for desktop and 
 			},
 			_renderClosed: function() {
 				this.cancelAnimation();
+				this._restoreBodyOverflow();
 
 				if (this._isMobile()) {
 					this.playAnimation('mobileClose');
@@ -165,6 +169,7 @@ The overlay supports using different animations and transitions for desktop and 
 			},
 			_renderOpened: function() {
 				this.cancelAnimation();
+				this._trapBodyOverflow();
 
 				this._onNodesChange();
 				Polymer.dom(this.root).querySelector('.scrollable').scrollTop = 0;
@@ -174,6 +179,14 @@ The overlay supports using different animations and transitions for desktop and 
 				} else {
 					this.playAnimation('desktopOpen');
 				}
+			},
+			_restoreBodyOverflow: function() {
+				document.body.style.overflow = this._oldBodyOverflow;
+				this.oldBodyOverflow = undefined;
+			},
+			_trapBodyOverflow: function() {
+				this._oldBodyOverflow = document.body.style.overflow;
+				document.body.style.overflow = 'hidden';
 			},
 			_updateBackdropStyle: function() {
 				var style = document.createElement('style', 'custom-style');
