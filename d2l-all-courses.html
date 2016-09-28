@@ -16,6 +16,66 @@
 <link rel="import" href="d2l-search-widget-custom.html">
 <link rel="import" href="localize-behavior.html">
 
+<script>
+	'use strict';
+
+	(function() {
+		Polymer.D2L = Polymer.D2L || {};
+		Polymer.D2L.MyCourse = Polymer.D2L.MyCourses || {};
+
+		/** @polymerBehavior */
+		Polymer.D2L.MyCourses.CustomMenuItemBehaviorImpl = {
+			/*
+			* Fired when the sliding animation of course tiles is finished
+			* @event menu-item-selected
+			* @param {String} value `value` property of the item
+			* @param {Boolean} selected True if item is selected
+			*/
+
+			properties: {
+				selected: {
+					type: Boolean,
+					value: false,
+					observer: '_onSelectedChanged',
+					reflectToAttribute: true
+				},
+				value: String
+			},
+			hostAttributes: {
+				'role': 'menuitem'
+			},
+			listeners: {
+				'tap': '_onTap',
+				'keydown': '_onKeydown'
+			},
+			_onSelectedChanged: function(selected) {
+				this.toggleClass('hidden', !selected, this.$$('iron-icon'));
+				selected ? this.setAttribute('aria-selected', true) : this.removeAttribute('aria-selected');
+			},
+			_onKeydown: function(e) {
+				// Select on either Enter or Space
+				if (e.keyCode === 13 || e.keyCode === 32) {
+					this._onTap(e);
+				}
+			},
+			_onTap: function(e) {
+				this.set('selected', true);
+				e.preventDefault();
+				this.fire('menu-item-selected', {
+					value: this.value,
+					selected: this.selected
+				});
+			}
+		};
+
+		/** @polymerBehavior */
+		Polymer.D2L.MyCourses.CustomMenuItemBehavior = [
+			Polymer.D2L.MyCourses.CustomMenuItemBehaviorImpl,
+			window.D2L.PolymerBehaviors.MenuItemBehavior
+		];
+	})();
+</script>
+
 <dom-module id="d2l-menu-item-sort">
 	<template>
 		<style include"d2l-menu-item-styles">
@@ -41,43 +101,11 @@
 	</template>
 	<script>
 		'use strict';
-
 		Polymer({
 			is: 'd2l-menu-item-sort',
-			properties: {
-				selected: {
-					type: Boolean,
-					value: false,
-					observer: '_onSelectedChanged',
-					reflectToAttribute: true
-				},
-				value: String
-			},
 			behaviors: [
-				window.D2L.PolymerBehaviors.MenuItemBehavior
-			],
-			hostAttributes: {
-				'role': 'menuitem'
-			},
-			listeners: {
-				'tap': '_onTap',
-				'keydown': '_onKeydown'
-			},
-			_onSelectedChanged: function(selected) {
-				this.toggleClass('hidden', !selected, this.$$('iron-icon'));
-				selected ? this.setAttribute('aria-selected', true) : this.removeAttribute('aria-selected');
-			},
-			_onKeydown: function(e) {
-				// Select on either Enter or Space
-				if (e.keyCode === 13 || e.keyCode === 32) {
-					this._onTap(e);
-				}
-			},
-			_onTap: function(e) {
-				this.set('selected', true);
-				e.preventDefault();
-				this.fire('menu-item-selected', this.value);
-			}
+				Polymer.D2L.MyCourses.CustomMenuItemBehavior
+			]
 		});
 	</script>
 </dom-module>
@@ -129,46 +157,11 @@
 	</template>
 	<script>
 		'use strict';
-
 		Polymer({
 			is: 'd2l-menu-item-filter',
-			properties: {
-				checked: {
-					type: Boolean,
-					value: false,
-					observer: '_onCheckedChanged',
-					reflectToAttribute: true
-				},
-				value: String
-			},
 			behaviors: [
-				window.D2L.PolymerBehaviors.MenuItemBehavior
-			],
-			hostAttributes: {
-				'role': 'menuitem'
-			},
-			listeners: {
-				'tap': '_onTap',
-				'keydown': '_onKeydown'
-			},
-			_onCheckedChanged: function(checked) {
-				this.toggleClass('hidden', !checked, this.$$('iron-icon'));
-				checked ? this.setAttribute('aria-selected', true) : this.removeAttribute('aria-selected');
-			},
-			_onKeydown: function(e) {
-				// Check on either Enter or Space
-				if (e.keyCode === 13 || e.keyCode === 32) {
-					this._onTap(e);
-				}
-			},
-			_onTap: function(e) {
-				this.set('checked', !this.checked);
-				e.preventDefault();
-				this.fire('menu-item-checked', {
-					value: this.value,
-					checked: this.checked
-				});
-			}
+				Polymer.D2L.MyCourses.CustomMenuItemBehavior
+			]
 		});
 	</script>
 </dom-module>
@@ -386,7 +379,7 @@
 									<d2l-menu-item-filter
 										value="[[item.properties.id]]"
 										text="[[item.properties.name]]"
-										checked="[[item.properties.checked]]">
+										selected="[[item.properties.selected]]">
 									</d2l-menu-item-filter>
 								</template>
 							</d2l-menu>
@@ -401,7 +394,7 @@
 									<d2l-menu-item-filter
 										value="[[item.properties.id]]"
 										text="[[item.properties.name]]"
-										checked="[[item.properties.checked]]">
+										selected="[[item.properties.selected]]">
 									</d2l-menu-item-filter>
 								</template>
 							</d2l-menu>
@@ -571,7 +564,7 @@
 				window.addEventListener('resize', this._onResize.bind(this));
 
 				this.listen(this.$.sortDropdown, 'menu-item-selected', '_updateSortBy');
-				this.listen(this.$.filterDropdown, 'menu-item-checked', '_updateFilter');
+				this.listen(this.$.filterDropdown, 'menu-item-selected', '_updateFilter');
 
 				this.listen(this.$.semesterSearchWidget, 'search-results-changed', '_onSemesterSearchResults');
 				this.listen(this.$.departmentSearchWidget, 'search-results-changed', '_onDepartmentSearchResults');
@@ -584,7 +577,7 @@
 				window.removeEventListener('resize', this._onResize.bind(this));
 
 				this.unlisten(this.$.sortDropdown, 'menu-item-selected', '_updateSortBy');
-				this.unlisten(this.$.filterDropdown, 'menu-item-checked', '_updateFilter');
+				this.unlisten(this.$.filterDropdown, 'menu-item-selected', '_updateFilter');
 
 				this.unlisten(this.$.semesterSearchWidget, 'search-results-changed', '_onSemesterSearchResults');
 				this.unlisten(this.$.departmentSearchWidget, 'search-results-changed', '_onDepartmentSearchResults');
@@ -633,12 +626,12 @@
 			},
 			_checkFilterEntities: function(entities) {
 				entities.forEach(function(entity) {
-					entity.properties.checked = this._parentOrganizationIds.indexOf(entity.properties.id.toString()) > -1;
+					entity.properties.selected = this._parentOrganizationIds.indexOf(entity.properties.id.toString()) > -1;
 				}.bind(this));
 			},
 			_clearFilters: function() {
 				Polymer.dom(this.$.filterDropdown).querySelectorAll('d2l-menu-item-filter').forEach(function(item) {
-					item.checked = false;
+					item.selected = false;
 				});
 				this._isFiltered = false;
 				// Clear button is removed via dom-if, so need to manually set focus to next element
@@ -743,7 +736,7 @@
 			_updateFilter: function(e) {
 				var isSemester = this.$.semesterList.contains(e.target);
 
-				if (e.detail.checked) {
+				if (e.detail.selected) {
 					this.push('_parentOrganizationIds', e.detail.value);
 					isSemester ? this._numSemesterFilters++ : this._numDepartmentFilters++;
 				} else {
@@ -769,7 +762,7 @@
 					: this.localize('filtering.department');
 			},
 			_updateSortBy: function(e) {
-				this.set('_sortField', e.detail);
+				this.set('_sortField', e.detail.value);
 
 				var menuItems = Polymer.dom(this.$.sortDropdown).querySelectorAll('d2l-menu-item-sort');
 				menuItems.forEach(function(item) {
