@@ -16,7 +16,7 @@
 <link rel="import" href="d2l-search-widget-custom.html">
 <link rel="import" href="localize-behavior.html">
 
-<dom-module id="d2l-menu-item-selectable">
+<dom-module id="d2l-menu-item-sort">
 	<template>
 		<style include"d2l-menu-item-styles">
 			:host {
@@ -43,7 +43,7 @@
 		'use strict';
 
 		Polymer({
-			is: 'd2l-menu-item-selectable',
+			is: 'd2l-menu-item-sort',
 			properties: {
 				selected: {
 					type: Boolean,
@@ -74,6 +74,7 @@
 				}
 			},
 			_onTap: function(e) {
+				this.set('selected', true);
 				e.preventDefault();
 				this.fire('menu-item-selected', this.value);
 			}
@@ -81,7 +82,7 @@
 	</script>
 </dom-module>
 
-<dom-module id="d2l-menu-item-checkable">
+<dom-module id="d2l-menu-item-filter">
 	<template>
 		<style include="d2l-menu-item-styles">
 			:host {
@@ -130,7 +131,7 @@
 		'use strict';
 
 		Polymer({
-			is: 'd2l-menu-item-checkable',
+			is: 'd2l-menu-item-filter',
 			properties: {
 				checked: {
 					type: Boolean,
@@ -382,11 +383,11 @@
 								search-field-name="search"></d2l-search-widget>
 							<d2l-menu label="{{localize('filtering.semester')}}">
 								<template is="dom-repeat" items="[[_semesterOrganizations]]">
-									<d2l-menu-item-checkable
+									<d2l-menu-item-filter
 										value="[[item.properties.id]]"
 										text="[[item.properties.name]]"
 										checked="[[item.properties.checked]]">
-									</d2l-menu-item-checkable>
+									</d2l-menu-item-filter>
 								</template>
 							</d2l-menu>
 						</div>
@@ -397,11 +398,11 @@
 								search-field-name="search"></d2l-search-widget>
 							<d2l-menu label="{{localize('filtering.department')}}">
 								<template is="dom-repeat" items="[[_departmentOrganizations]]">
-									<d2l-menu-item-checkable
+									<d2l-menu-item-filter
 										value="[[item.properties.id]]"
 										text="[[item.properties.name]]"
 										checked="[[item.properties.checked]]">
-									</d2l-menu-item-checkable>
+									</d2l-menu-item-filter>
 								</template>
 							</d2l-menu>
 						</div>
@@ -427,10 +428,10 @@
 							<div class="dropdown-content-header">
 								<span class="dropdown-content-header-text">{{localize('sorting.sortBy')}}</span>
 							</div>
-							<d2l-menu-item-selectable class="dropdown-content-gradient" value="courseCode" text="{{localize('sorting.courseCode')}}"></d2l-menu-item-selectable>
-							<d2l-menu-item-selectable value="courseName" text="{{localize('sorting.courseName')}}"></d2l-menu-item-selectable>
-							<d2l-menu-item-selectable value="pinDate" text="{{localize('sorting.datePinned')}}" selected></d2l-menu-item-selectable>
-							<d2l-menu-item-selectable value="lastAccessed" text="{{localize('sorting.lastAccessed')}}"></d2l-menu-item-selectable>
+							<d2l-menu-item-sort class="dropdown-content-gradient" value="courseCode" text="{{localize('sorting.courseCode')}}"></d2l-menu-item-sort>
+							<d2l-menu-item-sort value="courseName" text="{{localize('sorting.courseName')}}"></d2l-menu-item-sort>
+							<d2l-menu-item-sort value="pinDate" text="{{localize('sorting.datePinned')}}" selected></d2l-menu-item-sort>
+							<d2l-menu-item-sort value="lastAccessed" text="{{localize('sorting.lastAccessed')}}"></d2l-menu-item-sort>
 						</d2l-menu>
 					</d2l-dropdown-menu>
 				</d2l-dropdown>
@@ -636,7 +637,7 @@
 				}.bind(this));
 			},
 			_clearFilters: function() {
-				Polymer.dom(this.$.filterDropdown).querySelectorAll('d2l-menu-item-checkable').forEach(function(item) {
+				Polymer.dom(this.$.filterDropdown).querySelectorAll('d2l-menu-item-filter').forEach(function(item) {
 					item.checked = false;
 				});
 				this._isFiltered = false;
@@ -770,9 +771,11 @@
 			_updateSortBy: function(e) {
 				this.set('_sortField', e.detail);
 
-				var menuItems = Polymer.dom(this.$.sortDropdown).querySelectorAll('d2l-menu-item-selectable');
+				var menuItems = Polymer.dom(this.$.sortDropdown).querySelectorAll('d2l-menu-item-sort');
 				menuItems.forEach(function(item) {
-					item.value === this._sortField ? item.setAttribute('selected', true) : item.removeAttribute('selected');
+					if (item.value !== this._sortField) {
+						item.selected = false;
+					}
 				}.bind(this));
 
 				this.$.sortText.textContent = this.localize(this._sortTextOptions[this._sortField] || '');
