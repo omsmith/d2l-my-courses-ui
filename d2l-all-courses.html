@@ -41,15 +41,12 @@
 				},
 				value: String
 			},
-			hostAttributes: {
-				'role': 'menuitem'
-			},
 			listeners: {
 				'tap': '_onTap',
 				'keydown': '_onKeydown'
 			},
 			_onSelectedChanged: function(selected) {
-				this.toggleClass('hidden', !selected, this.$$('iron-icon'));
+				this.toggleClass('hidden', !selected, this.$$('d2l-icon'));
 				selected ? this.setAttribute('aria-selected', true) : this.removeAttribute('aria-selected');
 			},
 			_onKeydown: function(e) {
@@ -95,9 +92,8 @@
 			}
 		</style>
 
-		<iron-icon icon="d2l-tier1:check" aria-hidden="true"></iron-icon>
+		<d2l-icon icon="d2l-tier1:check" aria-hidden="true"></d2l-icon>
 		<span>[[text]]</span>
-		<content></content>
 	</template>
 	<script>
 		'use strict';
@@ -141,19 +137,18 @@
 				margin-right: 0.5rem;
 				vertical-align: middle;
 			}
-			iron-icon {
+			d2l-icon {
 				margin-top: -0.4rem;
 				margin-left: 0.05rem;
-				--iron-icon-height: 0.7rem;
-				--iron-icon-width: 0.7rem;
+				--d2l-icon-height: 0.7rem;
+				--d2l-icon-width: 0.7rem;
 			}
 		</style>
 
 		<div class="checkbox">
-			<iron-icon icon="d2l-tier1:check" aria-hidden="true"></iron-icon>
+			<d2l-icon icon="d2l-tier1:check" aria-hidden="true"></d2l-icon>
 		</div>
 		<span>[[text]]</span>
-		<content></content>
 	</template>
 	<script>
 		'use strict';
