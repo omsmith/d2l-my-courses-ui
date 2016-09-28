@@ -42,8 +42,6 @@
     "iron-a11y-keys": "^1.0.6",
     "iron-ajax": "PolymerElements/iron-ajax#^1.2.0",
     "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",
-    "iron-icon": "PolymerElements/iron-icon#^1.0.8",
-    "iron-iconset-svg": "PolymerElements/iron-iconset-svg#^1.0.9",
     "iron-input": "^1.0.10",
     "iron-menu-behavior": "^1.1.9",
     "iron-overlay-behavior": "https://github.com/PolymerElements/iron-overlay-behavior.git#42a0843af78d5a8e384f0643b9b02fc522d2a2e5",

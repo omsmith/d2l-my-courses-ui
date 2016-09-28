@@ -1,4 +1,5 @@
 <link rel="import" href="../d2l-colors/d2l-colors.html">
+<link rel="import" href="../d2l-icons/d2l-icons.html">
 
 <dom-module id="d2l-simple-overlay-styles">
 	<template>
@@ -32,12 +33,12 @@
 			cursor: pointer;
 		}
 
-		.close-button iron-icon {
+		.close-button d2l-icon {
 			border: 1px solid transparent;
 			padding: 8px;
 		}
 
-		.close-button:focus iron-icon, .close-button:hover iron-icon {
+		.close-button:focus d2l-icon, .close-button:hover d2l-icon {
 			border-radius: 0.3rem;
 			border-color: var(--d2l-color-pressicus);
 			color: var(--d2l-color-celestuba);
@@ -54,7 +55,7 @@
 			float: left;
 		}
 
-		iron-icon {
+		d2l-icon {
 			width: 12px;
 			height: 12px;
 		}

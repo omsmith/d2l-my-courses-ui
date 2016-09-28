@@ -64,8 +64,8 @@
 				color: var(--d2l-color-celestine);
 				text-decoration: underline;
 			}
-			.dropdown-text:hover + d2l-dropdown button,
-			.dropdown-text:focus + d2l-dropdown button {
+			.dropdown-text:hover + d2l-dropdown button d2l-icon,
+			.dropdown-text:focus + d2l-dropdown button d2l-icon {
 				color: var(--d2l-color-celestine);
 			}
 			d2l-dropdown > button:hover,
@@ -79,9 +79,9 @@
 				padding: 0;
 				color: var(--d2l-color-tungsten);
 			}
-			iron-icon {
-				--iron-icon-height: 15px;
-				--iron-icon-width: 15px;
+			d2l-icon {
+				--d2l-icon-height: 15px;
+				--d2l-icon-width: 15px;
 				margin-top: -0.35rem;
 			}
 			.clear-button {
@@ -183,12 +183,12 @@
 				background-repeat: no-repeat;
 				background-size: 13px;
 			}
-			.dropdown-content-item > iron-icon {
+			.dropdown-content-item > d2l-icon {
 				visibility: hidden;
 				margin-right: 20px;
 				margin-top: -5px;
-				--iron-icon-height: 20px;
-				--iron-icon-width: 20px;
+				--d2l-icon-height: 20px;
+				--d2l-icon-width: 20px;
 			}
 			#sortDropdown d2l-dropdown-content button {
 				border-bottom: 1px solid var(--d2l-color-gypsum);
@@ -197,7 +197,7 @@
 			.selected {
 				color: var(--d2l-color-celestine);
 			}
-			.selected > iron-icon {
+			.selected > d2l-icon {
 				visibility: visible;
 			}
 			.highlight {
@@ -235,7 +235,7 @@
 						on-mouseenter="_onFocusFilterText"
 						on-mouseout="_onBlurFilterText"
 						class="d2l-dropdown-opener dropdown-button">
-						<iron-icon icon="d2l-tier1:chevron-down" aria-hidden="true"></iron-icon>
+						<d2l-icon icon="d2l-tier1:chevron-down" aria-hidden="true"></d2l-icon>
 					</button>
 					<d2l-dropdown-content id="filterDropdownContent" no-padding min-width="350">
 						<div class="dropdown-content-header">
@@ -318,7 +318,7 @@
 						on-mouseenter="_onFocusSortText"
 						on-mouseout="_onBlurSortText"
 						class="d2l-dropdown-opener dropdown-button">
-						<iron-icon icon="d2l-tier1:chevron-down" aria-hidden="true"></iron-icon>
+						<d2l-icon icon="d2l-tier1:chevron-down" aria-hidden="true"></d2l-icon>
 					</button>
 					<d2l-dropdown-content no-padding min-width="350">
 						<div class="dropdown-content-header">
@@ -326,19 +326,19 @@
 						</div>
 						<div class="dropdown-content-gradient">
 							<button class="dropdown-content-item" value="courseCode" on-tap="_updateSortBy">
-								<iron-icon icon="d2l-tier1:check" aria-hidden="true"></iron-icon>
+								<d2l-icon icon="d2l-tier1:check" aria-hidden="true"></d2l-icon>
 								{{localize('sorting.courseCode')}}
 							</button>
 							<button class="dropdown-content-item" value="courseName" on-tap="_updateSortBy">
-								<iron-icon icon="d2l-tier1:check" aria-hidden="true"></iron-icon>
+								<d2l-icon icon="d2l-tier1:check" aria-hidden="true"></d2l-icon>
 								{{localize('sorting.courseName')}}
 							</button>
 							<button class="dropdown-content-item selected" value="pinDate" on-tap="_updateSortBy">
-								<iron-icon icon="d2l-tier1:check" aria-hidden="true"></iron-icon>
+								<d2l-icon icon="d2l-tier1:check" aria-hidden="true"></d2l-icon>
 								{{localize('sorting.datePinned')}}
 							</button>
 							<button class="dropdown-content-item" value="lastAccessed" on-tap="_updateSortBy">
-								<iron-icon icon="d2l-tier1:check" aria-hidden="true"></iron-icon>
+								<d2l-icon icon="d2l-tier1:check" aria-hidden="true"></d2l-icon>
 								{{localize('sorting.lastAccessed')}}
 							</button>
 						</div>
