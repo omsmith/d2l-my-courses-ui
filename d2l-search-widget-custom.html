@@ -4,6 +4,7 @@
 <link rel="import" href="../iron-pages/iron-pages.html">
 <link rel="import" href="../d2l-ajax/d2l-ajax.html">
 <link rel="import" href="../d2l-dropdown/d2l-dropdown.html">
+<link rel="import" href="../d2l-icons/d2l-icons.html">
 <link rel="import" href="../d2l-siren-parser/d2l-siren-parser.html">
 <link rel="import" href="../d2l-typography/d2l-typography-shared-styles.html">
 <link rel="import" href="localize-behavior.html">
@@ -82,9 +83,9 @@
 				cursor: pointer;
 				height: 100%;
 			}
-			.search-icon iron-icon {
-				--iron-icon-height: 22px;
-				--iron-icon-width: 22px;
+			.search-icon d2l-icon {
+				--d2l-icon-height: 22px;
+				--d2l-icon-width: 22px;
 				color: var(--d2l-color-tungsten);
 			}
 
@@ -114,7 +115,7 @@
 		<d2l-dropdown no-auto-open>
 			<div class="search-bar d2l-dropdown-opener" id="opener">
 				<button type="button" on-tap="_onSearchButtonClick" class="search-icon search-button">
-					<iron-icon icon="d2l-tier1:search"></iron-icon>
+					<d2l-icon icon="d2l-tier1:search"></d2l-icon>
 				</button>
 
 				<input
@@ -127,7 +128,7 @@
 				</input>
 
 				<button type="button" on-tap="_clearSearchResults" class="search-icon clear-search-button">
-					<iron-icon icon="d2l-tier1:close-default"></iron-icon>
+					<d2l-icon icon="d2l-tier1:close-default"></d2l-icon>
 				</button>
 			</div>
 			<d2l-search-dropdown-content
