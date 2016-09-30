@@ -27,6 +27,16 @@
 			<div class="d2l-image-tile-content">
 				<img src="[[_getImageHref(image)]]"></img>
 			</div>
+
+			<d2l-ajax
+				id="setImageRequest"
+				url="[[_setImageUrl]]"
+				method="POST"
+				headers='{ "Accept": "application/vnd.siren+json" }'
+				on-iron-ajax-response="_onSetImageResponse"
+				on-iron-ajax-error="_onSetImageError">
+			</d2l-ajax>
+
 		</div>
 	</template>
 
@@ -35,9 +45,12 @@
 
 		Polymer({
 			is: 'd2l-image-selector-tile',
-			ready: function() {},
+			ready: function() {
+			},
 			properties: {
-				image: Object
+				image: Object,
+				organization: Object,
+				_setImageUrl: String
 			},
 			behaviors: [
 				Polymer.D2L.MyCourses.LocalizeBehavior
@@ -54,7 +67,31 @@
 					return tile.href;
 				}
 			},
+			_getSetImageUrl() {
+				if (this.organization && this.image ) {
+					var setImageAction = this.organization.getActionByName('set-catalog-image') || {},
+						setImagePath = setImageAction.href || '';
+
+					var url = this.image.getLinkByRel('self').href,
+						regex = /\/images\/[^\/?]*/i,
+						imagePath = url.match(regex)[0];
+
+					if (setImagePath !== '') {
+						return setImagePath + '?imagePath=' + imagePath;
+					}
+				}
+
+				return '';
+			},
+			_onSetImageResponse: function() {
+				// TODO: Use this or remove it
+			},
+			_onSetImageError: function() {
+				// TODO: implement error handing of some sort
+			},
 			_selectImage: function() {
+				this._setImageUrl = this._getSetImageUrl();
+				this.$.setImageRequest.generateRequest();
 				this.fire('close-simple-overlay');
 			}
 		});
