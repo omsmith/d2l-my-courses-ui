@@ -75,10 +75,10 @@
 
 					var url = this.image.getLinkByRel('self').href,
 						regex = /\/images\/[^\/?]*/i,
-						imagePath = url.match(regex)[0];
+						match = url.match(regex);
 
-					if (setImagePath !== '') {
-						return setImagePath + '?imagePath=' + imagePath;
+					if (setImagePath !== '' && match) {
+						return setImagePath + '?imagePath=' + match[0];
 					}
 				}
 
