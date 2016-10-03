@@ -200,7 +200,7 @@
 				justify-content: space-between;
 				margin-bottom: 60px;
 			}
-			.search-and-filter > d2l-search-widget-custom {
+			.search-and-filter > * {
 				flex: 1
 			}
 			.dropdown-text {
@@ -213,15 +213,25 @@
 				cursor: pointer;
 				padding: 0;
 				margin-left: 1rem;
-				padding-right: 0.3rem;
 			}
-			.dropdown-text:hover,
-			.dropdown-text:focus {
-				color: var(--d2l-color-celestine);
+			#filterAndSort {
+				margin-left: auto;
+			}
+			#filterAndSort > div {
+				float: right;
+			}
+			#filterSection,
+			#sortSection {
+				float: left;
+			}
+			#filterSection:hover > span,
+			#filterSection:hover d2l-dropdown button d2l-icon,
+			#sortSection:hover > span,
+			#sortSection:hover d2l-dropdown button d2l-icon,
+			#filterSection d2l-dropdown button:focus d2l-icon,
+			#sortSection d2l-dropdown button:focus d2l-icon,
+			.focus {
 				text-decoration: underline;
-			}
-			.dropdown-text:hover + d2l-dropdown button d2l-icon,
-			.dropdown-text:focus + d2l-dropdown button d2l-icon {
 				color: var(--d2l-color-celestine);
 			}
 			d2l-dropdown > button:hover,
@@ -331,105 +341,106 @@
 			</d2l-search-widget-custom>
 
 			<div id="filterAndSort">
-				<span id="filterText" class="dropdown-text" on-tap="_toggleFilterDropdown">{{localize('filtering.filter')}}</span>
-				<d2l-dropdown id="filterDropdown">
-					<button
-						id="filterButton"
-						on-mouseenter="_onFocusFilterText"
-						on-focus="_onFocusFilterText"
-						on-mouseout="_onBlurFilterText"
-						on-blur="_onBlurFilterText"
-						class="d2l-dropdown-opener dropdown-button">
-						<d2l-icon icon="d2l-tier1:chevron-down" aria-hidden="true"></d2l-icon>
-					</button>
-					<d2l-dropdown-content id="filterDropdownContent" no-padding min-width="350">
-						<div class="dropdown-content-header">
-							<span class="dropdown-content-header-text">{{localize('filtering.filterBy')}}</span>
-							<template is="dom-if" if="[[_isFiltered]]">
-								<button class="clear-button" on-tap="_clearFilters">{{localize('filtering.clear')}}</button>
-							</template>
-						</div>
-						<div class="dropdown-content-tabs dropdown-content-gradient">
-							<div class="dropdown-content-tab">
-								<div class="dropdown-content-tab-highlight" id="semesterListHighlight"></div>
-								<button
-									id="semesterListButton"
-									class="dropdown-content-tab-button"
-									on-tap="_selectSemesterList"
-									aria-pressed="true">
-									{{localize('filtering.semester')}}
-								</button>
-							</div>
-							<div class="dropdown-content-tab">
-								<div class="dropdown-content-tab-highlight" id="departmentListHighlight"></div>
-								<button
-									id="departmentListButton"
-									class="dropdown-content-tab-button"
-									on-tap="_selectDepartmentList"
-									aria-pressed="false">
-									{{localize('filtering.department')}}
-								</button>
-							</div>
-						</div>
-						<div id="semesterList">
-							<d2l-search-widget
-								id="semesterSearchWidget"
-								search-action="[[_searchSemestersAction]]"
-								search-field-name="search"></d2l-search-widget>
-							<d2l-menu label="{{localize('filtering.semester')}}">
-								<template is="dom-repeat" items="[[_semesterOrganizations]]">
-									<d2l-menu-item-filter
-										value="[[item.properties.id]]"
-										text="[[item.properties.name]]"
-										selected="[[item.properties.selected]]">
-									</d2l-menu-item-filter>
-								</template>
-							</d2l-menu>
-						</div>
-						<div id="departmentList">
-							<d2l-search-widget
-								id="departmentSearchWidget"
-								search-action="[[_searchDepartmentsAction]]"
-								search-field-name="search"></d2l-search-widget>
-							<d2l-menu label="{{localize('filtering.department')}}">
-								<template is="dom-repeat" items="[[_departmentOrganizations]]">
-									<d2l-menu-item-filter
-										value="[[item.properties.id]]"
-										text="[[item.properties.name]]"
-										selected="[[item.properties.selected]]">
-									</d2l-menu-item-filter>
-								</template>
-							</d2l-menu>
-						</div>
-						<iron-scroll-threshold
-							id="scrollThreshold"
-							on-lower-threshold="_loadMore">
-						</iron-scroll-threshold>
-					</d2l-dropdown-content>
-				</d2l-dropdown>
+				<div>
+					<div id="filterSection">
+						<span id="filterText" class="dropdown-text" on-tap="_toggleFilterDropdown">{{localize('filtering.filter')}}</span>
+						<d2l-dropdown id="filterDropdown">
+							<button
+								class="d2l-dropdown-opener dropdown-button"
+								on-focus="_focusFilterText"
+								on-blur="_blurFilterText">
+								<d2l-icon icon="d2l-tier1:chevron-down" aria-hidden="true"></d2l-icon>
+							</button>
+							<d2l-dropdown-content id="filterDropdownContent" no-padding min-width="350">
+								<div class="dropdown-content-header">
+									<span class="dropdown-content-header-text">{{localize('filtering.filterBy')}}</span>
+									<template is="dom-if" if="[[_isFiltered]]">
+										<button class="clear-button" on-tap="_clearFilters">{{localize('filtering.clear')}}</button>
+									</template>
+								</div>
+								<div class="dropdown-content-tabs dropdown-content-gradient">
+									<div class="dropdown-content-tab">
+										<div class="dropdown-content-tab-highlight" id="semesterListHighlight"></div>
+										<button
+											id="semesterListButton"
+											class="dropdown-content-tab-button"
+											on-tap="_selectSemesterList"
+											aria-pressed="true">
+											{{localize('filtering.semester')}}
+										</button>
+									</div>
+									<div class="dropdown-content-tab">
+										<div class="dropdown-content-tab-highlight" id="departmentListHighlight"></div>
+										<button
+											id="departmentListButton"
+											class="dropdown-content-tab-button"
+											on-tap="_selectDepartmentList"
+											aria-pressed="false">
+											{{localize('filtering.department')}}
+										</button>
+									</div>
+								</div>
+								<div id="semesterList">
+									<d2l-search-widget
+										id="semesterSearchWidget"
+										search-action="[[_searchSemestersAction]]"
+										search-field-name="search"></d2l-search-widget>
+									<d2l-menu label="{{localize('filtering.semester')}}">
+										<template is="dom-repeat" items="[[_semesterOrganizations]]">
+											<d2l-menu-item-filter
+												value="[[item.properties.id]]"
+												text="[[item.properties.name]]"
+												selected="[[item.properties.selected]]">
+											</d2l-menu-item-filter>
+										</template>
+									</d2l-menu>
+								</div>
+								<div id="departmentList">
+									<d2l-search-widget
+										id="departmentSearchWidget"
+										search-action="[[_searchDepartmentsAction]]"
+										search-field-name="search"></d2l-search-widget>
+									<d2l-menu label="{{localize('filtering.department')}}">
+										<template is="dom-repeat" items="[[_departmentOrganizations]]">
+											<d2l-menu-item-filter
+												value="[[item.properties.id]]"
+												text="[[item.properties.name]]"
+												selected="[[item.properties.selected]]">
+											</d2l-menu-item-filter>
+										</template>
+									</d2l-menu>
+								</div>
+								<iron-scroll-threshold
+									id="scrollThreshold"
+									on-lower-threshold="_loadMore">
+								</iron-scroll-threshold>
+							</d2l-dropdown-content>
+						</d2l-dropdown>
+					</div>
 
-				<span id="sortText" class="dropdown-text" on-tap="_toggleSortDropdown">{{localize('sorting.sortDatePinned')}}</span>
-				<d2l-dropdown id="sortDropdown">
-					<button
-						class="d2l-dropdown-opener dropdown-button"
-						on-mouseenter="_onFocusSortText"
-						on-focus="_onFocusSortText"
-						on-mouseout="_onBlurSortText"
-						on-blur="_onBlurSortText">
-						<d2l-icon icon="d2l-tier1:chevron-down" aria-hidden="true"></d2l-icon>
-					</button>
-					<d2l-dropdown-menu no-padding min-width="350">
-						<d2l-menu label="{{localize('sorting.sortBy')}}">
-							<div class="dropdown-content-header">
-								<span class="dropdown-content-header-text">{{localize('sorting.sortBy')}}</span>
-							</div>
-							<d2l-menu-item-sort class="dropdown-content-gradient" value="courseCode" text="{{localize('sorting.courseCode')}}"></d2l-menu-item-sort>
-							<d2l-menu-item-sort value="courseName" text="{{localize('sorting.courseName')}}"></d2l-menu-item-sort>
-							<d2l-menu-item-sort value="pinDate" text="{{localize('sorting.datePinned')}}" selected></d2l-menu-item-sort>
-							<d2l-menu-item-sort value="lastAccessed" text="{{localize('sorting.lastAccessed')}}"></d2l-menu-item-sort>
-						</d2l-menu>
-					</d2l-dropdown-menu>
-				</d2l-dropdown>
+					<div id="sortSection">
+						<span id="sortText" class="dropdown-text" on-tap="_toggleSortDropdown">{{localize('sorting.sortDatePinned')}}</span>
+						<d2l-dropdown id="sortDropdown">
+							<button
+								class="d2l-dropdown-opener dropdown-button"
+								on-focus="_focusSortText"
+								on-blur="_blurSortText">
+								<d2l-icon icon="d2l-tier1:chevron-down" aria-hidden="true"></d2l-icon>
+							</button>
+							<d2l-dropdown-menu no-padding min-width="350">
+								<d2l-menu label="{{localize('sorting.sortBy')}}">
+									<div class="dropdown-content-header">
+										<span class="dropdown-content-header-text">{{localize('sorting.sortBy')}}</span>
+									</div>
+									<d2l-menu-item-sort class="dropdown-content-gradient" value="courseCode" text="{{localize('sorting.courseCode')}}"></d2l-menu-item-sort>
+									<d2l-menu-item-sort value="courseName" text="{{localize('sorting.courseName')}}"></d2l-menu-item-sort>
+									<d2l-menu-item-sort value="pinDate" text="{{localize('sorting.datePinned')}}" selected></d2l-menu-item-sort>
+									<d2l-menu-item-sort value="lastAccessed" text="{{localize('sorting.lastAccessed')}}"></d2l-menu-item-sort>
+								</d2l-menu>
+							</d2l-dropdown-menu>
+						</d2l-dropdown>
+					</div>
+				</div>
 			</div>
 		</div>
 
@@ -622,10 +633,6 @@
 				'pinDate': 'sorting.sortDatePinned',
 				'lastAccessed': 'sorting.sortLastAccessed'
 			},
-			_changeTextFocus: function(element, focused) {
-				this.toggleClass('highlight', focused, element);
-				this.toggleClass('selected', focused, element);
-			},
 			_checkFilterEntities: function(entities) {
 				entities.forEach(function(entity) {
 					entity.properties.selected = this._parentOrganizationIds.indexOf(entity.properties.id.toString()) > -1;
@@ -658,17 +665,17 @@
 				}
 				this.$.scrollThreshold.clearTriggers();
 			},
-			_onBlurFilterText: function() {
-				this._changeTextFocus(this.$.filterText, false);
+			_blurFilterText: function() {
+				this.toggleClass('focus', false, this.$.filterText);
 			},
-			_onBlurSortText: function() {
-				this._changeTextFocus(this.$.sortText, false);
+			_blurSortText: function() {
+				this.toggleClass('focus', false, this.$.sortText);
 			},
-			_onFocusFilterText: function() {
-				this._changeTextFocus(this.$.filterText, true);
+			_focusFilterText: function() {
+				this.toggleClass('focus', true, this.$.filterText);
 			},
-			_onFocusSortText: function() {
-				this._changeTextFocus(this.$.sortText, true);
+			_focusSortText: function() {
+				this.toggleClass('focus', true, this.$.sortText);
 			},
 			_updateMoreParameters: function(entity, moreUrlPath, hasMorePath) {
 				this._checkFilterEntities(entity.entities);
@@ -705,7 +712,8 @@
 				this._onMoreResponse(response, '_semesterOrganizations', '_moreSemestersUrl', '_hasMoreSemesters');
 			},
 			_onResize: function() {
-				this.toggleClass('hidden', window.innerWidth < 768, this.$.filterAndSort);
+				this.toggleClass('hidden', window.innerWidth < 768, this.$.filterSection);
+				this.toggleClass('hidden', window.innerWidth < 768, this.$.sortSection);
 			},
 			_selectSemesterList: function() {
 				this._toggleSelectedList(this.$.semesterList, this.$.semesterListButton, this.$.semesterListHighlight, true);
