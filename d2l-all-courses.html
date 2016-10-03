@@ -348,7 +348,8 @@
 							<button
 								class="d2l-dropdown-opener dropdown-button"
 								on-focus="_focusFilterText"
-								on-blur="_blurFilterText">
+								on-blur="_blurFilterText"
+								aria-labelledby="filterText">
 								<d2l-icon icon="d2l-tier1:chevron-down" aria-hidden="true"></d2l-icon>
 							</button>
 							<d2l-dropdown-content id="filterDropdownContent" no-padding min-width="350">
@@ -358,8 +359,8 @@
 										<button class="clear-button" on-tap="_clearFilters">{{localize('filtering.clear')}}</button>
 									</template>
 								</div>
-								<div class="dropdown-content-tabs dropdown-content-gradient">
-									<div class="dropdown-content-tab">
+								<div class="dropdown-content-tabs dropdown-content-gradient" role="tablist">
+									<div class="dropdown-content-tab" role="tab" aria-controls="semesterList">
 										<div class="dropdown-content-tab-highlight" id="semesterListHighlight"></div>
 										<button
 											id="semesterListButton"
@@ -369,7 +370,7 @@
 											{{localize('filtering.semester')}}
 										</button>
 									</div>
-									<div class="dropdown-content-tab">
+									<div class="dropdown-content-tab" role="tab" aria-controls="departmentList">
 										<div class="dropdown-content-tab-highlight" id="departmentListHighlight"></div>
 										<button
 											id="departmentListButton"
@@ -380,7 +381,7 @@
 										</button>
 									</div>
 								</div>
-								<div id="semesterList">
+								<div id="semesterList" aria-labelledby="semesterListButton" role="tabpanel">
 									<d2l-search-widget
 										id="semesterSearchWidget"
 										search-action="[[_searchSemestersAction]]"
@@ -395,7 +396,7 @@
 										</template>
 									</d2l-menu>
 								</div>
-								<div id="departmentList">
+								<div id="departmentList" aria-labelledby="departmentListButton" role="tabpanel">
 									<d2l-search-widget
 										id="departmentSearchWidget"
 										search-action="[[_searchDepartmentsAction]]"
@@ -424,7 +425,8 @@
 							<button
 								class="d2l-dropdown-opener dropdown-button"
 								on-focus="_focusSortText"
-								on-blur="_blurSortText">
+								on-blur="_blurSortText"
+								aria-labelledby="sortText">
 								<d2l-icon icon="d2l-tier1:chevron-down" aria-hidden="true"></d2l-icon>
 							</button>
 							<d2l-dropdown-menu no-padding min-width="350">
