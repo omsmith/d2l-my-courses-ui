@@ -131,8 +131,7 @@
 			},
 			_sirenParser: document.createElement('d2l-siren-parser'),
 			_updateGrid: function(organization) {
-				console.log(organization);
-
+				// TODO: Add 'department' to the organization HM entity and use that information here
 				if (organization && (organization.properties || {}).name) {
 					this._searchString = this._getSearchStringValue(organization.properties.name);
 				} else {
