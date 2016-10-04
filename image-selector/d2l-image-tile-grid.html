@@ -136,7 +136,7 @@
 				if (organization && (organization.properties || {}).name) {
 					this._searchString = this._getSearchStringValue(organization.properties.name);
 				} else {
-					this._searchString = this._getSearchStringValue('abstract');
+					this._searchString = this._getSearchStringValue('default');
 				}
 
 				if (this._searchString !== null) {
@@ -150,8 +150,8 @@
 
 				var parsedResponse = this._sirenParser.parse(response.detail.xhr.response);
 				this.images = parsedResponse.entities || [];
-				if (this.images.length === 0 && this._searchString !== this._getSearchStringValue('abstract')) {
-					this._searchString = this._getSearchStringValue('abstract');
+				if (this.images.length === 0 && this._searchString !== this._getSearchStringValue('default')) {
+					this._searchString = this._getSearchStringValue('default');
 					this.$.imagesRequest.generateRequest();
 				}
 			},
