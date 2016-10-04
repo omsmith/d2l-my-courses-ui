@@ -1,10 +1,10 @@
 <link rel="import" href="../../polymer/polymer.html">
+<link rel="import" href="../../d2l-ajax/d2l-ajax.html">
 <link rel="import" href="../localize-behavior.html">
 <link rel="import" href="../d2l-course-tile-responsive-grid-behavior.html">
 <link rel="import" href="../d2l-course-tile-grid-styles.html">
 <link rel="import" href="../../d2l-icons/d2l-icons.html">
 <link rel="import" href="d2l-image-selector-tile-styles.html">
-<link rel="import" href="../../d2l-ajax/d2l-ajax.html">
 
 <dom-module id="d2l-image-selector-tile">
 	<template>
@@ -46,8 +46,6 @@
 
 		Polymer({
 			is: 'd2l-image-selector-tile',
-			ready: function() {
-			},
 			properties: {
 				image: Object,
 				organization: Object,
@@ -68,7 +66,7 @@
 					return tile.href;
 				}
 			},
-			_getSetImageUrl() {
+			_getSetImageUrl: function() {
 				if (this.organization && this.image ) {
 					var setImageAction = this.organization.getActionByName('set-catalog-image') || {},
 						setImagePath = setImageAction.href || '';
