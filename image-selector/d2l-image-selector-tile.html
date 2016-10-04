@@ -67,7 +67,7 @@
 				}
 			},
 			_getSetImageUrl: function() {
-				if (this.organization && this.image ) {
+				if (this.organization && this.image) {
 					var setImageAction = this.organization.getActionByName('set-catalog-image') || {},
 						setImagePath = setImageAction.href || '';
 
