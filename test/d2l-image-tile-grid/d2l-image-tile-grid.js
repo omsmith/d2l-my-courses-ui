@@ -156,6 +156,7 @@ describe('<d2l-image-tile-grid>', function() {
 
 	it('Draws an image tile to the screen for each course image returned', function(done) {
 		var template = widget.$$('#enrollmentsTemplate');
+		widget._updateGrid({});
 		template.render();
 
 		widget.$.imagesRequest.addEventListener('iron-ajax-response', function() {
