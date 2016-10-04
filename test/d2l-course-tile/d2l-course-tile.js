@@ -259,15 +259,19 @@ describe('<d2l-course-tile>', function() {
 			expect(pinButton.text).to.equal('Pin');
 		});
 
-		it('should aria-announce the change in pin state', function() {
+		it('should aria-announce the change in pin state', function(done) {
 			server.respondWith(
 				'PUT',
 				'/enrollments/users/169/organizations/1',
 				[200, {}, JSON.stringify(enrollment)]);
 
+			widget.addEventListener('iron-announce', function(e) {
+				expect(widget.pinned).to.be.false;
+				expect(e.detail.text).to.equal('Course name has been unpinned');
+				done();
+			});
+
 			widget._hoverPinClickHandler(event);
-			expect(widget.pinned).to.be.false;
-			expect(widget.querySelector('d2l-offscreen').textContent).to.equal('Course name has been unpinned');
 		});
 	});
 });

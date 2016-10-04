@@ -4,9 +4,9 @@
 <link rel="import" href="../d2l-dropdown/d2l-dropdown-menu.html">
 <link rel="import" href="../d2l-icons/d2l-icons.html">
 <link rel="import" href="../d2l-menu/d2l-menu-item-link.html">
-<link rel="import" href="../d2l-offscreen/d2l-offscreen.html">
 <link rel="import" href="../d2l-polymer-behaviors/d2l-dom.html">
 <link rel="import" href="../d2l-siren-parser/d2l-siren-parser.html">
+<link rel="import" href="../iron-a11y-announcer/iron-a11y-announcer.html">
 <link rel="import" href="d2l-course-tile-styles.html">
 <link rel="import" href="localize-behavior.html">
 
@@ -39,9 +39,6 @@ in that organization - student, teacher, TA, etc.
 			on-iron-ajax-response="_onEnrollmentPinResponse"
 			on-iron-ajax-error="_onEnrollmentPinError">
 		</d2l-ajax>
-
-		<d2l-offscreen aria-live="polite">
-		</d2l-offscreen>
 
 		<div class="tile-container"
 			on-mouseover="_hoverCourseTile"
@@ -248,6 +245,8 @@ in that organization - student, teacher, TA, etc.
 				this._onFocus = this._onFocus.bind(this);
 				this._closeDropdown = this._closeDropdown.bind(this);
 				this._hoverCourseTile = this._hoverCourseTile.bind(this);
+
+				Polymer.IronA11yAnnouncer.requestAvailability();
 			},
 			/*
 			* Handler that triggers the API call to change an enrollment's pin state when the user says DO IT
@@ -291,7 +290,10 @@ in that organization - student, teacher, TA, etc.
 				this.toggleClass('unpin', true, this);
 
 				var localizeKey = this.pinned ? 'pinActionResult' : 'unpinActionResult';
-				this.$$('d2l-offscreen').textContent = this.localize(localizeKey, 'course', this._organization.properties.name);
+				var announceText = this.localize(localizeKey, 'course', this._organization.properties.name);
+				this.fire('iron-announce', {
+					text: announceText
+				}, { bubbles: true });
 
 				this._pendingPinAction = this.pinned;
 			},
