@@ -1,6 +1,5 @@
 <link rel="import" href="../../polymer/polymer.html">
 <link rel="import" href="d2l-image-selector-tile.html">
-<link rel="import" href="../../d2l-ajax/d2l-ajax.html">
 
 <dom-module id="d2l-image-tile-grid">
 	<template>
@@ -97,12 +96,6 @@
 		}
 		</style>
 
-		<d2l-ajax
-			id="imagesRequest"
-			url="[[_searchString]]"
-			headers='{ "Accept": "application/vnd.siren+json" }'
-			on-iron-ajax-response="_onImagesRequestResponse">
-		</d2l-ajax>
 
 		<div class="image-selector-tile-container responsive-columns-3-2-1 grid-container">
 			<template id="enrollmentsTemplate" is="dom-repeat" items="[[images]]">
@@ -122,45 +115,7 @@
 			is: 'd2l-image-tile-grid',
 			properties: {
 				images: Array,
-				imageCatalogLocation: String,
-				organization: {
-					type: Object,
-					observer: '_updateGrid'
-				},
-				_searchString: String
-			},
-			_sirenParser: document.createElement('d2l-siren-parser'),
-			_updateGrid: function(organization) {
-				// TODO: Add 'department' to the organization HM entity and use that information here
-				if (organization && (organization.properties || {}).name) {
-					this._searchString = this._getSearchStringValue(organization.properties.name);
-				} else {
-					this._searchString = this._getSearchStringValue('default');
-				}
-
-				if (this._searchString !== null) {
-					this.$.imagesRequest.generateRequest();
-				}
-			},
-			_onImagesRequestResponse: function(response) {
-				if (response.detail.status !== 200) {
-					return;
-				}
-
-				var parsedResponse = this._sirenParser.parse(response.detail.xhr.response);
-				this.images = parsedResponse.entities || [];
-				if (this.images.length === 0 && this._searchString !== this._getSearchStringValue('default')) {
-					this._searchString = this._getSearchStringValue('default');
-					this.$.imagesRequest.generateRequest();
-				}
-			},
-			_getSearchStringValue: function(search) {
-				if (!this.imageCatalogLocation) {
-					return null;
-				}
-
-				var endSlash = this.imageCatalogLocation.slice(-1) === '/' ? '' : '/';
-				return this.imageCatalogLocation + endSlash + 'images?search=' + search;
+				organization: Object,
 			}
 		});
 	</script>

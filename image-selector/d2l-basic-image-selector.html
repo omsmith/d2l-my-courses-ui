@@ -1,13 +1,37 @@
 <link rel="import" href="../../polymer/polymer.html">
+<link rel="import" href="../../d2l-ajax/d2l-ajax.html">
 <link rel="import" href="../localize-behavior.html">
+<link rel="import" href="../../d2l-search-widget/d2l-search-widget.html">
 <link rel="import" href="d2l-image-tile-grid.html">
 
 <dom-module id="d2l-basic-image-selector">
 	<template>
-		<style></style>
+		<style>
+			d2l-search-widget {
+				width: 50%;
+			}
+		</style>
+
+		<d2l-ajax
+			id="imagesRequest"
+			url="[[_searchString]]"
+			headers='{ "Accept": "application/vnd.siren+json" }'
+			on-iron-ajax-response="_onDefaultImagesRequestResponse">
+		</d2l-ajax>
+
+		<d2l-search-widget
+			id="image-search"
+			class="small"
+			search-action="[[_searchAction]]"
+			placeholder-text="[[localize('search')]]"
+			search-field-name="search"
+		>
+		</d2l-search-widget>
+
 		<d2l-image-tile-grid
 			image-catalog-location="[[imageCatalogLocation]]"
 			organization="[[organization]]"
+			images="[[_images]]"
 		></d2l-image-tile-grid>
 	</template>
 	<script>
@@ -15,11 +39,30 @@
 
 		Polymer({
 			is: 'd2l-basic-image-selector',
-			ready: function() {},
+			ready: function() {
+				this._images = this._defaultImages;
+				this.$$('d2l-search-widget').addEventListener('search-results-changed', function(response) {
+					this._searchImages = this.$$('d2l-search-widget').searchResults.entities || [];
+					this._updateImages();
+				}.bind(this));
+			},
 			properties: {
 				imageCatalogLocation: String,
-				organization: Object
+				organization: {
+					type: Object,
+					observer: '_updateOrganization',
+					_searchString: String
+				},
+				_defaultImages: Array,
+				_images: Array,
+				__searchAction: String,
+				_searchImages: {
+					type: Array,
+					value: [],
+					observer: '_searchImagesChanged'
+				}
 			},
+			behaviors: [ Polymer.D2L.MyCourses.LocalizeBehavior ],
 			focusableNodesOverride: function() {
 				var imageTileFocusables = [];
 				var grid = this.$$('d2l-image-tile-grid');
@@ -27,6 +70,67 @@
 					Array.prototype.push.apply(imageTileFocusables, Polymer.dom(imageTile.root).querySelectorAll('button'));
 				});
 				return imageTileFocusables;
+			},
+			_sirenParser: document.createElement('d2l-siren-parser'),
+			_onDefaultImagesRequestResponse: function(response) {
+				if (response.detail.status !== 200) {
+					return;
+				}
+
+				var parsedResponse = this._sirenParser.parse(response.detail.xhr.response);
+				this._defaultImages = parsedResponse.entities || [];
+
+				this._updateImages();
+
+				// if the default search gets nothing back, use the default images
+				if (this._defaultImages.length === 0 && this._searchString !== this._getSearchStringValue('default')) {
+					this._searchString = this._getSearchStringValue('default');
+					this.$.imagesRequest.generateRequest();
+				}
+			},
+			_processResponse: function(response, isSearch) {
+			},
+			_updateOrganization: function(organization) {
+				this._searchAction = JSON.stringify(this._getSearchAction());
+
+				// TODO: Add 'department' to the organization HM entity and use that information here
+				if (organization && (organization.properties || {}).name) {
+					this._searchString = this._getSearchStringValue(organization.properties.name);
+				} else {
+					this._searchString = this._getSearchStringValue('default');
+				}
+
+				if (this._searchString !== null) {
+					this.$.imagesRequest.generateRequest();
+				}
+			},
+			_getSearchAction: function() {
+				return {
+					name: 'search-catalog-image',
+					method: 'GET',
+					'href': this._getSearchPath(),
+					fields: [
+						{ name: 'search', type: 'search', value: '' }
+					]
+				};
+			},
+			_getSearchPath: function() {
+				if (!this.imageCatalogLocation) {
+					return null;
+				}
+
+				var endSlash = this.imageCatalogLocation.slice(-1) === '/' ? '' : '/';
+				return this.imageCatalogLocation + endSlash + 'images';
+			},
+			_getSearchStringValue: function(search) {
+				return this._getSearchPath() + '?search=' + search;
+			},
+			_updateImages: function() {
+				var searchImages = this._searchImages || [];
+				this._images = (searchImages.length > 0) ? searchImages : this._defaultImages;
+			},
+			_searchImagesChanged: function() {
+				this._updateImages();
 			}
 		});
 	</script>
