@@ -9,6 +9,7 @@
 		<style>
 			d2l-search-widget {
 				width: 50%;
+				margin-bottom: 60px;
 			}
 		</style>
 
@@ -87,8 +88,6 @@
 					this._searchString = this._getSearchStringValue('default');
 					this.$.imagesRequest.generateRequest();
 				}
-			},
-			_processResponse: function(response, isSearch) {
 			},
 			_updateOrganization: function(organization) {
 				this._searchAction = JSON.stringify(this._getSearchAction());

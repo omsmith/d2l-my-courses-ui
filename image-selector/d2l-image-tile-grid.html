@@ -49,7 +49,7 @@
 
 		@media screen and (min-width: 992px) {
 			.responsive-columns-3-2-1 {
-				padding: 0 20px;
+				padding: 0;
 			}
 
 			.responsive-columns-3-2-1 > .grid-child {
@@ -69,7 +69,7 @@
 
 		@media screen and (max-width: 991px) and (min-width: 768px) {
 			.responsive-columns-3-2-1 {
-				padding: 0 20px;
+				padding: 0;
 			}
 
 			.responsive-columns-3-2-1 > .grid-child {
@@ -88,6 +88,11 @@
 		}
 
 		@media screen and (max-width: 767px) {
+			.responsive-columns-3-2-1 {
+				margin: 0 -40px;
+				width: 100vw;
+			}
+
 			.responsive-columns-3-2-1 > .grid-child {
 				width: 100%;
 				padding-top: var(--breakpoint-one-column-height);
