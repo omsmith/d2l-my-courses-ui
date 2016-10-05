@@ -162,9 +162,7 @@ describe('smoke test', function() {
 			var checkEntitySpy = sandbox.spy(widget, '_checkFilterEntities');
 			var updateMoreParametersSpy = sandbox.spy(widget, '_updateMoreParameters');
 			var event = {
-				detail: {
-					value: organizationsEntity
-				}
+				detail: organizationsEntity
 			};
 
 			widget._onDepartmentSearchResults(event);
@@ -181,9 +179,7 @@ describe('smoke test', function() {
 			var checkEntitySpy = sandbox.spy(widget, '_checkFilterEntities');
 			var updateMoreParametersSpy = sandbox.spy(widget, '_updateMoreParameters');
 			var event = {
-				detail: {
-					value: organizationsEntity
-				}
+				detail: organizationsEntity
 			};
 
 			widget._onSemesterSearchResults(event);

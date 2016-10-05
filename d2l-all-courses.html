@@ -573,8 +573,6 @@
 				for (var i = 0; i < courseTileGrids.length; i++) {
 					courseTileGrids[i].getCourseTileItemCount = this.getCourseTileItemCount.bind(this);
 				}
-
-				this._selectSemesterList();
 			},
 			attached: function() {
 				this._onResize();
@@ -585,8 +583,10 @@
 
 				this.listen(this.$.semesterSearchWidget, 'search-results-changed', '_onSemesterSearchResults');
 				this.listen(this.$.departmentSearchWidget, 'search-results-changed', '_onDepartmentSearchResults');
-				this.$.semesterSearchWidget.search();
-				this.$.departmentSearchWidget.search();
+
+				// This calls .clear() on both search widgets (which searches wiht an empty query),
+				// so this needs to run after the handlers are set up.
+				this._selectSemesterList();
 
 				this.$.scrollThreshold.scrollTarget = this.$.filterDropdownContent.querySelector('.d2l-dropdown-content-container');
 			},
@@ -688,13 +688,13 @@
 				this.set(moreUrlPath, this[hasMorePath] ? entity.getLinkByRel('next').href : '');
 			},
 			_onDepartmentSearchResults: function(e) {
-				this.set('_departmentOrganizations', e.detail.value.entities);
-				this._updateMoreParameters(e.detail.value, '_moreDepartmentsUrl', '_hasMoreDepartments');
+				this.set('_departmentOrganizations', e.detail.entities);
+				this._updateMoreParameters(e.detail, '_moreDepartmentsUrl', '_hasMoreDepartments');
 				this.$.departmentList.querySelector('d2l-menu').resize();
 			},
 			_onSemesterSearchResults: function(e) {
-				this.set('_semesterOrganizations', e.detail.value.entities);
-				this._updateMoreParameters(e.detail.value, '_moreSemestersUrl', '_hasMoreSemesters');
+				this.set('_semesterOrganizations', e.detail.entities);
+				this._updateMoreParameters(e.detail, '_moreSemestersUrl', '_hasMoreSemesters');
 				this.$.semesterList.querySelector('d2l-menu').resize();
 			},
 			_onMoreResponse: function(response, organizationsPath, moreUrlPath, hasMorePath) {
