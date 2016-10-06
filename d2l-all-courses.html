@@ -344,12 +344,13 @@
 				<div>
 					<div id="filterSection">
 						<span id="filterText" class="dropdown-text" on-tap="_toggleFilterDropdown">{{localize('filtering.filter')}}</span>
-						<d2l-dropdown id="filterDropdown">
+						<d2l-dropdown id="filterDropdown" no-auto-open>
 							<button
 								class="d2l-dropdown-opener dropdown-button"
 								on-focus="_focusFilterText"
 								on-blur="_blurFilterText"
-								aria-labelledby="filterText">
+								aria-labelledby="filterText"
+								on-tap="_toggleFilterDropdown">
 								<d2l-icon icon="d2l-tier1:chevron-down" aria-hidden="true"></d2l-icon>
 							</button>
 							<d2l-dropdown-content id="filterDropdownContent" no-padding min-width="350">
@@ -423,12 +424,13 @@
 
 					<div id="sortSection">
 						<span id="sortText" class="dropdown-text" on-tap="_toggleSortDropdown">{{localize('sorting.sortDatePinned')}}</span>
-						<d2l-dropdown id="sortDropdown">
+						<d2l-dropdown id="sortDropdown" no-auto-open>
 							<button
 								class="d2l-dropdown-opener dropdown-button"
 								on-focus="_focusSortText"
 								on-blur="_blurSortText"
-								aria-labelledby="sortText">
+								aria-labelledby="sortText"
+								on-tap="_toggleSortDropdown">
 								<d2l-icon icon="d2l-tier1:chevron-down" aria-hidden="true"></d2l-icon>
 							</button>
 							<d2l-dropdown-menu no-padding min-width="350">
