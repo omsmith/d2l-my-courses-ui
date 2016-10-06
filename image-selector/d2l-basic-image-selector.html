@@ -29,11 +29,13 @@
 		>
 		</d2l-search-widget>
 
-		<d2l-image-tile-grid
-			image-catalog-location="[[imageCatalogLocation]]"
-			organization="[[organization]]"
-			images="[[_images]]"
-		></d2l-image-tile-grid>
+		<template is="dom-if" if="{{_showGrid}}">
+			<d2l-image-tile-grid
+				image-catalog-location="[[imageCatalogLocation]]"
+				organization="[[organization]]"
+				images="[[_images]]"
+			></d2l-image-tile-grid>
+		</template>
 	</template>
 	<script>
 		'use strict';
@@ -43,7 +45,15 @@
 			ready: function() {
 				this._images = this._defaultImages;
 				this.$$('d2l-search-widget').addEventListener('search-results-changed', function(response) {
-					this._searchImages = this.$$('d2l-search-widget').searchResults.entities || [];
+					var searchWidget = this.$$('d2l-search-widget');
+					this._searchImages = searchWidget.searchResults.entities || [];
+
+					var searchRegex = /search=([^&]*)/;
+					var searchHref = response.detail.value.getLinkByRel('self').href;
+					var match = searchRegex.exec(searchHref);
+					this._userSearchText = (match.length > 1) ? match[1] : null;
+					this._showGrid = (this._userSearchText || '') === '' || this._searchImages.length > 0;
+
 					this._updateImages();
 				}.bind(this));
 			},
@@ -56,11 +66,12 @@
 				},
 				_defaultImages: Array,
 				_images: Array,
-				__searchAction: String,
+				_searchAction: String,
+				_userSearchText: String,
+				_showGrid: Boolean,
 				_searchImages: {
 					type: Array,
-					value: [],
-					observer: '_searchImagesChanged'
+					value: []
 				}
 			},
 			behaviors: [ Polymer.D2L.MyCourses.LocalizeBehavior ],
@@ -83,7 +94,7 @@
 
 				this._updateImages();
 
-				// if the default search gets nothing back, use the default images
+				// if the course name search gets nothing back, use the default images
 				if (this._defaultImages.length === 0 && this._searchString !== this._getSearchStringValue('default')) {
 					this._searchString = this._getSearchStringValue('default');
 					this.$.imagesRequest.generateRequest();
@@ -91,6 +102,8 @@
 			},
 			_updateOrganization: function(organization) {
 				this._searchAction = JSON.stringify(this._getSearchAction());
+				this._userSearchText = null;
+				this._showGrid = true;
 
 				// TODO: Add 'department' to the organization HM entity and use that information here
 				if (organization && (organization.properties || {}).name) {
@@ -107,13 +120,13 @@
 				return {
 					name: 'search-catalog-image',
 					method: 'GET',
-					'href': this._getSearchPath(),
+					'href': this._searchPath,
 					fields: [
 						{ name: 'search', type: 'search', value: '' }
 					]
 				};
 			},
-			_getSearchPath: function() {
+			get _searchPath() {
 				if (!this.imageCatalogLocation) {
 					return null;
 				}
@@ -122,14 +135,11 @@
 				return this.imageCatalogLocation + endSlash + 'images';
 			},
 			_getSearchStringValue: function(search) {
-				return this._getSearchPath() + '?search=' + search;
+				return this._searchPath + '?search=' + search;
 			},
 			_updateImages: function() {
 				var searchImages = this._searchImages || [];
 				this._images = (searchImages.length > 0) ? searchImages : this._defaultImages;
-			},
-			_searchImagesChanged: function() {
-				this._updateImages();
 			}
 		});
 	</script>
