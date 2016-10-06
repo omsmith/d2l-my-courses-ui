@@ -140,7 +140,10 @@
 			title$="{{localize('changeImage')}}"
 			locale="[[locale]]"
 			with-backdrop>
-			<d2l-basic-image-selector locale="[[locale]]" image-catalog-location="[[imageCatalogLocation]]"></d2l-basic-image-selector>
+			<d2l-basic-image-selector
+				image-catalog-location="[[imageCatalogLocation]]"
+				organization="[[_setImageOrg]]"
+			></d2l-basic-image-selector>
 		</d2l-simple-overlay>
 
 	</template>
@@ -201,6 +204,11 @@
 				* @type {String}
 				*/
 				_semestersUrl: String,
+				/*
+				* The organization which the user is selecting the image of
+				* @type {Object}
+				*/
+				_setImageOrg: Object,
 				/*
 				* URL used by the search widget to fetch department-type organizations
 				* @type {String}
@@ -319,9 +327,13 @@
 				this.$$('iron-scroll-threshold').clearTriggers();
 				this._showContent();
 			},
-			_openChangeImageView: function() {
+			_openChangeImageView: function(e) {
 				var changeImageOverlay = this.$$('#basic-image-selector-overlay');
 				var basicImageSelector = this.$$('d2l-basic-image-selector');
+				if (e.detail.organization) {
+					this._setImageOrg = e.detail.organization;
+				}
+
 				changeImageOverlay.focusableNodesOverride = basicImageSelector.focusableNodesOverride.bind(basicImageSelector);
 
 				this.$$('#basic-image-selector-overlay').open();
