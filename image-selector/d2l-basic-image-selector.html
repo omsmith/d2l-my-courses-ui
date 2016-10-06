@@ -64,15 +64,10 @@
 					observer: '_updateOrganization'
 				},
 				_searchString: String,
-				_defaultImages: Array,
 				_images: Array,
 				_searchAction: String,
 				_userSearchText: String,
 				_showGrid: Boolean,
-				_searchImages: {
-					type: Array,
-					value: []
-				}
 			},
 			behaviors: [ Polymer.D2L.MyCourses.LocalizeBehavior ],
 			focusableNodesOverride: function() {
@@ -84,6 +79,8 @@
 				return imageTileFocusables;
 			},
 			_sirenParser: document.createElement('d2l-siren-parser'),
+			_searchImages: [],
+			_defaultImages: [],
 			_onDefaultImagesRequestResponse: function(response) {
 				if (response.detail.status !== 200) {
 					return;
@@ -120,7 +117,7 @@
 				return {
 					name: 'search-catalog-image',
 					method: 'GET',
-					'href': this._searchPath,
+					href: this._searchPath,
 					fields: [
 						{ name: 'search', type: 'search', value: '' }
 					]
