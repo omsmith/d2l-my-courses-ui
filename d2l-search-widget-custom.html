@@ -326,7 +326,9 @@
 						page: 1,
 						pageSize: 5,
 						parentOrganizationIds: this.parentOrganizationIds.join(','),
-						sortField: this.sortField
+						sortField: this.sortField,
+						// Need to reverse the order for sorting by name
+						sortDescending: this.sortField !== 'courseName'
 					};
 
 					this._searchUrl = this.createActionUrl(
