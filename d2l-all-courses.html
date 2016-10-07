@@ -641,7 +641,7 @@
 			},
 			_checkFilterEntities: function(entities) {
 				entities.forEach(function(entity) {
-					entity.properties.selected = this._parentOrganizationIds.indexOf(entity.properties.id.toString()) > -1;
+					entity.properties.selected = this._parentOrganizationIds.indexOf(entity.properties.id) > -1;
 				}.bind(this));
 			},
 			_clearFilters: function() {
