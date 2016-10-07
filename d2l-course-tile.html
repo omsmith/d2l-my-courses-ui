@@ -9,6 +9,7 @@
 <link rel="import" href="../iron-a11y-announcer/iron-a11y-announcer.html">
 <link rel="import" href="d2l-course-tile-styles.html">
 <link rel="import" href="localize-behavior.html">
+<link rel="import" href="d2l-utility-behavior.html">
 
 <!--
 `<d2l-course-tile>` is a clickable, interactable tile that represents a course
@@ -211,7 +212,8 @@ in that organization - student, teacher, TA, etc.
 				_courseSettingsLabel: String
 			},
 			behaviors: [
-				Polymer.D2L.MyCourses.LocalizeBehavior
+				Polymer.D2L.MyCourses.LocalizeBehavior,
+				Polymer.D2L.MyCourses.UtilityBehavior
 			],
 			listeners: {
 				'animationend': '_onAnimationComplete'
@@ -371,20 +373,10 @@ in that organization - student, teacher, TA, etc.
 
 					var courseImageEntity = organization.getSubEntityByClass('course-image');
 					if (courseImageEntity) {
-						var courseImageLink = courseImageEntity.getLinkByRel('alternate'),
-							courseImageLinks = courseImageEntity.getLinksByClass('tile'),
-							srcset = '';
-						courseImageLinks.forEach(function(link) {
-							srcset += link.hasClass('min') && !link.hasClass('high-density') ? link.href + ' 145w,' : '';
-							srcset += link.hasClass('min') && link.hasClass('high-density') ? link.href + ' 290w,' : '';
-							srcset += link.hasClass('mid') && !link.hasClass('high-density') ? link.href + ' 220w,' : '';
-							srcset += link.hasClass('mid') && link.hasClass('high-density') ? link.href + ' 440w,' : '';
-							srcset += link.hasClass('max') && !link.hasClass('high-density') ? link.href + ' 540w,' : '';
-							srcset += link.hasClass('max') && link.hasClass('high-density') ? link.href + ' 1080w,' : '';
-						});
+						var courseImageLink = courseImageEntity.getLinkByRel('alternate');
 						var courseImage = this.$$('.course-image img');
 						Polymer.dom(courseImage).setAttribute('src', courseImageLink.href);
-						Polymer.dom(courseImage).setAttribute('srcset', srcset);
+						Polymer.dom(courseImage).setAttribute('srcset', this.createSrcsetString(courseImageEntity));
 					}
 
 					this._organization = organization;
