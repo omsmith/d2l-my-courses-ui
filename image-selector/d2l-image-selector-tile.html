@@ -27,7 +27,7 @@
 				</button>
 			</div>
 			<div class="d2l-image-tile-content">
-				<img src="[[_getImageHref(image)]]" srcset="[[createSrcsetString(image)]]"></img>
+				<img id="image" src="[[_getImageHref(image)]]" srcset="[[createSrcsetString(image)]]"></img>
 			</div>
 
 			<d2l-ajax
@@ -56,6 +56,16 @@
 				Polymer.D2L.MyCourses.LocalizeBehavior,
 				Polymer.D2L.MyCourses.UtilityBehavior
 			],
+			attached: function() {
+				this._onResize();
+				window.addEventListener('resize', this._onResize.bind(this));
+			},
+			_onResize: function() {
+				// TODO: Fix so initial vpPercentage is right
+				var vpPercentage = this.$$('#image').width / $(window).width();
+				if (vpPercentage < 0.01) { return; }
+				this.$$('#image').setAttribute('sizes', vpPercentage*100 + 'vw');
+			},
 			_toggleOverlayOn: function() {
 				this.toggleClass('mobile-selected', true, this.$$('.d2l-image-tile'));
 			},
