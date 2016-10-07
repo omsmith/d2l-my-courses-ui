@@ -1,6 +1,5 @@
 <link rel="import" href="../../polymer/polymer.html">
 <link rel="import" href="d2l-image-selector-tile.html">
-<link rel="import" href="../../d2l-ajax/d2l-ajax.html">
 
 <dom-module id="d2l-image-tile-grid">
 	<template>
@@ -50,7 +49,7 @@
 
 		@media screen and (min-width: 992px) {
 			.responsive-columns-3-2-1 {
-				padding: 0 20px;
+				padding: 0;
 			}
 
 			.responsive-columns-3-2-1 > .grid-child {
@@ -70,7 +69,7 @@
 
 		@media screen and (max-width: 991px) and (min-width: 768px) {
 			.responsive-columns-3-2-1 {
-				padding: 0 20px;
+				padding: 0;
 			}
 
 			.responsive-columns-3-2-1 > .grid-child {
@@ -89,6 +88,11 @@
 		}
 
 		@media screen and (max-width: 767px) {
+			.responsive-columns-3-2-1 {
+				margin: 0 -40px;
+				width: 100vw;
+			}
+
 			.responsive-columns-3-2-1 > .grid-child {
 				width: 100%;
 				padding-top: var(--breakpoint-one-column-height);
@@ -97,12 +101,6 @@
 		}
 		</style>
 
-		<d2l-ajax
-			id="imagesRequest"
-			url="[[_searchString]]"
-			headers='{ "Accept": "application/vnd.siren+json" }'
-			on-iron-ajax-response="_onImagesRequestResponse">
-		</d2l-ajax>
 
 		<div class="image-selector-tile-container responsive-columns-3-2-1 grid-container">
 			<template id="enrollmentsTemplate" is="dom-repeat" items="[[images]]">
@@ -122,33 +120,7 @@
 			is: 'd2l-image-tile-grid',
 			properties: {
 				images: Array,
-				imageCatalogLocation: String,
 				organization: Object,
-				_searchString: String
-			},
-			_sirenParser: document.createElement('d2l-siren-parser'),
-			ready: function() {
-				// TODO: put a real value in here ('fabric' is a tag which gives results with our limited image set)
-				this._searchString = this._getSearchStringValue('fabric');
-
-				if (this._searchString !== null) {
-					// TODO: Hook these up to on open
-					this.$.imagesRequest.generateRequest();
-				}
-			},
-			_onImagesRequestResponse: function(response) {
-				if (response.detail.status === 200) {
-					var parsedResponse = this._sirenParser.parse(response.detail.xhr.response);
-					this.images = parsedResponse.entities || [];
-				}
-			},
-			_getSearchStringValue: function(search) {
-				if (!this.imageCatalogLocation) {
-					return null;
-				}
-
-				var endSlash = this.imageCatalogLocation.slice(-1) === '/' ? '' : '/';
-				return this.imageCatalogLocation + endSlash + 'images?search=' + search;
 			}
 		});
 	</script>
