@@ -53,7 +53,7 @@ in that organization - student, teacher, TA, etc.
 				</div>
 				<div class="course-text d2l-heading-4">{{_organization.properties.name}}</div>
 				<!-- Uncomment this line to get a temporary choose image button -->
-				<!-- <button on-click="_launchCourseTileImageSelector">Choose Image</button> -->
+				<button on-click="_launchCourseTileImageSelector">Choose Image</button>
 			</a>
 
 			<div class="hover-menu no-tap-interaction">
@@ -371,9 +371,20 @@ in that organization - student, teacher, TA, etc.
 
 					var courseImageEntity = organization.getSubEntityByClass('course-image');
 					if (courseImageEntity) {
-						var courseImageLink = courseImageEntity.getLinkByRel('alternate');
+						var courseImageLink = courseImageEntity.getLinkByRel('alternate'),
+							courseImageLinks = courseImageEntity.getLinksByClass('tile'),
+							srcset = '';
+						courseImageLinks.forEach(function(link) {
+							srcset += link.hasClass('min') && !link.hasClass('high-density') ? link.href + ' 145w,' : '';
+							srcset += link.hasClass('min') && link.hasClass('high-density') ? link.href + ' 290w,' : '';
+							srcset += link.hasClass('mid') && !link.hasClass('high-density') ? link.href + ' 220w,' : '';
+							srcset += link.hasClass('mid') && link.hasClass('high-density') ? link.href + ' 440w,' : '';
+							srcset += link.hasClass('max') && !link.hasClass('high-density') ? link.href + ' 540w,' : '';
+							srcset += link.hasClass('max') && link.hasClass('high-density') ? link.href + ' 1080w,' : '';
+						});
 						var courseImage = this.$$('.course-image img');
 						Polymer.dom(courseImage).setAttribute('src', courseImageLink.href);
+						Polymer.dom(courseImage).setAttribute('srcset', srcset);
 					}
 
 					this._organization = organization;
