@@ -11,6 +11,15 @@
 				width: 50%;
 				margin-bottom: 60px;
 			}
+
+			.no-results-search-text {
+				font-weight: bolder;
+			}
+
+			.no-results-text {
+				font-size: 30px;
+				margin-bottom: 12px;
+			}
 		</style>
 
 		<d2l-ajax
@@ -36,6 +45,15 @@
 				images="[[_images]]"
 			></d2l-image-tile-grid>
 		</template>
+
+		<template is="dom-if" if="{{!_showGrid}}">
+			<div class="no-results-area">
+				<div class="no-results-text">
+					<span>{{_noResultsTextStart}}</span><span class="no-results-search-text">{{_noResultsTextMid}}</span><span>{{_noResultsTextEnd}}</span>
+				</div>
+				<div class="please-change-text">{{localize('images.pleaseModify')}}</div>
+			</div>
+		</template>
 	</template>
 	<script>
 		'use strict';
@@ -48,11 +66,19 @@
 					var searchWidget = this.$$('d2l-search-widget');
 					this._searchImages = searchWidget.searchResults.entities || [];
 
-					var searchRegex = /search=([^&]*)/;
-					var searchHref = response.detail.getLinkByRel('self').href;
-					var match = searchRegex.exec(searchHref);
-					this._userSearchText = (match.length > 1) ? match[1] : null;
-					this._showGrid = (this._userSearchText || '') === '' || this._searchImages.length > 0;
+					var delimiter = '$$$DELIMITER???',
+						searchRegex = /search=([^&]*)/,
+						searchHref = decodeURIComponent( response.detail.getLinkByRel('self').href ),
+						match = searchRegex.exec(searchHref),
+						noResultsText = this.localize('images.noResults', 'search', delimiter),
+						userSearchText = (match.length > 1) ? match[1] : null,
+						noResultsSplit = noResultsText.split(delimiter);
+
+					this._noResultsTextStart = noResultsSplit[0];
+					this._noResultsTextMid = userSearchText;
+					this._noResultsTextEnd = noResultsSplit[1];
+
+					this._showGrid = (userSearchText || '') === '' || this._searchImages.length > 0;
 
 					this._updateImages();
 				}.bind(this));
@@ -66,7 +92,9 @@
 				_searchString: String,
 				_images: Array,
 				_searchAction: String,
-				_userSearchText: String,
+				_noResultsTextStart: String,
+				_noResultsTextMid: String,
+				_noResultsTextEnd: String,
 				_showGrid: Boolean,
 			},
 			behaviors: [ Polymer.D2L.MyCourses.LocalizeBehavior ],
@@ -78,6 +106,8 @@
 				});
 				return imageTileFocusables;
 			},
+			_defaultImages: [],
+			_searchImages: [],
 			_sirenParser: document.createElement('d2l-siren-parser'),
 			_searchImages: [],
 			_defaultImages: [],
@@ -99,7 +129,6 @@
 			},
 			_updateOrganization: function(organization) {
 				this._searchAction = JSON.stringify(this._getSearchAction());
-				this._userSearchText = null;
 				this._showGrid = true;
 
 				// TODO: Add 'department' to the organization HM entity and use that information here
