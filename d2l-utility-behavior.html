@@ -40,22 +40,22 @@
 			return queryString ? action.href + '?' + queryString : action.href;
 		},
 		/*
-		* Creates a string of image urls to be used for the srcset of a tile image
+		* Returns the best available image to use as a default
 		* @param {Entity} image
 		* @return {String}
 		*/
-		createSrcsetString: function(image) {
-			var imageLinks = image.getLinksByClass('tile'),
-				srcset = '';
+		getDefaultTileImageLink: function(image) {
+			var imageLinks = image.getLinksByClass('tile');
+			var lowMin, highMin, lowMid, highMid, lowMax, highMax;
 			imageLinks.forEach(function(link) {
-				srcset += link.hasClass('min') && !link.hasClass('high-density') ? link.href + ' 145w, ' : '';
-				srcset += link.hasClass('min') && link.hasClass('high-density') ? link.href + ' 290w, ' : '';
-				srcset += link.hasClass('mid') && !link.hasClass('high-density') ? link.href + ' 220w, ' : '';
-				srcset += link.hasClass('mid') && link.hasClass('high-density') ? link.href + ' 440w, ' : '';
-				srcset += link.hasClass('max') && !link.hasClass('high-density') ? link.href + ' 540w, ' : '';
-				srcset += link.hasClass('max') && link.hasClass('high-density') ? link.href + ' 1080w, ' : '';
+				lowMin = link.hasClass('min') && !link.hasClass('high-density') ? link.href : lowMin;
+				highMin = link.hasClass('min') && link.hasClass('high-density') ? link.href : highMin;
+				lowMid = link.hasClass('mid') && !link.hasClass('high-density') ? link.href : lowMid;
+				highMid = link.hasClass('mid') && link.hasClass('high-density') ? link.href : highMid;
+				lowMax = link.hasClass('max') && !link.hasClass('high-density') ? link.href : lowMax;
+				highMax = link.hasClass('max') && link.hasClass('high-density') ? link.href : highMax;
 			});
-			return srcset.trimRight().replace(/,\s*$/, "");
+			return highMax || lowMax || highMid || lowMid || highMin || lowMin;
 		},
 		/*
 		* Creates a unique identifier for an enrollment (really just the self Link href)

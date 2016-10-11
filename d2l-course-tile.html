@@ -375,11 +375,7 @@ in that organization - student, teacher, TA, etc.
 					if (courseImageEntity) {
 						var courseImageLink = courseImageEntity.getLinkByRel('alternate');
 						var courseImage = this.$$('.course-image img');
-						var vpPercentage = Polymer.dom(courseImage).node.width / $(window).width();
-						Polymer.dom(courseImage).setAttribute('src', courseImageLink.href);
-						Polymer.dom(courseImage).setAttribute('srcset', this.createSrcsetString(courseImageEntity));
-						// TODO: Do this on resize, check initial vpPercentage is right
-						Polymer.dom(courseImage).setAttribute('sizes', vpPercentage*100 + 'vw');
+						Polymer.dom(courseImage).setAttribute('src', this.getDefaultTileImageLink(courseImageEntity));
 					}
 
 					this._organization = organization;
