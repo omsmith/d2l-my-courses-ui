@@ -107,14 +107,12 @@ describe('smoke test', function() {
 		},
 		pinnedEnrollmentEntity,
 		unpinnedEnrollmentEntity,
-		organizationEntity,
 		organizationsEntity;
 
 	before(function() {
 		var parser = document.createElement('d2l-siren-parser');
 		pinnedEnrollmentEntity = parser.parse(pinnedEnrollment);
 		unpinnedEnrollmentEntity = parser.parse(unpinnedEnrollment);
-		organizationEntity = parser.parse(organization);
 		organizationsEntity = parser.parse(organizations);
 	});
 
@@ -164,9 +162,7 @@ describe('smoke test', function() {
 			var checkEntitySpy = sandbox.spy(widget, '_checkFilterEntities');
 			var updateMoreParametersSpy = sandbox.spy(widget, '_updateMoreParameters');
 			var event = {
-				detail: {
-					value: organizationsEntity
-				}
+				detail: organizationsEntity
 			};
 
 			widget._onDepartmentSearchResults(event);
@@ -183,9 +179,7 @@ describe('smoke test', function() {
 			var checkEntitySpy = sandbox.spy(widget, '_checkFilterEntities');
 			var updateMoreParametersSpy = sandbox.spy(widget, '_updateMoreParameters');
 			var event = {
-				detail: {
-					value: organizationsEntity
-				}
+				detail: organizationsEntity
 			};
 
 			widget._onSemesterSearchResults(event);
@@ -242,28 +236,6 @@ describe('smoke test', function() {
 			sinon.assert.calledWith(onMoreResponseSpy, sinon.match.object, '_semesterOrganizations', '_moreSemestersUrl', '_hasMoreSemesters');
 
 			sandbox.restore();
-		});
-	});
-
-	describe('A11Y', function() {
-		it('should announce when enrollment is pinned', function() {
-			var event = new CustomEvent('enrollment-pinned', {
-				detail: {
-					organization: organizationEntity
-				}
-			});
-			widget.dispatchEvent(event);
-			expect(widget.ariaMessage).to.equal(organizationEntity.properties.name + ' has been pinned');
-		});
-
-		it('should announce when enrollment is unpinned', function() {
-			var event = new CustomEvent('enrollment-unpinned', {
-				detail: {
-					organization: organizationEntity
-				}
-			});
-			widget.dispatchEvent(event);
-			expect(widget.ariaMessage).to.equal(organizationEntity.properties.name + ' has been unpinned');
 		});
 	});
 });

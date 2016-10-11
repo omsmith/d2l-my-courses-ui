@@ -5,6 +5,8 @@
 <link rel="import" href="d2l-interaction-detection-behavior.html">
 <link rel="import" href="d2l-course-tile-grid-styles.html">
 <link rel="import" href="d2l-utility-behavior.html">
+<link rel="import" href="d2l-touch-menu.html">
+<link rel="import" href="d2l-touch-menu-item.html">
 
 <!--
 `<d2l-course-tile-grid>` is the wrapper that contains several `<d2l-course-tile>` elements
@@ -325,10 +327,25 @@
 				// this grid), then we need to slide other tiles in to fill its place
 				var modifiedEnrollmentId = this.getEnrollmentIdentifier(e.detail.enrollment);
 
+				var enrollmentId;
 				for (var i = 0; i < this.enrollments.length; i++) {
-					var enrollmentId = this.getEnrollmentIdentifier(this.enrollments[i]);
+					enrollmentId = this.getEnrollmentIdentifier(this.enrollments[i]);
 					if (enrollmentId === modifiedEnrollmentId) {
 						this._animateTileSlide(false, i);
+						break;
+					}
+				}
+
+				// When a tile is pinned/unpinned, set focus to the next (or previous, if last) course tile
+				var courseTiles = Polymer.dom(this.root).querySelectorAll('d2l-course-tile');
+				for (i = 0; i < courseTiles.length; i++) {
+					enrollmentId = this.getEnrollmentIdentifier(courseTiles[i].enrollment);
+					if (enrollmentId === modifiedEnrollmentId) {
+						if (i < courseTiles.length - 1) {
+							courseTiles[i + 1].querySelector('a').focus();
+						} else if (i > 0) {
+							courseTiles[i - 1].querySelector('a').focus();
+						}
 						break;
 					}
 				}

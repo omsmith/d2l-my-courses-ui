@@ -3,7 +3,11 @@
 <link rel="import" href="../d2l-ajax/d2l-ajax.html">
 <link rel="import" href="../d2l-dropdown/d2l-dropdown.html">
 <link rel="import" href="../d2l-dropdown/d2l-dropdown-content.html">
+<link rel="import" href="../d2l-dropdown/d2l-dropdown-menu.html">
 <link rel="import" href="../d2l-icons/d2l-icons.html">
+<link rel="import" href="../d2l-menu/d2l-menu-item-styles.html">
+<link rel="import" href="../d2l-menu/d2l-menu-item-behavior.html">
+<link rel="import" href="../d2l-menu/d2l-menu-item.html">
 <link rel="import" href="../d2l-search-widget/d2l-search-widget.html">
 <link rel="import" href="d2l-alert.html">
 <link rel="import" href="d2l-course-management-behavior.html">
@@ -11,6 +15,158 @@
 <link rel="import" href="d2l-course-tile-responsive-grid-behavior.html">
 <link rel="import" href="d2l-search-widget-custom.html">
 <link rel="import" href="localize-behavior.html">
+
+<script>
+	'use strict';
+
+	(function() {
+		Polymer.D2L = Polymer.D2L || {};
+		Polymer.D2L.MyCourse = Polymer.D2L.MyCourses || {};
+
+		/** @polymerBehavior */
+		Polymer.D2L.MyCourses.CustomMenuItemBehaviorImpl = {
+			/*
+			* Fired when the sliding animation of course tiles is finished
+			* @event menu-item-selected
+			* @param {String} value `value` property of the item
+			* @param {Boolean} selected True if item is selected
+			*/
+
+			properties: {
+				isToggle: {
+					type: Boolean,
+					value: false
+				},
+				selected: {
+					type: Boolean,
+					value: false,
+					observer: '_onSelectedChanged',
+					reflectToAttribute: true
+				},
+				value: String
+			},
+			listeners: {
+				'tap': '_onTap',
+				'keydown': '_onKeydown'
+			},
+			_onSelectedChanged: function(selected) {
+				this.toggleClass('hidden', !selected, this.$$('d2l-icon'));
+				selected ? this.setAttribute('aria-selected', true) : this.removeAttribute('aria-selected');
+			},
+			_onKeydown: function(e) {
+				// Select on either Enter or Space
+				if (e.keyCode === 13 || e.keyCode === 32) {
+					this._onTap(e);
+				}
+			},
+			_onTap: function(e) {
+				this.set('selected', this.isToggle ? !this.selected : true);
+				e.preventDefault();
+				this.fire('menu-item-selected', {
+					value: this.value,
+					selected: this.selected
+				});
+			}
+		};
+
+		/** @polymerBehavior */
+		Polymer.D2L.MyCourses.CustomMenuItemBehavior = [
+			Polymer.D2L.MyCourses.CustomMenuItemBehaviorImpl,
+			window.D2L.PolymerBehaviors.MenuItemBehavior
+		];
+	})();
+</script>
+
+<dom-module id="d2l-menu-item-sort">
+	<template>
+		<style include"d2l-menu-item-styles">
+			:host {
+				display: block;
+				padding: 0.9rem 1rem;
+			}
+			:host span {
+				line-height: 1.2rem;
+			}
+			:host(:hover),
+			:host(:focus) {
+				color: var(--d2l-color-tungsten);
+			}
+			.hidden {
+				visibility: hidden;
+			}
+		</style>
+
+		<d2l-icon icon="d2l-tier1:check" aria-hidden="true"></d2l-icon>
+		<span>[[text]]</span>
+	</template>
+	<script>
+		'use strict';
+		Polymer({
+			is: 'd2l-menu-item-sort',
+			behaviors: [
+				Polymer.D2L.MyCourses.CustomMenuItemBehavior
+			]
+		});
+	</script>
+</dom-module>
+
+<dom-module id="d2l-menu-item-filter">
+	<template>
+		<style include="d2l-menu-item-styles">
+			:host {
+				display: block;
+				font-size: 0.8rem;
+				padding: 0.5rem 1rem;
+				overflow: hidden;
+				text-overflow: ellipsis;
+				white-space: nowrap;
+				border: none !important;
+			}
+			:host(:focus) > div,
+			:host(:hover) > div {
+				border-color: var(--d2l-color-celestine);
+			}
+			.hidden {
+				visibility: hidden;
+			}
+			.checkbox {
+				display: inline-block;
+				width: 1rem;
+				height: 1rem;
+				border: 2px solid var(--d2l-color-titanius);
+				border-radius: 0.3rem;
+				background-color: var(--d2l-color-woolonardo);
+				box-sizing: border-box;
+				margin-top: -0.2rem;
+				margin-right: 0.5rem;
+				vertical-align: middle;
+			}
+			d2l-icon {
+				margin-top: -0.4rem;
+				margin-left: 0.05rem;
+				--d2l-icon-height: 0.7rem;
+				--d2l-icon-width: 0.7rem;
+			}
+		</style>
+
+		<div class="checkbox">
+			<d2l-icon icon="d2l-tier1:check" aria-hidden="true"></d2l-icon>
+		</div>
+		<span>[[text]]</span>
+	</template>
+	<script>
+		'use strict';
+		Polymer({
+			is: 'd2l-menu-item-filter',
+			behaviors: [
+				Polymer.D2L.MyCourses.CustomMenuItemBehavior
+			],
+			ready: function() {
+				this.isToggle = true;
+			}
+		});
+	</script>
+</dom-module>
 
 <!--
 `<d2l-all-courses>` displays both pinned and unpinned courses
@@ -44,7 +200,7 @@
 				justify-content: space-between;
 				margin-bottom: 60px;
 			}
-			.search-and-filter > d2l-search-widget-custom {
+			.search-and-filter > * {
 				flex: 1
 			}
 			.dropdown-text {
@@ -57,15 +213,25 @@
 				cursor: pointer;
 				padding: 0;
 				margin-left: 1rem;
-				padding-right: 0.3rem;
 			}
-			.dropdown-text:hover,
-			.dropdown-text:focus {
-				color: var(--d2l-color-celestine);
+			#filterAndSort {
+				margin-left: auto;
+			}
+			#filterAndSort > div {
+				float: right;
+			}
+			#filterSection,
+			#sortSection {
+				float: left;
+			}
+			#filterSection:hover > span,
+			#filterSection:hover d2l-dropdown button d2l-icon,
+			#sortSection:hover > span,
+			#sortSection:hover d2l-dropdown button d2l-icon,
+			#filterSection d2l-dropdown button:focus d2l-icon,
+			#sortSection d2l-dropdown button:focus d2l-icon,
+			.focus {
 				text-decoration: underline;
-			}
-			.dropdown-text:hover + d2l-dropdown button d2l-icon,
-			.dropdown-text:focus + d2l-dropdown button d2l-icon {
 				color: var(--d2l-color-celestine);
 			}
 			d2l-dropdown > button:hover,
@@ -113,8 +279,6 @@
 				display: flex;
 				align-items: center;
 				justify-content: space-between;
-				margin-left: 20px;
-				margin-right: 20px;
 			}
 			.dropdown-content-tab {
 				flex: 1;
@@ -138,70 +302,19 @@
 				border-bottom-left-radius: 4px;
 				border-bottom-right-radius: 4px;
 				height: 4px;
-				width: 100%;
+				width: 80%;
+				margin: auto;
 			}
-			.dropdown-content-item {
-				@apply(--d2l-small-text);
-				/* overrides to d2l-small-text */
-				font-weight: lighter;
-				/* end overrides */
-				display: block;
-				background: none;
-				border: none;
-				cursor: pointer;
-				margin: 0;
-				padding-top: 20px;
-				padding-bottom: 20px;
-				padding-left: 20px;
-				width: 100%;
-				text-align: left;
-			}
-			.dropdown-content-item input[type=checkbox] {
-				margin-right: 15px;
-			}
-			.dropdown-content-item input[type=checkbox]:after {
-				content: '';
-				display: inline-block;
-				visibility: visible;
-				width: 1rem;
-				height: 1rem;
-				margin-left: -0.2rem;
-				border-radius: 0.3rem;
-				border-style: solid;
-				border-color: var(--d2l-color-titanius);
-				border-width: 1px;
-				background-color: var(--d2l-color-woolonardo);
-				box-sizing: border-box;
-			}
-			.dropdown-content-item input[type=checkbox]:focus::after {
-				border-color: var(--d2l-color-celestine);
-				border-width: 2px;
-			}
-			.dropdown-content-item input[type=checkbox]:checked::after {
-				background-image: url('../images/tier1/check.svg');
-				background-position: center center;
-				background-repeat: no-repeat;
-				background-size: 13px;
-			}
-			.dropdown-content-item > d2l-icon {
-				visibility: hidden;
-				margin-right: 20px;
-				margin-top: -5px;
-				--d2l-icon-height: 20px;
-				--d2l-icon-width: 20px;
-			}
-			#sortDropdown d2l-dropdown-content button {
-				border-bottom: 1px solid var(--d2l-color-gypsum);
-				font-size: 1rem;
+			button:focus,
+			button:hover,
+			.highlight {
+				text-decoration: underline;
 			}
 			.selected {
 				color: var(--d2l-color-celestine);
 			}
 			.selected > d2l-icon {
 				visibility: visible;
-			}
-			.highlight {
-				text-decoration: underline;
 			}
 		</style>
 
@@ -228,122 +341,112 @@
 			</d2l-search-widget-custom>
 
 			<div id="filterAndSort">
-				<span id="filterText" class="dropdown-text" on-tap="_toggleFilterDropdown">{{localize('filtering.filter')}}</span>
-				<d2l-dropdown id="filterDropdown">
-					<button
-						id="filterButton"
-						on-mouseenter="_onFocusFilterText"
-						on-mouseout="_onBlurFilterText"
-						class="d2l-dropdown-opener dropdown-button">
-						<d2l-icon icon="d2l-tier1:chevron-down" aria-hidden="true"></d2l-icon>
-					</button>
-					<d2l-dropdown-content id="filterDropdownContent" no-padding min-width="350">
-						<div class="dropdown-content-header">
-							<span class="dropdown-content-header-text">{{localize('filtering.filterBy')}}</span>
-							<template is="dom-if" if="[[_isFiltered]]">
-								<button class="clear-button" on-tap="_clearFilters">{{localize('filtering.clear')}}</button>
-							</template>
-						</div>
-						<div class="dropdown-content-gradient">
-							<div class="dropdown-content-tabs">
-								<div class="dropdown-content-tab">
-									<div class="dropdown-content-tab-highlight" id="semesterListHighlight"></div>
-									<button
-										id="semesterListButton"
-										class="dropdown-content-tab-button selected"
-										on-tap="_selectSemesterList"
-										aria-pressed="true">
-										{{localize('filtering.semester')}}
-									</button>
+				<div>
+					<div id="filterSection">
+						<span id="filterText" class="dropdown-text" on-tap="_toggleFilterDropdown">{{localize('filtering.filter')}}</span>
+						<d2l-dropdown id="filterDropdown" no-auto-open>
+							<button
+								class="d2l-dropdown-opener dropdown-button"
+								on-focus="_focusFilterText"
+								on-blur="_blurFilterText"
+								aria-labelledby="filterText"
+								on-tap="_toggleFilterDropdown">
+								<d2l-icon icon="d2l-tier1:chevron-down" aria-hidden="true"></d2l-icon>
+							</button>
+							<d2l-dropdown-content id="filterDropdownContent" no-padding min-width="350">
+								<div class="dropdown-content-header">
+									<span class="dropdown-content-header-text">{{localize('filtering.filterBy')}}</span>
+									<template is="dom-if" if="[[_isFiltered]]">
+										<button class="clear-button" on-tap="_clearFilters">{{localize('filtering.clear')}}</button>
+									</template>
 								</div>
-								<div class="dropdown-content-tab">
-									<div class="dropdown-content-tab-highlight invisible" id="departmentListHighlight"></div>
-									<button
-										id="departmentListButton"
-										class="dropdown-content-tab-button"
-										on-tap="_selectDepartmentList"
-										aria-pressed="false">
-										{{localize('filtering.department')}}
-									</button>
+								<div class="dropdown-content-tabs dropdown-content-gradient" role="tablist">
+									<div class="dropdown-content-tab" role="tab" aria-controls="semesterList">
+										<div class="dropdown-content-tab-highlight" id="semesterListHighlight"></div>
+										<button
+											id="semesterListButton"
+											class="dropdown-content-tab-button"
+											on-tap="_selectSemesterList"
+											aria-pressed="true">
+											{{localize('filtering.semester')}}
+										</button>
+									</div>
+									<div class="dropdown-content-tab" role="tab" aria-controls="departmentList">
+										<div class="dropdown-content-tab-highlight" id="departmentListHighlight"></div>
+										<button
+											id="departmentListButton"
+											class="dropdown-content-tab-button"
+											on-tap="_selectDepartmentList"
+											aria-pressed="false">
+											{{localize('filtering.department')}}
+										</button>
+									</div>
 								</div>
-							</div>
-						</div>
-						<div id="semesterList">
-							<d2l-search-widget
-								id="semesterSearchWidget"
-								search-action="[[_searchSemestersAction]]"
-								search-field-name="search"></d2l-search-widget>
-							<template is="dom-repeat" items="[[_semesterOrganizations]]">
-								<div class="dropdown-content-item">
-									<label>
-										<input
-											type="checkbox"
-											value="[[item.properties.id]]"
-											checked="[[item.properties.checked]]"
-											on-tap="_updateFilter" />
-										[[item.properties.name]]
-									</label>
+								<div id="semesterList" aria-labelledby="semesterListButton" role="tabpanel">
+									<d2l-search-widget
+										id="semesterSearchWidget"
+										placeholder-text="{{localize('filtering.searchSemesters')}}"
+										search-action="[[_searchSemestersAction]]"
+										search-field-name="search"></d2l-search-widget>
+									<d2l-menu label="{{localize('filtering.semester')}}">
+										<template is="dom-repeat" items="[[_semesterOrganizations]]">
+											<d2l-menu-item-filter
+												value="[[item.properties.id]]"
+												text="[[item.properties.name]]"
+												selected="[[item.properties.selected]]">
+											</d2l-menu-item-filter>
+										</template>
+									</d2l-menu>
 								</div>
-							</template>
-						</div>
-						<div id="departmentList" class="hidden">
-							<d2l-search-widget
-								id="departmentSearchWidget"
-								search-action="[[_searchDepartmentsAction]]"
-								search-field-name="search"></d2l-search-widget>
-							<template is="dom-repeat" items="[[_departmentOrganizations]]">
-								<div class="dropdown-content-item">
-									<label>
-										<input
-											type="checkbox"
-											value="[[item.properties.id]]"
-											checked="[[item.properties.checked]]"
-											on-tap="_updateFilter" />
-										[[item.properties.name]]
-									</label>
+								<div id="departmentList" aria-labelledby="departmentListButton" role="tabpanel">
+									<d2l-search-widget
+										id="departmentSearchWidget"
+										placeholder-text="{{localize('filtering.searchDepartments')}}"
+										search-action="[[_searchDepartmentsAction]]"
+										search-field-name="search"></d2l-search-widget>
+									<d2l-menu label="{{localize('filtering.department')}}">
+										<template is="dom-repeat" items="[[_departmentOrganizations]]">
+											<d2l-menu-item-filter
+												value="[[item.properties.id]]"
+												text="[[item.properties.name]]"
+												selected="[[item.properties.selected]]">
+											</d2l-menu-item-filter>
+										</template>
+									</d2l-menu>
 								</div>
-							</template>
-						</div>
-						<iron-scroll-threshold
-							id="scrollThreshold"
-							on-lower-threshold="_loadMore">
-						</iron-scroll-threshold>
-					</d2l-dropdown-content>
-				</d2l-dropdown>
+								<iron-scroll-threshold
+									id="scrollThreshold"
+									on-lower-threshold="_loadMore">
+								</iron-scroll-threshold>
+							</d2l-dropdown-content>
+						</d2l-dropdown>
+					</div>
 
-				<span id="sortText" class="dropdown-text" on-tap="_toggleSortDropdown">{{localize('sorting.sortDatePinned')}}</span>
-				<d2l-dropdown id="sortDropdown">
-					<button
-						id="sortButton"
-						on-mouseenter="_onFocusSortText"
-						on-mouseout="_onBlurSortText"
-						class="d2l-dropdown-opener dropdown-button">
-						<d2l-icon icon="d2l-tier1:chevron-down" aria-hidden="true"></d2l-icon>
-					</button>
-					<d2l-dropdown-content no-padding min-width="350">
-						<div class="dropdown-content-header">
-							<span class="dropdown-content-header-text">{{localize('sorting.sortBy')}}</span>
-						</div>
-						<div class="dropdown-content-gradient">
-							<button class="dropdown-content-item" value="courseCode" on-tap="_updateSortBy">
-								<d2l-icon icon="d2l-tier1:check" aria-hidden="true"></d2l-icon>
-								{{localize('sorting.courseCode')}}
+					<div id="sortSection">
+						<span id="sortText" class="dropdown-text" on-tap="_toggleSortDropdown">{{localize('sorting.sortDatePinned')}}</span>
+						<d2l-dropdown id="sortDropdown" no-auto-open>
+							<button
+								class="d2l-dropdown-opener dropdown-button"
+								on-focus="_focusSortText"
+								on-blur="_blurSortText"
+								aria-labelledby="sortText"
+								on-tap="_toggleSortDropdown">
+								<d2l-icon icon="d2l-tier1:chevron-down" aria-hidden="true"></d2l-icon>
 							</button>
-							<button class="dropdown-content-item" value="courseName" on-tap="_updateSortBy">
-								<d2l-icon icon="d2l-tier1:check" aria-hidden="true"></d2l-icon>
-								{{localize('sorting.courseName')}}
-							</button>
-							<button class="dropdown-content-item selected" value="pinDate" on-tap="_updateSortBy">
-								<d2l-icon icon="d2l-tier1:check" aria-hidden="true"></d2l-icon>
-								{{localize('sorting.datePinned')}}
-							</button>
-							<button class="dropdown-content-item" value="lastAccessed" on-tap="_updateSortBy">
-								<d2l-icon icon="d2l-tier1:check" aria-hidden="true"></d2l-icon>
-								{{localize('sorting.lastAccessed')}}
-							</button>
-						</div>
-					</d2l-dropdown-content>
-				</d2l-dropdown>
+							<d2l-dropdown-menu no-padding min-width="350">
+								<d2l-menu label="{{localize('sorting.sortBy')}}">
+									<div class="dropdown-content-header">
+										<span class="dropdown-content-header-text">{{localize('sorting.sortBy')}}</span>
+									</div>
+									<d2l-menu-item-sort class="dropdown-content-gradient" value="courseCode" text="{{localize('sorting.courseCode')}}"></d2l-menu-item-sort>
+									<d2l-menu-item-sort value="courseName" text="{{localize('sorting.courseName')}}"></d2l-menu-item-sort>
+									<d2l-menu-item-sort value="pinDate" text="{{localize('sorting.datePinned')}}" selected></d2l-menu-item-sort>
+									<d2l-menu-item-sort value="lastAccessed" text="{{localize('sorting.lastAccessed')}}"></d2l-menu-item-sort>
+								</d2l-menu>
+							</d2l-dropdown-menu>
+						</d2l-dropdown>
+					</div>
+				</div>
 			</div>
 		</div>
 
@@ -477,15 +580,23 @@
 				this._onResize();
 				window.addEventListener('resize', this._onResize.bind(this));
 
+				this.listen(this.$.sortDropdown, 'menu-item-selected', '_updateSortBy');
+				this.listen(this.$.filterDropdown, 'menu-item-selected', '_updateFilter');
+
 				this.listen(this.$.semesterSearchWidget, 'search-results-changed', '_onSemesterSearchResults');
 				this.listen(this.$.departmentSearchWidget, 'search-results-changed', '_onDepartmentSearchResults');
-				this.$.semesterSearchWidget.search();
-				this.$.departmentSearchWidget.search();
+
+				// This calls .clear() on both search widgets (which searches wiht an empty query),
+				// so this needs to run after the handlers are set up.
+				this._selectSemesterList();
 
 				this.$.scrollThreshold.scrollTarget = this.$.filterDropdownContent.querySelector('.d2l-dropdown-content-container');
 			},
 			detached: function() {
 				window.removeEventListener('resize', this._onResize.bind(this));
+
+				this.unlisten(this.$.sortDropdown, 'menu-item-selected', '_updateSortBy');
+				this.unlisten(this.$.filterDropdown, 'menu-item-selected', '_updateFilter');
 
 				this.unlisten(this.$.semesterSearchWidget, 'search-results-changed', '_onSemesterSearchResults');
 				this.unlisten(this.$.departmentSearchWidget, 'search-results-changed', '_onDepartmentSearchResults');
@@ -528,20 +639,18 @@
 				'pinDate': 'sorting.sortDatePinned',
 				'lastAccessed': 'sorting.sortLastAccessed'
 			},
-			_changeTextFocus: function(element, focused) {
-				this.toggleClass('highlight', focused, element);
-				this.toggleClass('selected', focused, element);
-			},
 			_checkFilterEntities: function(entities) {
 				entities.forEach(function(entity) {
-					entity.properties.checked = this._parentOrganizationIds.indexOf(entity.properties.id.toString()) > -1;
+					entity.properties.selected = this._parentOrganizationIds.indexOf(entity.properties.id) > -1;
 				}.bind(this));
 			},
 			_clearFilters: function() {
-				Polymer.dom(this.root).querySelectorAll('.dropdown-content-item input').forEach(function(checkbox) {
-					checkbox.checked = false;
+				Polymer.dom(this.$.filterDropdown).querySelectorAll('d2l-menu-item-filter').forEach(function(item) {
+					item.selected = false;
 				});
 				this._isFiltered = false;
+				// Clear button is removed via dom-if, so need to manually set focus to next element
+				this.$.semesterListButton.focus();
 				this._parentOrganizationIds = [];
 				this.$.filterText.textContent = this.localize('filtering.filter');
 				this.$.semesterListButton.textContent = this.localize('filtering.semester');
@@ -562,17 +671,17 @@
 				}
 				this.$.scrollThreshold.clearTriggers();
 			},
-			_onBlurFilterText: function() {
-				this._changeTextFocus(this.$.filterText, false);
+			_blurFilterText: function() {
+				this.toggleClass('focus', false, this.$.filterText);
 			},
-			_onBlurSortText: function() {
-				this._changeTextFocus(this.$.sortText, false);
+			_blurSortText: function() {
+				this.toggleClass('focus', false, this.$.sortText);
 			},
-			_onFocusFilterText: function() {
-				this._changeTextFocus(this.$.filterText, true);
+			_focusFilterText: function() {
+				this.toggleClass('focus', true, this.$.filterText);
 			},
-			_onFocusSortText: function() {
-				this._changeTextFocus(this.$.sortText, true);
+			_focusSortText: function() {
+				this.toggleClass('focus', true, this.$.sortText);
 			},
 			_updateMoreParameters: function(entity, moreUrlPath, hasMorePath) {
 				this._checkFilterEntities(entity.entities);
@@ -581,12 +690,14 @@
 				this.set(moreUrlPath, this[hasMorePath] ? entity.getLinkByRel('next').href : '');
 			},
 			_onDepartmentSearchResults: function(e) {
-				this.set('_departmentOrganizations', e.detail.value.entities);
-				this._updateMoreParameters(e.detail.value, '_moreDepartmentsUrl', '_hasMoreDepartments');
+				this.set('_departmentOrganizations', e.detail.entities);
+				this._updateMoreParameters(e.detail, '_moreDepartmentsUrl', '_hasMoreDepartments');
+				this.$.departmentList.querySelector('d2l-menu').resize();
 			},
 			_onSemesterSearchResults: function(e) {
-				this.set('_semesterOrganizations', e.detail.value.entities);
-				this._updateMoreParameters(e.detail.value, '_moreSemestersUrl', '_hasMoreSemesters');
+				this.set('_semesterOrganizations', e.detail.entities);
+				this._updateMoreParameters(e.detail, '_moreSemestersUrl', '_hasMoreSemesters');
+				this.$.semesterList.querySelector('d2l-menu').resize();
 			},
 			_onMoreResponse: function(response, organizationsPath, moreUrlPath, hasMorePath) {
 				if (response.detail.status === 200 || response.detail.status === 304) {
@@ -607,19 +718,22 @@
 				this._onMoreResponse(response, '_semesterOrganizations', '_moreSemestersUrl', '_hasMoreSemesters');
 			},
 			_onResize: function() {
-				this.toggleClass('hidden', window.innerWidth < 768, this.$.filterAndSort);
+				this.toggleClass('hidden', window.innerWidth < 768, this.$.filterSection);
+				this.toggleClass('hidden', window.innerWidth < 768, this.$.sortSection);
 			},
 			_selectSemesterList: function() {
 				this._toggleSelectedList(this.$.semesterList, this.$.semesterListButton, this.$.semesterListHighlight, true);
 				this._toggleSelectedList(this.$.departmentList, this.$.departmentListButton, this.$.departmentListHighlight, false);
 				this.$.semesterSearchWidget.clear();
 				this.$.departmentSearchWidget.clear();
+				this.$.semesterList.querySelector('d2l-menu').resize();
 			},
 			_selectDepartmentList: function() {
 				this._toggleSelectedList(this.$.departmentList, this.$.departmentListButton, this.$.departmentListHighlight, true);
 				this._toggleSelectedList(this.$.semesterList, this.$.semesterListButton, this.$.semesterListHighlight, false);
 				this.$.semesterSearchWidget.clear();
 				this.$.departmentSearchWidget.clear();
+				this.$.departmentList.querySelector('d2l-menu').resize();
 			},
 			_toggleSelectedList: function(list, button, highlight, selected) {
 				this.toggleClass('hidden', !selected, list);
@@ -629,6 +743,8 @@
 			},
 			_toggleFilterDropdown: function() {
 				this.$.filterDropdown.toggleOpen();
+				this.$.departmentList.querySelector('d2l-menu').resize();
+				this.$.semesterList.querySelector('d2l-menu').resize();
 			},
 			_toggleSortDropdown: function() {
 				this.$.sortDropdown.toggleOpen();
@@ -636,11 +752,11 @@
 			_updateFilter: function(e) {
 				var isSemester = this.$.semesterList.contains(e.target);
 
-				if (e.target.checked) {
-					this.push('_parentOrganizationIds', e.target.value);
+				if (e.detail.selected) {
+					this.push('_parentOrganizationIds', e.detail.value);
 					isSemester ? this._numSemesterFilters++ : this._numDepartmentFilters++;
 				} else {
-					var index = this._parentOrganizationIds.indexOf(e.target.value);
+					var index = this._parentOrganizationIds.indexOf(e.detail.value);
 					this.splice('_parentOrganizationIds', index, 1);
 					isSemester ? this._numSemesterFilters-- : this._numDepartmentFilters--;
 				}
@@ -662,16 +778,16 @@
 					: this.localize('filtering.department');
 			},
 			_updateSortBy: function(e) {
-				this._sortField = e.target.value;
+				this.set('_sortField', e.detail.value);
 
-				var buttons = Polymer.dom(this.root).querySelectorAll('#sortDropdown .dropdown-content-item');
-				buttons.forEach(function(button) {
-					this.toggleClass('selected', button.value === e.target.value, button);
+				var menuItems = Polymer.dom(this.$.sortDropdown).querySelectorAll('d2l-menu-item-sort');
+				menuItems.forEach(function(item) {
+					if (item.value !== this._sortField) {
+						item.selected = false;
+					}
 				}.bind(this));
 
-				var sortText = this.localize(this._sortTextOptions[this._sortField] || '');
-
-				this.$.sortText.textContent = sortText;
+				this.$.sortText.textContent = this.localize(this._sortTextOptions[this._sortField] || '');
 			}
 		});
 	</script>
