@@ -644,6 +644,9 @@
 			loadCourseTiles: function() {
 				this.delayCourseTileLoad = false;
 			},
+			setCourseImage: function(details) {
+				this.$$('d2l-course-tile-grid').setCourseImage(details);
+			},
 			_numSemesterFilters: 0,
 			_numDepartmentFilters: 0,
 			_sortTextOptions: {

@@ -78,15 +78,24 @@
 
 				return '';
 			},
-			_onSetImageResponse: function() {
-				// TODO: Use this or remove it
+			_onSetImageResponse: function(response) {
+				var status = response.detail.status === 200 ? 'success': 'failure';
+				this._fireCourseImageMessage(status);
 			},
 			_onSetImageError: function() {
-				// TODO: implement error handing of some sort
+				this._fireCourseImageMessage('failure');
+			},
+			_fireCourseImageMessage: function(status) {
+				this.fire('set-course-image', {
+					organization: this.organization,
+					image: this.image,
+					status: status
+				});
 			},
 			_selectImage: function() {
 				this._setImageUrl = this._getSetImageUrl();
 				this.$.setImageRequest.generateRequest();
+				this._fireCourseImageMessage('set');
 				this.fire('close-simple-overlay');
 			}
 		});
