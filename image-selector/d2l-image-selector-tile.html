@@ -62,12 +62,6 @@
 			_toggleOverlayOff: function() {
 				this.toggleClass('mobile-selected', false, this.$$('.d2l-image-tile'));
 			},
-			_getImageHref: function(image) {
-				var tile = image && image.getLinkByClass('tile');
-				if (tile) {
-					return tile.href;
-				}
-			},
 			_getSetImageUrl: function() {
 				if (this.organization && this.image) {
 					var setImageAction = this.organization.getActionByName('set-catalog-image') || {},
