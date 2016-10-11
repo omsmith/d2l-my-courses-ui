@@ -112,9 +112,12 @@
 				return this.enrollments.length;
 			},
 			setCourseImage: function(detail) {
+				if (!detail) {
+					return;
+				}
+
 				var container = this.$$('.course-tile-container'),
 					courseTiles = container.querySelectorAll('d2l-course-tile'),
-					detail = detail || {},
 					organization = (detail.detail || {}).organization;
 
 				if (!organization || !organization.properties) {
