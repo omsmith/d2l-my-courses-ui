@@ -310,14 +310,13 @@ in that organization - student, teacher, TA, etc.
 			setCourseImage: function(details) {
 				details = details || {};
 				var courseImage = this.$$('.course-image img');
+				var newImage = details.image.getLinkByClass('tile');
 
 				switch (details.status) {
 					case 'set':
-						var newImage = details.image.getLinkByClass('tile');
 						Polymer.dom(courseImage).setAttribute('src', newImage.href);
 						break;
 					case 'success':
-						var newImage = details.image.getLinkByClass('tile');
 						Polymer.dom(courseImage).setAttribute('src', newImage.href);
 						this._imageOverrideHref = newImage.href; // set an override in case the revert is run later on
 						break;
