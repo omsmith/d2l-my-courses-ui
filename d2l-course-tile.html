@@ -373,7 +373,6 @@ in that organization - student, teacher, TA, etc.
 
 					var courseImageEntity = organization.getSubEntityByClass('course-image');
 					if (courseImageEntity) {
-						var courseImageLink = courseImageEntity.getLinkByRel('alternate');
 						var courseImage = this.$$('.course-image img');
 						Polymer.dom(courseImage).setAttribute('src', this.getDefaultTileImageLink(courseImageEntity));
 					}
