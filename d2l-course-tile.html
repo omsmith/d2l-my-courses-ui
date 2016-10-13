@@ -53,8 +53,6 @@ in that organization - student, teacher, TA, etc.
 					</div>
 				</div>
 				<div class="course-text d2l-heading-4">{{_organization.properties.name}}</div>
-				<!-- Uncomment this line to get a temporary choose image button -->
-				<button on-click="_launchCourseTileImageSelector">Choose Image</button>
 			</a>
 
 			<div class="hover-menu no-tap-interaction">
@@ -64,11 +62,11 @@ in that organization - student, teacher, TA, etc.
 					</button>
 					<d2l-dropdown-menu id="overflow-dropdown">
 						<d2l-menu label$="[[_courseSettingsLabel]]">
-							<template is="dom-if" if="{{_organizationChangeImageHref}}" restamp="true">
-								<d2l-menu-item-link id="change-image-link"
+							<template is="dom-if" if="{{_canChangeCourseImage}}" restamp="true">
+								<d2l-menu-item id="change-image-button"
 									text="{{localize('changeImage')}}"
-									href="{{_organizationChangeImageHref}}">
-								</d2l-menu-item-link>
+									on-select="_launchCourseTileImageSelector">
+								</d2l-menu-item>
 							</template>
 							<d2l-menu-item id="pin-button"
 								text$="[[_pinLabel]]"
@@ -396,7 +394,7 @@ in that organization - student, teacher, TA, etc.
 					this._organization = organization;
 					this._setCourseImageSrc();
 					this._organizationHomepageUrl = organization.getLinkByRel(/\/organization-homepage$/).href;
-					this._organizationChangeImageHref = this._getChangeCourseImageLink(organization);
+					this._canChangeCourseImage = this._getCanChangeCourseImage(organization);
 					this._pinnedChanged();
 					this._courseSettingsLabel = this.localize('courseSettings', 'course', this._organization.properties.name);
 				}
@@ -425,12 +423,9 @@ in that organization - student, teacher, TA, etc.
 			_unhoverPinMenuItem: function() {
 				this._onUnpinHover({detail: {hoverState: false}});
 			},
-			_getChangeCourseImageLink: function(organization) {
+			_getCanChangeCourseImage: function(organization) {
 				var rel = /edit-image-page/;
-				var editImagePage = organization && organization.getLinkByRel(rel);
-				if (editImagePage) {
-					return editImagePage.href;
-				}
+				return organization && organization.getLinkByRel(rel);
 			},
 			_setCourseImageSrc: function() {
 				var href = '';
