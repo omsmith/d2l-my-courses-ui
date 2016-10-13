@@ -14,6 +14,7 @@
 
 			.no-results-search-text {
 				font-weight: bolder;
+				word-wrap: break-word;
 			}
 
 			.no-results-text {
@@ -128,6 +129,7 @@
 			_updateOrganization: function(organization) {
 				this._searchAction = JSON.stringify(this._getSearchAction());
 				this._showGrid = true;
+				this.$$('d2l-search-widget').clear();
 
 				// TODO: Add 'department' to the organization HM entity and use that information here
 				if (organization && (organization.properties || {}).name) {
