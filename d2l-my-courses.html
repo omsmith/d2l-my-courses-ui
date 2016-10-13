@@ -216,7 +216,8 @@
 				Polymer.D2L.MyCourses.CourseManagementBehavior
 			],
 			listeners: {
-				'open-change-image-view': '_openChangeImageView'
+				'open-change-image-view': '_openChangeImageView',
+				'set-course-image': '_setCourseImageEvent'
 			},
 			ready: function() {
 				this._pinnedCoursesMap = {};
@@ -361,6 +362,10 @@
 						this.toggleClass('hidden', false, this.$.lazyLoadSpinner);
 					}
 				}
+			},
+			_setCourseImageEvent: function(e) {
+				this.$$('d2l-all-courses').setCourseImage(e);
+				this.$$('d2l-course-tile-grid').setCourseImage(e);
 			}
 		});
 	</script>

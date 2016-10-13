@@ -54,7 +54,7 @@ in that organization - student, teacher, TA, etc.
 				</div>
 				<div class="course-text d2l-heading-4">{{_organization.properties.name}}</div>
 				<!-- Uncomment this line to get a temporary choose image button -->
-				<!-- <button on-click="_launchCourseTileImageSelector">Choose Image</button> -->
+				<button on-click="_launchCourseTileImageSelector">Choose Image</button>
 			</a>
 
 			<div class="hover-menu no-tap-interaction">
@@ -307,6 +307,28 @@ in that organization - student, teacher, TA, etc.
 				this.toggleClass('touch-menu-open', isOpen, this);
 				this.toggleClass('hover', isOpen, this);
 			},
+			setCourseImage: function(details) {
+				details = details || {};
+				var courseImage = this.$$('.course-image img');
+
+				var newImageHref = this.getDefaultTileImageLink(details.image);
+
+				switch (details.status) {
+					case 'set':
+						Polymer.dom(courseImage).setAttribute('src', newImageHref);
+						this.toggleClass('hidden', false, courseImage);
+						break;
+					case 'success':
+						Polymer.dom(courseImage).setAttribute('src', newImageHref);
+						this._imageOverrideHref = newImageHref; // set an override in case the revert is run later on
+						this.toggleClass('hidden', false, courseImage);
+						break;
+					case 'failure':
+						this._setCourseImageSrc(); // revert the image
+						break;
+				}
+			},
+			_imageOverrideHref: null,
 			_pendingPinAction: false,
 			_pinAnimationInProgress: false,
 			_delayLoadChanged: function(delayLoad) {
@@ -371,13 +393,8 @@ in that organization - student, teacher, TA, etc.
 					var parser = document.createElement('d2l-siren-parser');
 					var organization = parser.parse(response.detail.xhr.response);
 
-					var courseImageEntity = organization.getSubEntityByClass('course-image');
-					if (courseImageEntity) {
-						var courseImage = this.$$('.course-image img');
-						Polymer.dom(courseImage).setAttribute('src', this.getDefaultTileImageLink(courseImageEntity));
-					}
-
 					this._organization = organization;
+					this._setCourseImageSrc();
 					this._organizationHomepageUrl = organization.getLinkByRel(/\/organization-homepage$/).href;
 					this._organizationChangeImageHref = this._getChangeCourseImageLink(organization);
 					this._pinnedChanged();
@@ -414,6 +431,22 @@ in that organization - student, teacher, TA, etc.
 				if (editImagePage) {
 					return editImagePage.href;
 				}
+			},
+			_setCourseImageSrc: function() {
+				var href = '';
+
+				if (this._imageOverrideHref) {
+					href = this._imageOverrideHref;
+				} else {
+					var courseImageEntity = this._organization.getSubEntityByClass('course-image');
+					if (courseImageEntity) {
+						href = this.getDefaultTileImageLink(courseImageEntity) || '';
+					}
+				}
+
+				var courseImage = this.$$('.course-image img');
+				this.toggleClass('hidden', href === '', courseImage);
+				Polymer.dom(courseImage).setAttribute('src', href);
 			},
 			_onFocus: function() {
 				/* timeout needed to work around lack of support for relatedTarget */

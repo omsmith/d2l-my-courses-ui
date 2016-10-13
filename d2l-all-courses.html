@@ -465,6 +465,7 @@
 		</template>
 
 		<d2l-course-tile-grid
+			id="all-courses-pinned"
 			enrollments="{{pinnedEnrollments}}"
 			enrollments-queue="{{pinnedEnrollmentsQueue}}"
 			delay-course-tile-load="[[delayCourseTileLoad]]">
@@ -473,6 +474,7 @@
 		<h2 class="d2l-heading-3">{{localize('unpinnedCourses')}}</h2>
 
 		<d2l-course-tile-grid
+			id="all-courses-unpinned"
 			enrollments="{{unpinnedEnrollments}}"
 			enrollments-queue="{{unpinnedEnrollmentsQueue}}"
 			delay-course-tile-load="[[delayCourseTileLoad]]">
@@ -643,6 +645,10 @@
 			},
 			loadCourseTiles: function() {
 				this.delayCourseTileLoad = false;
+			},
+			setCourseImage: function(details) {
+				this.$$('#all-courses-pinned').setCourseImage(details);
+				this.$$('#all-courses-unpinned').setCourseImage(details);
 			},
 			_numSemesterFilters: 0,
 			_numDepartmentFilters: 0,
