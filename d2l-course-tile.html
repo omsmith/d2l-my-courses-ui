@@ -392,6 +392,7 @@ in that organization - student, teacher, TA, etc.
 					var organization = parser.parse(response.detail.xhr.response);
 
 					this._organization = organization;
+					this._setCourseImageSrc();
 					this._organizationHomepageUrl = organization.getLinkByRel(/\/organization-homepage$/).href;
 					this._organizationChangeImageHref = this._getChangeCourseImageLink(organization);
 					this._pinnedChanged();
