@@ -438,11 +438,12 @@ in that organization - student, teacher, TA, etc.
 				} else {
 					var courseImageEntity = this._organization.getSubEntityByClass('course-image');
 					if (courseImageEntity) {
-						href = this.getDefaultTileImageLink(courseImageEntity);
+						href = this.getDefaultTileImageLink(courseImageEntity) || '';
 					}
 				}
 
 				var courseImage = this.$$('.course-image img');
+				this.toggleClass('hidden', href === '', courseImage);
 				Polymer.dom(courseImage).setAttribute('src', href);
 			},
 			_onFocus: function() {
