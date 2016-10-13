@@ -319,6 +319,12 @@
 		</style>
 
 		<d2l-ajax
+			id="organizationsRequest"
+			url="[[_organizationsUrl]]"
+			on-iron-ajax-response="_onOrganizationsResponse">
+		</d2l-ajax>
+
+		<d2l-ajax
 			id="moreDepartmentsRequest"
 			url="[[_moreDepartmentsUrl]]"
 			headers='{ "Accept": "application/vnd.siren+json" }'
@@ -520,12 +526,19 @@
 					type: String,
 					value: ''
 				},
+				_organizationsUrl: {
+					type: String,
+					value: '/d2l/api/hm/organizations',
+					readOnly: true
+				},
+				// 5 is the default type ID for semesters
+				// organizationTypeIds is updated by organizationsRequest
 				_searchSemestersAction: {
 					type: Object,
 					value: {
 						'name':'search-course-collection',
 						'method':'GET',
-						'href':'/d2l/api/hm/organizations',
+						'href': '/d2l/api/hm/organizations',
 						'fields':[
 							{'name':'search', 'type':'search', 'value':''},
 							{'name':'page', 'type':'number', 'value':'1'},
@@ -534,6 +547,8 @@
 							{'name':'organizationTypeIds', 'type':'hidden', 'value':'5'}]
 					}
 				},
+				// 203 is the default type ID for departments
+				// organizationTypeIds is updated by organizationsRequest
 				_searchDepartmentsAction: {
 					type: Object,
 					value: {
@@ -583,12 +598,10 @@
 				this.listen(this.$.sortDropdown, 'menu-item-selected', '_updateSortBy');
 				this.listen(this.$.filterDropdown, 'menu-item-selected', '_updateFilter');
 
+				this.$.organizationsRequest.generateRequest();
+
 				this.listen(this.$.semesterSearchWidget, 'search-results-changed', '_onSemesterSearchResults');
 				this.listen(this.$.departmentSearchWidget, 'search-results-changed', '_onDepartmentSearchResults');
-
-				// This calls .clear() on both search widgets (which searches wiht an empty query),
-				// so this needs to run after the handlers are set up.
-				this._selectSemesterList();
 
 				this.$.scrollThreshold.scrollTarget = this.$.filterDropdownContent.querySelector('.d2l-dropdown-content-container');
 			},
@@ -716,6 +729,46 @@
 			},
 			_onMoreSemestersResponse: function(response) {
 				this._onMoreResponse(response, '_semesterOrganizations', '_moreSemestersUrl', '_hasMoreSemesters');
+			},
+			_onOrganizationsResponse: function(response) {
+				if (response.detail.status === 200) {
+					var parser = document.createElement('d2l-siren-parser');
+					var responseEntity = parser.parse(response.detail.xhr.response);
+
+					var departmentId = responseEntity.getActionByName('add-department-filter').getFieldByName('organizationTypeIds').value;
+					var departmentAction = {
+						name: 'search-course-collection',
+						method: 'GET',
+						href: this._organizationsUrl,
+						fields: [
+							{ name: 'organizationTypeIds', type: 'hidden', value: departmentId },
+							{ name: 'search', type: 'search', value: '' },
+							{ name: 'page', type: 'number', value: '1' },
+							{ name: 'pageSize', type: 'number', value: '20' },
+							{ name: 'embedDepth', type: 'number', value: '1' }
+						]
+					};
+					this.set('_searchDepartmentsAction', departmentAction);
+
+					var semesterId = responseEntity.getActionByName('add-semester-filter').getFieldByName('organizationTypeIds').value;
+					var semesterAction = {
+						name: 'search-course-collection',
+						method: 'GET',
+						href: this._organizationsUrl,
+						fields: [
+							{ name: 'organizationTypeIds', type: 'hidden', value: semesterId },
+							{ name: 'search', type: 'search', value: '' },
+							{ name: 'page', type: 'number', value: '1' },
+							{ name: 'pageSize', type: 'number', value: '20' },
+							{ name: 'embedDepth', type: 'number', value: '1' }
+						]
+					};
+					this.set('_searchSemestersAction', semesterAction);
+
+					// This calls .clear() on both search widgets (which searches with an empty query),
+					// so this needs to run after we have both search Actions updated
+					this._selectSemesterList();
+				}
 			},
 			_onResize: function() {
 				this.toggleClass('hidden', window.innerWidth < 768, this.$.filterSection);
