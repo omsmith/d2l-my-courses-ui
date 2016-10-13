@@ -40,6 +40,21 @@
 			return queryString ? action.href + '?' + queryString : action.href;
 		},
 		/*
+		* Returns the best available image to use as a default
+		* @param {Entity} image
+		* @return {String}
+		*/
+		getDefaultTileImageLink: function(image) {
+			var imageLinks = image.getLinksByClass('tile'),
+				sizes = {};
+			imageLinks.forEach(function(link) {
+				var size = link.hasClass('min') && 'Min' || link.hasClass('mid') && 'Mid' || link.hasClass('max') && 'Max',
+					density = link.hasClass('high-density') ? 'high' : 'low';
+				sizes[density + size] = link.href;
+			});
+			return sizes.highMax || sizes.lowMax || sizes.highMid || sizes.lowMid || sizes.highMin || sizes.lowMin;
+		},
+		/*
 		* Creates a unique identifier for an enrollment (really just the self Link href)
 		* @param {Entity} enrollment
 		* @return {String}
