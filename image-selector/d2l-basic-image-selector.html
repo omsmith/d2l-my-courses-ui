@@ -49,7 +49,7 @@
 					this._searchImages = searchWidget.searchResults.entities || [];
 
 					var searchRegex = /search=([^&]*)/;
-					var searchHref = response.detail.value.getLinkByRel('self').href;
+					var searchHref = response.detail.getLinkByRel('self').href;
 					var match = searchRegex.exec(searchHref);
 					this._userSearchText = (match.length > 1) ? match[1] : null;
 					this._showGrid = (this._userSearchText || '') === '' || this._searchImages.length > 0;
