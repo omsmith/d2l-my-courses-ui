@@ -316,10 +316,12 @@ in that organization - student, teacher, TA, etc.
 				switch (details.status) {
 					case 'set':
 						Polymer.dom(courseImage).setAttribute('src', newImageHref);
+						this.toggleClass('hidden', false, courseImage);
 						break;
 					case 'success':
 						Polymer.dom(courseImage).setAttribute('src', newImageHref);
 						this._imageOverrideHref = newImageHref; // set an override in case the revert is run later on
+						this.toggleClass('hidden', false, courseImage);
 						break;
 					case 'failure':
 						this._setCourseImageSrc(); // revert the image
