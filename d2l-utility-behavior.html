@@ -45,17 +45,14 @@
 		* @return {String}
 		*/
 		getDefaultTileImageLink: function(image) {
-			var imageLinks = image.getLinksByClass('tile');
-			var lowMin, highMin, lowMid, highMid, lowMax, highMax;
+			var imageLinks = image.getLinksByClass('tile'),
+				sizes = {};
 			imageLinks.forEach(function(link) {
-				lowMin = link.hasClass('min') && !link.hasClass('high-density') ? link.href : lowMin;
-				highMin = link.hasClass('min') && link.hasClass('high-density') ? link.href : highMin;
-				lowMid = link.hasClass('mid') && !link.hasClass('high-density') ? link.href : lowMid;
-				highMid = link.hasClass('mid') && link.hasClass('high-density') ? link.href : highMid;
-				lowMax = link.hasClass('max') && !link.hasClass('high-density') ? link.href : lowMax;
-				highMax = link.hasClass('max') && link.hasClass('high-density') ? link.href : highMax;
+				var size = link.hasClass('min') && 'Min' || link.hasClass('mid') && 'Mid' || link.hasClass('max') && 'Max',
+					density = link.hasClass('high-density') ? 'high' : 'low';
+				sizes[density + size] = link.href;
 			});
-			return highMax || lowMax || highMid || lowMid || highMin || lowMin;
+			return sizes.highMax || sizes.lowMax || sizes.highMid || sizes.lowMid || sizes.highMin || sizes.lowMin;
 		},
 		/*
 		* Creates a unique identifier for an enrollment (really just the self Link href)
