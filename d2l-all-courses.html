@@ -7,7 +7,8 @@
 <link rel="import" href="../d2l-icons/d2l-icons.html">
 <link rel="import" href="../d2l-menu/d2l-menu-item-styles.html">
 <link rel="import" href="../d2l-menu/d2l-menu-item-behavior.html">
-<link rel="import" href="../d2l-menu/d2l-menu-item.html">
+<link rel="import" href="../d2l-menu/d2l-menu-item-checkbox.html">
+<link rel="import" href="../d2l-menu/d2l-menu-item-radio.html">
 <link rel="import" href="../d2l-search-widget/d2l-search-widget.html">
 <link rel="import" href="d2l-alert.html">
 <link rel="import" href="d2l-course-management-behavior.html">
@@ -15,159 +16,6 @@
 <link rel="import" href="d2l-course-tile-responsive-grid-behavior.html">
 <link rel="import" href="d2l-search-widget-custom.html">
 <link rel="import" href="localize-behavior.html">
-
-<script>
-	'use strict';
-
-	(function() {
-		window.D2L = window.D2L || {};
-		window.D2L.MyCourses = window.D2L.MyCourses || {};
-
-		/** @polymerBehavior */
-		window.D2L.MyCourses.CustomMenuItemBehaviorImpl = {
-			/*
-			* Fired when the sliding animation of course tiles is finished
-			* @event menu-item-selected
-			* @param {String} value `value` property of the item
-			* @param {Boolean} selected True if item is selected
-			*/
-
-			properties: {
-				isToggle: {
-					type: Boolean,
-					value: false
-				},
-				selected: {
-					type: Boolean,
-					value: false,
-					observer: '_onSelectedChanged',
-					reflectToAttribute: true
-				},
-				value: String
-			},
-			listeners: {
-				'tap': '_onTap',
-				'keydown': '_onKeydown'
-			},
-			_onSelectedChanged: function(selected) {
-				this.toggleClass('hidden', !selected, this.$$('d2l-icon'));
-				selected ? this.setAttribute('aria-selected', true) : this.removeAttribute('aria-selected');
-			},
-			_onKeydown: function(e) {
-				// Select on either Enter or Space
-				if (e.keyCode === 13 || e.keyCode === 32) {
-					this._onTap(e);
-				}
-			},
-			_onTap: function(e) {
-				this.set('selected', this.isToggle ? !this.selected : true);
-				e.preventDefault();
-				this.fire('menu-item-selected', {
-					value: this.value,
-					selected: this.selected
-				});
-			}
-		};
-
-		/** @polymerBehavior */
-		window.D2L.MyCourses.CustomMenuItemBehavior = [
-			window.D2L.MyCourses.CustomMenuItemBehaviorImpl,
-			window.D2L.PolymerBehaviors.MenuItemBehavior
-		];
-	})();
-</script>
-
-<dom-module id="d2l-menu-item-sort">
-	<template>
-		<style include"d2l-menu-item-styles">
-			:host {
-				display: block;
-				padding: 0.9rem 1rem;
-				cursor: pointer;
-			}
-			:host span {
-				line-height: 1.2rem;
-			}
-			:host(:hover),
-			:host(:focus) {
-				color: var(--d2l-color-tungsten);
-			}
-			.hidden {
-				visibility: hidden;
-			}
-		</style>
-
-		<d2l-icon icon="d2l-tier1:check" aria-hidden="true"></d2l-icon>
-		<span>[[text]]</span>
-	</template>
-	<script>
-		'use strict';
-		Polymer({
-			is: 'd2l-menu-item-sort',
-			behaviors: [
-				window.D2L.MyCourses.CustomMenuItemBehavior
-			]
-		});
-	</script>
-</dom-module>
-
-<dom-module id="d2l-menu-item-filter">
-	<template>
-		<style include="d2l-menu-item-styles">
-			:host {
-				display: block;
-				font-size: 0.8rem;
-				padding: 0.5rem 1rem;
-				overflow: hidden;
-				text-overflow: ellipsis;
-				white-space: nowrap;
-				border: none !important;
-			}
-			:host(:focus) > div,
-			:host(:hover) > div {
-				border-color: var(--d2l-color-celestine);
-			}
-			.hidden {
-				visibility: hidden;
-			}
-			.checkbox {
-				display: inline-block;
-				width: 1rem;
-				height: 1rem;
-				border: 2px solid var(--d2l-color-titanius);
-				border-radius: 0.3rem;
-				background-color: var(--d2l-color-woolonardo);
-				box-sizing: border-box;
-				margin-top: -0.2rem;
-				margin-right: 0.5rem;
-				vertical-align: middle;
-			}
-			d2l-icon {
-				margin-top: -0.4rem;
-				margin-left: 0.05rem;
-				--d2l-icon-height: 0.7rem;
-				--d2l-icon-width: 0.7rem;
-			}
-		</style>
-
-		<div class="checkbox">
-			<d2l-icon icon="d2l-tier1:check" aria-hidden="true"></d2l-icon>
-		</div>
-		<span>[[text]]</span>
-	</template>
-	<script>
-		'use strict';
-		Polymer({
-			is: 'd2l-menu-item-filter',
-			behaviors: [
-				window.D2L.MyCourses.CustomMenuItemBehavior
-			],
-			ready: function() {
-				this.isToggle = true;
-			}
-		});
-	</script>
-</dom-module>
 
 <!--
 `<d2l-all-courses>` displays both pinned and unpinned courses
@@ -397,11 +245,11 @@
 									search-field-name="search"></d2l-search-widget>
 								<d2l-menu label="{{localize('filtering.semester')}}">
 									<template is="dom-repeat" items="[[_semesterOrganizations]]">
-										<d2l-menu-item-filter
+										<d2l-menu-item-checkbox
 											value="[[getEntityIdentifier(item)]]"
 											text="[[item.properties.name]]"
 											selected="[[item.properties.selected]]">
-										</d2l-menu-item-filter>
+										</d2l-menu-item-checkbox>
 									</template>
 								</d2l-menu>
 							</div>
@@ -413,11 +261,11 @@
 									search-field-name="search"></d2l-search-widget>
 								<d2l-menu label="{{localize('filtering.department')}}">
 									<template is="dom-repeat" items="[[_departmentOrganizations]]">
-										<d2l-menu-item-filter
+										<d2l-menu-item-checkbox
 											value="[[getEntityIdentifier(item)]]"
 											text="[[item.properties.name]]"
 											selected="[[item.properties.selected]]">
-										</d2l-menu-item-filter>
+										</d2l-menu-item-checkbox>
 									</template>
 								</d2l-menu>
 							</div>
@@ -441,10 +289,10 @@
 							<div class="dropdown-content-header">
 								<span class="dropdown-content-header-text">{{localize('sorting.sortBy')}}</span>
 							</div>
-							<d2l-menu-item-sort class="dropdown-content-gradient" value="courseCode" text="{{localize('sorting.courseCode')}}"></d2l-menu-item-sort>
-							<d2l-menu-item-sort value="courseName" text="{{localize('sorting.courseName')}}"></d2l-menu-item-sort>
-							<d2l-menu-item-sort value="pinDate" text="{{localize('sorting.datePinned')}}" selected></d2l-menu-item-sort>
-							<d2l-menu-item-sort value="lastAccessed" text="{{localize('sorting.lastAccessed')}}"></d2l-menu-item-sort>
+							<d2l-menu-item-radio class="dropdown-content-gradient" value="courseCode" text="{{localize('sorting.courseCode')}}"></d2l-menu-item-radio>
+							<d2l-menu-item-radio value="courseName" text="{{localize('sorting.courseName')}}"></d2l-menu-item-radio>
+							<d2l-menu-item-radio value="pinDate" text="{{localize('sorting.datePinned')}}" selected></d2l-menu-item-radio>
+							<d2l-menu-item-radio value="lastAccessed" text="{{localize('sorting.lastAccessed')}}"></d2l-menu-item-radio>
 						</d2l-menu>
 					</d2l-dropdown-menu>
 				</d2l-dropdown>
@@ -597,8 +445,8 @@
 				this._updateTileSizes();
 			},
 			attached: function() {
-				this.listen(this.$.sortDropdown, 'menu-item-selected', '_updateSortBy');
-				this.listen(this.$.filterDropdown, 'menu-item-selected', '_updateFilter');
+				this.listen(this.$.sortDropdown, 'd2l-menu-item-change', '_updateSortBy');
+				this.listen(this.$.filterDropdown, 'd2l-menu-item-change', '_updateFilter');
 
 				this.listen(this.$.filterDropdownContent, 'd2l-dropdown-open', '_onFilterDropdownOpen');
 				this.listen(this.$.filterDropdownContent, 'd2l-dropdown-close', '_onFilterDropdownClose');
@@ -611,8 +459,8 @@
 				window.addEventListener('resize', this._onResize.bind(this));
 			},
 			detached: function() {
-				this.unlisten(this.$.sortDropdown, 'menu-item-selected', '_updateSortBy');
-				this.unlisten(this.$.filterDropdown, 'menu-item-selected', '_updateFilter');
+				this.unlisten(this.$.sortDropdown, 'd2l-menu-item-change', '_updateSortBy');
+				this.unlisten(this.$.filterDropdown, 'd2l-menu-item-change', '_updateFilter');
 
 				this.unlisten(this.$.filterDropdownContent, 'd2l-dropdown-open', '_onFilterDropdownOpen');
 				this.unlisten(this.$.filterDropdownContent, 'd2l-dropdown-close', '_onFilterDropdownClose');
@@ -652,7 +500,7 @@
 				}.bind(this));
 			},
 			_clearFilters: function() {
-				Polymer.dom(this.$.filterDropdown).querySelectorAll('d2l-menu-item-filter').forEach(function(item) {
+				Polymer.dom(this.$.filterDropdown).querySelectorAll('d2l-menu-item-checkbox').forEach(function(item) {
 					item.selected = false;
 				});
 				this._isFiltered = false;
@@ -808,6 +656,7 @@
 				this.set('_filterDropdownOpen', !this._filterDropdownOpen);
 			},
 			_updateFilter: function(e) {
+				console.log(e.detail);
 				var isSemester = this.$.semesterList.contains(e.target);
 
 				if (e.detail.selected) {
@@ -836,14 +685,8 @@
 					: this.localize('filtering.department');
 			},
 			_updateSortBy: function(e) {
+				console.log(e.detail);
 				this.set('_sortField', e.detail.value);
-
-				var menuItems = Polymer.dom(this.$.sortDropdown).querySelectorAll('d2l-menu-item-sort');
-				menuItems.forEach(function(item) {
-					if (item.value !== this._sortField) {
-						item.selected = false;
-					}
-				}.bind(this));
 
 				this.$.sortText.textContent = this.localize(this._sortTextOptions[this._sortField] || '');
 
