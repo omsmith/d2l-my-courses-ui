@@ -212,10 +212,10 @@
 				sortField: String,
 
 				/*
-				* Array of parent organization IDs by which to limit the search results
-				* @type {String}
+				* Array of parent organization IDs (self links) by which to limit the search results
+				* @type {Array} Array of self links of parent organizations
 				*/
-				parentOrganizationIds: {
+				parentOrganizations: {
 					type: Array,
 					value: function() {
 						return [];
@@ -345,7 +345,7 @@
 						search: this._searchString,
 						page: 1,
 						pageSize: this._pageSize,
-						parentOrganizationIds: this.parentOrganizationIds.join(','),
+						parentOrganizations: this.parentOrganizations.join(','),
 						sortField: this.sortField,
 						// Need to reverse the order for sorting by name
 						sortDescending: this.sortField !== 'courseName'
