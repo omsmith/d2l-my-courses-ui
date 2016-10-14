@@ -61,17 +61,8 @@
 		*/
 		getEntityIdentifier: function(entity) {
 			// An entity's self href should be unique, so use it as an identifier
-			if (entity.getLinkByRel) {
-				var selfLink = entity.getLinkByRel('self');
-				return selfLink.href;
-			} else {
-				var links = entity.links || [];
-				links.forEach(function(link) {
-					if (link.rel.indexOf('self') > -1) {
-						return link.href;
-					}
-				});
-			}
+			var selfLink = entity.getLinkByRel('self');
+			return selfLink.href;
 		}
 	};
 </script>
