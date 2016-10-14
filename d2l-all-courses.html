@@ -656,7 +656,6 @@
 				this.set('_filterDropdownOpen', !this._filterDropdownOpen);
 			},
 			_updateFilter: function(e) {
-				console.log(e.detail);
 				var isSemester = this.$.semesterList.contains(e.target);
 
 				if (e.detail.selected) {
@@ -685,7 +684,6 @@
 					: this.localize('filtering.department');
 			},
 			_updateSortBy: function(e) {
-				console.log(e.detail);
 				this.set('_sortField', e.detail.value);
 
 				this.$.sortText.textContent = this.localize(this._sortTextOptions[this._sortField] || '');
