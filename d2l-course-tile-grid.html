@@ -22,7 +22,7 @@
 					hover-enabled="[[_hoverInteractionEnabled]]"
 					animate-insertion="[[_removeEnrollmentFromTransitionList(item)]]"
 					class="grid-child"
-					enrollment-id="[[getEnrollmentIdentifier(item)]]"
+					enrollment-id="[[getEntityIdentifier(item)]]"
 					delay-load="[[delayCourseTileLoad]]">
 				</d2l-course-tile>
 			</template>
@@ -188,7 +188,7 @@
 				this._animationState.isInsertion = isInsertion;
 
 				if (this.enrollments.length > 0) {
-					this._animationState.lastAnimatedCourseTileId = this.getEnrollmentIdentifier(this.enrollments[lastAnimatedCourseIndex]);
+					this._animationState.lastAnimatedCourseTileId = this.getEntityIdentifier(this.enrollments[lastAnimatedCourseIndex]);
 				} else {
 					this._animationState.slideAnimationComplete = true;
 				}
@@ -197,7 +197,7 @@
 
 				if (isInsertion) {
 					// If inserting, set tile as in transition, and listen for DOM change to know when new course tile is added and tiles can be animated
-					this._tilesInPinStateTransition.push(this.getEnrollmentIdentifier(enrollment));
+					this._tilesInPinStateTransition.push(this.getEntityIdentifier(enrollment));
 					this.unshift('enrollments', enrollment);
 
 					var gridTemplate = this.$.enrollmentsTemplate;
@@ -352,11 +352,11 @@
 			_onEnrollmentPinAction: function(e) {
 				// If an enrollment was (un)pinned from this grid (ie. a course tile had a pin action invoked on it, such that it (should) leave
 				// this grid), then we need to slide other tiles in to fill its place
-				var modifiedEnrollmentId = this.getEnrollmentIdentifier(e.detail.enrollment);
+				var modifiedEnrollmentId = this.getEntityIdentifier(e.detail.enrollment);
 
 				var enrollmentId;
 				for (var i = 0; i < this.enrollments.length; i++) {
-					enrollmentId = this.getEnrollmentIdentifier(this.enrollments[i]);
+					enrollmentId = this.getEntityIdentifier(this.enrollments[i]);
 					if (enrollmentId === modifiedEnrollmentId) {
 						this._animateTileSlide(false, i);
 						break;
@@ -366,7 +366,7 @@
 				// When a tile is pinned/unpinned, set focus to the next (or previous, if last) course tile
 				var courseTiles = Polymer.dom(this.root).querySelectorAll('d2l-course-tile');
 				for (i = 0; i < courseTiles.length; i++) {
-					enrollmentId = this.getEnrollmentIdentifier(courseTiles[i].enrollment);
+					enrollmentId = this.getEntityIdentifier(courseTiles[i].enrollment);
 					if (enrollmentId === modifiedEnrollmentId) {
 						if (i < courseTiles.length - 1) {
 							courseTiles[i + 1].querySelector('a').focus();
@@ -431,7 +431,7 @@
 				e.detail.element._onUnpinHover(e);
 			},
 			_removeEnrollmentFromTransitionList: function(enrollment) {
-				var enrollmentId = this.getEnrollmentIdentifier(enrollment);
+				var enrollmentId = this.getEntityIdentifier(enrollment);
 				var index = this._tilesInPinStateTransition.indexOf(enrollmentId);
 
 				if (index !== -1) {

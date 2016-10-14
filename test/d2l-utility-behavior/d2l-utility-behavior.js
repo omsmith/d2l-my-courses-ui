@@ -63,9 +63,9 @@ describe('d2l-utility-behavior', function() {
 		});
 	});
 
-	describe('getEnrollmentIdentifier', function() {
+	describe('getEntityIdentifier', function() {
 		it('should get the unique enrollment ID based off the self link', function() {
-			var id = component.getEnrollmentIdentifier(enrollmentEntity);
+			var id = component.getEntityIdentifier(enrollmentEntity);
 
 			expect(id).to.equal(enrollment.links[1].href);
 		});

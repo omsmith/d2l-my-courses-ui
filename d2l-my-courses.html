@@ -277,7 +277,7 @@
 
 					enrollmentEntities.forEach(function(enrollment) {
 						if (enrollment.hasClass('pinned')) {
-							var enrollmentId = this.getEnrollmentIdentifier(enrollment);
+							var enrollmentId = this.getEntityIdentifier(enrollment);
 							if (!this._pinnedCoursesMap.hasOwnProperty(enrollmentId)) {
 								newPinnedEnrollments.push(enrollment);
 								this._pinnedCoursesMap[enrollmentId] = true;
