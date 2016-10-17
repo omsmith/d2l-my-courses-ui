@@ -44,7 +44,7 @@
 		* @param {Entity} image
 		* @return {String}
 		*/
-		getDefaultTileImageLink: function(image, imageClass) {
+		getDefaultImageLink: function(image, imageClass) {
 			var imageLinks = image.getLinksByClass(imageClass || 'tile'),
 				sizes = {};
 			imageLinks.forEach(function(link) {
