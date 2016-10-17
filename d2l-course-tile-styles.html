@@ -248,6 +248,85 @@
 				opacity: 0;
 			}
 		}
+
+		d2l-loading-spinner {
+			display: none;
+			position: absolute;
+			z-index: 4;
+			transform: scale(0.85);
+		}
+
+		.change-image-loading d2l-loading-spinner {
+			display: block;
+		}
+
+		.change-image-success d2l-loading-spinner,
+		.change-image-failure d2l-loading-spinner {
+			display: block;
+			opacity: 0;
+		}
+
+		.checkmark-image-container {
+			height: 64px;
+			width: 64px;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			border-style: none;
+			border-radius: 100px;
+			background-color: white;
+		}
+
+		@keyframes inner {
+			0% { transform: scale(1); }
+			15% { transform: scale(2.30); }
+			20% { transform: scale(2.0); }
+			100% { transform: scale(2.0); }
+		}
+
+		@keyframes container {
+			0% { height: 64px; width: 64px; }
+			70% { height: 64px; width: 64px; opacity: 1; }
+			90% { height: 80px; width: 80px; opacity: 0.4 }
+			100% { height: 20px; width: 20px; opacity: 0; }
+		}
+
+		.checkmark {
+			color: var(--d2l-color-olivine);
+		}
+
+		.checkmark-image-container {
+			overflow: hidden;
+		}
+
+		.change-image-success .checkmark {
+			animation-name: inner;
+			animation-duration: 1s;
+			animation-fill-mode: forwards;
+		}
+
+		.change-image-success .checkmark-image-container {
+			animation-name: container;
+			animation-duration: 1s;
+			animation-fill-mode: forwards;
+		}
+
+		.image-overlay {
+			display: none;
+			justify-content: center;
+			align-items: center;
+		}
+
+		.change-image-loading .image-overlay,
+		.change-image-success .image-overlay,
+		.change-image-failure .image-overlay {
+			width: 100%;
+			height: 100%;
+			display: flex;
+			z-index: 2;
+			background-color: rgba(0, 0, 0, 0.4);
+			position: absolute;
+		}
 		</style>
 	</template>
 </dom-module>
