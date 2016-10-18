@@ -248,6 +248,107 @@
 				opacity: 0;
 			}
 		}
+
+		d2l-loading-spinner {
+			display: none;
+			z-index: 4;
+			position: absolute;
+			top: 0;
+			left: 0;
+			right: 0;
+			bottom: 0;
+			margin: auto;
+		}
+
+		.change-image-loading d2l-loading-spinner {
+			display: block;
+		}
+
+		.change-image-success d2l-loading-spinner,
+		.change-image-failure d2l-loading-spinner {
+			display: block;
+			opacity: 0;
+		}
+
+		.icon-container {
+			height: 64px;
+			width: 64px;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			border-style: none;
+			border-radius: 100px;
+			background-color: white;
+			overflow: hidden;
+			position: absolute;
+			top: 0;
+			left: 0;
+			right: 0;
+			bottom: 0;
+			margin: auto;
+		}
+
+		@keyframes inner {
+			0% { transform: scale(1); }
+			15% { transform: scale(2.30); }
+			20% { transform: scale(2.0); }
+			100% { transform: scale(2.0); }
+		}
+
+		@keyframes container {
+			0% { height: 64px; width: 64px; }
+			70% { height: 64px; width: 64px; opacity: 1; }
+			90% { height: 80px; width: 80px; opacity: 0.4 }
+			100% { height: 20px; width: 20px; opacity: 0; }
+		}
+
+		.checkmark {
+			display: none;
+			color: var(--d2l-color-olivine);
+		}
+
+		.fail-icon {
+			display: none;
+			color: var(--d2l-color-cinnabar);
+		}
+
+		.change-image-success,
+		.change-image-failure,
+		.change-image-loading {
+			pointer-events: none;
+		}
+
+		.change-image-success .checkmark,
+		.change-image-failure .fail-icon {
+			display: flex;
+			animation-name: inner;
+			animation-duration: 1s;
+			animation-fill-mode: forwards;
+		}
+
+		.change-image-success .icon-container,
+		.change-image-failure .icon-container {
+			animation-name: container;
+			animation-duration: 1s;
+			animation-fill-mode: forwards;
+		}
+
+		.image-overlay {
+			display: none;
+			justify-content: center;
+			align-items: center;
+		}
+
+		.change-image-loading .image-overlay,
+		.change-image-success .image-overlay,
+		.change-image-failure .image-overlay {
+			width: 100%;
+			height: 100%;
+			display: block;
+			z-index: 2;
+			background-color: rgba(0, 0, 0, 0.4);
+			position: relative;
+		}
 		</style>
 	</template>
 </dom-module>

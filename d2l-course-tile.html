@@ -2,6 +2,7 @@
 <link rel="import" href="../d2l-ajax/d2l-ajax.html">
 <link rel="import" href="../d2l-dropdown/d2l-dropdown.html">
 <link rel="import" href="../d2l-dropdown/d2l-dropdown-menu.html">
+<link rel="import" href="../d2l-loading-spinner/d2l-loading-spinner.html">
 <link rel="import" href="../d2l-icons/d2l-icons.html">
 <link rel="import" href="../d2l-menu/d2l-menu-item-link.html">
 <link rel="import" href="../d2l-polymer-behaviors/d2l-dom.html">
@@ -49,6 +50,12 @@ in that organization - student, teacher, TA, etc.
 				on-focus="_hoverCourseTile">
 				<div class="course-image-container">
 					<div class="course-image">
+						<div class="image-overlay">
+							<d2l-loading-spinner id="tileImageLoading" size="85"></d2l-loading-spinner>
+							<div class="icon-container">
+								<d2l-icon class$="[[_iconDetails.className]]" icon="[[_iconDetails.iconName]]"></d2l-icon>
+							</div>
+						</div>
 						<img aria-hidden="true" />
 					</div>
 				</div>
@@ -207,7 +214,19 @@ in that organization - student, teacher, TA, etc.
 				* The term of the course settings label
 				* @type {String}
 				*/
-				_courseSettingsLabel: String
+				_courseSettingsLabel: String,
+				_canChangeCourseImage: Boolean,
+				/*
+				* The icon we want to show when you select an image
+				* @type {Object}
+				*/
+				_iconDetails: {
+					type: Object,
+					value: {
+						className: '',
+						iconName: ''
+					}
+				}
 			},
 			behaviors: [
 				Polymer.D2L.MyCourses.LocalizeBehavior,
@@ -308,23 +327,48 @@ in that organization - student, teacher, TA, etc.
 			setCourseImage: function(details) {
 				details = details || {};
 				var courseImage = this.$$('.course-image img');
-
-				var newImageHref = this.getDefaultImageLink(details.image);
+				var tileContainer = this.$$('.tile-container');
 
 				switch (details.status) {
 					case 'set':
-						Polymer.dom(courseImage).setAttribute('src', newImageHref);
-						this.toggleClass('hidden', false, courseImage);
+						this.toggleClass('change-image-loading', true, tileContainer);
 						break;
 					case 'success':
-						Polymer.dom(courseImage).setAttribute('src', newImageHref);
+						var newImageHref = this.getDefaultImageLink(details.image);
 						this._imageOverrideHref = newImageHref; // set an override in case the revert is run later on
 						this.toggleClass('hidden', false, courseImage);
+						this._displaySetImageResult(true, newImageHref);
 						break;
 					case 'failure':
-						this._setCourseImageSrc(); // revert the image
+						this._displaySetImageResult(false);
 						break;
 				}
+			},
+			_displaySetImageResult: function(success, newImageHref) {
+				var tileContainer = this.$$('.tile-container');
+				var courseImage = this.$$('.course-image img');
+
+				var successClass = 'change-image-success',
+					failureClass = 'change-image-failure';
+
+				// We want to wait at least a second of the load icon before showing the status
+				setTimeout(function() {
+					this.toggleClass('change-image-loading', false, tileContainer);
+					this.toggleClass(successClass, success, tileContainer);
+					this.toggleClass(failureClass, !success, tileContainer);
+					this._iconDetails = success ?
+						{ className: 'checkmark', iconName: 'd2l-tier2:check'} :
+						{ className: 'fail-icon', iconName: 'd2l-tier3:close'};
+
+					// Remove the icon after a bit of time
+					setTimeout(function() {
+						if (success) {
+							Polymer.dom(courseImage).setAttribute('src', newImageHref);
+						}
+						this.toggleClass(successClass, false, tileContainer);
+						this.toggleClass(failureClass, false, tileContainer);
+					}.bind(this), 1000);
+				}.bind(this), 1000);
 			},
 			_imageOverrideHref: null,
 			_pendingPinAction: false,
