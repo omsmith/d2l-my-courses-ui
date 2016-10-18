@@ -326,7 +326,6 @@ in that organization - student, teacher, TA, etc.
 			},
 			setCourseImage: function(details) {
 				details = details || {};
-				var courseImage = this.$$('.course-image img');
 				var tileContainer = this.$$('.tile-container');
 
 				switch (details.status) {
@@ -335,8 +334,6 @@ in that organization - student, teacher, TA, etc.
 						break;
 					case 'success':
 						var newImageHref = this.getDefaultImageLink(details.image);
-						this._imageOverrideHref = newImageHref; // set an override in case the revert is run later on
-						this.toggleClass('hidden', false, courseImage);
 						this._displaySetImageResult(true, newImageHref);
 						break;
 					case 'failure':
@@ -363,6 +360,8 @@ in that organization - student, teacher, TA, etc.
 					// Remove the icon after a bit of time
 					setTimeout(function() {
 						if (success) {
+							this.toggleClass('hidden', false, courseImage);
+							this.$.organizationRequest.generateRequest();
 							Polymer.dom(courseImage).setAttribute('src', newImageHref);
 						}
 						this.toggleClass(successClass, false, tileContainer);
@@ -370,7 +369,6 @@ in that organization - student, teacher, TA, etc.
 					}.bind(this), 1000);
 				}.bind(this), 1000);
 			},
-			_imageOverrideHref: null,
 			_pendingPinAction: false,
 			_pinAnimationInProgress: false,
 			_delayLoadChanged: function(delayLoad) {
@@ -474,13 +472,9 @@ in that organization - student, teacher, TA, etc.
 			_setCourseImageSrc: function() {
 				var href = '';
 
-				if (this._imageOverrideHref) {
-					href = this._imageOverrideHref;
-				} else {
-					var courseImageEntity = this._organization.getSubEntityByClass('course-image');
-					if (courseImageEntity) {
-						href = this.getDefaultImageLink(courseImageEntity) || '';
-					}
+				var courseImageEntity = this._organization.getSubEntityByClass('course-image');
+				if (courseImageEntity) {
+					href = this.getDefaultImageLink(courseImageEntity) || '';
 				}
 
 				var courseImage = this.$$('.course-image img');
