@@ -337,14 +337,14 @@ in that organization - student, teacher, TA, etc.
 						var newImageHref = this.getDefaultImageLink(details.image);
 						this._imageOverrideHref = newImageHref; // set an override in case the revert is run later on
 						this.toggleClass('hidden', false, courseImage);
-						this._notifySuccess(true, newImageHref);
+						this._displaySetImageResult(true, newImageHref);
 						break;
 					case 'failure':
-						this._notifySuccess(false);
+						this._displaySetImageResult(false);
 						break;
 				}
 			},
-			_notifySuccess: function(success, newImageHref) {
+			_displaySetImageResult: function(success, newImageHref) {
 				var tileContainer = this.$$('.tile-container');
 				var courseImage = this.$$('.course-image img');
 
