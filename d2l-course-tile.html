@@ -334,7 +334,7 @@ in that organization - student, teacher, TA, etc.
 						this.toggleClass('change-image-loading', true, tileContainer);
 						break;
 					case 'success':
-					var newImageHref = this.getDefaultImageLink(details.image);
+						var newImageHref = this.getDefaultImageLink(details.image);
 						this._imageOverrideHref = newImageHref; // set an override in case the revert is run later on
 						this.toggleClass('hidden', false, courseImage);
 						this._notifySuccess(true, newImageHref);
@@ -354,8 +354,8 @@ in that organization - student, teacher, TA, etc.
 				// We want to wait at least a second of the load icon before showing the status
 				setTimeout(function() {
 					this.toggleClass('change-image-loading', false, tileContainer);
-					this.toggleClass(success ? successClass : failureClass, true, tileContainer);
-					this.toggleClass(!success ? successClass : failureClass, false, tileContainer);
+					this.toggleClass(successClass, success, tileContainer);
+					this.toggleClass(failureClass, !success, tileContainer);
 					this._iconDetails = success ?
 						{ className: 'checkmark', iconName: 'd2l-tier2:check'} :
 						{ className: 'fail-icon', iconName: 'd2l-tier3:close'};
