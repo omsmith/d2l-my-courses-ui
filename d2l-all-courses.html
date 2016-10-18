@@ -338,14 +338,15 @@
 			<div id="filterAndSort">
 				<div id="filterSection">
 					<span id="filterText" class="dropdown-opener-text" on-tap="_toggleFilterDropdown">{{localize('filtering.filter')}}</span>
-					<d2l-dropdown id="filterDropdown">
+					<d2l-dropdown id="filterDropdown" no-auto-open>
 						<button
 							class="d2l-dropdown-opener dropdown-button"
 							on-focus="_focusFilterText"
 							on-blur="_blurFilterText"
 							on-mouseenter="_focusFilterText"
 							on-mouseleave="_blurFilterText"
-							aria-labelledby="filterText">
+							aria-labelledby="filterText"
+							on-tap="_toggleFilterDropdown">
 							<d2l-icon icon="d2l-tier1:chevron-down" aria-hidden="true"></d2l-icon>
 						</button>
 						<d2l-dropdown-content id="filterDropdownContent" no-padding min-width="350">
@@ -619,6 +620,7 @@
 				this.$$('#all-courses-pinned').setCourseImage(details);
 				this.$$('#all-courses-unpinned').setCourseImage(details);
 			},
+			_filterDropdownOpen: false,
 			_numSemesterFilters: 0,
 			_numDepartmentFilters: 0,
 			_sortTextOptions: {
@@ -763,9 +765,15 @@
 				button.setAttribute('aria-pressed', selected);
 			},
 			_toggleFilterDropdown: function() {
-				this.$.filterDropdown.toggleOpen();
-				this.$.departmentList.querySelector('d2l-menu').resize();
-				this.$.semesterList.querySelector('d2l-menu').resize();
+				// This is somewhat gross, but is a side effect of using the filter text span as a secondary opener
+				if (this._filterDropdownOpen) {
+					this.$.filterDropdownContent.close();
+				} else {
+					this.$.filterDropdownContent.open();
+					this.$.departmentList.querySelector('d2l-menu').resize();
+					this.$.semesterList.querySelector('d2l-menu').resize();
+				}
+				this.set('_filterDropdownOpen', !this._filterDropdownOpen);
 			},
 			_updateFilter: function(e) {
 				var isSemester = this.$.semesterList.contains(e.target);
