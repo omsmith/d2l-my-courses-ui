@@ -28,9 +28,14 @@
 			margin: 0;
 			padding: 0 0 0.2rem 0;
 			color: var(--d2l-color-tungsten);
-			width: 24px;
-			height: 24px;
 			cursor: pointer;
+		}
+
+		.container {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			min-height: 105px;
 		}
 
 		.close-button d2l-icon {
@@ -46,13 +51,6 @@
 
 		.close-button * {
 			box-sizing: content-box;
-		}
-
-		.pull-right {
-			float: right;
-		}
-		:host-context([dir='rtl']) .pull-right {
-			float: left;
 		}
 
 		d2l-icon {
@@ -85,8 +83,6 @@
 			/* overrides to d2l-heading-2 (h1 styled with d2l-heading-2 class) */
 			font-weight: 400;
 			font-size: 30px;
-			margin-top: 30px;
-			margin-bottom: 30px;
 			/* end overrides */
 		}
 		</style>
