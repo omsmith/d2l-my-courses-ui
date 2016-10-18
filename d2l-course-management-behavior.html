@@ -6,8 +6,8 @@
 	'use strict';
 
 	(function() {
-		Polymer.D2L = Polymer.D2L || {};
-		Polymer.D2L.MyCourses = Polymer.D2L.MyCourses || {};
+		window.D2L = window.D2L || {};
+		window.D2L.MyCourses = window.D2L.MyCourses || {};
 
 		/*
 		* Behavior that allows for course management
@@ -15,9 +15,9 @@
 		* "Management" in this case means having a pinned and unpinned list, and supporting switching an enrollment between the
 		* two.
 		*
-		* @polymerBehavior Polymer.D2L.MyCourses.CourseManagementBehavior
+		* @polymerBehavior window.D2L.MyCourses.CourseManagementBehavior
 		*/
-		Polymer.D2L.MyCourses.CourseManagementBehaviorImpl = {
+		window.D2L.MyCourses.CourseManagementBehaviorImpl = {
 			properties: {
 				/*
 				* Set of pinned enrollment entities
@@ -185,9 +185,9 @@
 			}
 		};
 
-		Polymer.D2L.MyCourses.CourseManagementBehavior = [
-			Polymer.D2L.MyCourses.CourseManagementBehaviorImpl,
-			Polymer.D2L.MyCourses.UtilityBehavior
+		window.D2L.MyCourses.CourseManagementBehavior = [
+			window.D2L.MyCourses.CourseManagementBehaviorImpl,
+			window.D2L.MyCourses.UtilityBehavior
 		];
 	})();
 </script>

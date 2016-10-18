@@ -20,11 +20,11 @@
 	'use strict';
 
 	(function() {
-		Polymer.D2L = Polymer.D2L || {};
-		Polymer.D2L.MyCourse = Polymer.D2L.MyCourses || {};
+		window.D2L = window.D2L || {};
+		window.D2L.MyCourses = window.D2L.MyCourses || {};
 
 		/** @polymerBehavior */
-		Polymer.D2L.MyCourses.CustomMenuItemBehaviorImpl = {
+		window.D2L.MyCourses.CustomMenuItemBehaviorImpl = {
 			/*
 			* Fired when the sliding animation of course tiles is finished
 			* @event menu-item-selected
@@ -70,8 +70,8 @@
 		};
 
 		/** @polymerBehavior */
-		Polymer.D2L.MyCourses.CustomMenuItemBehavior = [
-			Polymer.D2L.MyCourses.CustomMenuItemBehaviorImpl,
+		window.D2L.MyCourses.CustomMenuItemBehavior = [
+			window.D2L.MyCourses.CustomMenuItemBehaviorImpl,
 			window.D2L.PolymerBehaviors.MenuItemBehavior
 		];
 	})();
@@ -104,7 +104,7 @@
 		Polymer({
 			is: 'd2l-menu-item-sort',
 			behaviors: [
-				Polymer.D2L.MyCourses.CustomMenuItemBehavior
+				window.D2L.MyCourses.CustomMenuItemBehavior
 			]
 		});
 	</script>
@@ -159,7 +159,7 @@
 		Polymer({
 			is: 'd2l-menu-item-filter',
 			behaviors: [
-				Polymer.D2L.MyCourses.CustomMenuItemBehavior
+				window.D2L.MyCourses.CustomMenuItemBehavior
 			],
 			ready: function() {
 				this.isToggle = true;
@@ -580,9 +580,9 @@
 				}
 			},
 			behaviors: [
-				Polymer.D2L.MyCourses.CourseTileResponsiveGridBehavior,
-				Polymer.D2L.MyCourses.LocalizeBehavior,
-				Polymer.D2L.MyCourses.CourseManagementBehavior
+				window.D2L.MyCourses.CourseTileResponsiveGridBehavior,
+				window.D2L.MyCourses.LocalizeBehavior,
+				window.D2L.MyCourses.CourseManagementBehavior
 			],
 			ready: function() {
 				this.usePendingLists = true;

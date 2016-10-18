@@ -4,15 +4,15 @@
 	'use strict';
 
 	(function() {
-		Polymer.D2L = Polymer.D2L || {};
-		Polymer.D2L.MyCourses = Polymer.D2L.MyCourses || {};
+		window.D2L = window.D2L || {};
+		window.D2L.MyCourses = window.D2L.MyCourses || {};
 
 		/*
 		* Behavior for elements that require localization, based on `app-localize-behavior`
 		*
-		* @polymerBehavior Polymer.D2L.MyCourses.LocalizeBehavior
+		* @polymerBehavior window.D2L.MyCourses.LocalizeBehavior
 		*/
-		Polymer.D2L.MyCourses.LocalizeBehaviorImpl = {
+		window.D2L.MyCourses.LocalizeBehaviorImpl = {
 			properties: {
 				/*
 				* Language string
@@ -114,9 +114,9 @@
 		};
 
 		/* @polymerBehavior */
-		Polymer.D2L.MyCourses.LocalizeBehavior = [
+		window.D2L.MyCourses.LocalizeBehavior = [
 			Polymer.AppLocalizeBehavior,
-			Polymer.D2L.MyCourses.LocalizeBehaviorImpl
+			window.D2L.MyCourses.LocalizeBehaviorImpl
 		];
 	})();
 </script>

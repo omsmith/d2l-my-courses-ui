@@ -4,8 +4,8 @@
 	'use strict';
 
 	(function() {
-		Polymer.D2L = Polymer.D2L || {};
-		Polymer.D2L.MyCourses = Polymer.D2L.MyCourses || {};
+		window.D2L = window.D2L || {};
+		window.D2L.MyCourses = window.D2L.MyCourses || {};
 
 		/*
 		* Behavior for responsive course tile grids
@@ -15,7 +15,7 @@
 		*
 		* @polymerBehavior
 		*/
-		Polymer.D2L.MyCourses.CourseTileResponsiveGridBehavior = {
+		window.D2L.MyCourses.CourseTileResponsiveGridBehavior = {
 			attached: function() {
 				window.addEventListener('recalculate-columns', this._rescaleCourseTileRegions.bind(this));
 

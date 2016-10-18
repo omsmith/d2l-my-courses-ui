@@ -4,8 +4,8 @@
 <script>
 	'use strict';
 
-	Polymer.D2L = Polymer.D2L || {};
-	Polymer.D2L.MyCourses = Polymer.D2L.MyCourses || {};
+	window.D2L = window.D2L || {};
+	window.D2L.MyCourses = window.D2L.MyCourses || {};
 
 	/*
 	* General utility functions that can be used in many places.
@@ -14,7 +14,7 @@
 	*
 	* @polymerBehavior
 	*/
-	Polymer.D2L.MyCourses.UtilityBehavior = {
+	window.D2L.MyCourses.UtilityBehavior = {
 		/*
 		* Creates a URL with a query from an Action and an object of required parameters
 		* @param {Action} action
