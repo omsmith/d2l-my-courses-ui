@@ -266,7 +266,7 @@
 			opacity: 0;
 		}
 
-		.checkmark-image-container {
+		.icon-container {
 			height: 64px;
 			width: 64px;
 			display: flex;
@@ -275,6 +275,7 @@
 			border-style: none;
 			border-radius: 100px;
 			background-color: white;
+			overflow: hidden;
 		}
 
 		@keyframes inner {
@@ -292,20 +293,25 @@
 		}
 
 		.checkmark {
+			display: none;
 			color: var(--d2l-color-olivine);
 		}
 
-		.checkmark-image-container {
-			overflow: hidden;
+		.fail-icon {
+			display: none;
+			color: var(--d2l-color-cinnabar);
 		}
 
-		.change-image-success .checkmark {
+		.change-image-success .checkmark,
+		.change-image-failure .fail-icon {
+			display: flex;
 			animation-name: inner;
 			animation-duration: 1s;
 			animation-fill-mode: forwards;
 		}
 
-		.change-image-success .checkmark-image-container {
+		.change-image-success .icon-container,
+		.change-image-failure .icon-container {
 			animation-name: container;
 			animation-duration: 1s;
 			animation-fill-mode: forwards;

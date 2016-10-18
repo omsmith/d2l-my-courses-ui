@@ -53,8 +53,8 @@ in that organization - student, teacher, TA, etc.
 					<div class="course-image">
 						<div class="image-overlay">
 							<d2l-loading-spinner id="tileImageLoading" size="100"></d2l-loading-spinner>
-							<div class="checkmark-image-container">
-								<d2l-icon class="checkmark" icon="d2l-tier2:check"></d2l-icon>
+							<div class="icon-container">
+								<d2l-icon class$="[[_iconDetails.className]]" icon="[[_iconDetails.iconName]]"></d2l-icon>
 							</div>
 						</div>
 						<img aria-hidden="true" />
@@ -215,7 +215,18 @@ in that organization - student, teacher, TA, etc.
 				* The term of the course settings label
 				* @type {String}
 				*/
-				_courseSettingsLabel: String
+				_courseSettingsLabel: String,
+				/*
+				* The icon we want to show when you select an image
+				* @type {Object}
+				*/
+				_iconDetails: {
+					type: Object,
+					value: {
+						className: '',
+						iconName: ''
+					}
+				}
 			},
 			behaviors: [
 				Polymer.D2L.MyCourses.LocalizeBehavior,
@@ -318,20 +329,17 @@ in that organization - student, teacher, TA, etc.
 				var courseImage = this.$$('.course-image img');
 				var tileContainer = this.$$('.tile-container');
 
-				var newImageHref = this.getDefaultImageLink(details.image);
-
 				switch (details.status) {
 					case 'set':
-						this.toggleClass('hidden', false, courseImage);
 						this.toggleClass('change-image-loading', true, tileContainer);
 						break;
 					case 'success':
+					var newImageHref = this.getDefaultImageLink(details.image);
 						this._imageOverrideHref = newImageHref; // set an override in case the revert is run later on
 						this.toggleClass('hidden', false, courseImage);
 						this._notifySuccess(true, newImageHref);
 						break;
 					case 'failure':
-						this._setCourseImageSrc(); // revert the image
 						this._notifySuccess(false);
 						break;
 				}
@@ -348,9 +356,15 @@ in that organization - student, teacher, TA, etc.
 					this.toggleClass('change-image-loading', false, tileContainer);
 					this.toggleClass(success ? successClass : failureClass, true, tileContainer);
 					this.toggleClass(!success ? successClass : failureClass, false, tileContainer);
+					this._iconDetails = success ?
+						{ className: 'checkmark', iconName: 'd2l-tier2:check'} :
+						{ className: 'fail-icon', iconName: 'd2l-tier3:close'};
+
 					// Remove the icon after a bit of time
 					setTimeout(function() {
-						Polymer.dom(courseImage).setAttribute('src', newImageHref);
+						if (success) {
+							Polymer.dom(courseImage).setAttribute('src', newImageHref);
+						}
 						this.toggleClass(successClass, false, tileContainer);
 						this.toggleClass(failureClass, false, tileContainer);
 					}.bind(this), 1000);
