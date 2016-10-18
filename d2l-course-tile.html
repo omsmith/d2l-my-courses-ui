@@ -309,7 +309,7 @@ in that organization - student, teacher, TA, etc.
 				details = details || {};
 				var courseImage = this.$$('.course-image img');
 
-				var newImageHref = this.getDefaultTileImageLink(details.image);
+				var newImageHref = this.getDefaultImageLink(details.image);
 
 				switch (details.status) {
 					case 'set':
@@ -435,7 +435,7 @@ in that organization - student, teacher, TA, etc.
 				} else {
 					var courseImageEntity = this._organization.getSubEntityByClass('course-image');
 					if (courseImageEntity) {
-						href = this.getDefaultTileImageLink(courseImageEntity) || '';
+						href = this.getDefaultImageLink(courseImageEntity) || '';
 					}
 				}
 
