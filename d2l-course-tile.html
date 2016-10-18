@@ -217,6 +217,10 @@ in that organization - student, teacher, TA, etc.
 				_courseSettingsLabel: String,
 				_canChangeCourseImage: Boolean,
 				/*
+				* When this flag is set, don't update the image when fetching it
+				*/
+				_suppressChangeImage: Boolean,
+				/*
 				* The icon we want to show when you select an image
 				* @type {Object}
 				*/
@@ -348,6 +352,10 @@ in that organization - student, teacher, TA, etc.
 				var successClass = 'change-image-success',
 					failureClass = 'change-image-failure';
 
+				if (success) {
+					this._suppressChangeImage = true;
+					this.$.organizationRequest.generateRequest();
+				}
 				// We want to wait at least a second of the load icon before showing the status
 				setTimeout(function() {
 					this.toggleClass('change-image-loading', false, tileContainer);
@@ -361,7 +369,6 @@ in that organization - student, teacher, TA, etc.
 					setTimeout(function() {
 						if (success) {
 							this.toggleClass('hidden', false, courseImage);
-							this.$.organizationRequest.generateRequest();
 							Polymer.dom(courseImage).setAttribute('src', newImageHref);
 						}
 						this.toggleClass(successClass, false, tileContainer);
@@ -434,7 +441,9 @@ in that organization - student, teacher, TA, etc.
 					var organization = parser.parse(response.detail.xhr.response);
 
 					this._organization = organization;
-					this._setCourseImageSrc();
+					if (!this._suppressChangeImage) {
+						this._setCourseImageSrc();
+					}
 					this._organizationHomepageUrl = organization.getLinkByRel(/\/organization-homepage$/).href;
 					this._canChangeCourseImage = this._getCanChangeCourseImage(organization);
 					this._pinnedChanged();
