@@ -330,6 +330,7 @@ in that organization - student, teacher, TA, etc.
 				details = details || {};
 				var tileContainer = this.$$('.tile-container');
 				var newImageHref = this.getDefaultImageLink(details.image);
+				console.log(this.getImageSrcset(details.image))
 
 				switch (details.status) {
 					case 'set':
@@ -475,16 +476,19 @@ in that organization - student, teacher, TA, etc.
 				return organization && organization.getLinkByRel(rel);
 			},
 			_setCourseImageSrc: function() {
-				var href = '';
+				var href = '', srcset = '', sizes = '';
 
 				var courseImageEntity = this._organization.getSubEntityByClass('course-image');
 				if (courseImageEntity) {
 					href = this.getDefaultImageLink(courseImageEntity) || '';
+					srcset = this.getImageSrcset(courseImageEntity) || '';
 				}
-
+				sizes = "(max-width: 767px) 100vw, (max-width: 1211px) and (min-width: 768px) 67vw, 20vw";
 				var courseImage = this.$$('.course-image img');
 				this.toggleClass('hidden', href === '', courseImage);
 				Polymer.dom(courseImage).setAttribute('src', href);
+				Polymer.dom(courseImage).setAttribute('srcset', srcset);
+				Polymer.dom(courseImage).setAttribute('sizes', sizes);
 			},
 			_onFocus: function() {
 				/* timeout needed to work around lack of support for relatedTarget */

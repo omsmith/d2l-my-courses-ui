@@ -39,6 +39,19 @@
 
 			return queryString ? action.href + '?' + queryString : action.href;
 		},
+		getImageSrcset: function(image) {
+			var imageLinks = image.getLinksByClass('tile'),
+				srcset = '';
+			imageLinks.forEach(function(link) {
+				srcset += link.hasClass('min') && !link.hasClass('high-density') ? link.href + ' 145w, ' : '';
+				srcset += link.hasClass('min') && link.hasClass('high-density') ? link.href + ' 290w, ' : '';
+				srcset += link.hasClass('mid') && !link.hasClass('high-density') ? link.href + ' 220w, ' : '';
+				srcset += link.hasClass('mid') && link.hasClass('high-density') ? link.href + ' 440w, ' : '';
+				srcset += link.hasClass('max') && !link.hasClass('high-density') ? link.href + ' 540w, ' : '';
+				srcset += link.hasClass('max') && link.hasClass('high-density') ? link.href + ' 1080w, ' : '';
+			});
+			return srcset.trimRight().replace(/,\s*$/, "");
+		},
 		/*
 		* Returns the best available image to use as a default
 		* @param {Entity} image
