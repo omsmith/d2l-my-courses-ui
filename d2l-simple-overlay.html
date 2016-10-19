@@ -19,21 +19,23 @@ The overlay supports using different animations and transitions for desktop and 
 <dom-module id="d2l-simple-overlay">
 	<style include="d2l-simple-overlay-styles"></style>
 	<template>
-		<div class="max-width container">
-			<h1 class="d2l-heading-2">{{title}}</h1>
-			<button
-				class="close-button"
-				on-tap="_handleClose"
-				aria-label$="{{localize('closeSimpleOverlayAltText')}}"
-				alt$="{{localize('closeSimpleOverlayAltText')}}">
-				<d2l-icon icon="d2l-tier1:close-large-thick"></d2l-icon>
-			</button>
-		</div>
-		<div class="scrollable">
-			<div class="max-width">
-				<content></content>
+		<span role="dialog" aria-label$="[[titleName]]">
+			<div class="max-width container">
+				<h1 class="d2l-heading-2">{{titleName}}</h1>
+				<button
+					class="close-button"
+					on-tap="_handleClose"
+					aria-label$="{{localize('closeSimpleOverlayAltText')}}"
+					alt$="{{localize('closeSimpleOverlayAltText')}}">
+					<d2l-icon icon="d2l-tier1:close-large-thick"></d2l-icon>
+				</button>
 			</div>
-		</div>
+			<div class="scrollable">
+				<div class="max-width">
+					<content></content>
+				</div>
+			</div>
+		</span>
 	</template>
 	<script>
 		'use strict';
@@ -60,7 +62,7 @@ The overlay supports using different animations and transitions for desktop and 
 				* Title for overlay
 				* @type {String}
 				*/
-				title: {
+				titleName: {
 					type: String
 				},
 				/*
