@@ -368,7 +368,9 @@ in that organization - student, teacher, TA, etc.
 					setTimeout(function() {
 						if (success) {
 							this.toggleClass('hidden', false, courseImage);
+							var newSrcset = this.getImageSrcset(details.image) || '';
 							Polymer.dom(courseImage).setAttribute('src', newImageHref);
+							Polymer.dom(courseImage).setAttribute('srcset', newSrcset);
 						}
 						this.toggleClass(successClass, false, tileContainer);
 						this.toggleClass(failureClass, false, tileContainer);

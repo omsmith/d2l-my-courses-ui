@@ -50,7 +50,21 @@
 				srcset += link.hasClass('max') && !link.hasClass('high-density') ? link.href + ' 540w, ' : '';
 				srcset += link.hasClass('max') && link.hasClass('high-density') ? link.href + ' 1080w, ' : '';
 			});
-			return srcset.trimRight().replace(/,\s*$/, "");
+			return srcset.replace(/,\s*$/, "");
+		},
+		getImageSrcsetBanner: function(image) {
+			var imageLinks = image.getLinksByClass('narrow'),
+				srcset = '';
+				console.log(imageLinks);
+			imageLinks.forEach(function(link) {
+				srcset += link.hasClass('min') && !link.hasClass('high-density') ? link.href + ' 320w, ' : '';
+				srcset += link.hasClass('min') && link.hasClass('high-density') ? link.href + ' 640w, ' : '';
+				srcset += link.hasClass('mid') && !link.hasClass('high-density') ? link.href + ' 375w, ' : '';
+				srcset += link.hasClass('mid') && link.hasClass('high-density') ? link.href + ' 750w, ' : '';
+				srcset += link.hasClass('max') && !link.hasClass('high-density') ? link.href + ' 767w, ' : '';
+				srcset += link.hasClass('max') && link.hasClass('high-density') ? link.href + ' 1534w, ' : '';
+			});
+			return srcset.replace(/,\s*$/, "");
 		},
 		/*
 		* Returns the best available image to use as a default
