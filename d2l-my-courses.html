@@ -113,6 +113,7 @@
 			with-backdrop>
 
 			<iron-scroll-threshold
+				id="all-courses-scroll-threshold"
 				on-lower-threshold="_loadNextEnrollmentsPage">
 			</iron-scroll-threshold>
 
@@ -134,6 +135,10 @@
 			title-name="{{localize('changeImage')}}"
 			locale="[[locale]]"
 			with-backdrop>
+			<iron-scroll-threshold
+				id="image-selector-threshold"
+				on-lower-threshold="_changeImageLoadMore">
+			</iron-scroll-threshold>
 			<d2l-basic-image-selector
 				image-catalog-location="[[imageCatalogLocation]]"
 				organization="[[_setImageOrg]]"
@@ -217,7 +222,8 @@
 			],
 			listeners: {
 				'open-change-image-view': '_openChangeImageView',
-				'set-course-image': '_setCourseImageEvent'
+				'set-course-image': '_setCourseImageEvent',
+				'clear-image-scroll-threshold': '_clearImageScrollThreshold'
 			},
 			ready: function() {
 				this._pinnedCoursesMap = {};
@@ -231,7 +237,8 @@
 					this.$.enrollmentsRootRequest.generateRequest();
 				}
 
-				this.$$('iron-scroll-threshold').scrollTarget = this.$['all-courses'].scrollRegion;
+				this.$['all-courses-scroll-threshold'].scrollTarget = this.$['all-courses'].scrollRegion;
+				this.$['image-selector-threshold'].scrollTarget = this.$['basic-image-selector-overlay'].scrollRegion;
 			},
 			/*
 			* Count of `d2l-course-tile` elements in grid.
@@ -315,7 +322,7 @@
 				}
 
 				this.toggleClass('hidden', true, this.$.lazyLoadSpinner);
-				this.$$('iron-scroll-threshold').clearTriggers();
+				this.$['all-courses-scroll-threshold'].clearTriggers();
 				this._showContent();
 			},
 			_openChangeImageView: function(e) {
@@ -323,7 +330,7 @@
 					this._setImageOrg = e.detail.organization;
 				}
 
-				this.$$('#basic-image-selector-overlay').open();
+				this.$['basic-image-selector-overlay'].open();
 			},
 			_openAllCoursesView: function(e) {
 				e.preventDefault();
@@ -352,12 +359,19 @@
 						this._enrollmentsSearchUrl = lastResponseEntity.getLinkByRel('next').href;
 						this.$.enrollmentsSearchRequest.generateRequest();
 						this.toggleClass('hidden', false, this.$.lazyLoadSpinner);
+						this.$.lazyLoadSpinner.scrollIntoView();
 					}
 				}
 			},
 			_setCourseImageEvent: function(e) {
 				this.$$('d2l-all-courses').setCourseImage(e);
 				this.$$('d2l-course-tile-grid').setCourseImage(e);
+			},
+			_changeImageLoadMore: function() {
+				this.$$('d2l-basic-image-selector').loadMore(this.$['image-selector-threshold']);
+			},
+			_clearImageScrollThreshold: function() {
+				this.$['image-selector-threshold'].clearTriggers();
 			}
 		});
 	</script>
