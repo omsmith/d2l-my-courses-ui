@@ -72,7 +72,7 @@ in that organization - student, teacher, TA, etc.
 							<template is="dom-if" if="{{_canChangeCourseImage}}" restamp="true">
 								<d2l-menu-item id="change-image-button"
 									text="{{localize('changeImage')}}"
-									on-select="_launchCourseTileImageSelector">
+									on-d2l-menu-item-select="_launchCourseTileImageSelector">
 								</d2l-menu-item>
 							</template>
 							<d2l-menu-item id="pin-button"
