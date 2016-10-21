@@ -443,6 +443,8 @@ in that organization - student, teacher, TA, etc.
 					this._organization = organization;
 					if (!this._suppressChangeImage) {
 						this._setCourseImageSrc();
+					} else {
+						this._suppressChangeImage = false;
 					}
 					this._organizationHomepageUrl = organization.getLinkByRel(/\/organization-homepage$/).href;
 					this._canChangeCourseImage = this._getCanChangeCourseImage(organization);
