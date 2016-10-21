@@ -342,7 +342,7 @@
 			<d2l-search-widget-custom
 				hidden$="[[_hasEnrollments]]"
 				search-root-url="[[searchUrl]]"
-				parent-organization-ids="[[_parentOrganizationIds]]"
+				parent-organizations="[[_parentOrganizations]]"
 				sort-field="[[_sortField]]">
 			</d2l-search-widget-custom>
 
@@ -397,7 +397,7 @@
 									<d2l-menu label="{{localize('filtering.semester')}}">
 										<template is="dom-repeat" items="[[_semesterOrganizations]]">
 											<d2l-menu-item-filter
-												value="[[item.properties.id]]"
+												value="[[getEntityIdentifier(item)]]"
 												text="[[item.properties.name]]"
 												selected="[[item.properties.selected]]">
 											</d2l-menu-item-filter>
@@ -413,7 +413,7 @@
 									<d2l-menu label="{{localize('filtering.department')}}">
 										<template is="dom-repeat" items="[[_departmentOrganizations]]">
 											<d2l-menu-item-filter
-												value="[[item.properties.id]]"
+												value="[[getEntityIdentifier(item)]]"
 												text="[[item.properties.name]]"
 												selected="[[item.properties.selected]]">
 											</d2l-menu-item-filter>
@@ -572,7 +572,7 @@
 					}
 				},
 				_sortField: String,
-				_parentOrganizationIds: {
+				_parentOrganizations: {
 					type: Array,
 					value: function() {
 						return [];
@@ -582,7 +582,8 @@
 			behaviors: [
 				window.D2L.MyCourses.CourseTileResponsiveGridBehavior,
 				window.D2L.MyCourses.LocalizeBehavior,
-				window.D2L.MyCourses.CourseManagementBehavior
+				window.D2L.MyCourses.CourseManagementBehavior,
+				window.D2L.MyCourses.UtilityBehavior
 			],
 			ready: function() {
 				this.usePendingLists = true;
@@ -660,7 +661,8 @@
 			},
 			_checkFilterEntities: function(entities) {
 				entities.forEach(function(entity) {
-					entity.properties.selected = this._parentOrganizationIds.indexOf(entity.properties.id) > -1;
+					var id = this.getEntityIdentifier(entity);
+					entity.properties.selected = this._parentOrganizations.indexOf(id) > -1;
 				}.bind(this));
 			},
 			_clearFilters: function() {
@@ -670,7 +672,7 @@
 				this._isFiltered = false;
 				// Clear button is removed via dom-if, so need to manually set focus to next element
 				this.$.semesterListButton.focus();
-				this._parentOrganizationIds = [];
+				this._parentOrganizations = [];
 				this.$.filterText.textContent = this.localize('filtering.filter');
 				this.$.semesterListButton.textContent = this.localize('filtering.semester');
 				this.$.departmentListButton.textContent = this.localize('filtering.department');
@@ -812,23 +814,23 @@
 				var isSemester = this.$.semesterList.contains(e.target);
 
 				if (e.detail.selected) {
-					this.push('_parentOrganizationIds', e.detail.value);
+					this.push('_parentOrganizations', e.detail.value);
 					isSemester ? this._numSemesterFilters++ : this._numDepartmentFilters++;
 				} else {
-					var index = this._parentOrganizationIds.indexOf(e.detail.value);
-					this.splice('_parentOrganizationIds', index, 1);
+					var index = this._parentOrganizations.indexOf(e.detail.value);
+					this.splice('_parentOrganizations', index, 1);
 					isSemester ? this._numSemesterFilters-- : this._numDepartmentFilters--;
 				}
 
-				if (this._parentOrganizationIds.length === 0) {
+				if (this._parentOrganizations.length === 0) {
 					this.$.filterText.textContent = this.localize('filtering.filter');
-				} else if (this._parentOrganizationIds.length === 1) {
+				} else if (this._parentOrganizations.length === 1) {
 					this.$.filterText.textContent = this.localize('filtering.filterSingle');
 				} else {
-					this.$.filterText.textContent = this.localize('filtering.filterMultiple', 'num', this._parentOrganizationIds.length);
+					this.$.filterText.textContent = this.localize('filtering.filterMultiple', 'num', this._parentOrganizations.length);
 				}
 
-				this._isFiltered = this._parentOrganizationIds.length > 0;
+				this._isFiltered = this._parentOrganizations.length > 0;
 				this.$.semesterListButton.textContent = this._numSemesterFilters > 0
 					? this.localize('filtering.semesterMultiple', 'num', this._numSemesterFilters)
 					: this.localize('filtering.semester');

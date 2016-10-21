@@ -110,10 +110,10 @@
 			},
 			_moveEnrollmentToPinnedList: function(enrollment) {
 				// Remove enrollment from unpinned list, add to pinned
-				var enrollmentId = this.getEnrollmentIdentifier(enrollment);
+				var enrollmentId = this.getEntityIdentifier(enrollment);
 
 				for (var index = 0; index < this.unpinnedEnrollments.length; index++) {
-					var pinnedEnrollmentId = this.getEnrollmentIdentifier(this.unpinnedEnrollments[index]);
+					var pinnedEnrollmentId = this.getEntityIdentifier(this.unpinnedEnrollments[index]);
 					if (pinnedEnrollmentId === enrollmentId) {
 						var foundEnrollment = this.unpinnedEnrollments[index];
 						this._setEnrollmentPinData(foundEnrollment, true);
@@ -133,10 +133,10 @@
 			},
 			_moveEnrollmentToUnpinnedList: function(enrollment) {
 				// Remove enrollment from pinned list, add to unpinned
-				var enrollmentId = this.getEnrollmentIdentifier(enrollment);
+				var enrollmentId = this.getEntityIdentifier(enrollment);
 
 				for (var index = 0; index < this.pinnedEnrollments.length; index++) {
-					var unpinnedEnrollmentId = this.getEnrollmentIdentifier(this.pinnedEnrollments[index]);
+					var unpinnedEnrollmentId = this.getEntityIdentifier(this.pinnedEnrollments[index]);
 					if (unpinnedEnrollmentId === enrollmentId) {
 						var foundEnrollment = this.pinnedEnrollments[index];
 						this._setEnrollmentPinData(foundEnrollment, false);

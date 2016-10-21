@@ -55,13 +55,13 @@
 			return sizes.highMax || sizes.lowMax || sizes.highMid || sizes.lowMid || sizes.highMin || sizes.lowMin;
 		},
 		/*
-		* Creates a unique identifier for an enrollment (really just the self Link href)
-		* @param {Entity} enrollment
+		* Creates a unique identifier for a Siren Entity (really just the self Link href)
+		* @param {Entity}
 		* @return {String}
 		*/
-		getEnrollmentIdentifier: function(enrollment) {
-			// An enrollment's self href should be unique, so use it as an identifier
-			var selfLink = enrollment.getLinkByRel('self');
+		getEntityIdentifier: function(entity) {
+			// An entity's self href should be unique, so use it as an identifier
+			var selfLink = entity.getLinkByRel('self');
 			return selfLink.href;
 		}
 	};
