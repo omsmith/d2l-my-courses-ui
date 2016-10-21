@@ -217,6 +217,10 @@ in that organization - student, teacher, TA, etc.
 				_courseSettingsLabel: String,
 				_canChangeCourseImage: Boolean,
 				/*
+				* When this flag is set, don't update the image when fetching it
+				*/
+				_suppressChangeImage: Boolean,
+				/*
 				* The icon we want to show when you select an image
 				* @type {Object}
 				*/
@@ -326,7 +330,6 @@ in that organization - student, teacher, TA, etc.
 			},
 			setCourseImage: function(details) {
 				details = details || {};
-				var courseImage = this.$$('.course-image img');
 				var tileContainer = this.$$('.tile-container');
 
 				switch (details.status) {
@@ -335,8 +338,6 @@ in that organization - student, teacher, TA, etc.
 						break;
 					case 'success':
 						var newImageHref = this.getDefaultImageLink(details.image);
-						this._imageOverrideHref = newImageHref; // set an override in case the revert is run later on
-						this.toggleClass('hidden', false, courseImage);
 						this._displaySetImageResult(true, newImageHref);
 						break;
 					case 'failure':
@@ -351,6 +352,10 @@ in that organization - student, teacher, TA, etc.
 				var successClass = 'change-image-success',
 					failureClass = 'change-image-failure';
 
+				if (success) {
+					this._suppressChangeImage = true;
+					this.$.organizationRequest.generateRequest();
+				}
 				// We want to wait at least a second of the load icon before showing the status
 				setTimeout(function() {
 					this.toggleClass('change-image-loading', false, tileContainer);
@@ -363,6 +368,7 @@ in that organization - student, teacher, TA, etc.
 					// Remove the icon after a bit of time
 					setTimeout(function() {
 						if (success) {
+							this.toggleClass('hidden', false, courseImage);
 							Polymer.dom(courseImage).setAttribute('src', newImageHref);
 						}
 						this.toggleClass(successClass, false, tileContainer);
@@ -370,7 +376,6 @@ in that organization - student, teacher, TA, etc.
 					}.bind(this), 1000);
 				}.bind(this), 1000);
 			},
-			_imageOverrideHref: null,
 			_pendingPinAction: false,
 			_pinAnimationInProgress: false,
 			_delayLoadChanged: function(delayLoad) {
@@ -436,7 +441,11 @@ in that organization - student, teacher, TA, etc.
 					var organization = parser.parse(response.detail.xhr.response);
 
 					this._organization = organization;
-					this._setCourseImageSrc();
+					if (!this._suppressChangeImage) {
+						this._setCourseImageSrc();
+					} else {
+						this._suppressChangeImage = false;
+					}
 					this._organizationHomepageUrl = organization.getLinkByRel(/\/organization-homepage$/).href;
 					this._canChangeCourseImage = this._getCanChangeCourseImage(organization);
 					this._pinnedChanged();
@@ -474,13 +483,9 @@ in that organization - student, teacher, TA, etc.
 			_setCourseImageSrc: function() {
 				var href = '';
 
-				if (this._imageOverrideHref) {
-					href = this._imageOverrideHref;
-				} else {
-					var courseImageEntity = this._organization.getSubEntityByClass('course-image');
-					if (courseImageEntity) {
-						href = this.getDefaultImageLink(courseImageEntity) || '';
-					}
+				var courseImageEntity = this._organization.getSubEntityByClass('course-image');
+				if (courseImageEntity) {
+					href = this.getDefaultImageLink(courseImageEntity) || '';
 				}
 
 				var courseImage = this.$$('.course-image img');
