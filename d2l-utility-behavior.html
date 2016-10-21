@@ -40,6 +40,7 @@
 			return queryString ? action.href + '?' + queryString : action.href;
 		},
 		getImageSrcset: function(image) {
+			var test = true;
 			var imageLinks = image.getLinksByClass('tile'),
 				srcset = '';
 			imageLinks.forEach(function(link) {
@@ -50,9 +51,13 @@
 				srcset += link.hasClass('max') && !link.hasClass('high-density') ? link.href + ' 540w, ' : '';
 				srcset += link.hasClass('max') && link.hasClass('high-density') ? link.href + ' 1080w, ' : '';
 			});
+			if (test) {
+				return "http://i.imgur.com/BHOB11o.png 1080w, http://i.imgur.com/mKnXE1f.png 440w, http://i.imgur.com/FQ2Hetx.png 290w, http://i.imgur.com/ch60eDr.png 540w, http://i.imgur.com/OMpdPM8.png 220w, http://i.imgur.com/UKSwTZv.png 145w";
+			}
 			return srcset.replace(/,\s*$/, "");
 		},
 		getImageSrcsetBanner: function(image) {
+			var test = true;
 			var imageLinks = image.getLinksByClass('narrow'),
 				srcset = '';
 				console.log(imageLinks);
@@ -64,6 +69,9 @@
 				srcset += link.hasClass('max') && !link.hasClass('high-density') ? link.href + ' 767w, ' : '';
 				srcset += link.hasClass('max') && link.hasClass('high-density') ? link.href + ' 1534w, ' : '';
 			});
+			if (test) {
+				return "http://i.imgur.com/6zywPmF.png 1534w, http://i.imgur.com/uZhwOny.png 750w, http://i.imgur.com/MIzy0Zd.png 640w, http://i.imgur.com/M4oDn2l.png 767w, http://i.imgur.com/YtOLque.png 375w, http://i.imgur.com/XXyf8GK.png 320w";
+			}
 			return srcset.replace(/,\s*$/, "");
 		},
 		/*
