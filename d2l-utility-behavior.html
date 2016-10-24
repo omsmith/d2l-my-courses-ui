@@ -40,7 +40,7 @@
 			return queryString ? action.href + '?' + queryString : action.href;
 		},
 		getImageSrcset: function(image) {
-			var test = true;
+			var test = false;
 			var imageLinks = image.getLinksByClass('tile'),
 				srcset = '';
 			imageLinks.forEach(function(link) {
@@ -57,7 +57,7 @@
 			return srcset.replace(/,\s*$/, "");
 		},
 		getImageSrcsetBanner: function(image) {
-			var test = true;
+			var test = false;
 			var imageLinks = image.getLinksByClass('narrow'),
 				srcset = '';
 				console.log(imageLinks);
