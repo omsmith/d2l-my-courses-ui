@@ -225,10 +225,6 @@
 
 				this.toggleClass('hidden', true, this.$.courseTiles);
 				this.toggleClass('hidden', true, this.$.courseList);
-
-				var allCoursesOverlay = this.$$('#all-courses');
-				var allCourses = this.$$('d2l-all-courses');
-				allCoursesOverlay.focusableNodesOverride = allCourses.focusableNodesOverride.bind(allCourses);
 			},
 			attached: function() {
 				if (!this.delayLoad) {
@@ -323,13 +319,9 @@
 				this._showContent();
 			},
 			_openChangeImageView: function(e) {
-				var changeImageOverlay = this.$$('#basic-image-selector-overlay');
-				var basicImageSelector = this.$$('d2l-basic-image-selector');
 				if (e.detail.organization) {
 					this._setImageOrg = e.detail.organization;
 				}
-
-				changeImageOverlay.focusableNodesOverride = basicImageSelector.focusableNodesOverride.bind(basicImageSelector);
 
 				this.$$('#basic-image-selector-overlay').open();
 			},
