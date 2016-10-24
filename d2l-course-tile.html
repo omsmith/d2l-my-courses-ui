@@ -331,13 +331,17 @@ in that organization - student, teacher, TA, etc.
 			setCourseImage: function(details) {
 				details = details || {};
 				var tileContainer = this.$$('.tile-container');
+				var newImageHref = this.getDefaultImageLink(details.image);
 
 				switch (details.status) {
 					case 'set':
 						this.toggleClass('change-image-loading', true, tileContainer);
+						// load the image while the loading spinner runs to that we have it when the spinner ends
+						// NOTE: if this needs optimization, we can wait for the image's onload to play the success animation
+						var imagePreloader = document.createElement("img");
+						imagePreloader.setAttribute('src', newImageHref);
 						break;
 					case 'success':
-						var newImageHref = this.getDefaultImageLink(details.image);
 						this._displaySetImageResult(true, newImageHref);
 						break;
 					case 'failure':
