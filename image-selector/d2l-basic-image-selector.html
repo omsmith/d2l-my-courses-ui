@@ -64,22 +64,19 @@
 			ready: function() {
 				this._images = this._defaultImages;
 				this.$$('d2l-search-widget').addEventListener('search-results-changed', function(response) {
-					var searchWidget = this.$$('d2l-search-widget');
-					this._searchImages = searchWidget.searchResults.entities || [];
 
-					var delimiter = '$$$DELIMITER???',
-						searchRegex = /search=([^&]*)/,
+					var searchRegex = /search=([^&]*)/,
 						searchHref = decodeURIComponent( response.detail.getLinkByRel('self').href ),
 						match = searchRegex.exec(searchHref),
-						noResultsText = this.localize('images.noResults', 'search', delimiter),
-						userSearchText = (match.length > 1) ? match[1] : null,
-						noResultsSplit = noResultsText.split(delimiter);
+						userSearchText = (match.length > 1) ? match[1] : null;
 
-					this._noResultsTextStart = noResultsSplit[0];
-					this._noResultsTextMid = userSearchText;
-					this._noResultsTextEnd = noResultsSplit[1];
-
-					this._showGrid = (userSearchText || '') === '' || this._searchImages.length > 0;
+					if (userSearchText) {
+						this._displaySearchResults(userSearchText);
+					} else {
+						// Throw out empty searches
+						// TODO: d2l-search-widget property that sends events instead of making network calls
+						this._displayDefaultResults();
+					}
 
 					this._updateImages();
 				}.bind(this));
@@ -102,6 +99,23 @@
 			_sirenParser: document.createElement('d2l-siren-parser'),
 			_searchImages: [],
 			_defaultImages: [],
+			_displaySearchResults: function(userSearchText) {
+				var searchWidget = this.$$('d2l-search-widget'),
+					delimiter = '$$$DELIMITER???',
+					noResultsText = this.localize('images.noResults', 'search', delimiter),
+					noResultsSplit = noResultsText.split(delimiter);
+
+				this._searchImages = searchWidget.searchResults.entities || [];
+				this._noResultsTextStart = noResultsSplit[0];
+				this._noResultsTextMid = userSearchText;
+				this._noResultsTextEnd = noResultsSplit[1];
+
+				this._showGrid = (userSearchText || '') === '' || this._searchImages.length > 0;
+			},
+			_displayDefaultResults: function() {
+				this._searchImages = [];
+				this._showGrid = true;
+			},
 			_onDefaultImagesRequestResponse: function(response) {
 				if (response.detail.status !== 200) {
 					return;
@@ -111,12 +125,6 @@
 				this._defaultImages = parsedResponse.entities || [];
 
 				this._updateImages();
-
-				// if the course name search gets nothing back, use the default images
-				if (this._defaultImages.length === 0 && this._searchString !== this._getSearchStringValue('default')) {
-					this._searchString = this._getSearchStringValue('default');
-					this.$.imagesRequest.generateRequest();
-				}
 			},
 			_updateOrganization: function(organization) {
 				this._searchAction = JSON.stringify(this._getSearchAction());
@@ -125,9 +133,10 @@
 
 				// TODO: Add 'department' to the organization HM entity and use that information here
 				if (organization && (organization.properties || {}).name) {
-					this._searchString = this._getSearchStringValue(organization.properties.name);
+					this._searchString = this._getSearchStringValue(organization.properties.name, true);
 				} else {
-					this._searchString = this._getSearchStringValue('default');
+					// This is better than 'default' because we get random defaults rather than starting at 0
+					this._searchString = this._getSearchStringValue('THIS_WILL_RETURN_NOTHING', true);
 				}
 
 				if (this._searchString !== null) {
@@ -152,8 +161,9 @@
 				var endSlash = this.imageCatalogLocation.slice(-1) === '/' ? '' : '/';
 				return this.imageCatalogLocation + endSlash + 'images';
 			},
-			_getSearchStringValue: function(search) {
-				return this._searchPath + '?search=' + search;
+			_getSearchStringValue: function(search, appendMore) {
+				var appendMoreQuery = appendMore ? '&appendMore=1' : '';
+				return this._searchPath + '?search=' + search + appendMoreQuery;
 			},
 			_updateImages: function() {
 				var searchImages = this._searchImages || [];
