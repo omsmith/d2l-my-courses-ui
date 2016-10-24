@@ -99,14 +99,6 @@
 				_showGrid: Boolean,
 			},
 			behaviors: [ window.D2L.MyCourses.LocalizeBehavior ],
-			focusableNodesOverride: function() {
-				var imageTileFocusables = [];
-				var grid = this.$$('d2l-image-tile-grid');
-				[].forEach.call(grid.querySelectorAll('d2l-image-selector-tile'), function(imageTile) {
-					Array.prototype.push.apply(imageTileFocusables, Polymer.dom(imageTile.root).querySelectorAll('button'));
-				});
-				return imageTileFocusables;
-			},
 			_sirenParser: document.createElement('d2l-siren-parser'),
 			_searchImages: [],
 			_defaultImages: [],

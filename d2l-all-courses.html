@@ -619,24 +619,6 @@
 				this.unlisten(this.$.departmentSearchWidget, 'search-results-changed', '_onDepartmentSearchResults');
 			},
 			/*
-			* Fetches set of focusable elements (all `<d2l-course-tile>`s)
-			*
-			* Required for accessibility, this specifies which elements within the element are intended to be
-			* keyboard-focusable. This is because we're using `<iron-overlay with-backdrop>`. See
-			* [those docs](https://github.com/PolymerElements/iron-overlay-behavior#backdrop) for more information.
-			*
-			* @return {Array<HTMLElement>} `<d2l-course-tile` HTMLElements
-			*/
-			focusableNodesOverride: function() {
-				var courseTileFocusables = [];
-
-				Polymer.dom(this.root).querySelectorAll('d2l-course-tile').forEach(function(courseTile) {
-					Array.prototype.push.apply(courseTileFocusables, Polymer.dom(courseTile.root).querySelectorAll('a'));
-				});
-
-				return courseTileFocusables;
-			},
-			/*
 			* Fetches the max value between the pinned and unpinned enrollments
 			* @return {Number} Max(number of pinned enrollments, number of unpinned enrollments)
 			*/
