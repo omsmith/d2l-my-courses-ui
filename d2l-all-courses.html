@@ -298,7 +298,9 @@
 			button:focus > span,
 			button:hover > span,
 			#filterText:hover,
+			#filterText:focus,
 			#filterText:hover + d2l-dropdown button d2l-icon,
+			#filterText:focus + d2l-dropdown button d2l-icon,
 			d2l-dropdown-content button:hover,
 			d2l-dropdown-content button:focus,
 			.focus {
@@ -338,15 +340,15 @@
 			<div id="filterAndSort">
 				<div id="filterSection">
 					<span id="filterText" class="dropdown-opener-text" on-tap="_toggleFilterDropdown">{{localize('filtering.filter')}}</span>
-					<d2l-dropdown id="filterDropdown" no-auto-open>
+					<d2l-dropdown id="filterDropdown">
 						<button
+							id="filterDropdownOpener"
 							class="d2l-dropdown-opener dropdown-button"
 							on-focus="_focusFilterText"
 							on-blur="_blurFilterText"
 							on-mouseenter="_focusFilterText"
 							on-mouseleave="_blurFilterText"
-							aria-labelledby="filterText"
-							on-tap="_toggleFilterDropdown">
+							aria-labelledby="filterText">
 							<d2l-icon icon="d2l-tier1:chevron-down" aria-hidden="true"></d2l-icon>
 						</button>
 						<d2l-dropdown-content id="filterDropdownContent" no-padding min-width="350">
@@ -588,6 +590,9 @@
 				this.listen(this.$.sortDropdown, 'menu-item-selected', '_updateSortBy');
 				this.listen(this.$.filterDropdown, 'menu-item-selected', '_updateFilter');
 
+				this.listen(this.$.filterDropdownContent, 'd2l-dropdown-open', '_onFilterDropdownOpen');
+				this.listen(this.$.filterDropdownContent, 'd2l-dropdown-close', '_onFilterDropdownClose');
+
 				this.$.organizationsRequest.generateRequest();
 
 				this.listen(this.$.semesterSearchWidget, 'search-results-changed', '_onSemesterSearchResults');
@@ -600,6 +605,9 @@
 
 				this.unlisten(this.$.sortDropdown, 'menu-item-selected', '_updateSortBy');
 				this.unlisten(this.$.filterDropdown, 'menu-item-selected', '_updateFilter');
+
+				this.unlisten(this.$.filterDropdownContent, 'd2l-dropdown-open', '_onFilterDropdownOpen');
+				this.unlisten(this.$.filterDropdownContent, 'd2l-dropdown-close', '_onFilterDropdownClose');
 
 				this.unlisten(this.$.semesterSearchWidget, 'search-results-changed', '_onSemesterSearchResults');
 				this.unlisten(this.$.departmentSearchWidget, 'search-results-changed', '_onDepartmentSearchResults');
@@ -663,7 +671,11 @@
 				this.$.scrollThreshold.clearTriggers();
 			},
 			_blurFilterText: function() {
-				this.toggleClass('focus', false, this.$.filterText);
+				// Only de-highlight text if focus has moved AND we're not hovering over the opener button anymore
+				// Without this check, the text de-highlights once the dropdown is opened as focus moves to the tabs
+				if (this.$$('#filterDropdownOpener:focus') === null && this.$$('#filterDropdownOpener:hover') === null) {
+					this.toggleClass('focus', false, this.$.filterText);
+				}
 			},
 			_focusFilterText: function() {
 				this.toggleClass('focus', true, this.$.filterText);
@@ -674,15 +686,24 @@
 				this.set(hasMorePath, entity.hasLinkByRel('next'));
 				this.set(moreUrlPath, this[hasMorePath] ? entity.getLinkByRel('next').href : '');
 			},
+			_onFilterDropdownClose: function() {
+				// If the dropdown is closed by clicking elsewhere, we need to manually update _filterDropdownOpen
+				// since _toggleFilterDropdown doesn't run.
+				// Timeout is to ensure this runs after _toggleFilterDropdown when it's clicked closed
+				setTimeout(function() {
+					this.set('_filterDropdownOpen', false);
+				}.bind(this), 100);
+			},
+			_onFilterDropdownOpen: function() {
+				this._selectSemesterList();
+			},
 			_onDepartmentSearchResults: function(e) {
 				this.set('_departmentOrganizations', e.detail.entities);
 				this._updateMoreParameters(e.detail, '_moreDepartmentsUrl', '_hasMoreDepartments');
-				this.$.departmentList.querySelector('d2l-menu').resize();
 			},
 			_onSemesterSearchResults: function(e) {
 				this.set('_semesterOrganizations', e.detail.entities);
 				this._updateMoreParameters(e.detail, '_moreSemestersUrl', '_hasMoreSemesters');
-				this.$.semesterList.querySelector('d2l-menu').resize();
 			},
 			_onMoreResponse: function(response, organizationsPath, moreUrlPath, hasMorePath) {
 				if (response.detail.status === 200 || response.detail.status === 304) {
@@ -768,10 +789,9 @@
 				// This is somewhat gross, but is a side effect of using the filter text span as a secondary opener
 				if (this._filterDropdownOpen) {
 					this.$.filterDropdownContent.close();
+					this.$.filterDropdownOpener.focus();
 				} else {
 					this.$.filterDropdownContent.open();
-					this.$.departmentList.querySelector('d2l-menu').resize();
-					this.$.semesterList.querySelector('d2l-menu').resize();
 				}
 				this.set('_filterDropdownOpen', !this._filterDropdownOpen);
 			},
