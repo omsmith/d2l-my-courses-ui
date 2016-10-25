@@ -40,7 +40,6 @@
 			return queryString ? action.href + '?' + queryString : action.href;
 		},
 		getImageSrcset: function(image, imageClass) {
-			var test = true;
 			var srcset = '',
 				imageLinks = image.getLinksByClass(imageClass || 'tile'),
 				sizes = {};
@@ -56,9 +55,6 @@
 				srcset += sizes.highMid ? sizes.highMid + ' 440w, ' : '';
 				srcset += sizes.lowMax ? sizes.lowMax + ' 540w, ' : '';
 				srcset += sizes.highMax ? sizes.highMax + ' 1080w, ' : '';
-				if (test) {
-					return "http://i.imgur.com/BHOB11o.png 1080w, http://i.imgur.com/mKnXE1f.png 440w, http://i.imgur.com/FQ2Hetx.png 290w, http://i.imgur.com/ch60eDr.png 540w, http://i.imgur.com/OMpdPM8.png 220w, http://i.imgur.com/UKSwTZv.png 145w";
-				}
 			}
 			if (imageClass === 'banner') {
 				srcset += sizes.lowMin ? sizes.lowMin + ' 320w, ' : '';
@@ -67,9 +63,6 @@
 				srcset += sizes.highMid ? sizes.highMid + ' 750w, ' : '';
 				srcset += sizes.lowMax ? sizes.lowMax + ' 767w, ' : '';
 				srcset += sizes.highMax ? sizes.highMax + ' 1534w, ' : '';
-				if (test) {
-					return "http://i.imgur.com/6zywPmF.png 1534w, http://i.imgur.com/uZhwOny.png 750w, http://i.imgur.com/MIzy0Zd.png 640w, http://i.imgur.com/M4oDn2l.png 767w, http://i.imgur.com/YtOLque.png 375w, http://i.imgur.com/XXyf8GK.png 320w";
-				}
 			}
 			return srcset.replace(/,\s*$/, "");
 		},
