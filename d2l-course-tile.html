@@ -57,7 +57,7 @@ in that organization - student, teacher, TA, etc.
 								<d2l-icon class$="[[_iconDetails.className]]" icon="[[_iconDetails.iconName]]"></d2l-icon>
 							</div>
 						</div>
-						<img aria-hidden="true" />
+						<img aria-hidden="true" sizes="[[_sizes]]"/>
 					</div>
 				</div>
 				<div class="course-text d2l-heading-4">{{_organization.properties.name}}</div>
@@ -119,6 +119,11 @@ in that organization - student, teacher, TA, etc.
 
 			properties: {
 				/*
+				* Specifies whether or not the tile grid is for the all courses overlay
+				* @type {Boolean}
+				*/
+				allCourses: Boolean,
+				/*
 				* TODO: Figure out what this is... Friday night brain isn't allowing me to understand this.
 				* @type {Boolean}
 				*/
@@ -155,6 +160,11 @@ in that organization - student, teacher, TA, etc.
 					type: Boolean,
 					value: true
 				},
+				/*
+				* Number of columns in the courses tile grid
+				* @type {Number}
+				*/
+				numCols: Number,
 				/*
 				* Whether the enrollment represented by this course tile is pinned or not
 				* @type {Boolean}
@@ -218,6 +228,11 @@ in that organization - student, teacher, TA, etc.
 				_courseSettingsLabel: String,
 				_canChangeCourseImage: Boolean,
 				/*
+				* Size property to be used for srcset responsive images
+				* @type {String}
+				*/
+				_sizes: String,
+				/*
 				* The icon we want to show when you select an image
 				* @type {Object}
 				*/
@@ -268,6 +283,9 @@ in that organization - student, teacher, TA, etc.
 				this._hoverCourseTile = this._hoverCourseTile.bind(this);
 
 				Polymer.IronA11yAnnouncer.requestAvailability();
+
+				this.setSizes();
+				window.addEventListener('resize', this.setSizes.bind(this));
 			},
 			/*
 			* Handler that triggers the API call to change an enrollment's pin state when the user says DO IT
@@ -330,7 +348,6 @@ in that organization - student, teacher, TA, etc.
 				details = details || {};
 				var tileContainer = this.$$('.tile-container');
 				var newImageHref = this.getDefaultImageLink(details.image);
-				console.log(this.getImageSrcset(details.image))
 
 				switch (details.status) {
 					case 'set':
@@ -368,9 +385,8 @@ in that organization - student, teacher, TA, etc.
 					setTimeout(function() {
 						if (success) {
 							this.toggleClass('hidden', false, courseImage);
-							var newSrcset = this.getImageSrcset(details.image) || '';
 							Polymer.dom(courseImage).setAttribute('src', newImageHref);
-							Polymer.dom(courseImage).setAttribute('srcset', newSrcset);
+							Polymer.dom(courseImage).setAttribute('srcset', this.getImageSrcset(details.image, 'tile'));
 						}
 						this.toggleClass(successClass, false, tileContainer);
 						this.toggleClass(failureClass, false, tileContainer);
@@ -478,19 +494,17 @@ in that organization - student, teacher, TA, etc.
 				return organization && organization.getLinkByRel(rel);
 			},
 			_setCourseImageSrc: function() {
-				var href = '', srcset = '', sizes = '';
+				var href = '', srcset = '';
 
 				var courseImageEntity = this._organization.getSubEntityByClass('course-image');
 				if (courseImageEntity) {
 					href = this.getDefaultImageLink(courseImageEntity) || '';
-					srcset = this.getImageSrcset(courseImageEntity) || '';
+					srcset = this.getImageSrcset(courseImageEntity, 'tile') || '';
 				}
-				sizes = "(max-width: 767px) 100vw, (max-width: 1211px) and (min-width: 768px) 67vw, 20vw";
 				var courseImage = this.$$('.course-image img');
 				this.toggleClass('hidden', href === '', courseImage);
 				Polymer.dom(courseImage).setAttribute('src', href);
 				Polymer.dom(courseImage).setAttribute('srcset', srcset);
-				Polymer.dom(courseImage).setAttribute('sizes', sizes);
 			},
 			_onFocus: function() {
 				/* timeout needed to work around lack of support for relatedTarget */
@@ -509,6 +523,23 @@ in that organization - student, teacher, TA, etc.
 					var dropdown = this.$$('#overflow-dropdown');
 					dropdown.close();
 					this._setCourseTileHovered(false);
+				}
+			},
+			setSizes: function() {
+				if (this.allCourses) {
+					switch(this.numCols) {
+						case 2:
+							this._sizes = "50vw"
+							break;
+						case 3:
+							this._sizes = "33vw"
+							break;
+						default:
+							this._sizes = "25vw"
+							break;
+					}
+				} else {
+					this._sizes = "(max-width: 767px) 100vw, (max-width: 1211px) and (min-width: 768px) 67vw, 20vw"
 				}
 			}
 		});

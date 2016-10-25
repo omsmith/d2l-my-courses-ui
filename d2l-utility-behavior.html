@@ -39,38 +39,37 @@
 
 			return queryString ? action.href + '?' + queryString : action.href;
 		},
-		getImageSrcset: function(image) {
-			var test = false;
-			var imageLinks = image.getLinksByClass('tile'),
-				srcset = '';
+		getImageSrcset: function(image, imageClass) {
+			var test = true;
+			var srcset = '',
+				imageLinks = image.getLinksByClass(imageClass || 'tile'),
+				sizes = {};
 			imageLinks.forEach(function(link) {
-				srcset += link.hasClass('min') && !link.hasClass('high-density') ? link.href + ' 145w, ' : '';
-				srcset += link.hasClass('min') && link.hasClass('high-density') ? link.href + ' 290w, ' : '';
-				srcset += link.hasClass('mid') && !link.hasClass('high-density') ? link.href + ' 220w, ' : '';
-				srcset += link.hasClass('mid') && link.hasClass('high-density') ? link.href + ' 440w, ' : '';
-				srcset += link.hasClass('max') && !link.hasClass('high-density') ? link.href + ' 540w, ' : '';
-				srcset += link.hasClass('max') && link.hasClass('high-density') ? link.href + ' 1080w, ' : '';
+				var size = link.hasClass('min') && 'Min' || link.hasClass('mid') && 'Mid' || link.hasClass('max') && 'Max',
+				density = link.hasClass('high-density') ? 'high' : 'low';
+				sizes[density + size] = link.href;
 			});
-			if (test) {
-				return "http://i.imgur.com/BHOB11o.png 1080w, http://i.imgur.com/mKnXE1f.png 440w, http://i.imgur.com/FQ2Hetx.png 290w, http://i.imgur.com/ch60eDr.png 540w, http://i.imgur.com/OMpdPM8.png 220w, http://i.imgur.com/UKSwTZv.png 145w";
+			if (imageClass === 'tile') {
+				srcset += sizes.lowMin ? sizes.lowMin + ' 145w, ' : '';
+				srcset += sizes.highMin ? sizes.highMin + ' 290w, ' : '';
+				srcset += sizes.lowMid ? sizes.lowMid + ' 220w, ' : '';
+				srcset += sizes.highMid ? sizes.highMid + ' 440w, ' : '';
+				srcset += sizes.lowMax ? sizes.lowMax + ' 540w, ' : '';
+				srcset += sizes.highMax ? sizes.highMax + ' 1080w, ' : '';
+				if (test) {
+					return "http://i.imgur.com/BHOB11o.png 1080w, http://i.imgur.com/mKnXE1f.png 440w, http://i.imgur.com/FQ2Hetx.png 290w, http://i.imgur.com/ch60eDr.png 540w, http://i.imgur.com/OMpdPM8.png 220w, http://i.imgur.com/UKSwTZv.png 145w";
+				}
 			}
-			return srcset.replace(/,\s*$/, "");
-		},
-		getImageSrcsetBanner: function(image) {
-			var test = false;
-			var imageLinks = image.getLinksByClass('narrow'),
-				srcset = '';
-				console.log(imageLinks);
-			imageLinks.forEach(function(link) {
-				srcset += link.hasClass('min') && !link.hasClass('high-density') ? link.href + ' 320w, ' : '';
-				srcset += link.hasClass('min') && link.hasClass('high-density') ? link.href + ' 640w, ' : '';
-				srcset += link.hasClass('mid') && !link.hasClass('high-density') ? link.href + ' 375w, ' : '';
-				srcset += link.hasClass('mid') && link.hasClass('high-density') ? link.href + ' 750w, ' : '';
-				srcset += link.hasClass('max') && !link.hasClass('high-density') ? link.href + ' 767w, ' : '';
-				srcset += link.hasClass('max') && link.hasClass('high-density') ? link.href + ' 1534w, ' : '';
-			});
-			if (test) {
-				return "http://i.imgur.com/6zywPmF.png 1534w, http://i.imgur.com/uZhwOny.png 750w, http://i.imgur.com/MIzy0Zd.png 640w, http://i.imgur.com/M4oDn2l.png 767w, http://i.imgur.com/YtOLque.png 375w, http://i.imgur.com/XXyf8GK.png 320w";
+			if (imageClass === 'banner') {
+				srcset += sizes.lowMin ? sizes.lowMin + ' 320w, ' : '';
+				srcset += sizes.highMin ? sizes.highMin + ' 640w, ' : '';
+				srcset += sizes.lowMid ? sizes.lowMid + ' 375w, ' : '';
+				srcset += sizes.highMid ? sizes.highMid + ' 750w, ' : '';
+				srcset += sizes.lowMax ? sizes.lowMax + ' 767w, ' : '';
+				srcset += sizes.highMax ? sizes.highMax + ' 1534w, ' : '';
+				if (test) {
+					return "http://i.imgur.com/6zywPmF.png 1534w, http://i.imgur.com/uZhwOny.png 750w, http://i.imgur.com/MIzy0Zd.png 640w, http://i.imgur.com/M4oDn2l.png 767w, http://i.imgur.com/YtOLque.png 375w, http://i.imgur.com/XXyf8GK.png 320w";
+				}
 			}
 			return srcset.replace(/,\s*$/, "");
 		},

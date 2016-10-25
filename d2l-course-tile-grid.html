@@ -23,7 +23,9 @@
 					animate-insertion="[[_removeEnrollmentFromTransitionList(item)]]"
 					class="grid-child"
 					enrollment-id="[[getEntityIdentifier(item)]]"
-					delay-load="[[delayCourseTileLoad]]">
+					delay-load="[[delayCourseTileLoad]]"
+					all-courses="[[allCourses]]"
+					num-cols="[[_numCols]]">
 				</d2l-course-tile>
 			</template>
 		</div>
@@ -50,6 +52,11 @@
 			*/
 
 			properties: {
+				/*
+				* Specifies whether or not the tile grid is for the all courses overlay
+				* @type {Boolean}
+				*/
+				allCourses: Boolean,
 				/*
 				* Sets the delay-load property on the course tiles
 				* @type {Boolean}

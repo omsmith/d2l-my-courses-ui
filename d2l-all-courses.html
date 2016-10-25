@@ -463,7 +463,8 @@
 			id="all-courses-pinned"
 			enrollments="{{pinnedEnrollments}}"
 			enrollments-queue="{{pinnedEnrollmentsQueue}}"
-			delay-course-tile-load="[[delayCourseTileLoad]]">
+			delay-course-tile-load="[[delayCourseTileLoad]]"
+			all-courses=true>
 		</d2l-course-tile-grid>
 
 		<h2 class="d2l-heading-3">{{localize('unpinnedCourses')}}</h2>
@@ -472,7 +473,8 @@
 			id="all-courses-unpinned"
 			enrollments="{{unpinnedEnrollments}}"
 			enrollments-queue="{{unpinnedEnrollmentsQueue}}"
-			delay-course-tile-load="[[delayCourseTileLoad]]">
+			delay-course-tile-load="[[delayCourseTileLoad]]"
+			all-courses=true>
 		</d2l-course-tile-grid>
 	</template>
 
