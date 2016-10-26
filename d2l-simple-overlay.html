@@ -48,6 +48,16 @@ The overlay supports using different animations and transitions for desktop and 
 			* @event recalculate-columns
 			*/
 
+			/*
+			* Fired on distributed children when overlay is about to open
+			* @event d2l-simple-overlay-opening
+			*/
+
+			/*
+			* Fired on distributed children when overlay has finished closing
+			* @event d2l-simple-overlay-closed
+			*/
+
 			behaviors: [
 				Polymer.IronOverlayBehavior,
 				Polymer.NeonAnimationRunnerBehavior,
@@ -144,6 +154,7 @@ The overlay supports using different animations and transitions for desktop and 
 				if (this.opened) {
 					this._finishRenderOpened();
 				} else {
+					this._notifyDistributedChildren('d2l-simple-overlay-closed');
 					this._finishRenderClosed();
 				}
 			},
@@ -163,6 +174,7 @@ The overlay supports using different animations and transitions for desktop and 
 
 				this._onNodesChange();
 				Polymer.dom(this.root).querySelector('.scrollable').scrollTop = 0;
+				this._notifyDistributedChildren('d2l-simple-overlay-opening');
 
 				if (this._isMobile()) {
 					this.playAnimation('mobileOpen');
@@ -185,6 +197,20 @@ The overlay supports using different animations and transitions for desktop and 
 			},
 			get scrollRegion() {
 				return this.$$('.scrollable');
+			},
+			_notifyDistributedChildren: function(eventName) {
+				Polymer.dom(this.$$('content'))
+					.getDistributedNodes()
+					.forEach(function(childNode) {
+						this.fire(
+							eventName,
+							null,
+							{
+								bubbles: false,
+								node: childNode
+							}
+						);
+					}.bind(this));
 			}
 		});
 	</script>
