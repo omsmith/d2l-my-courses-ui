@@ -25,10 +25,11 @@ in that organization - student, teacher, TA, etc.
 	<template>
 		<style include="d2l-course-tile-styles"></style>
 
+		<!-- needs no-cache so that images refresh if the user gets here using the back button-->
 		<d2l-ajax
 			id="organizationRequest"
 			url="[[_organizationUrl]]"
-			headers='{ "Accept": "application/vnd.siren+json" }'
+			headers='{ "Accept": "application/vnd.siren+json", "Cache-control": "no-cache" }'
 			on-iron-ajax-response="_onOrganizationResponse">
 		</d2l-ajax>
 
@@ -217,10 +218,6 @@ in that organization - student, teacher, TA, etc.
 				_courseSettingsLabel: String,
 				_canChangeCourseImage: Boolean,
 				/*
-				* When this flag is set, don't update the image when fetching it
-				*/
-				_suppressChangeImage: Boolean,
-				/*
 				* The icon we want to show when you select an image
 				* @type {Object}
 				*/
@@ -265,6 +262,7 @@ in that organization - student, teacher, TA, etc.
 				if (!this.delayLoad) {
 					this.$.organizationRequest.generateRequest();
 				}
+
 				this._onFocus = this._onFocus.bind(this);
 				this._closeDropdown = this._closeDropdown.bind(this);
 				this._hoverCourseTile = this._hoverCourseTile.bind(this);
@@ -356,10 +354,6 @@ in that organization - student, teacher, TA, etc.
 				var successClass = 'change-image-success',
 					failureClass = 'change-image-failure';
 
-				if (success) {
-					this._suppressChangeImage = true;
-					this.$.organizationRequest.generateRequest();
-				}
 				// We want to wait at least a second of the load icon before showing the status
 				setTimeout(function() {
 					this.toggleClass('change-image-loading', false, tileContainer);
@@ -445,11 +439,7 @@ in that organization - student, teacher, TA, etc.
 					var organization = parser.parse(response.detail.xhr.response);
 
 					this._organization = organization;
-					if (!this._suppressChangeImage) {
-						this._setCourseImageSrc();
-					} else {
-						this._suppressChangeImage = false;
-					}
+					this._setCourseImageSrc();
 					this._organizationHomepageUrl = organization.getLinkByRel(/\/organization-homepage$/).href;
 					this._canChangeCourseImage = this._getCanChangeCourseImage(organization);
 					this._pinnedChanged();
