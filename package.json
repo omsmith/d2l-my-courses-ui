@@ -50,6 +50,7 @@
     "polylint": "^2.10.1",
     "polymer-cli": "^0.12.0",
     "rimraf": "^2.5.2",
+    "wct-local": "2.0.12",
     "web-component-tester": "^4.2.2"
   }
 }
