@@ -347,7 +347,8 @@ in that organization - student, teacher, TA, etc.
 			setCourseImage: function(details) {
 				details = details || {};
 				var tileContainer = this.$$('.tile-container');
-				var newImageHref = this.getDefaultImageLink(details.image);
+				var newImageHref = this.getDefaultImageLink(details.image),
+					newSrcset = this.getImageSrcset(details.image, 'tile');
 
 				switch (details.status) {
 					case 'set':
@@ -356,16 +357,18 @@ in that organization - student, teacher, TA, etc.
 						// NOTE: if this needs optimization, we can wait for the image's onload to play the success animation
 						var imagePreloader = document.createElement('img');
 						imagePreloader.setAttribute('src', newImageHref);
+						imagePreloader.setAttribute('srcset', newSrcset);
+						imagePreloader.setAttribute('sizes', this._sizes);
 						break;
 					case 'success':
-						this._displaySetImageResult(true, newImageHref);
+						this._displaySetImageResult(true, newImageHref, newSrcset);
 						break;
 					case 'failure':
 						this._displaySetImageResult(false);
 						break;
 				}
 			},
-			_displaySetImageResult: function(success, newImageHref) {
+			_displaySetImageResult: function(success, newImageHref, newSrcset) {
 				var tileContainer = this.$$('.tile-container');
 				var courseImage = this.$$('.course-image img');
 
@@ -386,7 +389,7 @@ in that organization - student, teacher, TA, etc.
 						if (success) {
 							this.toggleClass('hidden', false, courseImage);
 							Polymer.dom(courseImage).setAttribute('src', newImageHref);
-							Polymer.dom(courseImage).setAttribute('srcset', this.getImageSrcset(details.image, 'tile'));
+							Polymer.dom(courseImage).setAttribute('srcset', newSrcset);
 						}
 						this.toggleClass(successClass, false, tileContainer);
 						this.toggleClass(failureClass, false, tileContainer);
