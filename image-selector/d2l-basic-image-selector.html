@@ -160,7 +160,7 @@
 				this._searchAction = JSON.stringify(this._getSearchAction());
 				this._showGrid = true;
 				this.$$('d2l-search-widget').clear();
-				this._organizationChangeImageHref = this._getChangeCourseImageLink(organization);
+				this._organizationChangeImageHref = this._getChangeCourseImageLink(this.organization);
 
 				// TODO: Add 'department' to the organization HM entity and use that information here
 				if (this.organization && (this.organization.properties || {}).name) {
