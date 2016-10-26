@@ -3,13 +3,14 @@
 <link rel="import" href="../localize-behavior.html">
 <link rel="import" href="../../d2l-search-widget/d2l-search-widget.html">
 <link rel="import" href="d2l-image-tile-grid.html">
+<link rel="import" href="../../d2l-icons/d2l-icons.html">
+<link rel="import" href="../../d2l-colors/d2l-colors.html">
 
 <dom-module id="d2l-basic-image-selector">
 	<template>
-		<style>
-			d2l-search-widget {
+		<style include="d2l-colors">
+			#image-search{
 				width: 50%;
-				margin-bottom: 45px;
 			}
 
 			.no-results-search-text {
@@ -18,8 +19,26 @@
 			}
 
 			.no-results-text {
-				font-size: 30px;
+				font-size: 1.5rem;
 				margin-bottom: 12px;
+			}
+
+			.top-section {
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
+				margin-bottom: 45px;
+			}
+
+			.upload {
+				color: var(--d2l-color-ferrite);
+				font-weight: 400;
+				margin: 5px 10px;
+			}
+
+			.upload:focus .upload-text,
+			.upload:hover .upload-text {
+				text-decoration: underline;
 			}
 		</style>
 
@@ -30,14 +49,23 @@
 			on-iron-ajax-response="_onDefaultImagesRequestResponse">
 		</d2l-ajax>
 
-		<d2l-search-widget
-			id="image-search"
-			class="small"
-			search-action="[[_searchAction]]"
-			placeholder-text="[[localize('search')]]"
-			search-field-name="search"
-		>
-		</d2l-search-widget>
+		<div class="top-section">
+			<d2l-search-widget
+				id="image-search"
+				class="small"
+				search-action="[[_searchAction]]"
+				placeholder-text="[[localize('search')]]"
+				search-field-name="search"
+			>
+			</d2l-search-widget>
+
+			<template is="dom-if" if="{{_organizationChangeImageHref}}" restamp="true">
+				<a class="upload" href$=[[_organizationChangeImageHref]]>
+					<d2l-icon class="upload-icon" icon="d2l-tier2:upload" aria-hidden="true"></d2l-icon>
+					<span class="upload-text">{{localize('upload')}}</span>
+				</a>
+			</template>
+		</div>
 
 		<template is="dom-if" if="{{_showGrid}}">
 			<d2l-image-tile-grid
@@ -91,6 +119,7 @@
 				_noResultsTextMid: String,
 				_noResultsTextEnd: String,
 				_showGrid: Boolean,
+				_organizationChangeImageHref: String
 			},
 			behaviors: [ window.D2L.MyCourses.LocalizeBehavior ],
 			listeners: {
@@ -131,6 +160,7 @@
 				this._searchAction = JSON.stringify(this._getSearchAction());
 				this._showGrid = true;
 				this.$$('d2l-search-widget').clear();
+				this._organizationChangeImageHref = this._getChangeCourseImageLink(this.organization);
 
 				// TODO: Add 'department' to the organization HM entity and use that information here
 				if (this.organization && (this.organization.properties || {}).name) {
@@ -173,6 +203,13 @@
 			_updateImages: function() {
 				var searchImages = this._searchImages || [];
 				this._images = (searchImages.length > 0) ? searchImages : this._defaultImages;
+			},
+			_getChangeCourseImageLink: function(organization) {
+				var rel = /edit-image-page/;
+				var editImagePage = organization && organization.getLinkByRel(rel);
+				if (editImagePage) {
+					return editImagePage.href;
+				}
 			}
 		});
 	</script>
