@@ -1,14 +1,14 @@
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../iron-scroll-threshold/iron-scroll-threshold.html">
 <link rel="import" href="../d2l-ajax/d2l-ajax.html">
+<link rel="import" href="../d2l-colors/d2l-colors.html">
 <link rel="import" href="../d2l-dropdown/d2l-dropdown.html">
 <link rel="import" href="../d2l-dropdown/d2l-dropdown-content.html">
 <link rel="import" href="../d2l-dropdown/d2l-dropdown-menu.html">
 <link rel="import" href="../d2l-icons/d2l-icons.html">
-<link rel="import" href="../d2l-menu/d2l-menu-item-styles.html">
 <link rel="import" href="../d2l-menu/d2l-menu-item-behavior.html">
-<link rel="import" href="../d2l-menu/d2l-menu-item-checkbox.html">
 <link rel="import" href="../d2l-menu/d2l-menu-item-radio.html">
+<link rel="import" href="../d2l-menu/d2l-menu-item-selectable-styles.html">
 <link rel="import" href="../d2l-search-widget/d2l-search-widget.html">
 <link rel="import" href="d2l-alert.html">
 <link rel="import" href="d2l-course-management-behavior.html">
@@ -16,6 +16,97 @@
 <link rel="import" href="d2l-course-tile-responsive-grid-behavior.html">
 <link rel="import" href="d2l-search-widget-custom.html">
 <link rel="import" href="localize-behavior.html">
+
+<dom-module id="d2l-list-item-filter">
+	<template>
+		<style include="d2l-menu-item-selectable-style">
+			:host {
+				display: flex;
+				align-items: center;
+				padding: 0.5rem 1rem;
+				cursor: pointer;
+			}
+
+			:host > span {
+				font-size: 0.8rem;
+			}
+
+			:host(:hover) d2l-icon,
+			:host(:focus) d2l-icon {
+				color: var(--d2l-color-celestine);
+			}
+
+			:host d2l-icon {
+				visibility: hidden;
+				--d2l-icon-height: 0.7rem;
+				--d2l-icon-width: 0.7rem;
+				margin-left: 1px;
+			}
+
+			:host([aria-checked="true"]) d2l-icon {
+				visibility: visible;
+			}
+
+			.icon-border {
+				display: flex;
+				align-items: center;
+				border: 2px solid var(--d2l-color-titanius);
+				height: 1rem;
+				width: 1rem;
+				border: 2px solid var(--d2l-color-titanius);
+				border-radius: 0.3rem;
+				margin-right: 0.5rem;
+			}
+
+			:host(:hover) .icon-border,
+			:host(:focus) .icon-border {
+				border-color: var(--d2l-color-celestine);
+			}
+		</style>
+		<div class="icon-border">
+			<d2l-icon icon="d2l-tier1:check" aria-hidden="true"></d2l-icon>
+		</div>
+		<span>[[text]]</span>
+	</template>
+	<script>
+		'use strict';
+		Polymer({
+			is: 'd2l-list-item-filter',
+			properties: {
+				selected: {
+					type: Boolean,
+					value: false,
+					reflectToAttribute: true
+				},
+				text: String,
+				value: String
+			},
+			behaviors: [
+				window.D2L.PolymerBehaviors.MenuItemBehavior
+			],
+			listeners: {
+				'tap': '_onTap',
+				'keydown': '_onKeydown'
+			},
+			_onKeydown: function(e) {
+				// Select on either Enter or Space
+				if (e.keyCode === 13 || e.keyCode === 32) {
+					this._onTap(e);
+				}
+			},
+			_onTap: function(e) {
+				e.preventDefault();
+				e.stopPropagation();
+				this.set('selected', !this.selected);
+				this.selected ? this.setAttribute('aria-checked', true) : this.removeAttribute('aria-checked');
+				this.fire('d2l-list-item-filter-changed', {
+					value: this.value,
+					selected: this.selected
+				});
+			}
+		});
+	</script>
+ -</dom-module>
 
 <!--
 `<d2l-all-courses>` displays both pinned and unpinned courses
@@ -245,11 +336,11 @@
 									search-field-name="search"></d2l-search-widget>
 								<d2l-menu label="{{localize('filtering.semester')}}">
 									<template is="dom-repeat" items="[[_semesterOrganizations]]">
-										<d2l-menu-item-checkbox
+										<d2l-list-item-filter
 											value="[[getEntityIdentifier(item)]]"
 											text="[[item.properties.name]]"
 											selected="[[item.properties.selected]]">
-										</d2l-menu-item-checkbox>
+										</d2l-list-item-filter>
 									</template>
 								</d2l-menu>
 							</div>
@@ -261,11 +352,11 @@
 									search-field-name="search"></d2l-search-widget>
 								<d2l-menu label="{{localize('filtering.department')}}">
 									<template is="dom-repeat" items="[[_departmentOrganizations]]">
-										<d2l-menu-item-checkbox
+										<d2l-list-item-filter
 											value="[[getEntityIdentifier(item)]]"
 											text="[[item.properties.name]]"
 											selected="[[item.properties.selected]]">
-										</d2l-menu-item-checkbox>
+										</d2l-list-item-filter>
 									</template>
 								</d2l-menu>
 							</div>
@@ -446,7 +537,7 @@
 			},
 			attached: function() {
 				this.listen(this.$.sortDropdown, 'd2l-menu-item-change', '_updateSortBy');
-				this.listen(this.$.filterDropdown, 'd2l-menu-item-change', '_updateFilter');
+				this.listen(this.$.filterDropdown, 'd2l-list-item-filter-changed', '_updateFilter');
 
 				this.listen(this.$.filterDropdownContent, 'd2l-dropdown-open', '_onFilterDropdownOpen');
 				this.listen(this.$.filterDropdownContent, 'd2l-dropdown-close', '_onFilterDropdownClose');
@@ -460,7 +551,7 @@
 			},
 			detached: function() {
 				this.unlisten(this.$.sortDropdown, 'd2l-menu-item-change', '_updateSortBy');
-				this.unlisten(this.$.filterDropdown, 'd2l-menu-item-change', '_updateFilter');
+				this.unlisten(this.$.filterDropdown, 'd2l-list-item-filter-changed', '_updateFilter');
 
 				this.unlisten(this.$.filterDropdownContent, 'd2l-dropdown-open', '_onFilterDropdownOpen');
 				this.unlisten(this.$.filterDropdownContent, 'd2l-dropdown-close', '_onFilterDropdownClose');
