@@ -40,6 +40,9 @@
 			return queryString ? action.href + '?' + queryString : action.href;
 		},
 		getImageSrcset: function(image, imageClass) {
+			if (!image) {
+				return '';
+			}
 			var srcset = '',
 				imageLinks = image.getLinksByClass(imageClass || 'tile'),
 				sizes = {};
