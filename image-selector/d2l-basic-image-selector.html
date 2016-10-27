@@ -2,9 +2,10 @@
 <link rel="import" href="../../d2l-ajax/d2l-ajax.html">
 <link rel="import" href="../localize-behavior.html">
 <link rel="import" href="../../d2l-search-widget/d2l-search-widget.html">
-<link rel="import" href="d2l-image-tile-grid.html">
+<link rel="import" href="../../d2l-loading-spinner/d2l-loading-spinner.html">
 <link rel="import" href="../../d2l-icons/d2l-icons.html">
 <link rel="import" href="../../d2l-colors/d2l-colors.html">
+<link rel="import" href="d2l-image-tile-grid.html">
 
 <dom-module id="d2l-basic-image-selector">
 	<template>
@@ -40,6 +41,16 @@
 			.upload:hover .upload-text {
 				text-decoration: underline;
 			}
+
+			#lazyLoadSpinner {
+				display: block;
+				margin: auto;
+				margin-bottom: 30px;
+			}
+
+			#lazyLoadSpinner.hidden {
+				display: none;
+			}
 		</style>
 
 		<d2l-ajax
@@ -47,6 +58,20 @@
 			url="[[_searchString]]"
 			headers='{ "Accept": "application/vnd.siren+json" }'
 			on-iron-ajax-response="_onDefaultImagesRequestResponse">
+		</d2l-ajax>
+
+		<d2l-ajax
+			id="moreDefaultImagesRequest"
+			url="[[_nextDefaultResultPage]]"
+			headers='{ "Accept": "application/vnd.siren+json" }'
+			on-iron-ajax-response="_moreDefaultImagesRequestResponse">
+		</d2l-ajax>
+
+		<d2l-ajax
+			id="moreSearchImagesRequest"
+			url="[[_nextSearchResultPage]]"
+			headers='{ "Accept": "application/vnd.siren+json" }'
+			on-iron-ajax-response="_moreSearchImagesRequestResponse">
 		</d2l-ajax>
 
 		<div class="top-section">
@@ -69,6 +94,7 @@
 
 		<template is="dom-if" if="{{_showGrid}}">
 			<d2l-image-tile-grid
+				id="image-grid"
 				image-catalog-location="[[imageCatalogLocation]]"
 				organization="[[organization]]"
 				images="[[_images]]"
@@ -83,6 +109,11 @@
 				<div class="please-change-text">{{localize('images.pleaseModify')}}</div>
 			</div>
 		</template>
+		<d2l-loading-spinner
+			id="lazyLoadSpinner"
+			class$="{{_loadingSpinnerClass}}"
+			size="100">
+		</d2l-loading-spinner>
 	</template>
 	<script>
 		'use strict';
@@ -92,7 +123,6 @@
 			ready: function() {
 				this._images = this._defaultImages;
 				this.$$('d2l-search-widget').addEventListener('search-results-changed', function(response) {
-
 					var searchRegex = /search=([^&]*)/,
 						searchHref = decodeURIComponent( response.detail.getLinkByRel('self').href ),
 						match = searchRegex.exec(searchHref),
@@ -100,6 +130,7 @@
 
 					if (userSearchText) {
 						this._displaySearchResults(userSearchText);
+						this._setNextPage(response.detail, false);
 					} else {
 						// Throw out empty searches
 						// TODO: d2l-search-widget property that sends events instead of making network calls
@@ -119,7 +150,13 @@
 				_noResultsTextMid: String,
 				_noResultsTextEnd: String,
 				_showGrid: Boolean,
-				_organizationChangeImageHref: String
+				_organizationChangeImageHref: String,
+				_nextSearchResultPage: String,
+				_nextDefaultResultPage: String,
+				_loadingSpinnerClass: {
+					type: String,
+					value: 'hidden'
+				}
 			},
 			behaviors: [ window.D2L.MyCourses.LocalizeBehavior ],
 			listeners: {
@@ -142,18 +179,46 @@
 
 				this._showGrid = (userSearchText || '') === '' || this._searchImages.length > 0;
 			},
+			_setNextPage: function(response, isDefault) {
+				var nextPage = response.getLinkByRel('next') || {},
+					nextPageHref = nextPage.href || null;
+
+				if (isDefault) {
+					this._nextDefaultResultPage = nextPageHref;
+				} else {
+					this._nextSearchResultPage = nextPageHref;
+				}
+
+				this.fire('clear-image-scroll-threshold');
+			},
 			_displayDefaultResults: function() {
 				this._searchImages = [];
 				this._showGrid = true;
+				this._nextSearchResultPage = null;
 			},
-			_onDefaultImagesRequestResponse: function(response) {
+			_onImagesRequestResponse: function(response, loadMore, isDefault) {
+				this._loadingSpinnerClass = 'hidden';
 				if (response.detail.status !== 200) {
 					return;
 				}
 
 				var parsedResponse = this._sirenParser.parse(response.detail.xhr.response);
-				this._defaultImages = parsedResponse.entities || [];
+				var newImages;
 
+				if (loadMore) {
+					newImages = (isDefault ? this._defaultImages : this._searchImages) || [];
+					newImages = newImages.concat(parsedResponse.entities);
+				} else {
+					newImages = parsedResponse.entities;
+				}
+
+				if (isDefault) {
+					this._defaultImages = newImages;
+				} else {
+					this._searchImages = newImages;
+				}
+
+				this._setNextPage(parsedResponse, isDefault);
 				this._updateImages();
 			},
 			_initialize: function() {
@@ -177,6 +242,11 @@
 			_clear: function() {
 				this._searchString = '';
 				this._images = [];
+				this._searchImages = [];
+				this._defaultImages = [];
+				this._images = [];
+				this._nextSearchResultPage = null;
+				this._nextDefaultResultPage = null;
 			},
 			_getSearchAction: function() {
 				return {
@@ -210,6 +280,33 @@
 				if (editImagePage) {
 					return editImagePage.href;
 				}
+			},
+			loadMore: function() {
+				if (!this._showGrid) {
+					this._loadingSpinnerClass = 'hidden';
+					return;
+				}
+
+				if (this._nextSearchResultPage) {
+					this.$.moreSearchImagesRequest.generateRequest();
+					this._loadingSpinnerClass = '';
+					this.$.lazyLoadSpinner.scrollIntoView();
+				} else if (this._nextDefaultResultPage && (this._searchImages || []).length === 0) {
+					this._loadingSpinnerClass = '';
+					this.$.lazyLoadSpinner.scrollIntoView();
+					this.$.moreDefaultImagesRequest.generateRequest();
+				} else {
+					this._loadingSpinnerClass = 'hidden';
+				}
+			},
+			_moreDefaultImagesRequestResponse: function(response) {
+				this._onImagesRequestResponse(response, true, true);
+			},
+			_moreSearchImagesRequestResponse: function(response) {
+				this._onImagesRequestResponse(response, true, false);
+			},
+			_onDefaultImagesRequestResponse: function(response) {
+				this._onImagesRequestResponse(response, false, true);
 			}
 		});
 	</script>
