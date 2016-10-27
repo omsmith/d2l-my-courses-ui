@@ -96,7 +96,8 @@
 					on-tap="_refreshPage">{{localize('refresh')}}</a>
 			</d2l-alert>
 			<d2l-course-tile-grid
-				enrollments="{{pinnedEnrollments}}">
+				enrollments="{{pinnedEnrollments}}"
+				tile-sizes="(max-width: 767px) 100vw, (max-width: 1211px) and (min-width: 768px) 67vw, 33vw">
 			</d2l-course-tile-grid>
 			<button
 				class="all-courses-button"

@@ -24,8 +24,7 @@
 					class="grid-child"
 					enrollment-id="[[getEntityIdentifier(item)]]"
 					delay-load="[[delayCourseTileLoad]]"
-					all-courses="[[allCourses]]"
-					num-cols="[[_numCols]]">
+					tile-sizes="[[tileSizes]]">
 				</d2l-course-tile>
 			</template>
 		</div>
@@ -56,11 +55,6 @@
 				* Specifies whether or not the tile grid is for the all courses overlay
 				* @type {Boolean}
 				*/
-				allCourses: Boolean,
-				/*
-				* Sets the delay-load property on the course tiles
-				* @type {Boolean}
-				*/
 				delayCourseTileLoad: Boolean,
 				/*
 				* Set of enrollment entities for which to display course tiles
@@ -83,7 +77,12 @@
 					value: function() {
 						return [];
 					}
-				}
+				},
+				/*
+				* Size the tile should render with respect to vw
+				* @type {String}
+				*/
+				tileSizes: String
 			},
 			behaviors: [
 				window.D2L.MyCourses.CourseTileResponsiveGridBehavior,
