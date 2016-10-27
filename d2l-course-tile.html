@@ -11,7 +11,7 @@
 <link rel="import" href="d2l-course-tile-styles.html">
 <link rel="import" href="localize-behavior.html">
 <link rel="import" href="d2l-utility-behavior.html">
-<script src="bower_components/picturefill/src/picturefill.js"></script>
+<script src="bower_components/picturefill/src/picturefill.js" async></script>
 
 <!--
 `<d2l-course-tile>` is a clickable, interactable tile that represents a course
@@ -536,7 +536,7 @@ in that organization - student, teacher, TA, etc.
 			},
 			setSizes: function() {
 				this._sizes = this.allCourses ? Math.floor(100 / this.numCols) + 'vw'
-					: "(max-width: 767px) 100vw, (max-width: 1211px) and (min-width: 768px) 67vw, 33vw";
+					: '(max-width: 767px) 100vw, (max-width: 1211px) and (min-width: 768px) 67vw, 33vw';
 			}
 		});
 	</script>

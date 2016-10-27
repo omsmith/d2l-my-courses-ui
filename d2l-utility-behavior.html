@@ -45,7 +45,7 @@
 				sizes = {};
 			imageLinks.forEach(function(link) {
 				var size = link.hasClass('min') && 'Min' || link.hasClass('mid') && 'Mid' || link.hasClass('max') && 'Max',
-				density = link.hasClass('high-density') ? 'high' : 'low';
+					density = link.hasClass('high-density') ? 'high' : 'low';
 				sizes[density + size] = link.href;
 			});
 			if (imageClass === 'tile') {
@@ -64,7 +64,7 @@
 				srcset += sizes.lowMax ? sizes.lowMax + ' 767w, ' : '';
 				srcset += sizes.highMax ? sizes.highMax + ' 1534w, ' : '';
 			}
-			return srcset.replace(/,\s*$/, "");
+			return srcset.replace(/,\s*$/, '');
 		},
 		/*
 		* Returns the best available image to use as a default
