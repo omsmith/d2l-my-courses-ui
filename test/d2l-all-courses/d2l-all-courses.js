@@ -51,8 +51,7 @@ describe('smoke test', function() {
 			class: ['active', 'course-offering'],
 			properties: {
 				name: 'Course name',
-				code: 'COURSE100',
-				id: 12345
+				code: 'COURSE100'
 			},
 			links: [{
 				rel: ['self'],
@@ -85,8 +84,7 @@ describe('smoke test', function() {
 				class: ['active', 'course-offering'],
 				properties: {
 					name: 'Course name',
-					code: 'COURSE100',
-					id: 12345
+					code: 'COURSE100'
 				},
 				links: [{
 					rel: ['self'],
