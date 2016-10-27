@@ -285,8 +285,8 @@ in that organization - student, teacher, TA, etc.
 
 				Polymer.IronA11yAnnouncer.requestAvailability();
 
-				this.setSizes();
-				window.addEventListener('resize', this.setSizes.bind(this));
+				this._setSizes();
+				window.addEventListener('resize', this._setSizes.bind(this));
 
 				picturefill({ reevaluate: true, elements: Polymer.dom(this.root).querySelectorAll('img')});
 			},
@@ -534,7 +534,7 @@ in that organization - student, teacher, TA, etc.
 					this._setCourseTileHovered(false);
 				}
 			},
-			setSizes: function() {
+			_setSizes: function() {
 				this._sizes = this.allCourses ? Math.floor(100 / this.numCols) + 'vw'
 					: '(max-width: 767px) 100vw, (max-width: 1211px) and (min-width: 768px) 67vw, 33vw';
 			}
