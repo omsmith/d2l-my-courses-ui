@@ -129,8 +129,8 @@
 					if (! tile._organization || !tile._organization.properties) {
 						return false;
 					}
-					return tile._organization.properties.id === organization.properties.id;
-				});
+					return this.getEntityIdentifier(tile._organization) === this.getEntityIdentifier(organization);
+				}.bind(this));
 
 				if (selectedTileArray.length !== 0) {
 					// There should only ever be one instance of the same course tile in a tile grid
