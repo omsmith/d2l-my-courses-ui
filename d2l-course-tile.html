@@ -11,6 +11,7 @@
 <link rel="import" href="d2l-course-tile-styles.html">
 <link rel="import" href="localize-behavior.html">
 <link rel="import" href="d2l-utility-behavior.html">
+<script src="bower_components/picturefill/src/picturefill.js"></script>
 
 <!--
 `<d2l-course-tile>` is a clickable, interactable tile that represents a course
@@ -286,6 +287,8 @@ in that organization - student, teacher, TA, etc.
 
 				this.setSizes();
 				window.addEventListener('resize', this.setSizes.bind(this));
+
+				picturefill({ reevaluate: true, elements: Polymer.dom(this.root).querySelectorAll('img')});
 			},
 			/*
 			* Handler that triggers the API call to change an enrollment's pin state when the user says DO IT
@@ -359,6 +362,7 @@ in that organization - student, teacher, TA, etc.
 						imagePreloader.setAttribute('src', newImageHref);
 						imagePreloader.setAttribute('srcset', newSrcset);
 						imagePreloader.setAttribute('sizes', this._sizes);
+						picturefill({ reevaluate: true, elements: Polymer.dom(this.root).querySelectorAll('img')});
 						break;
 					case 'success':
 						this._displaySetImageResult(true, newImageHref, newSrcset);
@@ -390,6 +394,7 @@ in that organization - student, teacher, TA, etc.
 							this.toggleClass('hidden', false, courseImage);
 							Polymer.dom(courseImage).setAttribute('src', newImageHref);
 							Polymer.dom(courseImage).setAttribute('srcset', newSrcset);
+							picturefill({ reevaluate: true, elements: Polymer.dom(this.root).querySelectorAll('img')});
 						}
 						this.toggleClass(successClass, false, tileContainer);
 						this.toggleClass(failureClass, false, tileContainer);
@@ -508,6 +513,7 @@ in that organization - student, teacher, TA, etc.
 				this.toggleClass('hidden', href === '', courseImage);
 				Polymer.dom(courseImage).setAttribute('src', href);
 				Polymer.dom(courseImage).setAttribute('srcset', srcset);
+				picturefill({ reevaluate: true, elements: Polymer.dom(this.root).querySelectorAll('img')});
 			},
 			_onFocus: function() {
 				/* timeout needed to work around lack of support for relatedTarget */
@@ -542,7 +548,7 @@ in that organization - student, teacher, TA, etc.
 							break;
 					}
 				} else {
-					this._sizes = "(max-width: 767px) 100vw, (max-width: 1211px) and (min-width: 768px) 67vw, 20vw"
+					this._sizes = "(max-width: 767px) 100vw, (max-width: 1211px) and (min-width: 768px) 67vw, 33vw"
 				}
 			}
 		});
