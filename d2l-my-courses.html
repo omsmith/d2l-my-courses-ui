@@ -337,6 +337,7 @@
 				e.stopPropagation();
 				this.$$('#all-courses').open();
 				this.$$('d2l-all-courses').loadCourseTiles();
+				this.$$('d2l-all-courses').$.organizationsRequest.generateRequest();
 
 				setTimeout(function() {
 					// Slight delay to allow for overlay to get a DOM width before triggering the recalculation
