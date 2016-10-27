@@ -106,7 +106,6 @@
 				this.fire('close-simple-overlay');
 			},
 			_updateImageSource: function() {
-				console.log('update');
 				var courseImage = Polymer.dom(this.root).querySelector('img');
 				Polymer.dom(courseImage).setAttribute('srcset', this.getImageSrcset(this.image, 'narrow'));
 				Polymer.dom(courseImage).setAttribute('sizes', "(max-width: 767px) 100vw, (max-width: 991px) and (min-width: 768px) 50vw, 33vw");

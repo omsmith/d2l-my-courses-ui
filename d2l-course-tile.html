@@ -535,21 +535,8 @@ in that organization - student, teacher, TA, etc.
 				}
 			},
 			setSizes: function() {
-				if (this.allCourses) {
-					switch(this.numCols) {
-						case 2:
-							this._sizes = "50vw"
-							break;
-						case 3:
-							this._sizes = "33vw"
-							break;
-						default:
-							this._sizes = "25vw"
-							break;
-					}
-				} else {
-					this._sizes = "(max-width: 767px) 100vw, (max-width: 1211px) and (min-width: 768px) 67vw, 33vw"
-				}
+				this._sizes = this.allCourses ? Math.floor(100 / this.numCols) + 'vw'
+					: "(max-width: 767px) 100vw, (max-width: 1211px) and (min-width: 768px) 67vw, 33vw";
 			}
 		});
 	</script>
