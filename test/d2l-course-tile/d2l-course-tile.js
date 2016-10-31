@@ -274,4 +274,133 @@ describe('<d2l-course-tile>', function() {
 			widget._hoverPinClickHandler(event);
 		});
 	});
+
+	describe('setCourseImage', function() {
+		var details;
+
+		beforeEach(function() {
+			details = {
+				image: 'http://testImage.ninja',
+				status: null
+			};
+
+			widget.getDefaultImageLink = sinon.stub().returns(details.image);
+		});
+
+		describe('status: set', function() {
+			it('toggles on the "change-image-loading" class on the tile-container', function() {
+				details.status = 'set';
+				expect(widget.$$('.tile-container.change-image-loading')).to.equal(null);
+				widget.setCourseImage(details);
+				expect(widget.$$('.tile-container.change-image-loading')).to.not.equal(null);
+			});
+		});
+
+		describe('status: success', function() {
+			it('calls _displaySetImageResult with success = true', function() {
+				details.status = 'success';
+				widget._displaySetImageResult = sinon.stub();
+				widget.setCourseImage(details);
+				expect(widget._displaySetImageResult.calledWith(true, details.image)).to.equal(true);
+			});
+		});
+
+		describe('status: failure', function() {
+			it('calls _displaySetImageResult with success = false', function() {
+				details.status = 'failure';
+				widget._displaySetImageResult = sinon.stub();
+				widget.setCourseImage(details);
+				expect(widget._displaySetImageResult.calledWith(false)).to.equal(true);
+			});
+		});
+	});
+
+	describe('_displaySetImageResult', function() {
+		var imageHref = 'http://testimage.ninja/',
+			clock,
+			success;
+
+		beforeEach(function() {
+			clock = sinon.useFakeTimers();
+		});
+
+		afterEach(function() {
+			clock.restore();
+		});
+
+		describe('success: true', function() {
+			beforeEach(function() {
+				success = true;
+				expect(widget.$$('.change-image-success')).to.equal(null);
+				widget._displaySetImageResult(success, imageHref);
+				clock.tick(1001);
+			});
+
+			it('sets the "change-image-success" class', function() {
+				expect(widget.$$('.change-image-success')).to.not.equal(null);
+				expect(widget.$$('.change-image-failure')).to.equal(null);
+			});
+
+			it('removes the "change-image-loading" class', function() {
+				expect(widget.$$('.change-image-loading')).to.equal(null);
+			});
+
+			it('sets the icon to a checkmark', function() {
+				expect(widget._iconDetails).to.deep.equal(
+					{ className: 'checkmark', iconName: 'd2l-tier2:check'}
+				);
+			});
+
+			describe('after another second', function() {
+				beforeEach(function() {
+					clock.tick(1000);
+				});
+
+				it('sets the new image href', function() {
+					expect(widget.$$('.course-image img').src).to.equal(imageHref);
+				});
+
+				it('removes the "change-image-success" class', function() {
+					expect(widget.$$('.change-image-success')).to.equal(null);
+				});
+			});
+		});
+
+		describe('success: false', function() {
+			beforeEach(function() {
+				success = false;
+				widget._displaySetImageResult(success, imageHref);
+				clock.tick(1001);
+			});
+
+			it('sets the "change-image-failure" class', function() {
+				expect(widget.$$('.change-image-success')).to.equal(null);
+				expect(widget.$$('.change-image-failure')).to.not.equal(null);
+			});
+
+			it('removes the "change-image-loading" class', function() {
+				expect(widget.$$('.change-image-loading')).to.equal(null);
+			});
+
+			it('sets the icon to an X', function() {
+				expect(widget._iconDetails).to.deep.equal(
+					{ className: 'fail-icon', iconName: 'd2l-tier3:close'}
+				);
+			});
+
+			describe('after a second', function() {
+				beforeEach(function() {
+					clock.tick(1000);
+				});
+
+				it('doesnt set a new image href', function() {
+					expect(widget.$$('.course-image img').src).to.not.equal(imageHref);
+				});
+
+				it('removes the "change-image-failure" class', function() {
+					expect(widget.$$('.change-image-failure')).to.equal(null);
+				});
+			});
+		});
+	});
 });
