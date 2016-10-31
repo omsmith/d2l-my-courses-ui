@@ -12,7 +12,7 @@
 	<template>
 		<style include="d2l-image-selector-tile-styles"></style>
 
-		<div class="d2l-image-tile">
+		<div class$="{{_getTileClass(image)}}">
 			<div class="padding"></div>
 			<div class="click-overlay"
 				on-click="_toggleOverlayOn"
@@ -62,6 +62,9 @@
 			],
 			ready: function() {
 				this._updateImageSource();
+			},
+			_getTileClass: function(image) {
+				return image ? 'd2l-image-tile' : 'd2l-image-tile no-image';
 			},
 			_toggleOverlayOn: function() {
 				this.toggleClass('mobile-selected', true, this.$$('.d2l-image-tile'));

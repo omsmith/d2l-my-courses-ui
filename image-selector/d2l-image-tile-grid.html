@@ -119,8 +119,20 @@
 		Polymer({
 			is: 'd2l-image-tile-grid',
 			properties: {
-				images: Array,
+				images: {
+					type: Array,
+					observer: '_imagesChanged'
+				},
 				organization: Object,
+			},
+			_imagesChanged: function(newValue) {
+				if (!newValue || newValue.length === 0) {
+					var newArray = new Array(20);
+					for(var i = 0; i < 20; i++) {
+						newArray[i] = null;
+					}
+					this.images = newArray;
+				}
 			}
 		});
 	</script>

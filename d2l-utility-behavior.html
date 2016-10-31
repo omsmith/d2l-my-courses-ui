@@ -64,6 +64,10 @@
 		* @return {String}
 		*/
 		getDefaultImageLink: function(image, imageClass) {
+			if (!image) {
+				return;
+			}
+
 			var sizes = this._getImageLinks(image, imageClass);
 			return sizes.highMax || sizes.lowMax || sizes.highMid || sizes.lowMid || sizes.highMin || sizes.lowMin;
 		},
