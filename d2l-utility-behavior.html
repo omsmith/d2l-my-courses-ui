@@ -40,34 +40,22 @@
 			return queryString ? action.href + '?' + queryString : action.href;
 		},
 		getImageSrcset: function(image, imageClass) {
-			var test = true;
-			if (!image) {
-				return '';
-			}
+			if (!image) {	return ''; }
 			var srcset = '',
-				sizes = this._getImageLinks(image, imageClass);
-			if (imageClass === 'tile') {
-				if (test) {
-					return "http://i.imgur.com/BHOB11o.png 1080w, http://i.imgur.com/mKnXE1f.png 440w, http://i.imgur.com/FQ2Hetx.png 290w, http://i.imgur.com/ch60eDr.png 540w, http://i.imgur.com/OMpdPM8.png 220w, http://i.imgur.com/UKSwTZv.png 145w";
-				}
-				srcset += sizes.lowMin ? sizes.lowMin + ' 145w, ' : '';
-				srcset += sizes.highMin ? sizes.highMin + ' 290w, ' : '';
-				srcset += sizes.lowMid ? sizes.lowMid + ' 220w, ' : '';
-				srcset += sizes.highMid ? sizes.highMid + ' 440w, ' : '';
-				srcset += sizes.lowMax ? sizes.lowMax + ' 540w, ' : '';
-				srcset += sizes.highMax ? sizes.highMax + ' 1080w, ' : '';
-			}
-			if (imageClass === 'narrow') {
-				if (test) {
-					return "http://i.imgur.com/6zywPmF.png 1534w, http://i.imgur.com/uZhwOny.png 750w, http://i.imgur.com/MIzy0Zd.png 640w, http://i.imgur.com/M4oDn2l.png 767w, http://i.imgur.com/YtOLque.png 375w, http://i.imgur.com/XXyf8GK.png 320w";
-				}
-				srcset += sizes.lowMin ? sizes.lowMin + ' 320w, ' : '';
-				srcset += sizes.highMin ? sizes.highMin + ' 640w, ' : '';
-				srcset += sizes.lowMid ? sizes.lowMid + ' 375w, ' : '';
-				srcset += sizes.highMid ? sizes.highMid + ' 750w, ' : '';
-				srcset += sizes.lowMax ? sizes.lowMax + ' 767w, ' : '';
-				srcset += sizes.highMax ? sizes.highMax + ' 1534w, ' : '';
-			}
+				sizes = this._getImageLinks(image, imageClass),
+				imageWidths = {
+					tile: {
+						lowMin: 145, lowMid: 220, lowMax: 540,
+						highMin: 290, highMid: 440, highMax: 1080
+					},
+					narrow: {
+						lowMin: 320, lowMid: 375, lowMax: 767,
+						highMin: 640, highMid: 750, highMax: 1534
+					}
+				};
+			['lowMin', 'lowMid', 'lowMax', 'highMin', 'highMid', 'highMax'].forEach(function(size) {
+				srcset += sizes[size] ? sizes[size] + ' ' + imageWidths[imageClass][size] + 'w, ' : '';
+			});
 			return srcset.replace(/,\s*$/, '');
 		},
 		/*
