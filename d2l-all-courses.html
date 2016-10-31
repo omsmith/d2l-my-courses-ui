@@ -209,6 +209,14 @@
 			.search-and-filter > d2l-search-widget-custom {
 				flex: calc(5 / 12);
 			}
+			@media screen and (max-width: 767px) {
+				.search-and-filter > d2l-search-widget-custom {
+					flex: 1;
+				}
+				#filterAndSort {
+					display: none;
+				}
+			}
 			.search-and-filter > div {
 				flex: calc(7 / 12);
 				display: flex;
@@ -585,9 +593,6 @@
 				}
 			},
 			attached: function() {
-				this._onResize();
-				window.addEventListener('resize', this._onResize.bind(this));
-
 				this.listen(this.$.sortDropdown, 'menu-item-selected', '_updateSortBy');
 				this.listen(this.$.filterDropdown, 'menu-item-selected', '_updateFilter');
 
@@ -600,8 +605,6 @@
 				this.$.scrollThreshold.scrollTarget = this.$.filterDropdownContent.querySelector('.d2l-dropdown-content-container');
 			},
 			detached: function() {
-				window.removeEventListener('resize', this._onResize.bind(this));
-
 				this.unlisten(this.$.sortDropdown, 'menu-item-selected', '_updateSortBy');
 				this.unlisten(this.$.filterDropdown, 'menu-item-selected', '_updateFilter');
 
@@ -761,9 +764,6 @@
 					// so this needs to run after we have both search Actions updated
 					this._selectSemesterList();
 				}
-			},
-			_onResize: function() {
-				this.toggleClass('hidden', window.innerWidth < 768, this.$.filterAndSort);
 			},
 			_selectSemesterList: function() {
 				this._toggleSelectedList(this.$.semesterList, this.$.semesterListButton, this.$.semesterListHighlight, true);
