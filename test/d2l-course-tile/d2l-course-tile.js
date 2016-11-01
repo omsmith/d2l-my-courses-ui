@@ -276,15 +276,21 @@ describe('<d2l-course-tile>', function() {
 	});
 
 	describe('setCourseImage', function() {
-		var details;
+		var details,
+			href;
 
 		beforeEach(function() {
+			href = 'http://testImage.ninja';
+
 			details = {
-				image: 'http://testImage.ninja',
+				image: {
+					href: href,
+					getLinksByClass: sinon.stub().return([])
+				},
 				status: null
 			};
 
-			widget.getDefaultImageLink = sinon.stub().returns(details.image);
+			widget.getDefaultImageLink = sinon.stub().returns(href);
 		});
 
 		describe('status: set', function() {
@@ -301,7 +307,7 @@ describe('<d2l-course-tile>', function() {
 				details.status = 'success';
 				widget._displaySetImageResult = sinon.stub();
 				widget.setCourseImage(details);
-				expect(widget._displaySetImageResult.calledWith(true, details.image)).to.equal(true);
+				expect(widget._displaySetImageResult.calledWith(true, href)).to.equal(true);
 			});
 		});
 
