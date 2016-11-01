@@ -463,7 +463,8 @@
 			id="all-courses-pinned"
 			enrollments="{{pinnedEnrollments}}"
 			enrollments-queue="{{pinnedEnrollmentsQueue}}"
-			delay-course-tile-load="[[delayCourseTileLoad]]">
+			delay-course-tile-load="[[delayCourseTileLoad]]"
+			tile-sizes="[[_tileSizes]]">
 		</d2l-course-tile-grid>
 
 		<h2 class="d2l-heading-3">{{localize('unpinnedCourses')}}</h2>
@@ -472,7 +473,8 @@
 			id="all-courses-unpinned"
 			enrollments="{{unpinnedEnrollments}}"
 			enrollments-queue="{{unpinnedEnrollmentsQueue}}"
-			delay-course-tile-load="[[delayCourseTileLoad]]">
+			delay-course-tile-load="[[delayCourseTileLoad]]"
+			tile-sizes="[[_tileSizes]]">
 		</d2l-course-tile-grid>
 	</template>
 
@@ -570,6 +572,7 @@
 					type: String,
 					value: 'pinDate'
 				},
+				_tileSizes: String,
 				_parentOrganizations: {
 					type: Array,
 					value: function() {
@@ -591,6 +594,7 @@
 				for (var i = 0; i < courseTileGrids.length; i++) {
 					courseTileGrids[i].getCourseTileItemCount = this.getCourseTileItemCount.bind(this);
 				}
+				this._updateTileSizes();
 			},
 			attached: function() {
 				this.listen(this.$.sortDropdown, 'menu-item-selected', '_updateSortBy');
@@ -603,6 +607,8 @@
 				this.listen(this.$.departmentSearchWidget, 'search-results-changed', '_onDepartmentSearchResults');
 
 				this.$.scrollThreshold.scrollTarget = this.$.filterDropdownContent.querySelector('.d2l-dropdown-content-container');
+
+				window.addEventListener('resize', this._onResize.bind(this));
 			},
 			detached: function() {
 				this.unlisten(this.$.sortDropdown, 'menu-item-selected', '_updateSortBy');
@@ -765,6 +771,9 @@
 					this._selectSemesterList();
 				}
 			},
+			_onResize: function() {
+				this._updateTileSizes();
+			},
 			_selectSemesterList: function() {
 				this._toggleSelectedList(this.$.semesterList, this.$.semesterListButton, this.$.semesterListHighlight, true);
 				this._toggleSelectedList(this.$.departmentList, this.$.departmentListButton, this.$.departmentListHighlight, false);
@@ -778,6 +787,10 @@
 				this.$.semesterSearchWidget.clear();
 				this.$.departmentSearchWidget.clear();
 				this.$.departmentList.querySelector('d2l-menu').resize();
+			},
+			_updateTileSizes: function() {
+				this._rescaleCourseTileRegions();
+				this._tileSizes = Math.floor(100 / this._numColsOverlay) + 'vw';
 			},
 			_toggleSelectedList: function(list, button, highlight, selected) {
 				this.toggleClass('hidden', !selected, list);

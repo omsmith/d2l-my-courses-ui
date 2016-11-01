@@ -6,6 +6,7 @@
 <link rel="import" href="../d2l-utility-behavior.html">
 <link rel="import" href="../../d2l-icons/d2l-icons.html">
 <link rel="import" href="d2l-image-selector-tile-styles.html">
+<script src="../bower_components/picturefill/src/picturefill.js" async></script>
 
 <dom-module id="d2l-image-selector-tile">
 	<template>
@@ -27,7 +28,7 @@
 				</button>
 			</div>
 			<div class="d2l-image-tile-content">
-				<img src="[[getDefaultImageLink(image, 'banner')]]"></img>
+				<img src="[[getDefaultImageLink(image, 'narrow')]]"></img>
 			</div>
 
 			<d2l-ajax
@@ -48,7 +49,10 @@
 		Polymer({
 			is: 'd2l-image-selector-tile',
 			properties: {
-				image: Object,
+				image: {
+					type: Object,
+					observer: '_updateImageSource'
+				},
 				organization: Object,
 				_setImageUrl: String
 			},
@@ -56,6 +60,9 @@
 				window.D2L.MyCourses.LocalizeBehavior,
 				window.D2L.MyCourses.UtilityBehavior
 			],
+			ready: function() {
+				this._updateImageSource();
+			},
 			_toggleOverlayOn: function() {
 				this.toggleClass('mobile-selected', true, this.$$('.d2l-image-tile'));
 			},
@@ -97,6 +104,12 @@
 				this.$.setImageRequest.generateRequest();
 				this._fireCourseImageMessage('set');
 				this.fire('close-simple-overlay');
+			},
+			_updateImageSource: function() {
+				var courseImage = Polymer.dom(this.root).querySelector('img');
+				Polymer.dom(courseImage).setAttribute('srcset', this.getImageSrcset(this.image, 'narrow'));
+				Polymer.dom(courseImage).setAttribute('sizes', "(max-width: 767px) 100vw, (max-width: 991px) and (min-width: 768px) 50vw, 33vw");
+				picturefill({ reevaluate: true, elements: [ courseImage ] });
 			}
 		});
 	</script>

@@ -39,19 +39,32 @@
 
 			return queryString ? action.href + '?' + queryString : action.href;
 		},
+		getImageSrcset: function(image, imageClass) {
+			if (!image) { return ''; }
+			var srcset = '',
+				sizes = this._getImageLinks(image, imageClass),
+				imageWidths = {
+					tile: {
+						lowMin: 145, lowMid: 220, lowMax: 540,
+						highMin: 290, highMid: 440, highMax: 1080
+					},
+					narrow: {
+						lowMin: 320, lowMid: 375, lowMax: 767,
+						highMin: 640, highMid: 750, highMax: 1534
+					}
+				};
+			['lowMin', 'lowMid', 'lowMax', 'highMin', 'highMid', 'highMax'].forEach(function(size) {
+				srcset += sizes[size] ? sizes[size] + ' ' + imageWidths[imageClass][size] + 'w, ' : '';
+			});
+			return srcset.replace(/,\s*$/, '');
+		},
 		/*
 		* Returns the best available image to use as a default
 		* @param {Entity} image
 		* @return {String}
 		*/
 		getDefaultImageLink: function(image, imageClass) {
-			var imageLinks = image.getLinksByClass(imageClass || 'tile'),
-				sizes = {};
-			imageLinks.forEach(function(link) {
-				var size = link.hasClass('min') && 'Min' || link.hasClass('mid') && 'Mid' || link.hasClass('max') && 'Max',
-					density = link.hasClass('high-density') ? 'high' : 'low';
-				sizes[density + size] = link.href;
-			});
+			var sizes = this._getImageLinks(image, imageClass);
 			return sizes.highMax || sizes.lowMax || sizes.highMid || sizes.lowMid || sizes.highMin || sizes.lowMin;
 		},
 		/*
@@ -63,6 +76,16 @@
 			// An entity's self href should be unique, so use it as an identifier
 			var selfLink = entity.getLinkByRel('self');
 			return selfLink.href;
+		},
+		_getImageLinks: function(image, imageClass) {
+			var imageLinks = image.getLinksByClass(imageClass || 'tile'),
+				sizes = {};
+			imageLinks.forEach(function(link) {
+				var size = link.hasClass('min') && 'Min' || link.hasClass('mid') && 'Mid' || link.hasClass('max') && 'Max',
+					density = link.hasClass('high-density') ? 'high' : 'low';
+				sizes[density + size] = link.href;
+			});
+			return sizes;
 		}
 	};
 </script>

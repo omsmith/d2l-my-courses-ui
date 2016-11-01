@@ -26,11 +26,69 @@ describe('d2l-utility-behavior', function() {
 				href: '/enrollments/users/169/organizations/1'
 			}]
 		},
-		enrollmentEntity;
+		image = {
+			class: ['course-image'],
+			properties: {
+				name: 'image1'
+			},
+			rel: ['https://api.brightspace.com/rels/organization-image'],
+			links: [
+				{
+					class: ['tile', 'low-density', 'max'],
+					href: 'http://image.com/tile-low-density-max',
+					rel: ['alternate'],
+					type: 'image/jpeg'
+				},
+				{
+					class: ['tile', 'high-density', 'max'],
+					href: 'http://image.com/tile-high-density-max',
+					rel: ['alternate'],
+					type: 'image/jpeg'
+				},
+				{
+					class: ['banner', 'low-density', 'max', 'narrow'],
+					href: 'http://image.com/banner-narrow-low-density-max',
+					rel: ['alternate'],
+					type: 'image/jpeg'
+				},
+				{
+					class: ['banner', 'high-density', 'max', 'narrow'],
+					href: 'http://image.com/banner-narrow-high-density-max',
+					rel: ['alternate'],
+					type: 'image/jpeg'
+				}
+			]
+		},
+		imageLowd = {
+			class: ['course-image'],
+			properties: {
+				name: 'image2'
+			},
+			rel: ['https://api.brightspace.com/rels/organization-image'],
+			links: [
+				{
+					class: ['tile', 'low-density', 'max'],
+					href: 'http://image.com/tile-low-density-max',
+					rel: ['alternate'],
+					type: 'image/jpeg'
+				},
+				{
+					class: ['banner', 'low-density', 'max', 'narrow'],
+					href: 'http://image.com/banner-narrow-low-density-max',
+					rel: ['alternate'],
+					type: 'image/jpeg'
+				}
+			]
+		},
+		enrollmentEntity,
+		imageEntity,
+		imageLowdEntity;
 
 	before(function() {
 		var parser = document.createElement('d2l-siren-parser');
 		enrollmentEntity = parser.parse(enrollment);
+		imageEntity = parser.parse(image);
+		imageLowdEntity = parser.parse(imageLowd);
 	});
 
 	beforeEach(function() {
@@ -68,6 +126,32 @@ describe('d2l-utility-behavior', function() {
 			var id = component.getEntityIdentifier(enrollmentEntity);
 
 			expect(id).to.equal(enrollment.links[1].href);
+		});
+	});
+
+	describe('getDefaultImageLink', function() {
+		it('should return high-density max image as a default image', function() {
+			var link = component.getDefaultImageLink(imageEntity, 'tile');
+			expect(link).to.equal(image.links[1].href);
+		});
+		it('should return low-density max image as a backup default image', function() {
+			var link = component.getDefaultImageLink(imageLowdEntity, 'tile');
+			expect(link).to.equal(imageLowd.links[0].href);
+		});
+		it('should get the appropiate image links from the class', function() {
+			var link = component.getDefaultImageLink(imageEntity, 'narrow');
+			expect(link).to.equal(image.links[3].href);
+		});
+	});
+
+	describe.only('getImageSrcset', function() {
+		it('should return a tile srcset based on the links available', function() {
+			var link = component.getImageSrcset(imageEntity, 'tile');
+			expect(link).to.equal('http://image.com/tile-low-density-max 540w, http://image.com/tile-high-density-max 1080w');
+		});
+		it('should return a banner srcset on the links available', function() {
+			var link = component.getImageSrcset(imageEntity, 'narrow');
+			expect(link).to.equal('http://image.com/banner-narrow-low-density-max 767w, http://image.com/banner-narrow-high-density-max 1534w');
 		});
 	});
 });

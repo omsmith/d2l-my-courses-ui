@@ -37,6 +37,11 @@
 				throw 'Must implement getCourseTileItemCount in behavior consumer';
 			},
 			_numCols: 0,
+			/*
+			* Tile in the course overlay will render at 100% width
+			* @type {Number}
+			*/
+			_numColsOverlay: 0,
 			_calcNumColumns: function(width, itemCount) {
 				var numCols = 1;
 
@@ -95,6 +100,7 @@
 					});
 					return foundClass;
 				};
+				this._numColsOverlay = this._calcNumColumns(window.innerWidth, itemCount);
 
 				containers.forEach(function(container) {
 					var width = this._getAvailableWidth(container);

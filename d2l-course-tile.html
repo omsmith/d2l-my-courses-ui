@@ -11,6 +11,7 @@
 <link rel="import" href="d2l-course-tile-styles.html">
 <link rel="import" href="localize-behavior.html">
 <link rel="import" href="d2l-utility-behavior.html">
+<script src="bower_components/picturefill/src/picturefill.js" async></script>
 
 <!--
 `<d2l-course-tile>` is a clickable, interactable tile that represents a course
@@ -57,7 +58,7 @@ in that organization - student, teacher, TA, etc.
 								<d2l-icon class$="[[_iconDetails.className]]" icon="[[_iconDetails.iconName]]"></d2l-icon>
 							</div>
 						</div>
-						<img aria-hidden="true" />
+						<img aria-hidden="true" sizes="[[tileSizes]]"/>
 					</div>
 				</div>
 				<div class="course-text d2l-heading-4">{{_organization.properties.name}}</div>
@@ -164,6 +165,11 @@ in that organization - student, teacher, TA, etc.
 					observer: '_pinnedChanged'
 				},
 				/*
+				* Size the tile should render with respect to vw
+				* @type {String}
+				*/
+				tileSizes: String,
+				/*
 				* Specifies whether the (mobile) touch menu is enabled on the course tile
 				* @type {Boolean}
 				*/
@@ -268,6 +274,8 @@ in that organization - student, teacher, TA, etc.
 				this._hoverCourseTile = this._hoverCourseTile.bind(this);
 
 				Polymer.IronA11yAnnouncer.requestAvailability();
+
+				picturefill({ reevaluate: true, elements: Polymer.dom(this.root).querySelectorAll('img')});
 			},
 			/*
 			* Handler that triggers the API call to change an enrollment's pin state when the user says DO IT
@@ -329,7 +337,8 @@ in that organization - student, teacher, TA, etc.
 			setCourseImage: function(details) {
 				details = details || {};
 				var tileContainer = this.$$('.tile-container');
-				var newImageHref = this.getDefaultImageLink(details.image);
+				var newImageHref = this.getDefaultImageLink(details.image),
+					newSrcset = this.getImageSrcset(details.image, 'tile');
 
 				switch (details.status) {
 					case 'set':
@@ -338,16 +347,19 @@ in that organization - student, teacher, TA, etc.
 						// NOTE: if this needs optimization, we can wait for the image's onload to play the success animation
 						var imagePreloader = document.createElement('img');
 						imagePreloader.setAttribute('src', newImageHref);
+						imagePreloader.setAttribute('srcset', newSrcset);
+						imagePreloader.setAttribute('sizes', this.sizes);
+						picturefill({ reevaluate: true, elements: Polymer.dom(this.root).querySelectorAll('img')});
 						break;
 					case 'success':
-						this._displaySetImageResult(true, newImageHref);
+						this._displaySetImageResult(true, newImageHref, newSrcset);
 						break;
 					case 'failure':
 						this._displaySetImageResult(false);
 						break;
 				}
 			},
-			_displaySetImageResult: function(success, newImageHref) {
+			_displaySetImageResult: function(success, newImageHref, newSrcset) {
 				var tileContainer = this.$$('.tile-container');
 				var courseImage = this.$$('.course-image img');
 
@@ -368,6 +380,8 @@ in that organization - student, teacher, TA, etc.
 						if (success) {
 							this.toggleClass('hidden', false, courseImage);
 							Polymer.dom(courseImage).setAttribute('src', newImageHref);
+							Polymer.dom(courseImage).setAttribute('srcset', newSrcset);
+							picturefill({ reevaluate: true, elements: Polymer.dom(this.root).querySelectorAll('img')});
 						}
 						this.toggleClass(successClass, false, tileContainer);
 						this.toggleClass(failureClass, false, tileContainer);
@@ -475,16 +489,18 @@ in that organization - student, teacher, TA, etc.
 				return organization && organization.getLinkByRel(rel);
 			},
 			_setCourseImageSrc: function() {
-				var href = '';
+				var href = '', srcset = '';
 
 				var courseImageEntity = this._organization.getSubEntityByClass('course-image');
 				if (courseImageEntity) {
 					href = this.getDefaultImageLink(courseImageEntity) || '';
+					srcset = this.getImageSrcset(courseImageEntity, 'tile') || '';
 				}
-
 				var courseImage = this.$$('.course-image img');
 				this.toggleClass('hidden', href === '', courseImage);
 				Polymer.dom(courseImage).setAttribute('src', href);
+				Polymer.dom(courseImage).setAttribute('srcset', srcset);
+				picturefill({ reevaluate: true, elements: Polymer.dom(this.root).querySelectorAll('img')});
 			},
 			_onFocus: function() {
 				/* timeout needed to work around lack of support for relatedTarget */

@@ -23,7 +23,8 @@
 					animate-insertion="[[_removeEnrollmentFromTransitionList(item)]]"
 					class="grid-child"
 					enrollment-id="[[getEntityIdentifier(item)]]"
-					delay-load="[[delayCourseTileLoad]]">
+					delay-load="[[delayCourseTileLoad]]"
+					tile-sizes="[[tileSizes]]">
 				</d2l-course-tile>
 			</template>
 		</div>
@@ -76,7 +77,12 @@
 					value: function() {
 						return [];
 					}
-				}
+				},
+				/*
+				* Size the tile should render with respect to vw
+				* @type {String}
+				*/
+				tileSizes: String
 			},
 			behaviors: [
 				window.D2L.MyCourses.CourseTileResponsiveGridBehavior,
