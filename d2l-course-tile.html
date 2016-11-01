@@ -42,6 +42,14 @@ in that organization - student, teacher, TA, etc.
 			on-iron-ajax-error="_onEnrollmentPinError">
 		</d2l-ajax>
 
+		<d2l-ajax
+			id="telemetryOpenRequest"
+			url="https://telemetry-dev.cloud.desire2learn.com/api/events/c4d46116-d70c-41cc-99f0-607bc86424a7"
+			body="[[_telemetryOpenEvent]]"
+			method="POST"
+			on-iron-ajax-response="_onTelemetryResponse">
+		</d2l-ajax>
+
 		<div class="tile-container"
 			on-mouseover="_hoverCourseTile"
 			on-mouseout="_onTileMouseOut">
@@ -154,7 +162,8 @@ in that organization - student, teacher, TA, etc.
 						className: '',
 						iconName: ''
 					}
-				}
+				},
+				_telemetryOpenEvent: String
 			},
 			behaviors: [
 				window.D2L.MyCourses.LocalizeBehavior,
@@ -305,6 +314,13 @@ in that organization - student, teacher, TA, etc.
 				}
 			},
 			_launchCourseTileImageSelector: function(e) {
+				this._telemetryOpenEvent = JSON.stringify({
+					type: 'LaunchChangeImage',
+					ts: Date.now()
+				});
+
+				this.$.telemetryOpenRequest.generateRequest();
+
 				e.preventDefault();
 				e.stopPropagation();
 
@@ -417,6 +433,9 @@ in that organization - student, teacher, TA, etc.
 					dropdown.close();
 					this._setCourseTileHovered(false);
 				}
+			},
+			_onTelemetryResponse: function(response) {
+				console.log(response);
 			}
 		});
 	</script>

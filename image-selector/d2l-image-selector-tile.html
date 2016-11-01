@@ -104,6 +104,7 @@
 			_selectImage: function() {
 				this._setImageUrl = this._getSetImageUrl();
 				this.$.setImageRequest.generateRequest();
+				//send the telementry too!
 				this._fireCourseImageMessage('set');
 				this.fire('close-simple-overlay');
 			},
