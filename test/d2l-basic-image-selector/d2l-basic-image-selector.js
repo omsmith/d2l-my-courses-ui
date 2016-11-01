@@ -3,14 +3,9 @@
 'use strict';
 
 describe('<d2l-course-tile>', function() {
-	var widget,
-		searchWidget;
+	var widget;
 
 	beforeEach(function() {
-		searchWidget = {
-			clear: sinon.stub()
-		};
-
 		widget = fixture('d2l-basic-image-selector-fixture');
 	});
 
@@ -140,7 +135,7 @@ describe('<d2l-course-tile>', function() {
 				properties: {
 					name: 'name'
 				}
-			}
+			};
 		});
 
 		it('clears the search widget', function() {
@@ -335,11 +330,7 @@ describe('<d2l-course-tile>', function() {
 	});
 
 	describe('_displaySearchResults', function() {
-		var start,
-			delimiter,
-			end,
-			localizeString,
-			userSearchText;
+		var userSearchText;
 
 		beforeEach(function() {
 			widget.$$('d2l-search-widget').searchResults = {
