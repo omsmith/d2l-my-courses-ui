@@ -128,7 +128,6 @@
 			is: 'd2l-basic-image-selector',
 			ready: function() {
 				this._images = this._defaultImages;
-				this.$$('d2l-search-widget').addEventListener('search-results-changed', this._searchResultsChanged.bind(this));
 			},
 			properties: {
 				imageCatalogLocation: String,
@@ -152,6 +151,20 @@
 			listeners: {
 				'd2l-simple-overlay-opening': '_initialize',
 				'd2l-simple-overlay-closed': '_clear'
+			},
+			attached: function() {
+				this.listen(
+					this.$$('d2l-search-widget'),
+					'search-results-changed',
+					'_searchResultsChanged'
+				);
+			},
+			detached: function() {
+				this.unlisten(
+					this.$$('d2l-search-widget'),
+					'search-results-changed',
+					'_searchResultsChanged'
+				);
 			},
 			_sirenParser: document.createElement('d2l-siren-parser'),
 			_searchImages: [],
