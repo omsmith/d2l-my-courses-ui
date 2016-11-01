@@ -40,7 +40,7 @@
 			return queryString ? action.href + '?' + queryString : action.href;
 		},
 		getImageSrcset: function(image, imageClass) {
-			if (!image) {	return ''; }
+			if (!image) { return ''; }
 			var srcset = '',
 				sizes = this._getImageLinks(image, imageClass),
 				imageWidths = {

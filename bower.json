@@ -51,7 +51,7 @@
     "neon-animation": "PolymerElements/neon-animation#^1.2.2",
     "iron-scroll-threshold": "PolymerElements/iron-scroll-threshold#^1.0.2",
     "polymer": "Polymer/polymer#^1.4.0",
-    "picturefill": "https://github.com/scottjehl/picturefill.git#3.0"
+    "picturefill": "https://github.com/scottjehl/picturefill.git#^3.0.0"
   },
   "devDependencies": {
     "web-component-tester": "^4.2.2"
