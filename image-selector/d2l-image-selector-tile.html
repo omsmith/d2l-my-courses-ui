@@ -39,6 +39,12 @@
 				on-iron-ajax-response="_onSetImageResponse"
 				on-iron-ajax-error="_onSetImageError">
 			</d2l-ajax>
+			<d2l-ajax
+				id="telemetrySetImageRequest"
+				url="https://telemetry-dev.cloud.desire2learn.com/api/events/c4d46116-d70c-41cc-99f0-607bc86424a7"
+				body="[[_telemetrySetImageEvent]]"
+				method="POST">
+			</d2l-ajax>
 
 		</div>
 	</template>
@@ -56,7 +62,8 @@
 				},
 				organization: Object,
 				_setImageUrl: String,
-				_imageClass: String
+				_imageClass: String,
+				_telemetrySetImageEvent: String
 			},
 			behaviors: [
 				window.D2L.MyCourses.LocalizeBehavior,
@@ -104,7 +111,13 @@
 			_selectImage: function() {
 				this._setImageUrl = this._getSetImageUrl();
 				this.$.setImageRequest.generateRequest();
-				//send the telementry too!
+				this._telemetrySetImageEvent = JSON.stringify({
+					type: 'SelectedImage',
+					ts: Date.now(),
+					imageId: this.image.getLinkByRel('self').href,
+					imageTags: this.image.properties.tags + ',' + this.image.properties.categories
+				});
+				this.$.telemetrySetImageRequest.generateRequest();
 				this._fireCourseImageMessage('set');
 				this.fire('close-simple-overlay');
 			},

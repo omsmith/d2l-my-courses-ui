@@ -80,6 +80,13 @@
 			on-iron-ajax-response="_moreSearchImagesRequestResponse">
 		</d2l-ajax>
 
+		<d2l-ajax
+			id="telemetryNextPageRequest"
+			url="https://telemetry-dev.cloud.desire2learn.com/api/events/c4d46116-d70c-41cc-99f0-607bc86424a7"
+			body="[[_telemetryNextPageEvent]]"
+			method="POST">
+		</d2l-ajax>
+
 		<div class="top-section">
 			<d2l-search-widget
 				id="image-search"
@@ -146,7 +153,8 @@
 				_loadingSpinnerClass: {
 					type: String,
 					value: 'hidden'
-				}
+				},
+				_telemetryNextPageEvent: String
 			},
 			behaviors: [ window.D2L.MyCourses.LocalizeBehavior ],
 			listeners: {
@@ -229,6 +237,17 @@
 				if (loadMore) {
 					newImages = (isDefault ? this._defaultImages : this._searchImages) || [];
 					newImages = newImages.concat(parsedResponse.entities);
+					var searchRegex = /search=([^&]*)/,
+						match = searchRegex.exec(this._searchString);
+					var searchWidget = this.$$('d2l-search-widget');
+					this._telemetryNextPageEvent = JSON.stringify({
+						ts: Date.now(),
+						type: 'NextImagePageNavigation',
+						resultsPageNumber: parsedResponse.properties.pagingInfo.page,
+						totalResults: parsedResponse.properties.pagingInfo.total,
+						search: searchWidget._searchString === '' ? match[1] : searchWidget._searchString
+					});
+					this.$.telemetryNextPageRequest.generateRequest();
 				} else {
 					newImages = parsedResponse.entities;
 				}
@@ -238,7 +257,6 @@
 				} else {
 					this._searchImages = newImages;
 				}
-
 				this._setNextPage(parsedResponse, isDefault);
 				this._updateImages();
 			},
