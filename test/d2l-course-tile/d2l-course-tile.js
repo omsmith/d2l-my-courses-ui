@@ -285,7 +285,7 @@ describe('<d2l-course-tile>', function() {
 			details = {
 				image: {
 					href: href,
-					getLinksByClass: sinon.stub().return([])
+					getLinksByClass: sinon.stub().returns([])
 				},
 				status: null
 			};
