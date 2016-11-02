@@ -2,6 +2,11 @@
 <dom-module id="d2l-image-selector-tile-styles">
 	<template>
 		<style>
+			:host {
+				background-color: lightgrey;
+				overflow: hidden;
+			}
+
 			.d2l-image-tile {
 				position: absolute;
 				width: 100%;
@@ -41,11 +46,18 @@
 				left: 0;
 				transition: transform 0.35s, saturate 0.35s;
 				transform: scale(1.0) translateZ(0);
-				background-color: lightgrey;
+			}
+
+			.no-image .d2l-image-tile-content,
+			.no-image .click-overlay,
+			.no-image .d2l-image-tile-overlay {
+				display: none;
 			}
 
 			.d2l-image-tile-content img {
 				height: 100%;
+				min-width: 100%;
+				background-color: lightgray;
 			}
 
 			.d2l-image-tile:hover .d2l-image-tile-content,
