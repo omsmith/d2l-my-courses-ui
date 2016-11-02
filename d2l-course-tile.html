@@ -46,8 +46,7 @@ in that organization - student, teacher, TA, etc.
 			id="telemetryOpenRequest"
 			url="https://telemetry-dev.cloud.desire2learn.com/api/events/c4d46116-d70c-41cc-99f0-607bc86424a7"
 			body="[[_telemetryOpenEvent]]"
-			method="POST"
-			on-iron-ajax-response="_onTelemetryResponse">
+			method="POST">
 		</d2l-ajax>
 
 		<div class="tile-container"
@@ -438,9 +437,6 @@ in that organization - student, teacher, TA, etc.
 					dropdown.close();
 					this._setCourseTileHovered(false);
 				}
-			},
-			_onTelemetryResponse: function(response) {
-				console.log(response);
 			}
 		});
 	</script>
