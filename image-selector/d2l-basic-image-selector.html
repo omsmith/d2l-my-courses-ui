@@ -104,7 +104,6 @@
 				cache-responses>
 			</d2l-search-widget>
 
-<!-- put an onclick on this link with a function that will send the telemetry request -->
 			<template is="dom-if" if="{{_organizationChangeImageHref}}" restamp="true">
 				<a class="upload" href$=[[_organizationChangeImageHref]] on-tap="_uploadTelemetry">
 					<d2l-icon class="upload-icon" icon="d2l-tier2:upload" aria-hidden="true"></d2l-icon>
@@ -343,7 +342,6 @@
 					this._loadingSpinnerClass = '';
 					this.$.lazyLoadSpinner.scrollIntoView();
 					this.$.moreDefaultImagesRequest.generateRequest();
-					//make a telemetry request around here ish
 				} else {
 					this._loadingSpinnerClass = 'hidden';
 				}
