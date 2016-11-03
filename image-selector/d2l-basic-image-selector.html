@@ -128,23 +128,6 @@
 			is: 'd2l-basic-image-selector',
 			ready: function() {
 				this._images = this._defaultImages;
-				this.$$('d2l-search-widget').addEventListener('search-results-changed', function(response) {
-					var searchRegex = /search=([^&]*)/,
-						searchHref = decodeURIComponent( response.detail.getLinkByRel('self').href ),
-						match = searchRegex.exec(searchHref),
-						userSearchText = (match.length > 1) ? match[1] : null;
-
-					if (userSearchText) {
-						this._displaySearchResults(userSearchText);
-						this._setNextPage(response.detail, false);
-					} else {
-						// Throw out empty searches
-						// TODO: d2l-search-widget property that sends events instead of making network calls
-						this._displayDefaultResults();
-					}
-
-					this._updateImages();
-				}.bind(this));
 			},
 			properties: {
 				imageCatalogLocation: String,
@@ -169,9 +152,40 @@
 				'd2l-simple-overlay-opening': '_initialize',
 				'd2l-simple-overlay-closed': '_clear'
 			},
+			attached: function() {
+				this.listen(
+					this.$$('d2l-search-widget'),
+					'search-results-changed',
+					'_searchResultsChanged'
+				);
+			},
+			detached: function() {
+				this.unlisten(
+					this.$$('d2l-search-widget'),
+					'search-results-changed',
+					'_searchResultsChanged'
+				);
+			},
 			_sirenParser: document.createElement('d2l-siren-parser'),
 			_searchImages: [],
 			_defaultImages: [],
+			_searchResultsChanged: function(response) {
+				var searchRegex = /search=([^&]*)/,
+					searchHref = decodeURIComponent( response.detail.getLinkByRel('self').href ),
+					match = searchRegex.exec(searchHref),
+					userSearchText = (match.length > 1) ? match[1] : null;
+
+				if (userSearchText) {
+					this._displaySearchResults(userSearchText);
+					this._setNextPage(response.detail, false);
+				} else {
+					// Throw out empty searches
+					// TODO: d2l-search-widget property that sends events instead of making network calls
+					this._displayDefaultResults();
+				}
+
+				this._updateImages();
+			},
 			_displaySearchResults: function(userSearchText) {
 				var searchWidget = this.$$('d2l-search-widget'),
 					delimiter = '$$$DELIMITER???',
@@ -253,6 +267,7 @@
 				this._images = [];
 				this._nextSearchResultPage = null;
 				this._nextDefaultResultPage = null;
+				this._showGrid = true;
 			},
 			_getSearchAction: function() {
 				return {

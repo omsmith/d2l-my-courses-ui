@@ -56,4 +56,75 @@ describe('<d2l-image-selector-tile>', function() {
 			expect(result).to.equal(testPath + '?imagePath=/images/10');
 		});
 	});
+
+	describe('_selectImage', function() {
+		it('fires a set-course-image event with the "set" parameter', function() {
+			widget._fireCourseImageMessage = sinon.stub();
+			widget._selectImage();
+			expect(widget._fireCourseImageMessage.calledWith('set')).to.equal(true);
+		});
+
+		it('fires a "close simple overlay event"', function() {
+			widget.fire = sinon.stub();
+			widget._selectImage();
+			expect(widget.fire.calledWith('close-simple-overlay')).to.equal(true);
+		});
+
+		it('generates a setImageRequest', function() {
+			widget.$ = {
+				setImageRequest: {
+					generateRequest: sinon.stub()
+				}
+			};
+
+			widget._selectImage();
+			expect(widget.$.setImageRequest.generateRequest.called).to.equal(true);
+		});
+	});
+
+	describe('_onSetImageResponse', function() {
+		it('fires a set-course-image event with the "success" parameter if the status is 200', function() {
+			var response = {
+				detail: { status: 200 }
+			};
+			widget._fireCourseImageMessage = sinon.stub();
+			widget._onSetImageResponse(response);
+			expect(widget._fireCourseImageMessage.calledWith('success')).to.equal(true);
+		});
+
+		it('fires a set-course-image event with the "failure" parameter if the status is not 200', function() {
+			var response = {
+				detail: { status: 500 }
+			};
+			widget._fireCourseImageMessage = sinon.stub();
+			widget._onSetImageResponse(response);
+			expect(widget._fireCourseImageMessage.calledWith('failure')).to.equal(true);
+		});
+	});
+
+	describe('_onSetImageError', function() {
+		it('fires a set-course-image event with the "failure" parameter', function() {
+			widget._fireCourseImageMessage = sinon.stub();
+			widget._onSetImageError();
+			expect(widget._fireCourseImageMessage.calledWith('failure')).to.equal(true);
+		});
+	});
+
+	describe('_fireCourseImageMessage', function() {
+		it("fires a 'set-course-image' event with the image and passed in status", function() {
+			var self = {
+				fire: sinon.stub(),
+				organization: { testData: 'testData' },
+				image: 'Image'
+			};
+			widget._fireCourseImageMessage.call(self, 'status');
+
+			expect(self.fire.firstCall.args[0]).to.equal('set-course-image');
+			expect(self.fire.firstCall.args[1]).to.deep.equal({
+				status: 'status',
+				image: self.image,
+				organization: self.organization
+			});
+		});
+	});
 });
