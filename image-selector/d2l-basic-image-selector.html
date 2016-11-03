@@ -81,16 +81,9 @@
 		</d2l-ajax>
 
 		<d2l-ajax
-			id="telemetryNextPageRequest"
+			id="telemetryRequest"
 			url="https://telemetry-dev.cloud.desire2learn.com/api/events/c4d46116-d70c-41cc-99f0-607bc86424a7"
-			body="[[_telemetryNextPageEvent]]"
-			method="POST">
-		</d2l-ajax>
-
-		<d2l-ajax
-			id="telemetryUploadRequest"
-			url="https://telemetry-dev.cloud.desire2learn.com/api/events/c4d46116-d70c-41cc-99f0-607bc86424a7"
-			body="[[_telemetryUploadEvent]]"
+			body="[[_telemetryEvent]]"
 			method="POST">
 		</d2l-ajax>
 
@@ -105,7 +98,7 @@
 			</d2l-search-widget>
 
 			<template is="dom-if" if="{{_organizationChangeImageHref}}" restamp="true">
-				<a class="upload" href$=[[_organizationChangeImageHref]] on-tap="_uploadTelemetry">
+				<a class="upload" href$=[[_organizationChangeImageHref]] on-tap="_uploadTelemetry" on-keydown="_uploadTelemetry">
 					<d2l-icon class="upload-icon" icon="d2l-tier2:upload" aria-hidden="true"></d2l-icon>
 					<span class="upload-text">{{localize('upload')}}</span>
 				</a>
@@ -160,8 +153,7 @@
 					type: String,
 					value: 'hidden'
 				},
-				_telemetryNextPageEvent: String,
-				_telemetryUploadEvent: String
+				_telemetryEvent: String
 			},
 			behaviors: [ window.D2L.MyCourses.LocalizeBehavior ],
 			listeners: {
@@ -244,17 +236,9 @@
 				if (loadMore) {
 					newImages = (isDefault ? this._defaultImages : this._searchImages) || [];
 					newImages = newImages.concat(parsedResponse.entities);
-					var searchRegex = /search=([^&]*)/,
-						match = searchRegex.exec(this._searchString);
-					var searchWidget = this.$$('d2l-search-widget');
-					this._telemetryNextPageEvent = JSON.stringify({
-						ts: Date.now(),
-						type: 'NextImagePageNavigation',
-						resultsPageNumber: parsedResponse.properties.pagingInfo.page,
-						totalResults: parsedResponse.properties.pagingInfo.total,
-						search: searchWidget._searchString === '' ? match[1] : searchWidget._searchString
-					});
-					this.$.telemetryNextPageRequest.generateRequest();
+
+					this._doTelemetryNextPageRequest(parsedResponse);
+
 				} else {
 					newImages = parsedResponse.entities;
 				}
@@ -355,12 +339,39 @@
 			_onDefaultImagesRequestResponse: function(response) {
 				this._onImagesRequestResponse(response, false, true);
 			},
-			_uploadTelemetry: function() {
-				this._telemetryUploadEvent = JSON.stringify({
-					ts: Date.now(),
-					type: "CourseImageUpload"
+			_uploadTelemetry: function(e) {
+				if((e.type === 'keydown' && e.keyCode === 13) || (e.type === 'tap')) {
+					console.log(e.type);
+					this._telemetryEvent = JSON.stringify({
+						ts: Date.now(),
+						type: "CourseImageUpload"
+					});
+					this.$.telemetryRequest.generateRequest();
+				}
+			},
+			_doTelemetryNextPageRequest: function(parsedResponse) {
+				var searchRegex = /search=([^&]*)/,
+					match = searchRegex.exec(this._searchString);
+				var searchWidget = this.$$('d2l-search-widget');
+				var pagingInfo = this._getPagingInfo(parsedResponse);
+				this._telemetryEvent = JSON.stringify({
+    				ts: Date.now(),
+    				type: 'NextImagePageNavigation',
+    				resultsPageNumber: pagingInfo.page,
+    				totalResults: pagingInfo.total,
+					search: searchWidget._searchString === '' ? match[1] : searchWidget._searchString
 				});
-				this.$.telemetryUploadRequest.generateRequest();
+				this.$.telemetryRequest.generateRequest();
+			},
+			_getPagingInfo: function(parsedResponse) {
+				var pagingInfo = {
+        			page: 'error retrieving page info',
+        			total: 'error retrieving total info'
+    			};
+    			if (parsedResponse.properties && parsedResponse.properties.pagingInfo) {
+        			pagingInfo = parsedResponse.properties.pagingInfo;
+    			}
+    			return pagingInfo;
 			}
 		});
 	</script>

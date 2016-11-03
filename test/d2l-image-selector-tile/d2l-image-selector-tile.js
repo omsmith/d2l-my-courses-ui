@@ -1,4 +1,4 @@
-/* global describe, it, before, beforeEach, after, fixture, expect, sinon */
+/* global describe, it, beforeEach, afterEach, fixture, expect, sinon */
 
 'use strict';
 
@@ -10,7 +10,8 @@ describe('<d2l-image-selector-tile>', function() {
 		telemetryUrl = 'https://telemetry-dev.cloud.desire2learn.com/api/events/c4d46116-d70c-41cc-99f0-607bc86424a7',
 		server;
 
-	before(function() {
+	beforeEach(function() {
+		widget = fixture('d2l-image-selector-tile-fixture');
 		server = sinon.fakeServer.create();
 		server.respondWith(
 			telemetryUrl,
@@ -19,11 +20,7 @@ describe('<d2l-image-selector-tile>', function() {
 		server.respondImmediately = true;
 	});
 
-	beforeEach(function() {
-		widget = fixture('d2l-image-selector-tile-fixture');
-	});
-
-	after(function() {
+	afterEach(function() {
 		server.restore();
 	});
 
