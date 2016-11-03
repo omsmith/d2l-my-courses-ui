@@ -177,7 +177,7 @@ describe('<d2l-course-tile>', function() {
 			widget.updateImages = sinon.stub();
 		});
 
-		describe('when status is 200', function() {
+		describe('when status is not 200', function() {
 			it('hides the loading spinner', function() {
 				var badResponse = {
 					detail: { status: 500 }
@@ -241,7 +241,7 @@ describe('<d2l-course-tile>', function() {
 	});
 
 	describe('clear', function() {
-		beforeEach(function() {
+		it('clears stuff', function() {
 			widget._searchImages = [1, 2, 3];
 			widget._showGrid = false;
 			widget._nextSearchResultPage = 'asdf';
@@ -252,9 +252,7 @@ describe('<d2l-course-tile>', function() {
 			widget._defaultImages = [1];
 
 			widget._clear();
-		});
 
-		it('clears stuff', function() {
 			expect(widget._searchImages).to.deep.equal([]);
 			expect(widget._showGrid).to.equal(true);
 			expect(widget._nextSearchResultPage).to.equal(null);
