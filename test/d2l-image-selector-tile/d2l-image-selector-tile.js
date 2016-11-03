@@ -1,4 +1,4 @@
-/* global describe, it, beforeEach, afterEach, fixture, expect, sinon */
+/* global describe, it, beforeEach, fixture, expect, sinon */
 
 'use strict';
 
@@ -6,22 +6,11 @@ describe('<d2l-image-selector-tile>', function() {
 	var widget,
 		testPath = 'http://testPath',
 		testImageHref = 'http://test.com/images/10',
-		testBadImageHref = 'http://test.com/MUAHAHAHA/10',
-		telemetryUrl = 'https://telemetry-dev.cloud.desire2learn.com/api/events/c4d46116-d70c-41cc-99f0-607bc86424a7',
-		server;
+		testBadImageHref = 'http://test.com/MUAHAHAHA/10';
 
 	beforeEach(function() {
 		widget = fixture('d2l-image-selector-tile-fixture');
-		server = sinon.fakeServer.create();
-		server.respondWith(
-			telemetryUrl,
-			'OK'
-		);
-		server.respondImmediately = true;
-	});
-
-	afterEach(function() {
-		server.restore();
+		sinon.stub(widget, '_doTelemetrySetImageRequest');
 	});
 
 	it('loads element', function() {
@@ -29,9 +18,6 @@ describe('<d2l-image-selector-tile>', function() {
 	});
 
 	it('fires a close-simple-overlay message when clicked', function() {
-		sinon.stub(widget, '_selectImage', function() {
-			this.fire('close-simple-overlay'); //eslint-disable-line no-invalid-this
-		});
 		var messageSent = false;
 		widget.addEventListener('close-simple-overlay', function() {
 			messageSent = true;

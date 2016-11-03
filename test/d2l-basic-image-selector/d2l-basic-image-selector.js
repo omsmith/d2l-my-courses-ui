@@ -7,6 +7,7 @@ describe('<d2l-course-tile>', function() {
 
 	beforeEach(function() {
 		widget = fixture('d2l-basic-image-selector-fixture');
+		sinon.stub(widget, '_doTelemetryNextPageRequest');
 	});
 
 	it('loads element', function() {
