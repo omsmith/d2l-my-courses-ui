@@ -118,6 +118,13 @@
 			filter: contrast(1.15);
 			transform: scale(1.1);
 		}
+		@supports (-ms-ime-align:auto) {
+			.course-image-container.hover,
+			.course-image-container.hover > .course-image img {
+				/* See https://github.com/Brightspace/d2l-my-courses-ui/issues/124 */
+				filter: none;
+			}
+		}
 		.course-text {
 			width: 100%;
 			max-height: 75px;
