@@ -186,6 +186,7 @@
 				if (userSearchText) {
 					this._displaySearchResults(userSearchText);
 					this._setNextPage(response.detail, false);
+					this._doTelemetrySearchRequest(userSearchText);
 				} else {
 					// Throw out empty searches
 					// TODO: d2l-search-widget property that sends events instead of making network calls
@@ -372,6 +373,22 @@
         			pagingInfo = parsedResponse.properties.pagingInfo;
     			}
     			return pagingInfo;
+			},
+			_doTelemetrySearchRequest: function(userSearchText) {
+				var searchWidget = this.$$('d2l-search-widget'),
+					total = searchWidget.searchResults
+							&& searchWidget.searchResults.properties
+							&& searchWidth.searchResults.properties.pagingInfo
+							&& searchWidth.searchResults.properties.pagingInfo.total
+							? searchWidth.searchResults.properties.pagingInfo.total
+							: 0;
+				this._telemetryEvent = JSON.stringify({
+    				ts: Date.now(),
+    				type: 'SearchImageCatalog',
+    				totalResults: total,
+					search: searchWidget._searchString
+				});
+				this.$.telemetryRequest.generateRequest();
 			}
 		});
 	</script>
