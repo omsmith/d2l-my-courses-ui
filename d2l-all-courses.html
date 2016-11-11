@@ -496,8 +496,8 @@
 				this.listen(this.$.filterDropdownContent, 'd2l-dropdown-open', '_onFilterDropdownOpen');
 				this.listen(this.$.filterDropdownContent, 'd2l-dropdown-close', '_onFilterDropdownClose');
 
-				this.listen(this.$.semesterSearchWidget, 'search-results-changed', '_onSemesterSearchResults');
-				this.listen(this.$.departmentSearchWidget, 'search-results-changed', '_onDepartmentSearchResults');
+				this.listen(this.$.semesterSearchWidget, 'd2l-search-widget-results-changed', '_onSemesterSearchResults');
+				this.listen(this.$.departmentSearchWidget, 'd2l-search-widget-results-changed', '_onDepartmentSearchResults');
 
 				this.$.scrollThreshold.scrollTarget = this.$.filterDropdownContent.querySelector('.d2l-dropdown-content-container');
 
@@ -510,8 +510,8 @@
 				this.unlisten(this.$.filterDropdownContent, 'd2l-dropdown-open', '_onFilterDropdownOpen');
 				this.unlisten(this.$.filterDropdownContent, 'd2l-dropdown-close', '_onFilterDropdownClose');
 
-				this.unlisten(this.$.semesterSearchWidget, 'search-results-changed', '_onSemesterSearchResults');
-				this.unlisten(this.$.departmentSearchWidget, 'search-results-changed', '_onDepartmentSearchResults');
+				this.unlisten(this.$.semesterSearchWidget, 'd2l-search-widget-results-changed', '_onSemesterSearchResults');
+				this.unlisten(this.$.departmentSearchWidget, 'd2l-search-widget-results-changed', '_onDepartmentSearchResults');
 			},
 			/*
 			* Fetches the max value between the pinned and unpinned enrollments
