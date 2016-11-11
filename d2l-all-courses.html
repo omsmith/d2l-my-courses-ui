@@ -287,7 +287,8 @@
 									id="semesterSearchWidget"
 									placeholder-text="{{localize('filtering.searchSemesters')}}"
 									search-action="[[_searchSemestersAction]]"
-									search-field-name="search"></d2l-search-widget>
+									search-field-name="search"
+									cache-responses></d2l-search-widget>
 								<d2l-menu label="{{localize('filtering.semester')}}">
 									<template is="dom-repeat" items="[[_semesterOrganizations]]">
 										<d2l-list-item-filter
@@ -303,7 +304,8 @@
 									id="departmentSearchWidget"
 									placeholder-text="{{localize('filtering.searchDepartments')}}"
 									search-action="[[_searchDepartmentsAction]]"
-									search-field-name="search"></d2l-search-widget>
+									search-field-name="search"
+									cache-responses></d2l-search-widget>
 								<d2l-menu label="{{localize('filtering.department')}}">
 									<template is="dom-repeat" items="[[_departmentOrganizations]]">
 										<d2l-list-item-filter
