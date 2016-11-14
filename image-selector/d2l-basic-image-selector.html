@@ -155,14 +155,14 @@
 			attached: function() {
 				this.listen(
 					this.$$('d2l-search-widget'),
-					'search-results-changed',
+					'd2l-search-widget-results-changed',
 					'_searchResultsChanged'
 				);
 			},
 			detached: function() {
 				this.unlisten(
 					this.$$('d2l-search-widget'),
-					'search-results-changed',
+					'd2l-search-widget-results-changed',
 					'_searchResultsChanged'
 				);
 			},
