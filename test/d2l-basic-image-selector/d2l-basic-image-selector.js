@@ -371,7 +371,7 @@ describe('<d2l-course-tile>', function() {
 		});
 	});
 
-	describe('search-results-changed', function() {
+	describe('d2l-search-widget-results-changed', function() {
 		var response,
 			emptyResponse,
 			href,
