@@ -92,7 +92,9 @@
 			</d2l-alert>
 			<d2l-course-tile-grid
 				enrollments="{{pinnedEnrollments}}"
-				tile-sizes="[[_tileSizes]]">
+				tile-sizes="[[_tileSizes]]"
+				user-id="[[userId]]"
+				tenant-id="[[tenantId]]">
 			</d2l-course-tile-grid>
 			<button
 				class="all-courses-button"
@@ -138,6 +140,8 @@
 			<d2l-basic-image-selector
 				image-catalog-location="[[imageCatalogLocation]]"
 				organization="[[_setImageOrg]]"
+				user-id="[[userId]]"
+				tenant-id="[[tenantId]]"
 			></d2l-basic-image-selector>
 		</d2l-simple-overlay>
 
@@ -177,7 +181,9 @@
 				// URL used by the search widget to fetch department-type organizations
 				_departmentsUrl: String,
 				// Size the tile should render with respect to vw
-				_tileSizes: Object
+				_tileSizes: Object,
+				userId: String,
+				tenantId: String
 			},
 			behaviors: [
 				window.D2L.MyCourses.CourseTileResponsiveGridBehavior,
@@ -193,7 +199,6 @@
 			ready: function() {
 				this._pinnedCoursesMap = {};
 				this._alertMessage = this.localize('noCoursesMessage');
-
 				this.toggleClass('hidden', true, this.$.courseTiles);
 				this.toggleClass('hidden', true, this.$.courseList);
 			},

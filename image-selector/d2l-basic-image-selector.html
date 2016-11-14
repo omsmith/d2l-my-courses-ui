@@ -111,6 +111,8 @@
 				image-catalog-location="[[imageCatalogLocation]]"
 				organization="[[organization]]"
 				images="[[_images]]"
+				user-id="[[userId]]"
+				tenant-id="[[tenantId]]"
 			></d2l-image-tile-grid>
 		</template>
 
@@ -139,6 +141,8 @@
 			properties: {
 				imageCatalogLocation: String,
 				organization: Object,
+				userId: String,
+				tenantId: String,
 				_searchString: String,
 				_images: Array,
 				_searchAction: String,
@@ -345,7 +349,9 @@
 					console.log(e.type);
 					this._telemetryEvent = JSON.stringify({
 						ts: Date.now(),
-						type: "CourseImageUpload"
+						type: "CourseImageUpload",
+						userId: this.userId,
+						tenantId: this.tenantId
 					});
 					this.$.telemetryRequest.generateRequest();
 				}
@@ -360,7 +366,9 @@
     				type: 'NextImagePageNavigation',
     				resultsPageNumber: pagingInfo.page,
     				totalResults: pagingInfo.total,
-					search: searchWidget._searchString === '' ? match[1] : searchWidget._searchString
+					search: searchWidget._searchString === '' ? match[1] : searchWidget._searchString,
+					userId: this.userId,
+					tenantId: this.tenantId
 				});
 				this.$.telemetryRequest.generateRequest();
 			},
@@ -378,15 +386,17 @@
 				var searchWidget = this.$$('d2l-search-widget'),
 					total = searchWidget.searchResults
 							&& searchWidget.searchResults.properties
-							&& searchWidth.searchResults.properties.pagingInfo
-							&& searchWidth.searchResults.properties.pagingInfo.total
-							? searchWidth.searchResults.properties.pagingInfo.total
+							&& searchWidget.searchResults.properties.pagingInfo
+							&& searchWidget.searchResults.properties.pagingInfo.total
+							? searchWidget.searchResults.properties.pagingInfo.total
 							: 0;
 				this._telemetryEvent = JSON.stringify({
     				ts: Date.now(),
     				type: 'SearchImageCatalog',
     				totalResults: total,
-					search: searchWidget._searchString
+					search: searchWidget._searchString,
+					userId: this.userId,
+					tenantId: this.tenantId
 				});
 				this.$.telemetryRequest.generateRequest();
 			}

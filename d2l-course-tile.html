@@ -129,6 +129,7 @@ in that organization - student, teacher, TA, etc.
 					type: Boolean,
 					observer: '_pinnedChanged'
 				},
+				tenantId: String,
 				// Size the tile should render with respect to vw
 				tileSizes: Object,
 				// Specifies whether the (mobile) touch menu is enabled on the course tile
@@ -136,6 +137,7 @@ in that organization - student, teacher, TA, etc.
 					type: Boolean,
 					value: true
 				},
+				userId: String,
 				// Body sent for pin/unpin action
 				_enrollmentPinBody: String,
 				// HTTP method used by the pin/unpin action
@@ -320,7 +322,9 @@ in that organization - student, teacher, TA, etc.
 			_launchCourseTileImageSelector: function(e) {
 				this._telemetryOpenEvent = JSON.stringify({
 					type: 'LaunchChangeImage',
-					ts: Date.now()
+					ts: Date.now(),
+					userId: this.userId,
+					tenantId: this.tenantId
 				});
 
 				this.$.telemetryOpenRequest.generateRequest();

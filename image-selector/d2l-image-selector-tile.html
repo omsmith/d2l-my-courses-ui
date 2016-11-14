@@ -61,6 +61,8 @@
 					value: { mobile: { size: 100 }, tablet: { size: 50 }, desktop: { size: 33 } }
 				},
 				organization: Object,
+				userId: String,
+				tenantId: String,
 				_setImageUrl: String,
 				_imageClass: String,
 				_telemetrySetImageEvent: String,
@@ -126,7 +128,9 @@
 					type: 'SelectedImage',
 					ts: Date.now(),
 					imageId: this.image.getLinkByRel('self').href,
-					imageTags: this.image.properties.tags + ',' + this.image.properties.categories
+					imageTags: this.image.properties.tags + ',' + this.image.properties.categories,
+					userId: this.userId,
+					tenantId: this.tenantId
 				});
 				this.$.telemetryRequest.generateRequest();
 			}

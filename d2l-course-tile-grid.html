@@ -21,7 +21,9 @@
 					class="grid-child"
 					enrollment-id="[[getEntityIdentifier(item)]]"
 					delay-load="[[delayCourseTileLoad]]"
-					tile-sizes="[[tileSizes]]">
+					tile-sizes="[[tileSizes]]"
+					user-id="[[userId]]"
+					tenant-id="[[tenantId]]">
 				</d2l-course-tile>
 			</template>
 		</div>
@@ -62,7 +64,9 @@
 					}
 				},
 				// Size the tile should render with respect to vw
-				tileSizes: Object
+				tileSizes: Object,
+				userId: String,
+				tenantId: String
 			},
 			behaviors: [
 				window.D2L.MyCourses.CourseTileResponsiveGridBehavior,

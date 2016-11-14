@@ -107,7 +107,9 @@
 				<d2l-image-selector-tile
 					image="[[item]]"
 					organization="[[organization]]"
-					class="grid-child">
+					class="grid-child"
+					user-id="[[userId]]"
+					tenant-id="[[tenantId]]">
 				</d2l-image-selector-tile>
 			</template>
 		</div>
@@ -124,6 +126,8 @@
 					observer: '_imagesChanged'
 				},
 				organization: Object,
+				userId: String,
+				tenantId: String
 			},
 			_imagesChanged: function(newValue) {
 				if (!newValue || newValue.length === 0) {
