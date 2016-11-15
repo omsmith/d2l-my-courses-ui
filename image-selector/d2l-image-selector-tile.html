@@ -56,7 +56,7 @@
 			</d2l-ajax>
 			<d2l-ajax
 				id="telemetryRequest"
-				url="https://telemetry-dev.cloud.desire2learn.com/api/events/c4d46116-d70c-41cc-99f0-607bc86424a7"
+				url="[[telemetryEndpoint]]"
 				body="[[_telemetryEvent]]"
 				method="POST">
 			</d2l-ajax>
@@ -78,6 +78,7 @@
 				organization: Object,
 				userId: String,
 				tenantId: String,
+				telemetryEndpoint: String,
 				_setImageUrl: String,
 				_imageClass: String,
 				_telemetrySetImageEvent: String,

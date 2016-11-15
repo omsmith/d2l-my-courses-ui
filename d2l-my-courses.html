@@ -94,7 +94,8 @@
 				enrollments="{{pinnedEnrollments}}"
 				tile-sizes="[[_tileSizes]]"
 				user-id="[[userId]]"
-				tenant-id="[[tenantId]]">
+				tenant-id="[[tenantId]]"
+				telemetry-endpoint="[[telemetryEndpoint]]">
 			</d2l-course-tile-grid>
 			<button
 				class="all-courses-button"
@@ -142,6 +143,7 @@
 				organization="[[_setImageOrg]]"
 				user-id="[[userId]]"
 				tenant-id="[[tenantId]]"
+				telemetry-endpoint="[[telemetryEndpoint]]"
 			></d2l-basic-image-selector>
 		</d2l-simple-overlay>
 
@@ -166,6 +168,12 @@
 				enrollmentsUrl: String,
 				// URL that is called by the widget to fetch results from the course image catalog
 				imageCatalogLocation: String,
+				// hashed userid to send to telemetry
+				userId: String,
+				// hashed tenantid to send to telemetry
+				tenantId: String,
+				// URL to send telemetry to
+				telemetryEndpoint: String,
 				// Message to display in alert if no enrollments are found
 				_alertMessage: String,
 				// URL constructed to fetch a user's enrollments with the enrollments search Action
@@ -181,9 +189,7 @@
 				// URL used by the search widget to fetch department-type organizations
 				_departmentsUrl: String,
 				// Size the tile should render with respect to vw
-				_tileSizes: Object,
-				userId: String,
-				tenantId: String
+				_tileSizes: Object
 			},
 			behaviors: [
 				window.D2L.MyCourses.CourseTileResponsiveGridBehavior,

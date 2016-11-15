@@ -43,9 +43,9 @@ in that organization - student, teacher, TA, etc.
 		</d2l-ajax>
 
 		<d2l-ajax
-			id="telemetryOpenRequest"
-			url="https://telemetry-dev.cloud.desire2learn.com/api/events/c4d46116-d70c-41cc-99f0-607bc86424a7"
-			body="[[_telemetryOpenEvent]]"
+			id="telemetryRequest"
+			url="[[telemetryEndpoint]]"
+			body="[[_telemetryEvent]]"
 			method="POST">
 		</d2l-ajax>
 
@@ -129,6 +129,7 @@ in that organization - student, teacher, TA, etc.
 					type: Boolean,
 					observer: '_pinnedChanged'
 				},
+				telemetryEndpoint: String,
 				tenantId: String,
 				// Size the tile should render with respect to vw
 				tileSizes: Object,
@@ -169,7 +170,7 @@ in that organization - student, teacher, TA, etc.
 				* on the opening of the change image UI
 				* @type {String}
 				*/
-				_telemetryOpenEvent: String
+				_telemetryEvent: String
 			},
 			behaviors: [
 				window.D2L.MyCourses.LocalizeBehavior,
@@ -320,14 +321,14 @@ in that organization - student, teacher, TA, etc.
 				}
 			},
 			_launchCourseTileImageSelector: function(e) {
-				this._telemetryOpenEvent = JSON.stringify({
+				this._telemetryEvent = JSON.stringify({
 					type: 'LaunchChangeImage',
 					ts: Date.now(),
 					userId: this.userId,
 					tenantId: this.tenantId
 				});
 
-				this.$.telemetryOpenRequest.generateRequest();
+				this.$.telemetryRequest.generateRequest();
 
 				e.preventDefault();
 				e.stopPropagation();

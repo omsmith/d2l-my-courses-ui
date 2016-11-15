@@ -82,7 +82,7 @@
 
 		<d2l-ajax
 			id="telemetryRequest"
-			url="https://telemetry-dev.cloud.desire2learn.com/api/events/c4d46116-d70c-41cc-99f0-607bc86424a7"
+			url="[[telemetryEndpoint]]"
 			body="[[_telemetryEvent]]"
 			method="POST">
 		</d2l-ajax>
@@ -113,6 +113,7 @@
 				images="[[_images]]"
 				user-id="[[userId]]"
 				tenant-id="[[tenantId]]"
+				telemetry-endpoint="[[telemetryEndpoint]]"
 			></d2l-image-tile-grid>
 		</template>
 
@@ -143,6 +144,7 @@
 				organization: Object,
 				userId: String,
 				tenantId: String,
+				telemetryEndpoint: String,
 				_searchString: String,
 				_images: Array,
 				_searchAction: String,
