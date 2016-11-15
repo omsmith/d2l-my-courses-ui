@@ -627,6 +627,12 @@
 				this._onMoreResponse(response, '_semesterOrganizations', '_moreSemestersUrl', '_hasMoreSemesters');
 			},
 			_onOrganizationsResponse: function(response) {
+				if (this.pinnedEnrollments.length + this.unpinnedEnrollments.length <= 20) {
+					// Small optimization - hide filter menu and don't fetch contents if user doesn't have a lot of enrollments
+					this.toggleClass('hidden', true, this.$.filterAndSort);
+					return;
+				}
+
 				if (response.detail.status === 200) {
 					var parser = document.createElement('d2l-siren-parser');
 					var responseEntity = parser.parse(response.detail.xhr.response);
