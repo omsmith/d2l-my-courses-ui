@@ -9,22 +9,7 @@
 
 <dom-module id="d2l-image-selector-tile">
 	<template>
-		<style include="d2l-image-selector-tile-styles">
-			.hidden {
-				opacity: 0;
-			}
-
-			.shown {
-				animation-name: shown;
-				animation-duration: 0.5s;
-				animation-fill-mode: forwards;
-			}
-
-			@keyframes shown {
-				0% { opacity: 0 }
-				100% { opacity: 1; }
-			}
-		</style>
+		<style include="d2l-image-selector-tile-styles"></style>
 
 		<div class$="[[_getTileClass(image)]]">
 			<div class="padding"></div>
