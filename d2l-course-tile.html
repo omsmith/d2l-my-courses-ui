@@ -11,6 +11,7 @@
 <link rel="import" href="d2l-course-tile-styles.html">
 <link rel="import" href="localize-behavior.html">
 <link rel="import" href="d2l-utility-behavior.html">
+<link rel="import" href="components/d2l-course-image.html">
 
 <!--
 `<d2l-course-tile>` is a clickable, interactable tile that represents a course
@@ -57,7 +58,7 @@ in that organization - student, teacher, TA, etc.
 								<d2l-icon class$="[[_iconDetails.className]]" icon="[[_iconDetails.iconName]]"></d2l-icon>
 							</div>
 						</div>
-						<img aria-hidden="true" sizes="[[tileSizes]]"/>
+						<d2l-course-image image="[[_image]]" sizes="[[tileSizes]]" size-type="tile"></d2l-course-image>
 					</div>
 				</div>
 				<div class="course-text d2l-heading-4">{{_organization.properties.name}}</div>
@@ -165,9 +166,9 @@ in that organization - student, teacher, TA, etc.
 				},
 				/*
 				* Size the tile should render with respect to vw
-				* @type {String}
+				* @type {Object}
 				*/
-				tileSizes: String,
+				tileSizes: Object,
 				/*
 				* Specifies whether the (mobile) touch menu is enabled on the course tile
 				* @type {Boolean}
@@ -222,6 +223,7 @@ in that organization - student, teacher, TA, etc.
 				*/
 				_courseSettingsLabel: String,
 				_canChangeCourseImage: Boolean,
+				_image: Object,
 				/*
 				* The icon we want to show when you select an image
 				* @type {Object}
@@ -345,17 +347,17 @@ in that organization - student, teacher, TA, etc.
 						var imagePreloader = document.createElement('img');
 						imagePreloader.setAttribute('src', newImageHref);
 						imagePreloader.setAttribute('srcset', newSrcset);
-						imagePreloader.setAttribute('sizes', this.sizes);
+						imagePreloader.setAttribute('sizes', this.$$('d2l-course-image').getTileSizes());
 						break;
 					case 'success':
-						this._displaySetImageResult(true, newImageHref, newSrcset);
+						this._displaySetImageResult(true, details.image);
 						break;
 					case 'failure':
 						this._displaySetImageResult(false);
 						break;
 				}
 			},
-			_displaySetImageResult: function(success, newImageHref, newSrcset) {
+			_displaySetImageResult: function(success, newImage) {
 				var tileContainer = this.$$('.tile-container');
 				var courseImage = this.$$('.course-image img');
 
@@ -375,8 +377,7 @@ in that organization - student, teacher, TA, etc.
 					setTimeout(function() {
 						if (success) {
 							this.toggleClass('hidden', false, courseImage);
-							Polymer.dom(courseImage).setAttribute('src', newImageHref);
-							Polymer.dom(courseImage).setAttribute('srcset', newSrcset);
+							this._image = newImage;
 						}
 						this.toggleClass(successClass, false, tileContainer);
 						this.toggleClass(failureClass, false, tileContainer);
@@ -486,7 +487,8 @@ in that organization - student, teacher, TA, etc.
 			_setCourseImageSrc: function() {
 				var href = '', srcset = '';
 
-				var courseImageEntity = this._organization.getSubEntityByClass('course-image');
+				this._image = this._organization.getSubEntityByClass('course-image');
+				/*
 				if (courseImageEntity) {
 					href = this.getDefaultImageLink(courseImageEntity) || '';
 					srcset = this.getImageSrcset(courseImageEntity, 'tile') || '';
@@ -495,6 +497,7 @@ in that organization - student, teacher, TA, etc.
 				this.toggleClass('hidden', href === '', courseImage);
 				Polymer.dom(courseImage).setAttribute('src', href);
 				Polymer.dom(courseImage).setAttribute('srcset', srcset);
+				*/
 			},
 			_onFocus: function() {
 				/* timeout needed to work around lack of support for relatedTarget */

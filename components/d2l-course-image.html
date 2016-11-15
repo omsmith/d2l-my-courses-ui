@@ -1,0 +1,120 @@
+<link rel="import" href="../../polymer/polymer.html">
+
+<dom-module id="d2l-course-image">
+	<template>
+		<style>
+			.hidden {
+				opacity: 0;
+			}
+
+			.shown {
+				animation-name: shown;
+				animation-duration: 0.5s;
+				animation-fill-mode: forwards;
+			}
+
+			@keyframes shown {
+				0% { opacity: 0 }
+				100% { opacity: 1; }
+			}
+
+			img {
+				height: 100%;
+				min-width: 100%;
+			}
+		</style>
+
+		<img
+			src="[[getDefaultImageLink(image, 'narrow')]]"
+			srcset$=[[_srcset]]
+			sizes$=[[_tileSizes]]
+			on-load="_showImage"
+			class$="[[_imageClass]]"
+		></img>
+
+	</template>
+	<script>
+		'use strict';
+
+		Polymer({
+			is: 'd2l-course-image',
+			properties: {
+				/*
+					The type of image aspect-ratio you want,
+					currently 'tile' and 'narrow' are the only supported options
+				*/
+				sizeType: {
+					type: String,
+					value: 'tile'
+				},
+				/*
+					The vw that the image will take up on the screen for various breakpoints,
+					Used for the srcset 'sizes' parameter, falls back to defaults if none provided
+					Example:
+					{
+						mobile: { maxwidth: 767, size: 100 },
+						tablet: { maxwidth: 991, size: 50 },
+						desktop: { size: 33 }
+					}
+					Can also take in a string which will be provided directly to the srcset
+				*/
+				sizes: Object,
+				/*
+					The image that you want to display, must be in the same format as the course-catalog images
+				*/
+				image: {
+					type: Object,
+					observer: '_updateImageSource'
+				},
+				_imageClass: String,
+				_srcset: String,
+				_tileSizes: String
+			},
+			behaviors: [
+				window.D2L.MyCourses.UtilityBehavior
+			],
+			ready: function() {
+				this._updateImageSource();
+			},
+			_updateImageSource: function() {
+				this._imageClass = 'hidden';
+
+				this._srcset = this.getImageSrcset(this.image, this.sizeType);
+				this._tileSizes = this._generateSizes(this.sizes);
+			},
+			_defaultSizes: {
+				mobile: { maxwidth: 767, size: 100 },
+				tablet: { maxwidth: 991, size: 50 },
+				desktop: { size: 33 }
+			},
+			_generateSizes: function(sizeObj) {
+				sizeObj = sizeObj || this._defaultSizes;
+
+				if (typeof sizeObj === 'object') {
+					var newSizeObj = {};
+					['mobile', 'tablet', 'desktop'].forEach(function(cur) {
+						newSizeObj[cur] = {
+							maxwidth: sizeObj[cur] && sizeObj[cur].maxwidth || this._defaultSizes[cur].maxwidth,
+							size: sizeObj[cur] && sizeObj[cur].size || this._defaultSizes[cur].maxwidth
+						};
+					}.bind(this));
+
+					var mobileString = '(max-width: ' + newSizeObj.mobile.maxwidth + 'px) ' + newSizeObj.mobile.size + 'vw';
+					var tabletString = ', (max-width: ' + newSizeObj.tablet.maxwidth + 'px) and (min-width: ' +
+						(newSizeObj.mobile.maxwidth + 1) + 'px) ' + newSizeObj.tablet.size + 'vw';
+					var desktopString = ', ' + newSizeObj.desktop.size + 'vw';
+
+					return mobileString + tabletString + desktopString;
+				} else {
+					return sizeObj;
+				}
+			},
+			_showImage: function() {
+				this._imageClass = 'shown';
+			},
+			getTileSizes: function() {
+				return this._tileSizes;
+			}
+		});
+	</script>
+</dom-module>

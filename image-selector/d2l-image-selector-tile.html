@@ -4,6 +4,7 @@
 <link rel="import" href="../d2l-course-tile-responsive-grid-behavior.html">
 <link rel="import" href="../d2l-course-tile-grid-styles.html">
 <link rel="import" href="../d2l-utility-behavior.html">
+<link rel="import" href="../components/d2l-course-image.html">
 <link rel="import" href="../../d2l-icons/d2l-icons.html">
 <link rel="import" href="d2l-image-selector-tile-styles.html">
 
@@ -27,11 +28,7 @@
 				</button>
 			</div>
 			<div class="d2l-image-tile-content">
-				<img
-					src="[[getDefaultImageLink(image, 'narrow')]]"
-					on-load="_showImage"
-					class$="[[_imageClass]]"
-				></img>
+				<d2l-course-image image="[[image]]" sizes="[[_imageSizes]]" size-type="narrow"></d2l-course-image>
 			</div>
 
 			<d2l-ajax
@@ -52,9 +49,10 @@
 		Polymer({
 			is: 'd2l-image-selector-tile',
 			properties: {
-				image: {
+				image: Object,
+				_imageSizes: {
 					type: Object,
-					observer: '_updateImageSource'
+					value: { mobile: { size: 100 }, tablet: { size: 50 }, desktop: { size: 33 } }
 				},
 				organization: Object,
 				_setImageUrl: String,
@@ -64,9 +62,6 @@
 				window.D2L.MyCourses.LocalizeBehavior,
 				window.D2L.MyCourses.UtilityBehavior
 			],
-			ready: function() {
-				this._updateImageSource();
-			},
 			_getTileClass: function(image) {
 				return image ? 'd2l-image-tile' : 'd2l-image-tile no-image';
 			},
@@ -112,15 +107,6 @@
 				this._fireCourseImageMessage('set');
 				this.fire('close-simple-overlay');
 			},
-			_updateImageSource: function() {
-				var courseImage = Polymer.dom(this.root).querySelector('img');
-				this._imageClass = 'hidden';
-				Polymer.dom(courseImage).setAttribute('srcset', this.getImageSrcset(this.image, 'narrow'));
-				Polymer.dom(courseImage).setAttribute('sizes', "(max-width: 767px) 100vw, (max-width: 991px) and (min-width: 768px) 50vw, 33vw");
-			},
-			_showImage: function() {
-				this._imageClass = 'shown';
-			}
 		});
 	</script>
 </dom-module>
