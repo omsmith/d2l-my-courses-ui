@@ -130,7 +130,7 @@ describe('<d2l-course-tile>', function() {
 		});
 
 		it('should hide image from screen readers', function() {
-			var courseImage = widget.$$('.course-image img');
+			var courseImage = widget.$$('.course-image d2l-course-image');
 			expect(courseImage.getAttribute('aria-hidden')).to.equal('true');
 		});
 
@@ -307,7 +307,7 @@ describe('<d2l-course-tile>', function() {
 				details.status = 'success';
 				widget._displaySetImageResult = sinon.stub();
 				widget.setCourseImage(details);
-				expect(widget._displaySetImageResult.calledWith(true, href)).to.equal(true);
+				expect(widget._displaySetImageResult.calledWith(true, details.image)).to.equal(true);
 			});
 		});
 
@@ -322,7 +322,7 @@ describe('<d2l-course-tile>', function() {
 	});
 
 	describe('_displaySetImageResult', function() {
-		var imageHref = 'http://testimage.ninja/',
+		var newImage = { getLinksByClass: sinon.stub().returns([]) },
 			clock,
 			success;
 
@@ -338,7 +338,7 @@ describe('<d2l-course-tile>', function() {
 			beforeEach(function() {
 				success = true;
 				expect(widget.$$('.change-image-success')).to.equal(null);
-				widget._displaySetImageResult(success, imageHref);
+				widget._displaySetImageResult(success, newImage);
 				clock.tick(1001);
 			});
 
@@ -363,7 +363,7 @@ describe('<d2l-course-tile>', function() {
 				});
 
 				it('sets the new image href', function() {
-					expect(widget.$$('.course-image img').src).to.equal(imageHref);
+					expect(widget.$$('.course-image d2l-course-image').image).to.equal(newImage);
 				});
 
 				it('removes the "change-image-success" class', function() {
@@ -375,7 +375,7 @@ describe('<d2l-course-tile>', function() {
 		describe('success: false', function() {
 			beforeEach(function() {
 				success = false;
-				widget._displaySetImageResult(success, imageHref);
+				widget._displaySetImageResult(success, newImage);
 				clock.tick(1001);
 			});
 
@@ -400,7 +400,7 @@ describe('<d2l-course-tile>', function() {
 				});
 
 				it('doesnt set a new image href', function() {
-					expect(widget.$$('.course-image img').src).to.not.equal(imageHref);
+					expect(widget.$$('.course-image d2l-course-image').image).to.not.equal(newImage);
 				});
 
 				it('removes the "change-image-failure" class', function() {
