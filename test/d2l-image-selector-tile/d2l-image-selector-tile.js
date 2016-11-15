@@ -81,6 +81,11 @@ describe('<d2l-image-selector-tile>', function() {
 			widget._selectImage();
 			expect(widget.$.setImageRequest.generateRequest.called).to.equal(true);
 		});
+
+		it('sends a telemetry event', function() {
+			widget._selectImage();
+			expect(widget._doTelemetrySetImageRequest.called).to.equal(true);
+		});
 	});
 
 	describe('_onSetImageResponse', function() {
