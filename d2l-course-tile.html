@@ -488,16 +488,6 @@ in that organization - student, teacher, TA, etc.
 				var href = '', srcset = '';
 
 				this._image = this._organization.getSubEntityByClass('course-image');
-				/*
-				if (courseImageEntity) {
-					href = this.getDefaultImageLink(courseImageEntity) || '';
-					srcset = this.getImageSrcset(courseImageEntity, 'tile') || '';
-				}
-				var courseImage = this.$$('.course-image img');
-				this.toggleClass('hidden', href === '', courseImage);
-				Polymer.dom(courseImage).setAttribute('src', href);
-				Polymer.dom(courseImage).setAttribute('srcset', srcset);
-				*/
 			},
 			_onFocus: function() {
 				/* timeout needed to work around lack of support for relatedTarget */
