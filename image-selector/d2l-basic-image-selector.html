@@ -348,7 +348,6 @@
 			},
 			_uploadTelemetry: function(e) {
 				if((e.type === 'keydown' && e.keyCode === 13) || (e.type === 'tap')) {
-					console.log(e.type);
 					this._telemetryEvent = JSON.stringify({
 						ts: Date.now(),
 						type: "CourseImageUpload",
