@@ -97,7 +97,6 @@ in that organization - student, teacher, TA, etc.
 			is: 'd2l-course-tile',
 
 			properties: {
-				// TODO: Figure out what this is... Friday night brain isn't allowing me to understand this.
 				animateInsertion: {
 					type: Boolean
 				},
@@ -112,7 +111,6 @@ in that organization - student, teacher, TA, etc.
 				* enrollment is in.
 				*/
 				enrollment: Object,
-				// TODO: Erm... same thing. Something something animation?
 				enrollmentId: Number,
 				// Specifies whether the (desktop) hover menu is enabled on the course tile
 				hoverEnabled: {
@@ -155,8 +153,6 @@ in that organization - student, teacher, TA, etc.
 				_organizationHomepageUrl: String,
 				// The URL to fetch the `_organization` Entity from (determined from the `enrollment`'s Links)
 				_organizationUrl: String,
-				// The url to pass to the 'Change Image' link
-				_organizationChangeImageHref: String,
 				// The term used for the text of the pin/unpin menu item
 				_pinLabel: String,
 				// The langterm of the course settings label
@@ -212,10 +208,7 @@ in that organization - student, teacher, TA, etc.
 
 				Polymer.IronA11yAnnouncer.requestAvailability();
 			},
-			/*
-			* Handler that triggers the API call to change an enrollment's pin state when the user says DO IT
-			* TODO: what do `isTouch`?
-			*/
+			// Handler that triggers the API call to change an enrollment's pin state when the user says DO IT
 			pinClickHandler: function(isTouch) {
 				var pinAction = this.pinned ? this.enrollment.getActionByName('unpin-course') : this.enrollment.getActionByName('pin-course');
 
