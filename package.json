@@ -7,7 +7,6 @@
     "build": "cp d2l-*.html ./dist/",
     "postinstall": "bower install",
     "publish:cdn": "npm run build -s && frau-publisher",
-    "serve": "polymer serve",
     "test": "npm run test:lint:js && npm run test:lint:wc && wct",
     "test:lint:js": "eslint test/ --ext .js,.html && eslint *.html",
     "test:lint:wc": "polylint --no-recursion --input *.html ./image-selector/*.html",
@@ -48,7 +47,6 @@
     "eslint-plugin-html": "^1.4.0",
     "frau-publisher": "^2.5.3",
     "polylint": "^2.10.1",
-    "polymer-cli": "^0.12.0",
     "rimraf": "^2.5.2",
     "web-component-tester": "^4.2.2"
   }

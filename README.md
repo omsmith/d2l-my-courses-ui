@@ -10,24 +10,26 @@ Install dependencies via NPM:
 npm install
 ```
 
-## Running Locally
-
-To run the application locally, run the following from within the project:
-
-```shell
-npm run serve
-```
-
-This will start a local server `polymer-cli` which you can use to explore the
-docs and demos for the components.
-
 ## Components
 
 `d2l-my-courses` is made up of several web components all working together. The
 intent behind this design is that each component can be used more or less
 independently. If there is a need, these components could be broken out into
 their own repositories/release schedule, but for now they are all contained
-within this repo. See the docs for information about each of them.
+within this repo.
+
+- `<d2l-alert>` is intended to display highlighted informational text
+- `<d2l-all-courses>` displays both pinned and unpinned courses
+- `<d2l-course-tile-grid>` is the wrapper that contains several `<d2l-course-tile>` elements
+- `<d2l-course-tile>` is a clickable, interactable tile that represents a course
+- `<d2l-my-courses>` is the main component for My Courses widget
+- `<d2l-simple-overlay>` extends `iron-overlay` and adds some styling using various `neon` Polymer elements.
+- `<d2l-touch-menu>` is a menu intended for use with mobile interfaces
+- `<d2l-touch-menu-item>` is the element that populates a `d2l-touch-menu`
+
+There are other components as well, but they are mostly intended to be used
+within this widget (i.e. not very likely candidates for being broken out into
+their own repos).
 
 ## Local Testing
 

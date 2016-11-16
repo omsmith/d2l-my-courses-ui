@@ -1,8 +1,5 @@
 <link rel="import" href="../polymer/polymer.html">
 
-<!--
-`<d2l-touch-menu>` is a menu intended for use with mobile interfaces.
--->
 <dom-module id="d2l-touch-menu">
 	<template>
 		<style>
@@ -26,39 +23,18 @@
 		Polymer({
 			is: 'd2l-touch-menu',
 
-			/*
-			* Fired when the menu is opened
-			* @event touch-menu-open
-			*/
-
-			/*
-			* Fired when the menu is closed
-			* @event touch-menu-closed
-			*/
-
 			properties: {
-				/*
-				* Determines whether the menu is enabled or disabled
-				* @type {Boolean}
-				*/
 				enabled: {
 					type: Boolean,
 					value: true
 				},
-				/*
-				* Array of touch targets to be applied to an element
-				* @type {Array<HTMLElement>}
-				*/
+				// Array of HTMLElement touch targets to be applied to an element
 				touchTargets: {
 					type: Array,
 					value: function() {
 						return [];
 					}
 				},
-				/*
-				* State of menu
-				* @type {Boolean}
-				*/
 				_menuOpen: {
 					type: Boolean,
 					observer: '_onMenuOpenChanged'

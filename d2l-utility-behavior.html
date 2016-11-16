@@ -9,17 +9,10 @@
 
 	/*
 	* General utility functions that can be used in many places.
-	*
-	* No specific requirements or restrictions on what goes in here.
-	*
-	* @polymerBehavior
+	* @polymerBehavior window.D2L.MyCourses.UtilityBehavior
 	*/
 	window.D2L.MyCourses.UtilityBehavior = {
-		/*
-		* Creates a URL with a query from an Action and an object of required parameters
-		* @param {Action} action
-		* @param {Object} parameters Query parameters, as { parameterName: desiredValue, ... }
-		*/
+		// Creates a URL with a query from an Action and an object of required parameters
 		createActionUrl: function(action, parameters) {
 			parameters = parameters || {};
 			action.fields = action.fields || [];
@@ -58,11 +51,7 @@
 			});
 			return srcset.replace(/,\s*$/, '');
 		},
-		/*
-		* Returns the best available image to use as a default
-		* @param {Entity} image
-		* @return {String}
-		*/
+		// Returns the best available image to use as a default
 		getDefaultImageLink: function(image, imageClass) {
 			if (!image) {
 				return;
@@ -71,11 +60,7 @@
 			var sizes = this._getImageLinks(image, imageClass);
 			return sizes.highMax || sizes.lowMax || sizes.highMid || sizes.lowMid || sizes.highMin || sizes.lowMin;
 		},
-		/*
-		* Creates a unique identifier for a Siren Entity (really just the self Link href)
-		* @param {Entity}
-		* @return {String}
-		*/
+		// Creates a unique identifier for a Siren Entity (really just the self Link href)
 		getEntityIdentifier: function(entity) {
 			// An entity's self href should be unique, so use it as an identifier
 			var selfLink = entity.getLinkByRel('self');
