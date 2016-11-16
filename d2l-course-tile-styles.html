@@ -99,7 +99,7 @@
 			overflow: hidden;
 			z-index: 0;
 		}
-		.course-image img {
+		.course-image d2l-course-image {
 			width: 100%;
 			height: 100%;
 			object-fit: cover;
@@ -111,7 +111,7 @@
 			margin: auto;
 			transition: filter 0.25s, -webkit-filter 0.25s, transform 0.5s ease-in-out;
 		}
-		.course-image-container.hover > .course-image img {
+		.course-image-container.hover > .course-image d2l-course-image {
 			/* Ensure only one filter per layer to avoid aliasing bug in Webkit during transforms */
 			-webkit-filter: contrast(1.15);
 			filter: contrast(1.15);
@@ -119,7 +119,7 @@
 		}
 		@supports (-ms-ime-align:auto) {
 			.course-image-container.hover,
-			.course-image-container.hover > .course-image img {
+			.course-image-container.hover > .course-image d2l-course-image {
 				/* See https://github.com/Brightspace/d2l-my-courses-ui/issues/124 */
 				filter: none;
 			}
