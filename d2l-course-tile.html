@@ -14,8 +14,6 @@
 <link rel="import" href="components/d2l-course-image.html">
 
 <!--
-`<d2l-course-tile>` is a clickable, interactable tile that represents a course
-
 An important distinction to make in understanding the functionality of the course tile is the difference between an
 enrollment and an organization. An organization is what some might call a "course" - it has a name, an image, etc.,
 but it is largely static and doesn't speak to a user's relationship to it. An enrollment, on the other hand, represents
@@ -98,72 +96,35 @@ in that organization - student, teacher, TA, etc.
 		Polymer({
 			is: 'd2l-course-tile',
 
-			/*
-			* Fired when the course tile's pin action is selected
-			* @event enrollment-pinned
-			*/
-
-			/*
-			* Fired when the course tile's unpin action is selected
-			* @event enrollment-unpinned
-			*/
-
-			/*
-			* Fired when the tile removal animation from the grid is completed
-			* @event tile-remove-complete
-			*/
-
-			/*
-			* Fired when the tile insertion animation to the grid is completed
-			* @event tile-insert-complete
-			*/
-
 			properties: {
-				/*
-				* TODO: Figure out what this is... Friday night brain isn't allowing me to understand this.
-				* @type {Boolean}
-				*/
+				// TODO: Figure out what this is... Friday night brain isn't allowing me to understand this.
 				animateInsertion: {
 					type: Boolean
 				},
-				/*
-				* Delays initial loading of the organization until explicitly triggered by `loadOrganization`
-				* @type {Boolean}
-				*/
+				// Delays initial loading of the organization until explicitly triggered by `loadOrganization`
 				delayLoad: {
 					type: Boolean,
 					observer: '_delayLoadChanged'
 				},
 				/*
-				* Course tile enrollment
-				*
-				* When the enrollment is set, the course tile will automatically fetch information about the
-				* organization the enrollment is in.
-				*
-				* @type {Entity}
+				* Course tile enrollment Entity. When the enrollment is set, the course
+				* tile will automatically fetch information about the organization the
+				* enrollment is in.
 				*/
 				enrollment: Object,
-				/*
-				* TODO: Erm... same thing. Something something animation?
-				* @type {Boolean}
-				*/
+				// TODO: Erm... same thing. Something something animation?
 				enrollmentId: Number,
-				/*
-				* Specifies whether the (desktop) hover menu is enabled on the course tile
-				* @type {Boolean}
-				*/
+				// Specifies whether the (desktop) hover menu is enabled on the course tile
 				hoverEnabled: {
 					type: Boolean,
 					value: true
 				},
-				/*
-				* Whether the enrollment represented by this course tile is pinned or not
-				* @type {Boolean}
-				*/
+				// Whether the enrollment represented by this course tile is pinned or not
 				pinned: {
 					type: Boolean,
 					observer: '_pinnedChanged'
 				},
+<<<<<<< 5937c3fd86732721cd3f4bf07eb190109b076e20
 				/*
 				* Size the tile should render with respect to vw
 				* @type {Object}
@@ -173,61 +134,36 @@ in that organization - student, teacher, TA, etc.
 				* Specifies whether the (mobile) touch menu is enabled on the course tile
 				* @type {Boolean}
 				*/
+=======
+				// Size the tile should render with respect to vw
+				tileSizes: String,
+				// Specifies whether the (mobile) touch menu is enabled on the course tile
+>>>>>>> Remove iron-component-page
 				touchEnabled: {
 					type: Boolean,
 					value: true
 				},
-				/*
-				* Body sent for pin/unpin action
-				* @type {String}
-				*/
+				// Body sent for pin/unpin action
 				_enrollmentPinBody: String,
-				/*
-				* HTTP method used by the pin/unpin action
-				* @type {String}
-				*/
+				// HTTP method used by the pin/unpin action
 				_enrollmentPinMethod: String,
-				/*
-				* URL used by the pin/unpin action
-				* @type {String}
-				*/
+				// URL used by the pin/unpin action
 				_enrollmentPinUrl: String,
-				/*
-				* The organization, fetched by the course tile when the `enrollment` Entity is changed
-				* @type {Entity}
-				*/
+				// The organization Entity, fetched by the course tile when the `enrollment` Entity is changed
 				_organization: Object,
-				/*
-				* The URL to of the `_organization`'s homepage - when the course tile is clicked, this is the URL we go to
-				* @type {String}
-				*/
+				// The URL to of the `_organization`'s homepage - when the course tile is clicked, this is the URL we go to
 				_organizationHomepageUrl: String,
-				/*
-				* The URL to fetch the `_organization` Entity from (determined from the `enrollment`'s Links)
-				* @type {String}
-				*/
+				// The URL to fetch the `_organization` Entity from (determined from the `enrollment`'s Links)
 				_organizationUrl: String,
-				/*
-				* The url to pass to the 'Change Image' link
-				* @type {String}
-				*/
+				// The url to pass to the 'Change Image' link
 				_organizationChangeImageHref: String,
-				/*
-				* The term used for the text of the pin/unpin menu item
-				* @type {String}
-				*/
+				// The term used for the text of the pin/unpin menu item
 				_pinLabel: String,
-				/*
-				* The term of the course settings label
-				* @type {String}
-				*/
+				// The langterm of the course settings label
 				_courseSettingsLabel: String,
 				_canChangeCourseImage: Boolean,
 				_image: Object,
-				/*
-				* The icon we want to show when you select an image
-				* @type {Object}
-				*/
+				// The icon we want to show when you select an image
 				_iconDetails: {
 					type: Object,
 					value: {
@@ -279,7 +215,6 @@ in that organization - student, teacher, TA, etc.
 			/*
 			* Handler that triggers the API call to change an enrollment's pin state when the user says DO IT
 			* TODO: what do `isTouch`?
-			* @param {Boolean} isTouch If a touch interface, `isTouch=true` will... do... something with styles.
 			*/
 			pinClickHandler: function(isTouch) {
 				var pinAction = this.pinned ? this.enrollment.getActionByName('unpin-course') : this.enrollment.getActionByName('pin-course');
@@ -325,10 +260,7 @@ in that organization - student, teacher, TA, etc.
 
 				this._pendingPinAction = this.pinned;
 			},
-			/*
-			* Sets classes for this tile having the touch menu on it
-			* @param {Boolean} isOpen Whether the menu is being opened or closed
-			*/
+			// Sets classes for this tile having the touch menu on it when it is opened/closed
 			setTouchMenuOpen: function(isOpen) {
 				this.toggleClass('touch-menu-open', isOpen, this);
 				this.toggleClass('hover', isOpen, this);

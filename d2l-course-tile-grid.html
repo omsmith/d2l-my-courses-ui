@@ -8,9 +8,6 @@
 <link rel="import" href="d2l-touch-menu.html">
 <link rel="import" href="d2l-touch-menu-item.html">
 
-<!--
-`<d2l-course-tile-grid>` is the wrapper that contains several `<d2l-course-tile>` elements
--->
 <dom-module id="d2l-course-tile-grid">
 	<template>
 		<style include="d2l-course-tile-grid-styles"></style>
@@ -45,21 +42,10 @@
 		Polymer({
 			is: 'd2l-course-tile-grid',
 
-			/*
-			* Fired when the sliding animation of course tiles is finished
-			* @event slide-animation-finished
-			*/
-
 			properties: {
-				/*
-				* Sets the delay-load property on the course tiles
-				* @type {Boolean}
-				*/
+				// Sets the delay-load property on the course tiles
 				delayCourseTileLoad: Boolean,
-				/*
-				* Set of enrollment entities for which to display course tiles
-				* @type {Array<Entity>}
-				*/
+				// Set of enrollment Entities for which to display course tiles
 				enrollments: {
 					type: Array,
 					notify: true,
@@ -67,10 +53,7 @@
 						return [];
 					}
 				},
-				/*
-				* Queue for incoming enrollment entities
-				* @type {Array<Entity>}
-				*/
+				// Queue for incoming enrollment Entities
 				enrollmentsQueue: {
 					type: Array,
 					notify: true,
@@ -78,10 +61,7 @@
 						return [];
 					}
 				},
-				/*
-				* Size the tile should render with respect to vw
-				* @type {Object}
-				*/
+				// Size the tile should render with respect to vw
 				tileSizes: Object
 			},
 			behaviors: [
@@ -111,9 +91,6 @@
 				this._courseTileBoundingRects = [];
 				this._clearAnimationState();
 			},
-			/*
-			* @return {Number} Total number of enrollments/course tiles
-			*/
 			getCourseTileItemCount: function() {
 				return this.enrollments.length;
 			},
@@ -304,10 +281,7 @@
 					this._animateCourseTile(courseTiles[i], this._courseTileBoundingRects[i], newLayoutInfo.newPositions[i], delayTime);
 				}
 			},
-			/*
-			* Calculates layout data after a tile insertion/removal operation will be completed, including tile positions and
-			* container height.
-			*/
+			// Calculates layout data after a tile insertion/removal operation will be completed, including tile positions and container height.
 			_getNewTileLayout: function(currPositions, columns, isInsertion, tileIndex, containerWidth) {
 				var currIndex = 0;
 				var newIndex = 0;
@@ -447,9 +421,7 @@
 
 				return false;
 			},
-			/*
-			* Caches information position/size information
-			*/
+			// Caches information position/size information
 			_updateCourseTileGridInfo: function() {
 				var courseTiles = Polymer.dom(this.root).querySelectorAll('d2l-course-tile');
 				this._courseTileBoundingRects.length = 0;

@@ -19,10 +19,7 @@
 		*/
 		window.D2L.MyCourses.CourseManagementBehaviorImpl = {
 			properties: {
-				/*
-				* Set of pinned enrollment entities
-				* @type {Array<Entity>}
-				*/
+				// Set of pinned enrollment Entities
 				pinnedEnrollments: {
 					type: Array,
 					value: function() {
@@ -30,10 +27,7 @@
 					},
 					notify: true
 				},
-				/*
-				* Set of unpinned enrollment entities
-				* @type {Array<Entity>}
-				*/
+				// Set of unpinned enrollment Entities
 				unpinnedEnrollments: {
 					type: Array,
 					value: function() {
@@ -41,13 +35,8 @@
 					},
 					notify: true
 				},
-				/*
-				* Set of enrollments that are being transferred from unpinned to pinned state
-				*
-				* Only used by `d2l-all-courses`
-				*
-				* @type {Array<Entity>}
-				*/
+				// Set of enrollments Entities that are being transferred from unpinned to pinned state
+				// Only used by `d2l-all-courses`
 				pinnedEnrollmentsQueue: {
 					type: Array,
 					value: function() {
@@ -55,13 +44,8 @@
 					},
 					notify: true
 				},
-				/*
-				* Set of enrollments that are being transferred from pinned to unpinned state
-				*
-				* Only used by `d2l-all-courses`
-				*
-				* @type Array{Entity}
-				*/
+				// Set of enrollments that are being transferred from pinned to unpinned state
+				// Only used by `d2l-all-courses`
 				unpinnedEnrollmentsQueue: {
 					type: Array,
 					value: function() {
@@ -69,29 +53,18 @@
 					},
 					notify: true
 				},
-				/*
-				* If enabled, the component will use the pinned/unpinned enrollment queues
-				*
-				* In the case of `d2l-all-courses`, the enrollments are switching lists, so this is required.
-				*
-				* @type {Boolean}
-				*/
+				// If enabled, the component will use the pinned/unpinned enrollment queues
+				// In the case of `d2l-all-courses`, the enrollments are switching lists, so this is required.
 				usePendingLists: {
 					type: Boolean,
 					value: false
 				},
-				/*
-				* True when there are pinned enrollments (i.e. `pinnedEnrollments.length > 0`)
-				* @type {Boolean}
-				*/
+				// True when there are pinned enrollments (i.e. `pinnedEnrollments.length > 0`)
 				_hasPinnedEnrollments: {
 					type: Boolean,
 					value: false
 				},
-				/*
-				* True when there are any enrollments (pinned or unpinned)
-				* @type {Boolean}
-				*/
+				// True when there are any enrollments (pinned or unpinned)
 				_hasEnrollments: {
 					type: Boolean,
 					value: false

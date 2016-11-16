@@ -57,11 +57,6 @@
 	</script>
 </dom-module>
 
-<!--
-`<d2l-all-courses>` displays both pinned and unpinned courses
-
-@demo demo/d2l-all-courses-demo.html
--->
 <dom-module id="d2l-all-courses">
 	<template>
 		<style>
@@ -379,17 +374,12 @@
 		Polymer({
 			is: 'd2l-all-courses',
 			properties: {
-				/*
-				* Sets the delay-load property on the course tile grid
-				* @type {Boolean}
-				*/
+				// Sets the delay-load property on the course tile grid
 				delayCourseTileLoad: {
 					type: Boolean,
 					value: true
 				},
-				/*
-				* URL for search widget; should have search-my-enrollments Action
-				*/
+				// URL for search widget; should have search-my-enrollments Action
 				searchUrl: {
 					type: String,
 					value: ''
@@ -425,8 +415,6 @@
 					value: '/d2l/api/hm/organizations',
 					readOnly: true
 				},
-				// 5 is the default type ID for semesters
-				// organizationTypeIds is updated by organizationsRequest
 				_searchSemestersAction: {
 					type: Object,
 					value: {
@@ -438,11 +426,11 @@
 							{'name':'page', 'type':'number', 'value':'1'},
 							{'name':'pageSize', 'type':'number', 'value':'20'},
 							{'name':'embedDepth', 'type':'number', 'value':'1'},
+							// 5 is the default type ID for semesters
+							// organizationTypeIds is updated by organizationsRequest
 							{'name':'organizationTypeIds', 'type':'hidden', 'value':'5'}]
 					}
 				},
-				// 203 is the default type ID for departments
-				// organizationTypeIds is updated by organizationsRequest
 				_searchDepartmentsAction: {
 					type: Object,
 					value: {
@@ -454,6 +442,8 @@
 							{'name':'page', 'type':'number', 'value':'1'},
 							{'name':'pageSize', 'type':'number', 'value':'20'},
 							{'name':'embedDepth', 'type':'number', 'value':'1'},
+							// 203 is the default type ID for departments
+							// organizationTypeIds is updated by organizationsRequest
 							{'name':'organizationTypeIds', 'type':'hidden', 'value':'203'}]
 					}
 				},
@@ -515,13 +505,8 @@
 				this.unlisten(this.$.semesterSearchWidget, 'd2l-search-widget-results-changed', '_onSemesterSearchResults');
 				this.unlisten(this.$.departmentSearchWidget, 'd2l-search-widget-results-changed', '_onDepartmentSearchResults');
 			},
-			/*
-			* Fetches the max value between the pinned and unpinned enrollments
-			* @return {Number} Max(number of pinned enrollments, number of unpinned enrollments)
-			*/
 			getCourseTileItemCount: function() {
 				var itemCount = Math.max(this.pinnedEnrollments.length, this.unpinnedEnrollments.length);
-
 				return itemCount;
 			},
 			loadCourseTiles: function() {

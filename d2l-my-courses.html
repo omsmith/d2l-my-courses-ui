@@ -12,11 +12,6 @@
 <link rel="import" href="d2l-course-management-behavior.html">
 <link rel="import" href="./image-selector/d2l-basic-image-selector.html">
 
-<!--
-`<d2l-my-courses>` is the main component for My Courses widget
-
-@demo demo/d2l-my-courses-demo.html
--->
 <dom-module id="d2l-my-courses">
 	<template>
 		<style include="d2l-colors"></style>
@@ -154,70 +149,34 @@
 		Polymer({
 			is: 'd2l-my-courses',
 
-			/*
-			* Fired when enrollments are received, to trigger recalculation of the number of columns
-			* @event recalculate-columns
-			*/
-
 			properties: {
 				/*
 				* Allows for delaying the call to `enrollmentsUrl` (required by tests)
 				* TODO: Better way to do this?
-				* @type {Boolean}
 				*/
 				delayLoad: {
 					type: Boolean,
 					value: false
 				},
-				/*
-				* URL that is called by the widget to fetch enrollments
-				* @type {String}
-				*/
+				// URL that is called by the widget to fetch enrollments
 				enrollmentsUrl: String,
-				/*
-				* URL that is called by the widget to fetch results from the course image catalog
-				* @type {String}
-				*/
+				// URL that is called by the widget to fetch results from the course image catalog
 				imageCatalogLocation: String,
-				/*
-				* Message to display in alert if no enrollments are found
-				* @type {String}
-				*/
+				// Message to display in alert if no enrollments are found
 				_alertMessage: String,
-				/*
-				* URL constructed to fetch a user's enrollments with the enrollments search Action
-				* @type {String}
-				*/
+				// URL constructed to fetch a user's enrollments with the enrollments search Action
 				_enrollmentsSearchUrl: String,
-				/*
-				* Object containing the last response from an enrollments search request
-				* @type Object
-				*/
+				// Object containing the last response from an enrollments search request
 				_lastEnrollmentsSearchResponse: Object,
-				/*
-				* Object containing the IDs of previously loaded pinned enrollments, to avoid duplicates
-				* @type Object
-				*/
+				// Object containing the IDs of previously loaded pinned enrollments, to avoid duplicates
 				_pinnedCoursesMap: Object,
-				/*
-				* URL used by the search widget to fetch semester-type organizations
-				* @type {String}
-				*/
+				// URL used by the search widget to fetch semester-type organizations
 				_semestersUrl: String,
-				/*
-				* The organization which the user is selecting the image of
-				* @type {Object}
-				*/
+				// The organization which the user is selecting the image of
 				_setImageOrg: Object,
-				/*
-				* URL used by the search widget to fetch department-type organizations
-				* @type {String}
-				*/
+				// URL used by the search widget to fetch department-type organizations
 				_departmentsUrl: String,
-				/*
-				* Size the tile should render with respect to vw
-				* @type {Object}
-				*/
+				// Size the tile should render with respect to vw
 				_tileSizes: Object
 			},
 			behaviors: [
@@ -246,10 +205,6 @@
 				this.$['all-courses-scroll-threshold'].scrollTarget = this.$['all-courses'].scrollRegion;
 				this.$['image-selector-threshold'].scrollTarget = this.$['basic-image-selector-overlay'].scrollRegion;
 			},
-			/*
-			* Count of `d2l-course-tile` elements in grid.
-			* @return {Number}
-			*/
 			getCourseTileItemCount: function() {
 				return this.pinnedEnrollments.length;
 			},

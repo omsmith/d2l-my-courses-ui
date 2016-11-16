@@ -11,11 +11,7 @@
 <link rel="import" href="localize-behavior.html">
 <link rel="import" href="../d2l-polymer-behaviors/d2l-dom.html">
 
-<!--
-`<d2l-simple-overlay>` extends `iron-overlay` and adds some styling using various `neon` Polymer elements.
-
-The overlay supports using different animations and transitions for desktop and mobile.
--->
+<!-- This overlay supports using different animations and transitions for desktop and mobile. -->
 <dom-module id="d2l-simple-overlay">
 	<style include="d2l-simple-overlay-styles"></style>
 	<template>
@@ -43,21 +39,6 @@ The overlay supports using different animations and transitions for desktop and 
 		Polymer({
 			is: 'd2l-simple-overlay',
 
-			/*
-			* Fired when the overlay is closed, to trigger recalculation of the number of columns
-			* @event recalculate-columns
-			*/
-
-			/*
-			* Fired on distributed children when overlay is about to open
-			* @event d2l-simple-overlay-opening
-			*/
-
-			/*
-			* Fired on distributed children when overlay has finished closing
-			* @event d2l-simple-overlay-closed
-			*/
-
 			behaviors: [
 				Polymer.IronOverlayBehavior,
 				Polymer.NeonAnimationRunnerBehavior,
@@ -68,17 +49,11 @@ The overlay supports using different animations and transitions for desktop and 
 				'close-simple-overlay': '_handleCloseSimpleOverlayEvent'
 			},
 			properties: {
-				/*
-				* Title for overlay
-				* @type {String}
-				*/
+				// Title for overlay
 				titleName: {
 					type: String
 				},
-				/*
-				* Animation configuration used by `neon-animation`
-				* @type {Object}
-				*/
+				// Animation configuration used by `neon-animation`
 				animationConfig: {
 					value: function() {
 						return {
@@ -111,11 +86,11 @@ The overlay supports using different animations and transitions for desktop and 
 						};
 					}
 				},
-				/* TODO: No longer required? */
+				// TODO: No longer required?
 				_viewportContent: {
 					type: String
 				},
-				/* TODO: No longer required? */
+				// TODO: No longer required?
 				_restoreViewportContent: {
 					type: Boolean
 				},

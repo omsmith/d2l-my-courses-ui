@@ -62,16 +62,8 @@
 		Polymer({
 			is: 'd2l-search-listbox',
 
-			/*
-			* Fired when a list item is selected
-			* @event iron-select
-			*/
-
 			properties: {
-				/*
-				* The associated input element if this is part of a combobox; for control wrapping
-				* @type {Element}
-				*/
+				// The associated input element if this is part of a combobox; for control wrapping
 				owner: Object
 			},
 
@@ -89,9 +81,6 @@
 				'iron-items-changed': '_onItemsChanged'
 			},
 
-			/*
-			* @return {Boolean} Indicates if the listbox has selectable items
-			*/
 			hasItems: function() {
 				var selectableItems = this.items.filter( function(item) {
 					if (item.hasAttribute('role') &&
@@ -103,9 +92,6 @@
 				return selectableItems.length > 0;
 			},
 
-			/*
-			* Focus the last selectable listbox item
-			*/
 			focusLast: function() {
 				var length = this.items.length;
 
@@ -118,9 +104,7 @@
 				}
 			},
 
-			/*
-			* Override IronMenuBehavior._focusPrevious so that the listbox owner can be focused
-			*/
+			// Override IronMenuBehavior._focusPrevious so that the listbox owner can be focused
 			_focusPrevious: function() {
 				var length = this.items.length;
 				var curFocusIndex = this.indexOf(this.focusedItem);
@@ -140,9 +124,7 @@
 				}
 			},
 
-			/*
-			* Override IronMenuBehavior._focusNext so that the listbox owner can be focused
-			*/
+			// Override IronMenuBehavior._focusNext so that the listbox owner can be focused
 			_focusNext: function() {
 				var length = this.items.length;
 				var curFocusIndex = this.indexOf(this.focusedItem);
@@ -162,9 +144,7 @@
 				}
 			},
 
-			/*
-			* Handle keyboard selection of listbox items, as IronMenuBehavior leaves it to the item to handle
-			*/
+			// Handle keyboard selection of listbox items, as IronMenuBehavior leaves it to the item to handle
 			_onKeydown: function(e) {
 				if (e.detail.event === 'keydown' && this.keyboardEventMatchesKeys(e, 'space')) {
 					e.preventDefault();
@@ -174,27 +154,21 @@
 				}
 			},
 
-			/*
-			* Override IronMenuBehavior._resetTabindices to disable tab focus of all items
-			*/
+			// Override IronMenuBehavior._resetTabindices to disable tab focus of all items
 			_resetTabindices: function() {
 				for (var i = 0; i < this.items.length; i++) {
 					this.items[i].setAttribute('tabindex', -1);
 				}
 			},
 
-			/*
-			* Override IronMenuBehavior._focusedItemChanged to do nothing but focus the desired item
-			*/
+			// Override IronMenuBehavior._focusedItemChanged to do nothing but focus the desired item
 			_focusedItemChanged: function(focusedItem) {
 				if (focusedItem) {
 					focusedItem.focus();
 				}
 			},
 
-			/*
-			* Update classes for first/last items when listbox items change
-			*/
+			// Update classes for first/last items when listbox items change
 			_onItemsChanged: function() {
 				if (this.items.length > 0) {
 					for (var i = 0; i < this.items.length; i++) {

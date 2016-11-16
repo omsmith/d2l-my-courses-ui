@@ -3,9 +3,6 @@
 <link rel="import" href="../d2l-offscreen/d2l-offscreen.html">
 <link rel="import" href="d2l-touch-menu-item-styles.html">
 
-<!--
-`<d2l-touch-menu-item>` is the element that populates a `d2l-touch-menu`.
--->
 <dom-module id="d2l-touch-menu-item">
 	<template>
 		<style include="d2l-touch-menu-item-styles"></style>
@@ -26,132 +23,79 @@
 		Polymer({
 			is: 'd2l-touch-menu-item',
 			properties: {
-				/*
-				* Action description, read out for A11Y when action is completed
-				* @type {String}
-				*/
+				// Action description, read out for A11Y when action is completed
 				actionDescription: {
 					type: String
 				},
-				/*
-				* Description of menu action, for A11Y purposes
-				* @type {String}
-				*/
+				// Description of menu action, for A11Y purposes
 				ariaMessage: {
 					type: String,
 					readOnly: true
 				},
-				/*
-				* URL of image to use for icon
-				* @type {String}
-				*/
+				// URL of image to use for icon
 				backgroundImage: {
 					type: String,
 					observer: '_backgroundImageChanged'
 				},
-				/*
-				* Whether the menu item is currently being hovered over
-				* @type {Boolean}
-				*/
+				// Whether the menu item is currently being hovered over
 				hoverState: {
 					type: Boolean,
 					observer: '_hoverStateChanged'
 				},
-				/*
-				* Name of event that will be fired when menu item is hovered over
-				* @type {String}
-				*/
+				// Name of event that will be fired when menu item is hovered over
 				hoverEvent: {
 					type: String
 				},
-				/*
-				* Offset of menu item - calculated by `d2l-touch-menu` based on number of items in the menu
-				* @type {Object}
-				*/
+				// Offset of menu item - calculated by `d2l-touch-menu` based on number of items in the menu
 				offset: {
 					type: Object,
 					observer: '_offsetChanged'
 				},
-				/*
-				* Name of event that will be fired when menu item is selected
-				* @type {String}
-				*/
+				// Name of event that will be fired when menu item is selected
 				selectionEvent: {
 					type: String
 				},
-				/*
-				* Text displayed below icon in menu item
-				* @type {String}
-				*/
+				// Text displayed below icon in menu item
 				text: {
 					type: String,
 					observer: '_textChanged'
 				},
-				/*
-				* Region that defines the "edges" of the menu item
-				* @type {String}
-				*/
+				// Region that defines the "edges" of the menu item
 				touchRegion: {
 					type: Object
 				},
-				/*
-				* Text displayed below icon in menu item
-				* TODO: Duplicate of `text`?
-				* @type {String}
-				*/
+				// Text displayed below icon in menu item
 				_displayText: {
 					type: String
 				},
-				/*
-				* Icon for menu item
-				* TODO: Duplicate of `backgroundImage`?
-				* @type {String}
-				*/
+				// Icon for menu item
 				_displayBackgroundImage: {
 					type: String
 				},
-				/*
-				* TODO: Remove? Doesn't seem to be used anywhere
-				* @type {Object}
-				*/
+				// TODO: Remove? Doesn't seem to be used anywhere
 				_hostNode: {
 					type: Object
 				},
-				/*
-				* Whether menu item is currently in transition between hovered/not hovered
-				* @type {Boolean}
-				*/
+				// Whether menu item is currently in transition between hovered/not hovered
 				_inTransition: {
 					type: Boolean
 				},
-				/*
-				* Stores the menu item for convenience
-				* TODO: Is the convenience really needed?
-				* @type {HTMLElement}
-				*/
+				// Stores the menu item for convenience
+				// TODO: Is the convenience really needed?
 				_menuItem: {
 					type: Object
 				},
-				/*
-				* Padding (in px) around the menu item's `touchRegion`
-				* @type {Number}
-				*/
+				// Padding (in px) around the menu item's `touchRegion`
 				_touchRadiusPadding: {
 					type: Number,
 					value: 30
 				},
-				/*
-				* State of menu item, whether selected or not
-				* @type {Boolean}
-				*/
+				// State of menu item, whether selected or not
 				_selected: {
 					type: Boolean
 				},
-				/*
-				* Whether the menu item is visible or not
-				* TODO: Shouldn't this just be inherited from the `d2l-touch-menu`?
-				* @type {Boolean}
-				*/
+				// Whether the menu item is visible or not
+				// TODO: Shouldn't this just be inherited from the `d2l-touch-menu`?
 				_visible: {
 					type: Boolean
 				}
@@ -191,11 +135,6 @@
 			get width() {
 				return this._menuItem.clientWidth;
 			},
-			/*
-			* Determines whether the given point is within the menu's `touchRegion`
-			* @param {Object} point
-			* @return {Boolean}
-			*/
 			pointInTouchRegion: function(point) {
 				var rect = {
 					top: this.touchRegion.top - this._touchRadiusPadding,

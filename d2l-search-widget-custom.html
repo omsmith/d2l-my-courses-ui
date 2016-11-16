@@ -196,25 +196,16 @@
 			is: 'd2l-search-widget-custom',
 
 			properties: {
-				/*
-				* Root search URL, which should have the search Action in the response
-				* @type {String}
-				*/
+				// Root search URL, which should have the search Action in the response
 				searchRootUrl: {
 					type: String,
 					observer: '_onSearchRootUrlChanged'
 				},
 
-				/*
-				* Value to send for the `sortField` parameter in the search query
-				* @type {String}
-				*/
+				// Value to send for the `sortField` parameter in the search query
 				sortField: String,
 
-				/*
-				* Array of parent organization IDs (self links) by which to limit the search results
-				* @type {Array} Array of self links of parent organizations
-				*/
+				// Array of parent organization IDs (self links) by which to limit the search results
 				parentOrganizations: {
 					type: Array,
 					value: function() {
@@ -222,10 +213,7 @@
 					}
 				},
 
-				/*
- 				* Outstanding /organizations XHRs, which are cancelled when a new search starts
- 				* @type {Array}
-				*/
+				// Outstanding /organizations XHRs, which are cancelled when a new search starts
 				_organizationRequests: {
 					type: Array,
 					value: function() {
@@ -233,10 +221,7 @@
 					}
 				},
 
-				/*
-				* The search string updated by the course search input
-				* @type {String}
-				*/
+				// The search string updated by the course search input
 				_searchString: {
 					type: String,
 					value: function() {
@@ -245,10 +230,7 @@
 					observer: '_onSearchStringChanged'
 				},
 
-				/*
-				* An array of objects containing the results of the search-my-enrollments action
-				* @type {Array<Object>}
-				*/
+				// An array of objects containing the results of the search-my-enrollments action
 				_searchResults: {
 					type: Array,
 					value: function() {
@@ -258,10 +240,7 @@
 
 				_searchUrl: String,
 
-				/*
-				* List of strings containing previously searched terms/selected courses
-				* @type {Array<String>}
-				*/
+				// List of strings containing previously searched terms/selected courses
 				_previousSearches: {
 					type: Array,
 					value: function() {
@@ -316,9 +295,7 @@
 
 			_pageSize: 5,
 
-			/*
-			* Retrieves previous searches from local storage to populate listbox
-			*/
+			// Retrieves previous searches from local storage to populate listbox
 			_initializePreviousSearches: function() {
 				if (window.localStorage.getItem('myCourses.previousSearches')) {
 					try {
@@ -334,9 +311,7 @@
 				}
 			},
 
-			/*
-			* Calls the search-my-enrollments action, used to populate live search results in the listbox
-			*/
+			// Calls the search-my-enrollments action, used to populate live search results in the listbox
 			_liveSearch: function() {
 				if (this._searchString) {
 					this.cancelDebouncer('liveSearchJob');
@@ -367,9 +342,6 @@
 				}
 			},
 
-			/*
-			* Submits an advanced search request
-			*/
 			_advancedSearch: function(searchString) {
 				if (searchString) {
 					var queryString = this._advancedSearchUrl + searchString;
@@ -428,10 +400,6 @@
 				}
 			},
 
-			/*
-			 * Adds a search term to the list of recent searches.
-			 * @param {String} Search string
-			 */
 			_addSearchToHistory: function(searchTerm) {
 				var previousSearches = this._previousSearches.slice();
 
@@ -458,10 +426,7 @@
 				}
 			},
 
-			/*
-			 * Creates a search URL from a previous search term
-			 * @param {String} Search string
-			 */
+			//Creates a search URL from a previous search term
 			_computePreviousSearchLink: function(searchTerm) {
 				return this._advancedSearchUrl + searchTerm;
 			},
@@ -481,10 +446,6 @@
 				}
 			},
 
-			/*
-			* Called when search-my-enrollments response received
-			* @param {Object}
-			*/
 			_onSearchResponse: function(response) {
 				if (response.detail.status === 200 && this._searchString) {
 					var parser = document.createElement('d2l-siren-parser');
@@ -533,9 +494,7 @@
 				}
 			},
 
-			/*
-			* Handles iron-select events, which are fired when listbox items are selected and dropdown pages are changed
-			*/
+			// Handles iron-select events, which are fired when listbox items are selected and dropdown pages are changed
 			_onIronSelect: function(e) {
 				switch (e.target.nodeName) {
 					case 'IRON-PAGES':
@@ -564,15 +523,10 @@
 				ENTER: 13
 			},
 
-			/*
-			* URL for advanced search functionality (existing advanced search page from legacy My Courses widget).
-			* @type {String}
-			*/
+			// URL for advanced search functionality (existing advanced search page from legacy My Courses widget).
 			_advancedSearchUrl: 'le/manageCourses/search/6606?searchTerm=',
 
-			/*
-			 * Called when an element within the search bar gains focus, to open the dropdown if required
-			 */
+			// Called when an element within the search bar gains focus, to open the dropdown if required
 			_onElementFocus: function() {
 				if (this.$.dropdown.opened) {
 					return;
@@ -592,32 +546,21 @@
 				this.$.dropdown.open();
 			},
 
-			/*
-			 * Handles loss of focus of this element due to focus event.
-			 */
 			_handleFocus: function() {
 				this._checkFocusLost(document.activeElement);
 			},
 
-			/*
-			 * Handles loss of focus of this element due to click event.
-			 */
 			_handleClick: function(e) {
 				this._checkFocusLost(Polymer.dom(e).rootTarget);
 			},
 
-			/*
-			* Determines whether the widget has lost focus, and closes the dropdown if it has.
-			*/
 			_checkFocusLost: function(focusedElement) {
 				if (this.$.dropdown.opened && !this._isDescendant(focusedElement)) {
 					this.$.dropdown.close();
 				}
 			},
 
-			/*
-			 * Determines whether the given element is a descendant of this element.
-			 */
+			// Determines whether the given element is a descendant of this element.
 			_isDescendant: function(element) {
 				var parentNode = element.parentNode;
 				while (parentNode) {
