@@ -82,7 +82,9 @@
 				this._srcset = this.getImageSrcset(this.image, this.type);
 				this._tileSizes = this._generateSizes(this.sizes);
 
-				if (this.getDefaultImageLink(newValue, this.type) === this.getDefaultImageLink(oldValue, this.type)) {
+				if (this.getDefaultImageLink(newValue, this.type) === this.getDefaultImageLink(oldValue, this.type) &&
+					this._imageClass.indexOf('shown') > -1
+				) {
 					setTimeout(this._showImage.bind(this), 50);
 				}
 			},
