@@ -43,7 +43,7 @@
 					The type of image aspect-ratio you want,
 					currently 'tile' and 'narrow' are the only supported options
 				*/
-				sizeType: {
+				type: {
 					type: String,
 					value: 'tile'
 				},
@@ -79,7 +79,7 @@
 			_updateImageSource: function() {
 				this._imageClass = 'hidden';
 
-				this._srcset = this.getImageSrcset(this.image, this.sizeType);
+				this._srcset = this.getImageSrcset(this.image, this.type);
 				this._tileSizes = this._generateSizes(this.sizes);
 			},
 			_defaultSizes: {
