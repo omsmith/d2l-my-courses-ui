@@ -293,6 +293,24 @@ describe('<d2l-course-tile>', function() {
 			widget.getDefaultImageLink = sinon.stub().returns(href);
 		});
 
+		it('should have a change-image-button if the set-catalog-image action exists on the organization', function() {
+			var orgWithSetCatalogImageAction = JSON.parse(JSON.stringify(organization));
+			orgWithSetCatalogImageAction.actions = [{
+				name: 'set-catalog-image',
+				method: 'POST',
+				href: ''
+			}];
+			var parser = document.createElement('d2l-siren-parser');
+
+			var result = widget._getCanChangeCourseImage(parser.parse(orgWithSetCatalogImageAction));
+			expect(result).to.be.ok;
+		});
+
+		it('should not have a change-image-button if the set-catalog-image action does not exist on the organization', function() {
+			var result = widget._getCanChangeCourseImage(organizationEntity);
+			expect(result).to.not.be.ok;
+		});
+
 		describe('status: set', function() {
 			it('toggles on the "change-image-loading" class on the tile-container', function() {
 				details.status = 'set';
