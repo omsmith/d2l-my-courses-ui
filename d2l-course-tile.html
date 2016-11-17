@@ -481,8 +481,7 @@ in that organization - student, teacher, TA, etc.
 				this._onUnpinHover({detail: {hoverState: false}});
 			},
 			_getCanChangeCourseImage: function(organization) {
-				var rel = /edit-image-page/;
-				return organization && organization.getLinkByRel(rel);
+				return organization && organization.getActionByName('set-catalog-image');
 			},
 			_setCourseImageSrc: function() {
 				this._image = this._organization.getSubEntityByClass('course-image');
