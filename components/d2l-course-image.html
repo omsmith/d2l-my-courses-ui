@@ -25,7 +25,7 @@
 		</style>
 
 		<img
-			src="[[getDefaultImageLink(image, 'narrow')]]"
+			src="[[getDefaultImageLink(image, type)]]"
 			srcset$=[[_srcset]]
 			sizes$=[[_tileSizes]]
 			on-load="_showImage"
@@ -76,11 +76,17 @@
 			ready: function() {
 				this._updateImageSource();
 			},
-			_updateImageSource: function() {
-				this._imageClass = 'hidden';
+			_updateImageSource: function(newValue, oldValue) {
 
 				this._srcset = this.getImageSrcset(this.image, this.type);
 				this._tileSizes = this._generateSizes(this.sizes);
+
+				var same = this.getDefaultImageLink(newValue, this.type) === this.getDefaultImageLink(oldValue, this.type);
+				var shown = (this._imageClass || '').indexOf('shown') > -1;
+				if (same && shown) {
+					setTimeout(this._showImage.bind(this), 50);
+				}
+				this._imageClass = 'hidden';
 			},
 			_defaultSizes: {
 				mobile: { maxwidth: 767, size: 100 },
