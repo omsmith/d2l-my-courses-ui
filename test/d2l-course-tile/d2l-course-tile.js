@@ -303,12 +303,12 @@ describe('<d2l-course-tile>', function() {
 			var parser = document.createElement('d2l-siren-parser');
 
 			var result = widget._getCanChangeCourseImage(parser.parse(orgWithSetCatalogImageAction));
-			expect(!!result).to.equal(true);
+			expect(result).to.be.ok;
 		});
 
 		it('should not have a change-image-button if the set-catalog-image action does not exist on the organization', function() {
 			var result = widget._getCanChangeCourseImage(organizationEntity);
-			expect(!!result).to.equal(false);
+			expect(result).to.not.be.ok;
 		});
 
 		describe('status: set', function() {
