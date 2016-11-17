@@ -77,16 +77,16 @@
 				this._updateImageSource();
 			},
 			_updateImageSource: function(newValue, oldValue) {
-				this._imageClass = 'hidden';
 
 				this._srcset = this.getImageSrcset(this.image, this.type);
 				this._tileSizes = this._generateSizes(this.sizes);
 
-				if (this.getDefaultImageLink(newValue, this.type) === this.getDefaultImageLink(oldValue, this.type) &&
-					this._imageClass.indexOf('shown') > -1
-				) {
+				var same = this.getDefaultImageLink(newValue, this.type) === this.getDefaultImageLink(oldValue, this.type);
+				var shown = (this._imageClass || '').indexOf('shown') > -1;
+				if (same && shown) {
 					setTimeout(this._showImage.bind(this), 50);
 				}
+				this._imageClass = 'hidden';
 			},
 			_defaultSizes: {
 				mobile: { maxwidth: 767, size: 100 },
