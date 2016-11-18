@@ -381,10 +381,9 @@
 					type: Boolean,
 					value: true
 				},
-				// URL for search widget; should have search-my-enrollments Action
-				searchUrl: {
-					type: String,
-					value: ''
+				myEnrollmentsEntity: {
+					type: Object,
+					observer: '_myEnrollmentsEntityChanged'
 				},
 				_departmentOrganizations: {
 					type: Array,
@@ -580,6 +579,9 @@
 				if (this.$$('#filterDropdownOpener:focus') === null && this.$$('#filterDropdownOpener:hover') === null) {
 					this.toggleClass('focus', false, this.$.filterText);
 				}
+			},
+			_myEnrollmentsEntityChanged: function(entity) {
+				// Fetch semesters/departments for the filter lists
 			},
 			_focusFilterText: function() {
 				this.toggleClass('focus', true, this.$.filterText);
