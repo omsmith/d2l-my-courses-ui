@@ -36,6 +36,11 @@
 				margin-right: 0.5rem;
 			}
 		</style>
+		<d2l-ajax
+			url="[[_url]]"
+			headers='{ "Accept": "application/vnd.siren+json" }'
+			on-iron-ajax-response="_onResponse">
+		</d2l-ajax>
 		<d2l-icon icon="d2l-tier2:check-box-unchecked" aria-hidden="true"></d2l-icon>
 		<span>[[text]]</span>
 	</template>
@@ -43,11 +48,30 @@
 		'use strict';
 		Polymer({
 			is: 'd2l-list-item-filter',
+			properties: {
+				entity: {
+					type: Object,
+					observer: '_onEntityChanged'
+				},
+				_url: String
+			},
 			behaviors: [
 				window.D2L.PolymerBehaviors.MenuItemSelectableBehavior
 			],
 			listeners: {
 				'd2l-menu-item-select': '_onSelect'
+			},
+			_onEntityChanged: function(entity) {
+				this.set('_url', entity.links[1].href);
+				this.$$('d2l-ajax').generateRequest();
+			},
+			_onResponse: function(response) {
+				if (response.detail.status === 200 ) {
+					var parser = document.createElement('d2l-siren-parser');
+					var entity = parser.parse(response.detail.xhr.response);
+
+					this.set('text', entity.properties.name);
+				}
 			},
 			_onSelect: function(e) {
 				this.set('selected', !this.selected);
@@ -209,12 +233,6 @@
 		</style>
 
 		<d2l-ajax
-			id="organizationsRequest"
-			url="[[_organizationsUrl]]"
-			on-iron-ajax-response="_onOrganizationsResponse">
-		</d2l-ajax>
-
-		<d2l-ajax
 			id="moreDepartmentsRequest"
 			url="[[_moreDepartmentsUrl]]"
 			headers='{ "Accept": "application/vnd.siren+json" }'
@@ -290,8 +308,7 @@
 									<template is="dom-repeat" items="[[_semesterOrganizations]]">
 										<d2l-list-item-filter
 											value="[[getEntityIdentifier(item)]]"
-											text="[[item.properties.name]]"
-											selected="[[item.properties.selected]]">
+											entity="[[item]]">
 										</d2l-list-item-filter>
 									</template>
 								</d2l-menu>
@@ -307,8 +324,7 @@
 									<template is="dom-repeat" items="[[_departmentOrganizations]]">
 										<d2l-list-item-filter
 											value="[[getEntityIdentifier(item)]]"
-											text="[[item.properties.name]]"
-											selected="[[item.properties.selected]]">
+											entity="[[item]]">
 										</d2l-list-item-filter>
 									</template>
 								</d2l-menu>
@@ -416,38 +432,8 @@
 					value: '/d2l/api/hm/organizations',
 					readOnly: true
 				},
-				_searchSemestersAction: {
-					type: Object,
-					value: {
-						'name':'search-course-collection',
-						'method':'GET',
-						'href': '/d2l/api/hm/organizations',
-						'fields':[
-							{'name':'search', 'type':'search', 'value':''},
-							{'name':'page', 'type':'number', 'value':'1'},
-							{'name':'pageSize', 'type':'number', 'value':'20'},
-							{'name':'embedDepth', 'type':'number', 'value':'1'},
-							// 5 is the default type ID for semesters
-							// organizationTypeIds is updated by organizationsRequest
-							{'name':'organizationTypeIds', 'type':'hidden', 'value':'5'}]
-					}
-				},
-				_searchDepartmentsAction: {
-					type: Object,
-					value: {
-						'name':'search-course-collection',
-						'method':'GET',
-						'href':'/d2l/api/hm/organizations',
-						'fields':[
-							{'name':'search', 'type':'search', 'value':''},
-							{'name':'page', 'type':'number', 'value':'1'},
-							{'name':'pageSize', 'type':'number', 'value':'20'},
-							{'name':'embedDepth', 'type':'number', 'value':'1'},
-							// 203 is the default type ID for departments
-							// organizationTypeIds is updated by organizationsRequest
-							{'name':'organizationTypeIds', 'type':'hidden', 'value':'203'}]
-					}
-				},
+				_searchSemestersAction: Object,
+				_searchDepartmentsAction: Object,
 				_semesterOrganizations: {
 					type: Array,
 					value: function() {
@@ -518,8 +504,12 @@
 				var itemCount = Math.max(this.pinnedEnrollments.length, this.unpinnedEnrollments.length);
 				return itemCount;
 			},
-			loadCourseTiles: function() {
+			load: function() {
+				// Load course tile and filter contents. Called from d2l-my-courses.
 				this.delayCourseTileLoad = false;
+
+				this.$.departmentSearchWidget.search();
+				this.$.semesterSearchWidget.search();
 			},
 			setCourseImage: function(details) {
 				this._removeAlert('setCourseImageFailure');
@@ -581,7 +571,14 @@
 				}
 			},
 			_myEnrollmentsEntityChanged: function(entity) {
-				// Fetch semesters/departments for the filter lists
+				// Set up search URLs and search Actions for filter dropdown
+				if (entity) {
+					var parser = document.createElement('d2l-siren-parser');
+					var myEnrollmentsEntity = parser.parse(entity);
+
+					this.set('_searchDepartmentsAction', myEnrollmentsEntity.getActionByName('add-department-filter'));
+					this.set('_searchSemestersAction', myEnrollmentsEntity.getActionByName('add-semester-filter'));
+				}
 			},
 			_focusFilterText: function() {
 				this.toggleClass('focus', true, this.$.filterText);
@@ -628,52 +625,6 @@
 			},
 			_onMoreSemestersResponse: function(response) {
 				this._onMoreResponse(response, '_semesterOrganizations', '_moreSemestersUrl', '_hasMoreSemesters');
-			},
-			_onOrganizationsResponse: function(response) {
-				if (this.pinnedEnrollments.length + this.unpinnedEnrollments.length <= 20) {
-					// Small optimization - hide filter menu and don't fetch contents if user doesn't have a lot of enrollments
-					this.toggleClass('hidden', true, this.$.filterAndSort);
-					return;
-				}
-
-				if (response.detail.status === 200) {
-					var parser = document.createElement('d2l-siren-parser');
-					var responseEntity = parser.parse(response.detail.xhr.response);
-
-					var departmentId = responseEntity.getActionByName('add-department-filter').getFieldByName('organizationTypeIds').value;
-					var departmentAction = {
-						name: 'search-course-collection',
-						method: 'GET',
-						href: this._organizationsUrl,
-						fields: [
-							{ name: 'organizationTypeIds', type: 'hidden', value: departmentId },
-							{ name: 'search', type: 'search', value: '' },
-							{ name: 'page', type: 'number', value: '1' },
-							{ name: 'pageSize', type: 'number', value: '20' },
-							{ name: 'embedDepth', type: 'number', value: '1' }
-						]
-					};
-					this.set('_searchDepartmentsAction', departmentAction);
-
-					var semesterId = responseEntity.getActionByName('add-semester-filter').getFieldByName('organizationTypeIds').value;
-					var semesterAction = {
-						name: 'search-course-collection',
-						method: 'GET',
-						href: this._organizationsUrl,
-						fields: [
-							{ name: 'organizationTypeIds', type: 'hidden', value: semesterId },
-							{ name: 'search', type: 'search', value: '' },
-							{ name: 'page', type: 'number', value: '1' },
-							{ name: 'pageSize', type: 'number', value: '20' },
-							{ name: 'embedDepth', type: 'number', value: '1' }
-						]
-					};
-					this.set('_searchSemestersAction', semesterAction);
-
-					// This calls .clear() on both search widgets (which searches with an empty query),
-					// so this needs to run after we have both search Actions updated
-					this._selectSemesterList();
-				}
 			},
 			_onResize: function() {
 				this._updateTileSizes();
