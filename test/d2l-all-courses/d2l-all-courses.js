@@ -103,15 +103,21 @@ describe('smoke test', function() {
 				href: '/organizations?page=2'
 			}]
 		},
+		enrollments = {
+			class: ['enrollments', 'collection'],
+			entities: [pinnedEnrollment, unpinnedEnrollment],
+			links: [{
+				rel: ['self'],
+				href: '/enrollments'
+			}]
+		},
 		pinnedEnrollmentEntity,
-		unpinnedEnrollmentEntity,
-		organizationsEntity;
+		unpinnedEnrollmentEntity;
 
 	before(function() {
 		var parser = document.createElement('d2l-siren-parser');
 		pinnedEnrollmentEntity = parser.parse(pinnedEnrollment);
 		unpinnedEnrollmentEntity = parser.parse(unpinnedEnrollment);
-		organizationsEntity = parser.parse(organizations);
 	});
 
 	beforeEach(function() {
@@ -157,16 +163,14 @@ describe('smoke test', function() {
 		it('should parse and update initial departments from search widget', function() {
 			var sandbox = sinon.sandbox.create();
 
-			var checkEntitySpy = sandbox.spy(widget, '_checkFilterEntities');
-			var updateMoreParametersSpy = sandbox.spy(widget, '_updateMoreParameters');
+			var updateMoreParametersStub = sandbox.stub(widget, '_updateMoreParameters');
 			var event = {
-				detail: organizationsEntity
+				detail: pinnedEnrollmentEntity
 			};
 
 			widget._onDepartmentSearchResults(event);
 
-			sinon.assert.called(checkEntitySpy);
-			sinon.assert.calledWith(updateMoreParametersSpy, sinon.match.object, '_moreDepartmentsUrl', '_hasMoreDepartments');
+			sinon.assert.calledWith(updateMoreParametersStub, sinon.match.object, '_moreDepartmentsUrl', '_hasMoreDepartments');
 
 			sandbox.restore();
 		});
@@ -174,49 +178,47 @@ describe('smoke test', function() {
 		it('should parse and update initial semesters from search widget', function() {
 			var sandbox = sinon.sandbox.create();
 
-			var checkEntitySpy = sandbox.spy(widget, '_checkFilterEntities');
-			var updateMoreParametersSpy = sandbox.spy(widget, '_updateMoreParameters');
+			var updateMoreParametersStub = sandbox.stub(widget, '_updateMoreParameters');
 			var event = {
-				detail: organizationsEntity
+				detail: pinnedEnrollmentEntity
 			};
 
 			widget._onSemesterSearchResults(event);
 
-			sinon.assert.called(checkEntitySpy);
-			sinon.assert.calledWith(updateMoreParametersSpy, sinon.match.object, '_moreSemestersUrl', '_hasMoreSemesters');
+			sinon.assert.calledWith(updateMoreParametersStub, sinon.match.object, '_moreSemestersUrl', '_hasMoreSemesters');
 
 			sandbox.restore();
 		});
 
-		it('should parse and update lazily-loaded semesters', function() {
+		it('should parse and update lazily-loaded departments', function(done) {
 			var sandbox = sinon.sandbox.create();
 
-			var checkEntitySpy = sandbox.spy(widget, '_checkFilterEntities');
-			var updateMoreParametersSpy = sandbox.spy(widget, '_updateMoreParameters');
+			var updateMoreParametersStub = sandbox.stub(widget, '_updateMoreParameters');
 			var onMoreResponseSpy = sandbox.spy(widget, '_onMoreResponse');
 			var response = {
 				detail: {
 					status: 200,
 					xhr: {
-						response: organizations
+						response: enrollments
 					}
 				}
 			};
 
 			widget._onMoreDepartmentsResponse(response);
 
-			sinon.assert.called(checkEntitySpy);
-			sinon.assert.calledWith(updateMoreParametersSpy, sinon.match.object, '_moreDepartmentsUrl', '_hasMoreDepartments');
-			sinon.assert.calledWith(onMoreResponseSpy, sinon.match.object, '_departmentOrganizations', '_moreDepartmentsUrl', '_hasMoreDepartments');
+			setTimeout(function() {
+				sinon.assert.calledWith(updateMoreParametersStub, sinon.match.object, '_moreDepartmentsUrl', '_hasMoreDepartments');
+				sinon.assert.calledWith(onMoreResponseSpy, sinon.match.object, '_departments', '_moreDepartmentsUrl', '_hasMoreDepartments');
 
-			sandbox.restore();
+				sandbox.restore();
+				done();
+			}, 100);
 		});
 
-		it('should parse and update lazily-loaded departments', function() {
+		it('should parse and update lazily-loaded semesters', function() {
 			var sandbox = sinon.sandbox.create();
 
-			var checkEntitySpy = sandbox.spy(widget, '_checkFilterEntities');
-			var updateMoreParametersSpy = sandbox.spy(widget, '_updateMoreParameters');
+			var updateMoreParametersStub = sandbox.stub(widget, '_updateMoreParameters');
 			var onMoreResponseSpy = sandbox.spy(widget, '_onMoreResponse');
 			var response = {
 				detail: {
@@ -229,9 +231,8 @@ describe('smoke test', function() {
 
 			widget._onMoreSemestersResponse(response);
 
-			sinon.assert.called(checkEntitySpy);
-			sinon.assert.calledWith(updateMoreParametersSpy, sinon.match.object, '_moreSemestersUrl', '_hasMoreSemesters');
-			sinon.assert.calledWith(onMoreResponseSpy, sinon.match.object, '_semesterOrganizations', '_moreSemestersUrl', '_hasMoreSemesters');
+			sinon.assert.calledWith(updateMoreParametersStub, sinon.match.object, '_moreSemestersUrl', '_hasMoreSemesters');
+			sinon.assert.calledWith(onMoreResponseSpy, sinon.match.object, '_semesters', '_moreSemestersUrl', '_hasMoreSemesters');
 
 			sandbox.restore();
 		});

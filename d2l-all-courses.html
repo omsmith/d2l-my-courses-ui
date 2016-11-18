@@ -49,9 +49,9 @@
 		Polymer({
 			is: 'd2l-list-item-filter',
 			properties: {
-				entity: {
+				enrollmentEntity: {
 					type: Object,
-					observer: '_onEntityChanged'
+					observer: '_onEnrollmentEntityChanged'
 				},
 				selected: {
 					type: Boolean,
@@ -67,7 +67,7 @@
 			listeners: {
 				'd2l-menu-item-select': '_onSelect'
 			},
-			_onEntityChanged: function(entity) {
+			_onEnrollmentEntityChanged: function(entity) {
 				this.set('_url', entity.getLinkByRel(/\/organization$/).href);
 				this.$$('d2l-ajax').generateRequest();
 			},
@@ -319,7 +319,7 @@
 								<d2l-menu label="{{localize('filtering.semester')}}">
 									<template is="dom-repeat" items="[[_semesters]]">
 										<d2l-list-item-filter
-											entity="[[item]]"
+											enrollment-entity="[[item]]"
 											selected="[[_checkSelected(item)]]">
 										</d2l-list-item-filter>
 									</template>
@@ -335,7 +335,7 @@
 								<d2l-menu label="{{localize('filtering.department')}}">
 									<template is="dom-repeat" items="[[_departments]]">
 										<d2l-list-item-filter
-											entity="[[item]]"
+											enrollment-entity="[[item]]"
 											selected="[[_checkSelected(item)]]">
 										</d2l-list-item-filter>
 									</template>
@@ -616,8 +616,7 @@
 			},
 			_onMoreResponse: function(response, organizationsPath, moreUrlPath, hasMorePath) {
 				if (response.detail.status === 200 || response.detail.status === 304) {
-					var parser = document.createElement('d2l-siren-parser');
-					var responseEntity = parser.parse(response.detail.xhr.response);
+					var responseEntity = this._parser.parse(response.detail.xhr.response);
 
 					responseEntity.entities.forEach(function(entity) {
 						this.push(organizationsPath, entity);
