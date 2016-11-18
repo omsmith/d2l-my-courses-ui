@@ -53,6 +53,12 @@
 					type: Object,
 					observer: '_onEntityChanged'
 				},
+				selected: {
+					type: Boolean,
+					value: false,
+					observer: '__onSelectedChanged',
+					reflectToAttribute: true
+				},
 				_url: String
 			},
 			behaviors: [
@@ -78,6 +84,11 @@
 				this.set('selected', !this.selected);
 				this.$$('d2l-icon').setAttribute('icon', this.selected ? 'd2l-tier2:check-box' : 'd2l-tier2:check-box-unchecked');
 				this.__onSelect(e);
+			},
+			__onSelectedChanged: function(e) {
+				// The selected state is changed by _checkSelected below - need to update the icon when this happens
+				this.$$('d2l-icon').setAttribute('icon', this.selected ? 'd2l-tier2:check-box' : 'd2l-tier2:check-box-unchecked');
+				this._onSelectedChanged(e);
 			}
 		});
 	</script>
