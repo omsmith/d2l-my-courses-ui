@@ -37,9 +37,10 @@
 			}
 		</style>
 		<d2l-ajax
-			url="[[_url]]"
+			auto
+			url="[[_organizationUrl]]"
 			headers='{ "Accept": "application/vnd.siren+json" }'
-			on-iron-ajax-response="_onResponse">
+			on-iron-ajax-response="_onOrganizationResponse">
 		</d2l-ajax>
 		<d2l-icon icon="d2l-tier2:check-box-unchecked" aria-hidden="true"></d2l-icon>
 		<span>[[text]]</span>
@@ -51,6 +52,7 @@
 			properties: {
 				enrollmentEntity: {
 					type: Object,
+					value: function() { return {}; },
 					observer: '_onEnrollmentEntityChanged'
 				},
 				selected: {
@@ -59,7 +61,7 @@
 					observer: '__onSelectedChanged',
 					reflectToAttribute: true
 				},
-				_url: String
+				_organizationUrl: String
 			},
 			behaviors: [
 				window.D2L.PolymerBehaviors.MenuItemSelectableBehavior
@@ -68,13 +70,15 @@
 				'd2l-menu-item-select': '_onSelect'
 			},
 			_onEnrollmentEntityChanged: function(entity) {
-				this.set('_url', entity.getLinkByRel(/\/organization$/).href);
-				this.$$('d2l-ajax').generateRequest();
+				this.set('_organizationUrl', entity.getLinkByRel(/\/organization$/).href);
 			},
-			_onResponse: function(response) {
+			_onOrganizationResponse: function(response) {
 				if (response.detail.status === 200 ) {
-					var parser = document.createElement('d2l-siren-parser');
-					var entity = parser.parse(response.detail.xhr.response);
+					if (!this._parser) {
+						this._parser = document.createElement('d2l-siren-parser');
+					}
+
+					var entity = this._parser.parse(response.detail.xhr.response);
 
 					this.set('text', entity.properties.name);
 					this.set('value', entity.getLinkByRel('self').href);
@@ -82,14 +86,14 @@
 			},
 			_onSelect: function(e) {
 				this.set('selected', !this.selected);
-				this.$$('d2l-icon').setAttribute('icon', this.selected ? 'd2l-tier2:check-box' : 'd2l-tier2:check-box-unchecked');
 				this.__onSelect(e);
 			},
 			__onSelectedChanged: function(e) {
-				// The selected state is changed by _checkSelected below - need to update the icon when this happens
+				// The selected state can be changed by click/tap or by _checkSelected below - need to update the icon when this happens
 				this.$$('d2l-icon').setAttribute('icon', this.selected ? 'd2l-tier2:check-box' : 'd2l-tier2:check-box-unchecked');
 				this._onSelectedChanged(e);
-			}
+			},
+			_parser: null
 		});
 	</script>
 </dom-module>

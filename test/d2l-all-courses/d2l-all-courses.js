@@ -77,32 +77,6 @@ describe('smoke test', function() {
 				}]
 			}]
 		},
-		organizations = {
-			class: ['paged', 'organization', 'collection'],
-			entities: [{
-				rel: ['https://api.brightspace.com/rels/organization'],
-				class: ['active', 'course-offering'],
-				properties: {
-					name: 'Course name',
-					code: 'COURSE100'
-				},
-				links: [{
-					rel: ['self'],
-					href: '/organizations/1'
-				}, {
-					rel: ['https://api.brightspace.com/rels/organization-homepage'],
-					href: 'http://example.com/1/home',
-					type: 'text/html'
-				}]
-			}],
-			links: [{
-				rel: ['self'],
-				href: '/organizations'
-			}, {
-				rel: ['next'],
-				href: '/organizations?page=2'
-			}]
-		},
 		enrollments = {
 			class: ['enrollments', 'collection'],
 			entities: [pinnedEnrollment, unpinnedEnrollment],
@@ -190,7 +164,7 @@ describe('smoke test', function() {
 			sandbox.restore();
 		});
 
-		it('should parse and update lazily-loaded departments', function(done) {
+		it('should parse and update lazily-loaded departments', function() {
 			var sandbox = sinon.sandbox.create();
 
 			var updateMoreParametersStub = sandbox.stub(widget, '_updateMoreParameters');
@@ -206,13 +180,10 @@ describe('smoke test', function() {
 
 			widget._onMoreDepartmentsResponse(response);
 
-			setTimeout(function() {
-				sinon.assert.calledWith(updateMoreParametersStub, sinon.match.object, '_moreDepartmentsUrl', '_hasMoreDepartments');
-				sinon.assert.calledWith(onMoreResponseSpy, sinon.match.object, '_departments', '_moreDepartmentsUrl', '_hasMoreDepartments');
+			sinon.assert.calledWith(updateMoreParametersStub, sinon.match.object, '_moreDepartmentsUrl', '_hasMoreDepartments');
+			sinon.assert.calledWith(onMoreResponseSpy, sinon.match.object, '_departments', '_moreDepartmentsUrl', '_hasMoreDepartments');
 
-				sandbox.restore();
-				done();
-			}, 100);
+			sandbox.restore();
 		});
 
 		it('should parse and update lazily-loaded semesters', function() {
@@ -224,7 +195,7 @@ describe('smoke test', function() {
 				detail: {
 					status: 200,
 					xhr: {
-						response: organizations
+						response: enrollments
 					}
 				}
 			};
