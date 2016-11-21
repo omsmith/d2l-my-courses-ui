@@ -46,6 +46,7 @@ in that organization - student, teacher, TA, etc.
 			id="telemetryRequest"
 			url="[[telemetryEndpoint]]"
 			body="[[_telemetryEvent]]"
+			headers='{ "Content-Type": "application/json" }'
 			method="POST">
 		</d2l-ajax>
 
@@ -322,8 +323,8 @@ in that organization - student, teacher, TA, etc.
 			},
 			_launchCourseTileImageSelector: function(e) {
 				this._telemetryEvent = JSON.stringify({
-					type: 'LaunchChangeImage',
-					ts: Date.now(),
+					name: 'LaunchChangeImage',
+					ts: Math.round(Date.now() / 1000),
 					userId: this.userId,
 					tenantId: this.tenantId
 				});

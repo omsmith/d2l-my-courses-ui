@@ -57,6 +57,7 @@
 			<d2l-ajax
 				id="telemetryRequest"
 				url="[[telemetryEndpoint]]"
+				headers='{ "Content-Type": "application/json" }'
 				body="[[_telemetryEvent]]"
 				method="POST">
 			</d2l-ajax>
@@ -142,8 +143,8 @@
 			},
 			_doTelemetrySetImageRequest: function() {
 				this._telemetryEvent = JSON.stringify({
-					type: 'SelectedImage',
-					ts: Date.now(),
+					name: 'SelectedImage',
+					ts: Math.round(Date.now() / 1000),
 					imageId: this.image.getLinkByRel('self').href,
 					imageTags: this.image.properties.tags + ',' + this.image.properties.categories,
 					userId: this.userId,

@@ -83,6 +83,7 @@
 		<d2l-ajax
 			id="telemetryRequest"
 			url="[[telemetryEndpoint]]"
+			headers='{ "Content-Type": "application/json" }'
 			body="[[_telemetryEvent]]"
 			method="POST">
 		</d2l-ajax>
@@ -349,8 +350,8 @@
 			_uploadTelemetry: function(e) {
 				if((e.type === 'keydown' && e.keyCode === 13) || (e.type === 'tap')) {
 					this._telemetryEvent = JSON.stringify({
-						ts: Date.now(),
-						type: "CourseImageUpload",
+						ts: Math.round(Date.now() / 1000),
+						name: "CourseImageUpload",
 						userId: this.userId,
 						tenantId: this.tenantId
 					});
@@ -363,8 +364,8 @@
 				var searchWidget = this.$$('d2l-search-widget');
 				var pagingInfo = this._getPagingInfo(parsedResponse);
 				this._telemetryEvent = JSON.stringify({
-    				ts: Date.now(),
-    				type: 'NextImagePageNavigation',
+    				ts: Math.round(Date.now() / 1000),
+    				name: 'NextImagePageNavigation',
     				resultsPageNumber: pagingInfo.page,
     				totalResults: pagingInfo.total,
 					search: searchWidget._searchString === '' ? match[1] : searchWidget._searchString,
@@ -392,8 +393,8 @@
 							? searchWidget.searchResults.properties.pagingInfo.total
 							: 0;
 				this._telemetryEvent = JSON.stringify({
-    				ts: Date.now(),
-    				type: 'SearchImageCatalog',
+    				ts: Math.round(Date.now() / 1000),
+    				name: 'SearchImageCatalog',
     				totalResults: total,
 					search: searchWidget._searchString,
 					userId: this.userId,
