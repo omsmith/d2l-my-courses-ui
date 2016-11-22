@@ -70,6 +70,7 @@
 				/* end overrides */
 			}
 			d2l-alert {
+				display: block;
 				margin-bottom: 20px;
 			}
 			d2l-icon {
@@ -343,9 +344,9 @@
 
 		<h2 class="d2l-heading-3">{{localize('pinnedCourses')}}</h2>
 
-		<template is="dom-if" if="[[!_hasPinnedEnrollments]]">
-			<d2l-alert visible="[[!_hasPinnedEnrollments]]">
-				{{localize('noPinnedCoursesMessage')}}
+		<template is="dom-repeat" items="{{_alerts}}">
+			<d2l-alert alert-type="[[item.alertType]]">
+				{{item.alertMessage}}
 			</d2l-alert>
 		</template>
 
@@ -463,6 +464,10 @@
 					value: function() {
 						return [];
 					}
+				},
+				_alerts: {
+					type: Array,
+					value: function() { return []; }
 				}
 			},
 			behaviors: [
@@ -471,8 +476,15 @@
 				window.D2L.MyCourses.CourseManagementBehavior,
 				window.D2L.MyCourses.UtilityBehavior
 			],
+			listeners: {
+				'd2l-simple-overlay-opening': '_onSimpleOverlayOpening'
+			},
+			observers: [
+				'_updateEnrollmentAlerts(_hasPinnedEnrollments)'
+			],
 			ready: function() {
 				this.usePendingLists = true;
+				this._updateEnrollmentAlerts(this._hasPinnedEnrollments);
 
 				// Both course tile grids in this view should have the same number of columns, so use a custom getter
 				var courseTileGrids = Polymer.dom(this.root).querySelectorAll('d2l-course-tile-grid');
@@ -513,6 +525,12 @@
 				this.delayCourseTileLoad = false;
 			},
 			setCourseImage: function(details) {
+				this._removeAlert('setCourseImageFailure');
+				if (details && details.detail) {
+					if (details.detail.status === 'failure') {
+						this._addAlert('warning', 'setCourseImageFailure', this.localize('error.settingImage'));
+					}
+				}
 				this.$$('#all-courses-pinned').setCourseImage(details);
 				this.$$('#all-courses-unpinned').setCourseImage(details);
 			},
@@ -727,6 +745,38 @@
 				this.$.sortText.textContent = this.localize(this._sortTextOptions[this._sortField] || '');
 
 				this.$.sortDropdown.toggleOpen();
+			},
+			_updateEnrollmentAlerts: function(hasPinnedEnrollments) {
+				this._alerts = [];
+
+				if (!hasPinnedEnrollments) {
+					this._addAlert('call-to-action', 'noPinnedCourses', this.localize('noPinnedCoursesMessage'));
+				}
+			},
+			_addAlert: function(type, name, message) {
+				if (this._alerts) {
+					this.push('_alerts', {
+						alertType: type,
+						alertName: name,
+						alertMessage: message
+					});
+				}
+			},
+			_hasAlert: function(name) {
+				if (!this._alerts || this._alerts.length <= 0) {
+					return false;
+				}
+				return this._alerts.some(function(alert) {
+					return alert.alertName === name;
+				});
+			},
+			_removeAlert: function(name) {
+				if (this._alerts && this._alerts.length > 0 && this._hasAlert(name)) {
+					this.splice('_alerts', this._alerts.map(function(alert) { return alert.name; }).indexOf(name), 1);
+				}
+			},
+			_onSimpleOverlayOpening: function() {
+				this._removeAlert('setCourseImageFailure');
 			}
 		});
 	</script>
