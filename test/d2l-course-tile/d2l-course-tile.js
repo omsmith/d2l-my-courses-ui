@@ -325,7 +325,7 @@ describe('<d2l-course-tile>', function() {
 				details.status = 'success';
 				widget._displaySetImageResult = sinon.stub();
 				widget.setCourseImage(details);
-				expect(widget._displaySetImageResult.calledWith(true, details.image)).to.equal(true);
+				expect(widget._displaySetImageResult.calledWith(true)).to.equal(true);
 			});
 		});
 
