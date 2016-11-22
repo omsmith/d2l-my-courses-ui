@@ -28,7 +28,7 @@
   ],
   "dependencies": {
     "app-localize-behavior": "https://github.com/Brightspace/app-localize-behavior.git#master",
-    "d2l-ajax": "^2.0.1",
+    "d2l-ajax": "^3.0.0",
     "d2l-colors": "^2.0.0",
     "d2l-dropdown": "^3.0.0",
     "d2l-icons": "^2.4.0",
@@ -37,7 +37,7 @@
     "d2l-menu": "^0.2.0",
     "d2l-offscreen": "^2.1.0",
     "d2l-polymer-behaviors": "<1.0.0",
-    "d2l-search-widget": "git://github.com/Brightspace/d2l-search-widget-ui.git#0.0.18",
+    "d2l-search-widget": "git://github.com/Brightspace/d2l-search-widget-ui.git#0.0.18-1",
     "d2l-siren-parser": "git://github.com/Brightspace/d2l-siren-parser-ui.git#^1.1.1",
     "d2l-typography": "^5.0.0",
     "iron-a11y-announcer": "^1.0.5",
