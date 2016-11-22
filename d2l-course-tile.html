@@ -265,7 +265,7 @@ in that organization - student, teacher, TA, etc.
 						imagePreloader.setAttribute('sizes', this.$$('d2l-course-image').getTileSizes());
 						break;
 					case 'success':
-						this._displaySetImageResult(true, this._nextImage);
+						this._displaySetImageResult(true);
 						break;
 					case 'failure':
 						this._displaySetImageResult(false);
@@ -292,7 +292,7 @@ in that organization - student, teacher, TA, etc.
 					setTimeout(function() {
 						if (success) {
 							this.toggleClass('hidden', false, courseImage);
-							this._image = newImage;
+							this._image = this._nextImage;
 						}
 						this.toggleClass(successClass, false, tileContainer);
 						this.toggleClass(failureClass, false, tileContainer);
