@@ -325,7 +325,7 @@ describe('<d2l-course-tile>', function() {
 				details.status = 'success';
 				widget._displaySetImageResult = sinon.stub();
 				widget.setCourseImage(details);
-				expect(widget._displaySetImageResult.calledWith(true, details.image)).to.equal(true);
+				expect(widget._displaySetImageResult.calledWith(true)).to.equal(true);
 			});
 		});
 
@@ -356,6 +356,7 @@ describe('<d2l-course-tile>', function() {
 			beforeEach(function() {
 				success = true;
 				expect(widget.$$('.change-image-success')).to.equal(null);
+				widget._nextImage = newImage;
 				widget._displaySetImageResult(success, newImage);
 				clock.tick(1001);
 			});

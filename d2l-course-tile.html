@@ -147,6 +147,7 @@ in that organization - student, teacher, TA, etc.
 				_courseSettingsLabel: String,
 				_canChangeCourseImage: Boolean,
 				_image: Object,
+				_nextImage: Object,
 				// The icon we want to show when you select an image
 				_iconDetails: {
 					type: Object,
@@ -257,20 +258,21 @@ in that organization - student, teacher, TA, etc.
 						this.toggleClass('change-image-loading', true, tileContainer);
 						// load the image while the loading spinner runs to that we have it when the spinner ends
 						// NOTE: if this needs optimization, we can wait for the image's onload to play the success animation
+						this._nextImage = details.image;
 						var imagePreloader = document.createElement('img');
 						imagePreloader.setAttribute('src', newImageHref);
 						imagePreloader.setAttribute('srcset', newSrcset);
 						imagePreloader.setAttribute('sizes', this.$$('d2l-course-image').getTileSizes());
 						break;
 					case 'success':
-						this._displaySetImageResult(true, details.image);
+						this._displaySetImageResult(true);
 						break;
 					case 'failure':
 						this._displaySetImageResult(false);
 						break;
 				}
 			},
-			_displaySetImageResult: function(success, newImage) {
+			_displaySetImageResult: function(success) {
 				var tileContainer = this.$$('.tile-container');
 				var courseImage = this.$$('.course-image img');
 
@@ -290,7 +292,7 @@ in that organization - student, teacher, TA, etc.
 					setTimeout(function() {
 						if (success) {
 							this.toggleClass('hidden', false, courseImage);
-							this._image = newImage;
+							this._image = this._nextImage;
 						}
 						this.toggleClass(successClass, false, tileContainer);
 						this.toggleClass(failureClass, false, tileContainer);
