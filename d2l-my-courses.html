@@ -5,6 +5,7 @@
 <link rel="import" href="../d2l-link/d2l-link.html">
 <link rel="import" href="../d2l-loading-spinner/d2l-loading-spinner.html">
 <link rel="import" href="d2l-alert.html">
+<link rel="import" href="d2l-alert-behavior.html">
 <link rel="import" href="d2l-simple-overlay.html">
 <link rel="import" href="d2l-all-courses.html">
 <link rel="import" href="d2l-course-tile-grid.html">
@@ -180,11 +181,6 @@
 				tenantId: String,
 				// URL to send telemetry to
 				telemetryEndpoint: String,
-				// Array containing alert objects for display
-				_alerts: {
-					type: Array,
-					value: function() { return []; }
-				},
 				// URL constructed to fetch a user's enrollments with the enrollments search Action
 				_enrollmentsSearchUrl: String,
 				// Object containing the last response from an enrollments search request
@@ -204,7 +200,8 @@
 				window.D2L.MyCourses.CourseTileResponsiveGridBehavior,
 				window.D2L.MyCourses.LocalizeBehavior,
 				window.D2L.MyCourses.InteractionDetectionBehavior,
-				window.D2L.MyCourses.CourseManagementBehavior
+				window.D2L.MyCourses.CourseManagementBehavior,
+				window.D2L.MyCourses.AlertBehavior
 			],
 			listeners: {
 				'open-change-image-view': '_openChangeImageView',
@@ -368,7 +365,7 @@
 				this.$['image-selector-threshold'].clearTriggers();
 			},
 			_updateEnrollmentAlerts: function(hasEnrollments, hasPinnedEnrollments) {
-				this._alerts = [];
+				this._clearAlerts();
 
 				if (hasEnrollments) {
 					if (!hasPinnedEnrollments) {
@@ -376,28 +373,6 @@
 					}
 				} else {
 					this._addAlert('call-to-action', 'noCourses', this.localize('noCoursesMessage'));
-				}
-			},
-			_addAlert: function(type, name, message) {
-				if (this._alerts) {
-					this.push('_alerts', {
-						alertType: type,
-						alertName: name,
-						alertMessage: message
-					});
-				}
-			},
-			_hasAlert: function(name) {
-				if (!this._alerts || this._alerts.length <= 0) {
-					return false;
-				}
-				return this._alerts.some(function(alert) {
-					return alert.alertName === name;
-				});
-			},
-			_removeAlert: function(name) {
-				if (this._alerts && this._alerts.length > 0 && this._hasAlert(name)) {
-					this.splice('_alerts', this._alerts.map(function(alert) { return alert.name; }).indexOf(name), 1);
 				}
 			},
 			_onSimpleOverlayClosed: function() {

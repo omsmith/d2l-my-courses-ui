@@ -11,6 +11,7 @@
 <link rel="import" href="../d2l-menu/d2l-menu-item-selectable-styles.html">
 <link rel="import" href="../d2l-search-widget/d2l-search-widget.html">
 <link rel="import" href="d2l-alert.html">
+<link rel="import" href="d2l-alert-behavior.html">
 <link rel="import" href="d2l-course-management-behavior.html">
 <link rel="import" href="d2l-course-tile-grid.html">
 <link rel="import" href="d2l-course-tile-responsive-grid-behavior.html">
@@ -464,17 +465,14 @@
 					value: function() {
 						return [];
 					}
-				},
-				_alerts: {
-					type: Array,
-					value: function() { return []; }
 				}
 			},
 			behaviors: [
 				window.D2L.MyCourses.CourseTileResponsiveGridBehavior,
 				window.D2L.MyCourses.LocalizeBehavior,
 				window.D2L.MyCourses.CourseManagementBehavior,
-				window.D2L.MyCourses.UtilityBehavior
+				window.D2L.MyCourses.UtilityBehavior,
+				window.D2L.MyCourses.AlertBehavior
 			],
 			listeners: {
 				'd2l-simple-overlay-opening': '_onSimpleOverlayOpening'
@@ -747,32 +745,10 @@
 				this.$.sortDropdown.toggleOpen();
 			},
 			_updateEnrollmentAlerts: function(hasPinnedEnrollments) {
-				this._alerts = [];
+				this._clearAlerts();
 
 				if (!hasPinnedEnrollments) {
 					this._addAlert('call-to-action', 'noPinnedCourses', this.localize('noPinnedCoursesMessage'));
-				}
-			},
-			_addAlert: function(type, name, message) {
-				if (this._alerts) {
-					this.push('_alerts', {
-						alertType: type,
-						alertName: name,
-						alertMessage: message
-					});
-				}
-			},
-			_hasAlert: function(name) {
-				if (!this._alerts || this._alerts.length <= 0) {
-					return false;
-				}
-				return this._alerts.some(function(alert) {
-					return alert.alertName === name;
-				});
-			},
-			_removeAlert: function(name) {
-				if (this._alerts && this._alerts.length > 0 && this._hasAlert(name)) {
-					this.splice('_alerts', this._alerts.map(function(alert) { return alert.name; }).indexOf(name), 1);
 				}
 			},
 			_onSimpleOverlayOpening: function() {
