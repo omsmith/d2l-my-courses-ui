@@ -95,7 +95,10 @@
 			</d2l-alert>
 			<d2l-course-tile-grid
 				enrollments="{{pinnedEnrollments}}"
-				tile-sizes="[[_tileSizes]]">
+				tile-sizes="[[_tileSizes]]"
+				user-id="[[userId]]"
+				tenant-id="[[tenantId]]"
+				telemetry-endpoint="[[telemetryEndpoint]]">
 			</d2l-course-tile-grid>
 			<button
 				class="all-courses-button"
@@ -141,6 +144,9 @@
 			<d2l-basic-image-selector
 				image-catalog-location="[[imageCatalogLocation]]"
 				organization="[[_setImageOrg]]"
+				user-id="[[userId]]"
+				tenant-id="[[tenantId]]"
+				telemetry-endpoint="[[telemetryEndpoint]]"
 			></d2l-basic-image-selector>
 		</d2l-simple-overlay>
 
@@ -165,6 +171,12 @@
 				enrollmentsUrl: String,
 				// URL that is called by the widget to fetch results from the course image catalog
 				imageCatalogLocation: String,
+				// hashed userid to send to telemetry
+				userId: String,
+				// hashed tenantid to send to telemetry
+				tenantId: String,
+				// URL to send telemetry to
+				telemetryEndpoint: String,
 				// Message to display in alert if no enrollments are found
 				_alertMessage: String,
 				// URL constructed to fetch a user's enrollments with the enrollments search Action
@@ -196,7 +208,6 @@
 			ready: function() {
 				this._pinnedCoursesMap = {};
 				this._alertMessage = this.localize('noCoursesMessage');
-
 				this.toggleClass('hidden', true, this.$.courseTiles);
 				this.toggleClass('hidden', true, this.$.courseList);
 			},

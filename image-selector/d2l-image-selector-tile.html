@@ -10,7 +10,22 @@
 
 <dom-module id="d2l-image-selector-tile">
 	<template>
-		<style include="d2l-image-selector-tile-styles"></style>
+		<style include="d2l-image-selector-tile-styles">
+			.hidden {
+				opacity: 0;
+			}
+
+			.shown {
+				animation-name: shown;
+				animation-duration: 0.5s;
+				animation-fill-mode: forwards;
+			}
+
+			@keyframes shown {
+				0% { opacity: 0 }
+				100% { opacity: 1; }
+			}
+		</style>
 
 		<div class$="[[_getTileClass(image)]]">
 			<div class="padding"></div>
@@ -39,6 +54,13 @@
 				on-iron-ajax-response="_onSetImageResponse"
 				on-iron-ajax-error="_onSetImageError">
 			</d2l-ajax>
+			<d2l-ajax
+				id="telemetryRequest"
+				url="[[telemetryEndpoint]]"
+				headers='{ "Content-Type": "application/json" }'
+				body="[[_telemetryEvent]]"
+				method="POST">
+			</d2l-ajax>
 
 		</div>
 	</template>
@@ -55,8 +77,13 @@
 					value: { mobile: { size: 100 }, tablet: { size: 50 }, desktop: { size: 33 } }
 				},
 				organization: Object,
+				userId: String,
+				tenantId: String,
+				telemetryEndpoint: String,
 				_setImageUrl: String,
-				_imageClass: String
+				_imageClass: String,
+				_telemetrySetImageEvent: String,
+				_telemetryEvent: String
 			},
 			behaviors: [
 				window.D2L.MyCourses.LocalizeBehavior,
@@ -104,9 +131,30 @@
 			_selectImage: function() {
 				this._setImageUrl = this._getSetImageUrl();
 				this.$.setImageRequest.generateRequest();
+				this._doTelemetrySetImageRequest();
 				this._fireCourseImageMessage('set');
 				this.fire('close-simple-overlay');
 			},
+			_updateImageSource: function() {
+				var courseImage = Polymer.dom(this.root).querySelector('img');
+				this._imageClass = 'hidden';
+				Polymer.dom(courseImage).setAttribute('srcset', this.getImageSrcset(this.image, 'narrow'));
+				Polymer.dom(courseImage).setAttribute('sizes', "(max-width: 767px) 100vw, (max-width: 991px) and (min-width: 768px) 50vw, 33vw");
+			},
+			_doTelemetrySetImageRequest: function() {
+				this._telemetryEvent = JSON.stringify({
+					name: 'SelectedImage',
+					ts: Math.round(Date.now() / 1000),
+					imageId: this.image.getLinkByRel('self').href,
+					imageTags: this.image.properties.tags + ',' + this.image.properties.categories,
+					userId: this.userId,
+					tenantId: this.tenantId
+				});
+				this.$.telemetryRequest.generateRequest();
+			},
+			_showImage: function() {
+				this._imageClass = 'shown';
+			}
 		});
 	</script>
 </dom-module>

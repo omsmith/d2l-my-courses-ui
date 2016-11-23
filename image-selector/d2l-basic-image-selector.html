@@ -80,6 +80,14 @@
 			on-iron-ajax-response="_moreSearchImagesRequestResponse">
 		</d2l-ajax>
 
+		<d2l-ajax
+			id="telemetryRequest"
+			url="[[telemetryEndpoint]]"
+			headers='{ "Content-Type": "application/json" }'
+			body="[[_telemetryEvent]]"
+			method="POST">
+		</d2l-ajax>
+
 		<div class="top-section">
 			<d2l-search-widget
 				id="image-search"
@@ -91,7 +99,7 @@
 			</d2l-search-widget>
 
 			<template is="dom-if" if="{{_organizationChangeImageHref}}" restamp="true">
-				<a class="upload" href$=[[_organizationChangeImageHref]]>
+				<a class="upload" href$=[[_organizationChangeImageHref]] on-tap="_uploadTelemetry" on-keydown="_uploadTelemetry">
 					<d2l-icon class="upload-icon" icon="d2l-tier2:upload" aria-hidden="true"></d2l-icon>
 					<span class="upload-text">{{localize('upload')}}</span>
 				</a>
@@ -104,6 +112,9 @@
 				image-catalog-location="[[imageCatalogLocation]]"
 				organization="[[organization]]"
 				images="[[_images]]"
+				user-id="[[userId]]"
+				tenant-id="[[tenantId]]"
+				telemetry-endpoint="[[telemetryEndpoint]]"
 			></d2l-image-tile-grid>
 		</template>
 
@@ -132,6 +143,9 @@
 			properties: {
 				imageCatalogLocation: String,
 				organization: Object,
+				userId: String,
+				tenantId: String,
+				telemetryEndpoint: String,
 				_searchString: String,
 				_images: Array,
 				_searchAction: String,
@@ -145,7 +159,8 @@
 				_loadingSpinnerClass: {
 					type: String,
 					value: 'hidden'
-				}
+				},
+				_telemetryEvent: String
 			},
 			behaviors: [ window.D2L.MyCourses.LocalizeBehavior ],
 			listeners: {
@@ -178,6 +193,7 @@
 				if (userSearchText) {
 					this._displaySearchResults(userSearchText);
 					this._setNextPage(response.detail, false);
+					this._doTelemetrySearchRequest(userSearchText);
 				} else {
 					// Throw out empty searches
 					// TODO: d2l-search-widget property that sends events instead of making network calls
@@ -228,6 +244,9 @@
 				if (loadMore) {
 					newImages = (isDefault ? this._defaultImages : this._searchImages) || [];
 					newImages = newImages.concat(parsedResponse.entities);
+
+					this._doTelemetryNextPageRequest(parsedResponse);
+
 				} else {
 					newImages = parsedResponse.entities;
 				}
@@ -237,7 +256,6 @@
 				} else {
 					this._searchImages = newImages;
 				}
-
 				this._setNextPage(parsedResponse, isDefault);
 				this._updateImages();
 			},
@@ -327,6 +345,61 @@
 			},
 			_onDefaultImagesRequestResponse: function(response) {
 				this._onImagesRequestResponse(response, false, true);
+			},
+			_uploadTelemetry: function(e) {
+				if((e.type === 'keydown' && e.keyCode === 13) || (e.type === 'tap')) {
+					this._telemetryEvent = JSON.stringify({
+						ts: Math.round(Date.now() / 1000),
+						name: "CourseImageUpload",
+						userId: this.userId,
+						tenantId: this.tenantId
+					});
+					this.$.telemetryRequest.generateRequest();
+				}
+			},
+			_doTelemetryNextPageRequest: function(parsedResponse) {
+				var searchRegex = /search=([^&]*)/,
+					match = searchRegex.exec(this._searchString);
+				var searchWidget = this.$$('d2l-search-widget');
+				var pagingInfo = this._getPagingInfo(parsedResponse);
+				this._telemetryEvent = JSON.stringify({
+    				ts: Math.round(Date.now() / 1000),
+    				name: 'NextImagePageNavigation',
+    				resultsPageNumber: pagingInfo.page,
+    				totalResults: pagingInfo.total,
+					search: searchWidget._searchString === '' ? match[1] : searchWidget._searchString,
+					userId: this.userId,
+					tenantId: this.tenantId
+				});
+				this.$.telemetryRequest.generateRequest();
+			},
+			_getPagingInfo: function(parsedResponse) {
+				var pagingInfo = {
+        			page: 'error retrieving page info',
+        			total: 'error retrieving total info'
+    			};
+    			if (parsedResponse.properties && parsedResponse.properties.pagingInfo) {
+        			pagingInfo = parsedResponse.properties.pagingInfo;
+    			}
+    			return pagingInfo;
+			},
+			_doTelemetrySearchRequest: function(userSearchText) {
+				var searchWidget = this.$$('d2l-search-widget'),
+					total = searchWidget.searchResults
+							&& searchWidget.searchResults.properties
+							&& searchWidget.searchResults.properties.pagingInfo
+							&& searchWidget.searchResults.properties.pagingInfo.total
+							? searchWidget.searchResults.properties.pagingInfo.total
+							: 0;
+				this._telemetryEvent = JSON.stringify({
+    				ts: Math.round(Date.now() / 1000),
+    				name: 'SearchImageCatalog',
+    				totalResults: total,
+					search: searchWidget._searchString,
+					userId: this.userId,
+					tenantId: this.tenantId
+				});
+				this.$.telemetryRequest.generateRequest();
 			}
 		});
 	</script>

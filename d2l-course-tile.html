@@ -42,6 +42,14 @@ in that organization - student, teacher, TA, etc.
 			on-iron-ajax-error="_onEnrollmentPinError">
 		</d2l-ajax>
 
+		<d2l-ajax
+			id="telemetryRequest"
+			url="[[telemetryEndpoint]]"
+			body="[[_telemetryEvent]]"
+			headers='{ "Content-Type": "application/json" }'
+			method="POST">
+		</d2l-ajax>
+
 		<div class="tile-container"
 			on-mouseover="_hoverCourseTile"
 			on-mouseout="_onTileMouseOut">
@@ -122,6 +130,8 @@ in that organization - student, teacher, TA, etc.
 					type: Boolean,
 					observer: '_pinnedChanged'
 				},
+				telemetryEndpoint: String,
+				tenantId: String,
 				// Size the tile should render with respect to vw
 				tileSizes: Object,
 				// Specifies whether the (mobile) touch menu is enabled on the course tile
@@ -129,6 +139,7 @@ in that organization - student, teacher, TA, etc.
 					type: Boolean,
 					value: true
 				},
+				userId: String,
 				// Body sent for pin/unpin action
 				_enrollmentPinBody: String,
 				// HTTP method used by the pin/unpin action
@@ -155,7 +166,13 @@ in that organization - student, teacher, TA, etc.
 						className: '',
 						iconName: ''
 					}
-				}
+				},
+				/*
+				* The JSON string of the telemetry event that will be sent
+				* on the opening of the change image UI
+				* @type {String}
+				*/
+				_telemetryEvent: String
 			},
 			behaviors: [
 				window.D2L.MyCourses.LocalizeBehavior,
@@ -307,6 +324,15 @@ in that organization - student, teacher, TA, etc.
 				}
 			},
 			_launchCourseTileImageSelector: function(e) {
+				this._telemetryEvent = JSON.stringify({
+					name: 'LaunchChangeImage',
+					ts: Math.round(Date.now() / 1000),
+					userId: this.userId,
+					tenantId: this.tenantId
+				});
+
+				this.$.telemetryRequest.generateRequest();
+
 				e.preventDefault();
 				e.stopPropagation();
 

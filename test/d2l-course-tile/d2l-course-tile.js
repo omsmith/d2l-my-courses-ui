@@ -428,4 +428,20 @@ describe('<d2l-course-tile>', function() {
 			});
 		});
 	});
+
+	describe('_launchCourseTileImageSelector', function() {
+		var e;
+		beforeEach(function() {
+			e = {
+				preventDefault: function() {},
+				stopPropagation: function() {}
+			};
+			widget.$.telemetryRequest.generateRequest = sinon.stub();
+		});
+
+		it('should send a telemetry event', function() {
+			widget._launchCourseTileImageSelector(e);
+			expect(widget.$.telemetryRequest.generateRequest.called).to.equal(true);
+		});
+	});
 });

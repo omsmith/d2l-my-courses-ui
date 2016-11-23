@@ -10,6 +10,7 @@ describe('<d2l-image-selector-tile>', function() {
 
 	beforeEach(function() {
 		widget = fixture('d2l-image-selector-tile-fixture');
+		sinon.stub(widget, '_doTelemetrySetImageRequest');
 	});
 
 	it('loads element', function() {
@@ -79,6 +80,11 @@ describe('<d2l-image-selector-tile>', function() {
 
 			widget._selectImage();
 			expect(widget.$.setImageRequest.generateRequest.called).to.equal(true);
+		});
+
+		it('sends a telemetry event', function() {
+			widget._selectImage();
+			expect(widget._doTelemetrySetImageRequest.called).to.equal(true);
 		});
 	});
 
