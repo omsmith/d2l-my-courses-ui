@@ -236,4 +236,64 @@ describe('smoke test', function() {
 			sandbox.restore();
 		});
 	});
+
+	describe('Alerts', function() {
+
+		it('should display appropriate message when there are no pinned enrollments', function() {
+			widget.pinnedEnrollments = [];
+			widget.unpinnedEnrollments = [unpinnedEnrollmentEntity];
+
+			expect(widget._alerts).to.include({ alertName: 'noPinnedCourses', alertType: 'call-to-action', alertMessage: 'You don\'t have any pinned courses. Pin your favorite courses to make them easier to find.' });
+		});
+
+		it('should update enrollment alerts when an enrollment is pinned', function() {
+			var sandbox = sinon.sandbox.create();
+
+			widget.pinnedEnrollments = [];
+			widget.unpinnedEnrollments = [unpinnedEnrollmentEntity];
+			expect(widget._hasPinnedEnrollments).to.equal(false);
+			expect(widget._alerts).to.include({ alertName: 'noPinnedCourses', alertType: 'call-to-action', alertMessage: 'You don\'t have any pinned courses. Pin your favorite courses to make them easier to find.' });
+			var updateEnrollmentAlertsSpy = sandbox.spy(widget, '_updateEnrollmentAlerts');
+			widget._hasPinnedEnrollments = true;
+			expect(updateEnrollmentAlertsSpy.called);
+
+			sandbox.restore();
+		});
+
+		it('should remove all existing alerts when enrollment alerts are updated', function() {
+			widget._addAlert('error', 'testError', 'this is a test');
+			widget._addAlert('warning', 'testWarning', 'this is another test');
+			expect(widget._alerts).to.include({ alertName: 'testError', alertType: 'error', alertMessage: 'this is a test'});
+			widget._updateEnrollmentAlerts(true);
+			expect(widget._alerts).to.not.include({ alertName: 'testError', alertType: 'error', alertMessage: 'this is a test'});
+		});
+
+		it('should add a setCourseImageFailure warning alert when a request to set the image fails', function() {
+			var setCourseImageEvent = { detail: { status: 'failure'} };
+			widget.setCourseImage(setCourseImageEvent);
+			expect(widget._alerts).to.include({ alertName: 'setCourseImageFailure', alertType: 'warning', alertMessage: 'Sorry, we\'re unable to change your image right now. Please try again later.' });
+		});
+
+		it('should not add a setCourseImageFailure warning alert when a request to set the image succeeds', function() {
+			var setCourseImageEvent = { detail: { status: 'success'} };
+			widget.setCourseImage(setCourseImageEvent);
+			expect(widget._alerts).not.to.include({ alertName: 'setCourseImageFailure', alertType: 'warning', alertMessage: 'Sorry, we\'re unable to change your image right now. Please try again later.' });
+		});
+
+		it('should remove a setCourseImageFailure warning alert when a request to set the image is made', function() {
+			var setCourseImageEvent = { detail: { status: 'failure'} };
+			widget.setCourseImage(setCourseImageEvent);
+			expect(widget._alerts).to.include({ alertName: 'setCourseImageFailure', alertType: 'warning', alertMessage: 'Sorry, we\'re unable to change your image right now. Please try again later.' });
+			setCourseImageEvent = { detail: { status: 'set'} };
+			widget.setCourseImage(setCourseImageEvent);
+			expect(widget._alerts).not.to.include({ alertName: 'setCourseImageFailure', alertType: 'warning', alertMessage: 'Sorry, we\'re unable to change your image right now. Please try again later.' });
+		});
+
+		it('should remove a setCourseImageFailure alert when the overlay is opened', function() {
+			widget._addAlert('warning', 'setCourseImageFailure', 'failed to do that thing it should do');
+			expect(widget._alerts).to.include({ alertName: 'setCourseImageFailure', alertType: 'warning', alertMessage: 'failed to do that thing it should do' });
+			widget._onSimpleOverlayOpening();
+			expect(widget._alerts).to.not.include({ alertName: 'setCourseImageFailure', alertType: 'warning', alertMessage: 'failed to do that thing it should do' });
+		});
+	});
 });
