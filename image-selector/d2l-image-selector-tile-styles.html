@@ -89,15 +89,14 @@
 
 			.overlay-button {
 				z-index: 4;
-				background-color: black;
+				background: rgba(0,0,0,0.5);
 				border: 0;
 				border-radius: 3px;
 				padding: 15px;
 				color: white;
-				opacity: 0.5;
 
 				margin-top: -30px;
-				transition: margin-top 0.35s;
+				transition: margin-top 0.35s, color 0.5s, background 0.5s;
 				font-family: inherit;
 				font-size: inherit;
 				pointer-events:all;
@@ -116,11 +115,13 @@
 			}
 
 			.overlay-button:hover, .overlay-button:focus {
-				opacity: 0.7;
+				opacity: 1;
+				background: var(--d2l-color-celestine);
 			}
 
 			.camera-icon {
 				margin-right: 10px;
+				color: white;
 			}
 
 			.d2l-image-tile:hover .d2l-image-tile-overlay .overlay-button,
