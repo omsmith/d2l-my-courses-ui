@@ -270,8 +270,8 @@
 				sort-field="[[_sortField]]">
 			</d2l-search-widget-custom>
 
-			<div id="filterAndSort">
-				<div id="filterSection">
+			<div id="filterAndSort" class="hidden">
+				<div id="filterSection" class="hidden">
 					<span id="filterText" class="dropdown-opener-text" on-tap="_toggleFilterDropdown">{{localize('filtering.filter')}}</span>
 					<d2l-dropdown id="filterDropdown">
 						<button
@@ -521,8 +521,13 @@
 				// Load course tile and filter contents. Called from d2l-my-courses.
 				this.delayCourseTileLoad = false;
 
-				this.$.departmentSearchWidget.search();
-				this.$.semesterSearchWidget.search();
+				// Only make the call to load the filter menu contents if user has a
+				// substantial number of enrollments - otherwise, hide the filter menu
+				if (this.pinnedEnrollments.length + this.unpinnedEnrollments.length >= 20) {
+					this.$.departmentSearchWidget.search();
+					this.$.semesterSearchWidget.search();
+					this.toggleClass('hidden', false, this.$.filterAndSort);
+				}
 			},
 			setCourseImage: function(details) {
 				this._removeAlert('setCourseImageFailure');
@@ -595,9 +600,16 @@
 			_focusFilterText: function() {
 				this.toggleClass('focus', true, this.$.filterText);
 			},
-			_updateMoreParameters: function(entity, moreUrlPath, hasMorePath) {
+			_onSearchResults: function(entity, moreUrlPath, hasMorePath) {
 				this.set(hasMorePath, entity.hasLinkByRel('next'));
 				this.set(moreUrlPath, this[hasMorePath] ? entity.getLinkByRel('next').href : '');
+
+				// If user has >1 departments or >1 semesters, signal to d2l-all-courses to show filters
+				if (this._departments && this._departments.length > 1
+					|| this._semesters && this._semesters.length > 1
+				) {
+					this.toggleClass('hidden', false, this.$.filterSection);
+				}
 			},
 			_onFilterDropdownClose: function() {
 				// If the dropdown is closed by clicking elsewhere, we need to manually update _filterDropdownOpen
@@ -611,12 +623,12 @@
 				this._selectSemesterList();
 			},
 			_onDepartmentSearchResults: function(e) {
-				this._updateMoreParameters(e.detail, '_moreDepartmentsUrl', '_hasMoreDepartments');
 				this.set('_departments', e.detail.entities);
+				this._onSearchResults(e.detail, '_moreDepartmentsUrl', '_hasMoreDepartments');
 			},
 			_onSemesterSearchResults: function(e) {
-				this._updateMoreParameters(e.detail, '_moreSemestersUrl', '_hasMoreSemesters');
 				this.set('_semesters', e.detail.entities);
+				this._onSearchResults(e.detail, '_moreSemestersUrl', '_hasMoreSemesters');
 			},
 			_onMoreResponse: function(response, organizationsPath, moreUrlPath, hasMorePath) {
 				if (response.detail.status === 200 || response.detail.status === 304) {
@@ -626,7 +638,7 @@
 						this.push(organizationsPath, entity);
 					}.bind(this));
 
-					this._updateMoreParameters(responseEntity, moreUrlPath, hasMorePath);
+					this._onSearchResults(responseEntity, moreUrlPath, hasMorePath);
 				}
 			},
 			_onMoreDepartmentsResponse: function(response) {

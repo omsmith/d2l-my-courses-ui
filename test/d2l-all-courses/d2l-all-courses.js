@@ -137,14 +137,14 @@ describe('smoke test', function() {
 		it('should parse and update initial departments from search widget', function() {
 			var sandbox = sinon.sandbox.create();
 
-			var updateMoreParametersStub = sandbox.stub(widget, '_updateMoreParameters');
+			var onSearchResultsStub = sandbox.stub(widget, '_onSearchResults');
 			var event = {
 				detail: pinnedEnrollmentEntity
 			};
 
 			widget._onDepartmentSearchResults(event);
 
-			sinon.assert.calledWith(updateMoreParametersStub, sinon.match.object, '_moreDepartmentsUrl', '_hasMoreDepartments');
+			sinon.assert.calledWith(onSearchResultsStub, sinon.match.object, '_moreDepartmentsUrl', '_hasMoreDepartments');
 
 			sandbox.restore();
 		});
@@ -152,14 +152,14 @@ describe('smoke test', function() {
 		it('should parse and update initial semesters from search widget', function() {
 			var sandbox = sinon.sandbox.create();
 
-			var updateMoreParametersStub = sandbox.stub(widget, '_updateMoreParameters');
+			var onSearchResultsStub = sandbox.stub(widget, '_onSearchResults');
 			var event = {
 				detail: pinnedEnrollmentEntity
 			};
 
 			widget._onSemesterSearchResults(event);
 
-			sinon.assert.calledWith(updateMoreParametersStub, sinon.match.object, '_moreSemestersUrl', '_hasMoreSemesters');
+			sinon.assert.calledWith(onSearchResultsStub, sinon.match.object, '_moreSemestersUrl', '_hasMoreSemesters');
 
 			sandbox.restore();
 		});
@@ -167,7 +167,7 @@ describe('smoke test', function() {
 		it('should parse and update lazily-loaded departments', function() {
 			var sandbox = sinon.sandbox.create();
 
-			var updateMoreParametersStub = sandbox.stub(widget, '_updateMoreParameters');
+			var onSearchResultsStub = sandbox.stub(widget, '_onSearchResults');
 			var onMoreResponseSpy = sandbox.spy(widget, '_onMoreResponse');
 			var response = {
 				detail: {
@@ -180,7 +180,7 @@ describe('smoke test', function() {
 
 			widget._onMoreDepartmentsResponse(response);
 
-			sinon.assert.calledWith(updateMoreParametersStub, sinon.match.object, '_moreDepartmentsUrl', '_hasMoreDepartments');
+			sinon.assert.calledWith(onSearchResultsStub, sinon.match.object, '_moreDepartmentsUrl', '_hasMoreDepartments');
 			sinon.assert.calledWith(onMoreResponseSpy, sinon.match.object, '_departments', '_moreDepartmentsUrl', '_hasMoreDepartments');
 
 			sandbox.restore();
@@ -189,7 +189,7 @@ describe('smoke test', function() {
 		it('should parse and update lazily-loaded semesters', function() {
 			var sandbox = sinon.sandbox.create();
 
-			var updateMoreParametersStub = sandbox.stub(widget, '_updateMoreParameters');
+			var onSearchResultsStub = sandbox.stub(widget, '_onSearchResults');
 			var onMoreResponseSpy = sandbox.spy(widget, '_onMoreResponse');
 			var response = {
 				detail: {
@@ -202,7 +202,7 @@ describe('smoke test', function() {
 
 			widget._onMoreSemestersResponse(response);
 
-			sinon.assert.calledWith(updateMoreParametersStub, sinon.match.object, '_moreSemestersUrl', '_hasMoreSemesters');
+			sinon.assert.calledWith(onSearchResultsStub, sinon.match.object, '_moreSemestersUrl', '_hasMoreSemesters');
 			sinon.assert.calledWith(onMoreResponseSpy, sinon.match.object, '_semesters', '_moreSemestersUrl', '_hasMoreSemesters');
 
 			sandbox.restore();
