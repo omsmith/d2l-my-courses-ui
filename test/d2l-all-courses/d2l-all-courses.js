@@ -1,117 +1,40 @@
-/* global describe, it, before, beforeEach, afterEach, fixture, expect, sinon */
+/* global describe, it, before, beforeEach, fixture, expect */
 
 'use strict';
 
-describe('smoke test', function() {
-	var server,
-		widget,
-		pinnedEnrollment = {
-			class: ['pinned', 'enrollment'],
-			rel: ['https://api.brightspace.com/rels/user-enrollment'],
-			actions: [{
-				name: 'unpin-course',
-				method: 'PUT',
-				href: '/enrollments/users/169/organizations/1',
-				fields: [{
-					name: 'pinned',
-					type: 'hidden',
-					value: false
-				}]
-			}],
-			links: [{
-				rel: ['https://api.brightspace.com/rels/organization'],
-				href: '/organizations/1'
-			}, {
-				rel: ['self'],
-				href: '/enrollments/users/169/organizations/1'
-			}]
-		},
-		unpinnedEnrollment = {
-			class: ['pinned', 'enrollment'],
-			rel: ['https://api.brightspace.com/rels/user-enrollment'],
-			actions: [{
-				name: 'unpin-course',
-				method: 'PUT',
-				href: '/enrollments/users/169/organizations/1',
-				fields: [{
-					name: 'pinned',
-					type: 'hidden',
-					value: false
-				}]
-			}],
-			links: [{
-				rel: ['https://api.brightspace.com/rels/organization'],
-				href: '/organizations/1'
-			}, {
-				rel: ['self'],
-				href: '/enrollments/users/169/organizations/1'
-			}]
-		},
-		organization = {
-			class: ['active', 'course-offering'],
-			properties: {
-				name: 'Course name',
-				code: 'COURSE100'
-			},
-			links: [{
-				rel: ['self'],
-				href: '/organizations/1'
-			}, {
-				rel: ['https://api.brightspace.com/rels/organization-homepage'],
-				href: 'http://example.com/1/home',
-				type: 'text/html'
-			}],
-			entities: [{
-				class: ['course-image'],
-				propeties: {
-					name: '1.jpg',
-					type: 'image/jpeg'
-				},
-				rel: ['https://api.brightspace.com/rels/organization-image'],
-				links: [{
-					rel: ['self'],
-					href: '/organizations/1/image'
-				}, {
-					rel: ['alternate'],
-					href: ''
-				}]
-			}]
-		},
-		enrollments = {
-			class: ['enrollments', 'collection'],
-			entities: [pinnedEnrollment, unpinnedEnrollment],
-			links: [{
-				rel: ['self'],
-				href: '/enrollments'
-			}]
-		},
+describe('d2l-all-courses', function() {
+	var widget,
 		pinnedEnrollmentEntity,
 		unpinnedEnrollmentEntity;
 
 	before(function() {
 		var parser = document.createElement('d2l-siren-parser');
-		pinnedEnrollmentEntity = parser.parse(pinnedEnrollment);
-		unpinnedEnrollmentEntity = parser.parse(unpinnedEnrollment);
+		pinnedEnrollmentEntity = parser.parse({
+			class: ['pinned', 'enrollment'],
+			rel: ['https://api.brightspace.com/rels/user-enrollment'],
+			links: [{
+				rel: ['self'],
+				href: '/enrollments/users/169/organizations/1'
+			}, {
+				rel: ['https://api.brightspace.com/rels/organization'],
+				href: '/organizations/123'
+			}]
+		});
+		unpinnedEnrollmentEntity = parser.parse({
+			class: ['unpinned', 'enrollment'],
+			rel: ['https://api.brightspace.com/rels/user-enrollment'],
+			links: [{
+				rel: ['self'],
+				href: '/enrollments/users/169/organizations/1'
+			}, {
+				rel: ['https://api.brightspace.com/rels/organization'],
+				href: '/organizations/123'
+			}]
+		});
 	});
 
 	beforeEach(function() {
-		// Not actually required, but avoids a bunch of errors in the test output
-		server = sinon.fakeServer.create();
-		server.respondImmediately = true;
-		server.respondWith(
-			'GET',
-			/\/organizations\/1\?embedDepth=1/,
-			[200, {}, JSON.stringify(organization)]);
-
 		widget = fixture('d2l-all-courses-fixture');
-	});
-
-	afterEach(function() {
-		server.restore();
-	});
-
-	it('should load', function() {
-		expect(widget).to.exist;
 	});
 
 	it('should return the correct value from getCourseTileItemCount (should be maximum of pinned or unpinned course count)', function() {
@@ -133,79 +56,26 @@ describe('smoke test', function() {
 		}
 	});
 
-	describe('Filter list content', function() {
-		it('should parse and update initial departments from search widget', function() {
-			var sandbox = sinon.sandbox.create();
+	describe('d2l-filter-menu-content-filters-changed', function() {
+		var event = {
+			value: [1],
+			text: 'foo'
+		};
 
-			var onSearchResultsStub = sandbox.stub(widget, '_onSearchResults');
-			var event = {
-				detail: pinnedEnrollmentEntity
-			};
+		it('should update the parent organizations passed to d2l-search-widget-custom', function() {
+			expect(widget._parentOrganizations.length).to.equal(0);
 
-			widget._onDepartmentSearchResults(event);
+			widget.$$('d2l-filter-menu-content').fire('d2l-filter-menu-content-filters-changed', event);
 
-			sinon.assert.calledWith(onSearchResultsStub, sinon.match.object, '_moreDepartmentsUrl', '_hasMoreDepartments');
-
-			sandbox.restore();
+			expect(widget._parentOrganizations.length).to.equal(1);
 		});
 
-		it('should parse and update initial semesters from search widget', function() {
-			var sandbox = sinon.sandbox.create();
+		it('should update the filter menu opener text', function() {
+			expect(widget._filterText).to.equal('Filter');
 
-			var onSearchResultsStub = sandbox.stub(widget, '_onSearchResults');
-			var event = {
-				detail: pinnedEnrollmentEntity
-			};
+			widget.$$('d2l-filter-menu-content').fire('d2l-filter-menu-content-filters-changed', event);
 
-			widget._onSemesterSearchResults(event);
-
-			sinon.assert.calledWith(onSearchResultsStub, sinon.match.object, '_moreSemestersUrl', '_hasMoreSemesters');
-
-			sandbox.restore();
-		});
-
-		it('should parse and update lazily-loaded departments', function() {
-			var sandbox = sinon.sandbox.create();
-
-			var onSearchResultsStub = sandbox.stub(widget, '_onSearchResults');
-			var onMoreResponseSpy = sandbox.spy(widget, '_onMoreResponse');
-			var response = {
-				detail: {
-					status: 200,
-					xhr: {
-						response: enrollments
-					}
-				}
-			};
-
-			widget._onMoreDepartmentsResponse(response);
-
-			sinon.assert.calledWith(onSearchResultsStub, sinon.match.object, '_moreDepartmentsUrl', '_hasMoreDepartments');
-			sinon.assert.calledWith(onMoreResponseSpy, sinon.match.object, '_departments', '_moreDepartmentsUrl', '_hasMoreDepartments');
-
-			sandbox.restore();
-		});
-
-		it('should parse and update lazily-loaded semesters', function() {
-			var sandbox = sinon.sandbox.create();
-
-			var onSearchResultsStub = sandbox.stub(widget, '_onSearchResults');
-			var onMoreResponseSpy = sandbox.spy(widget, '_onMoreResponse');
-			var response = {
-				detail: {
-					status: 200,
-					xhr: {
-						response: enrollments
-					}
-				}
-			};
-
-			widget._onMoreSemestersResponse(response);
-
-			sinon.assert.calledWith(onSearchResultsStub, sinon.match.object, '_moreSemestersUrl', '_hasMoreSemesters');
-			sinon.assert.calledWith(onMoreResponseSpy, sinon.match.object, '_semesters', '_moreSemestersUrl', '_hasMoreSemesters');
-
-			sandbox.restore();
+			expect(widget._filterText).to.equal('foo');
 		});
 	});
 
