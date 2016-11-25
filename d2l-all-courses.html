@@ -116,7 +116,7 @@
 
 		<div class="search-and-filter">
 			<d2l-search-widget-custom
-				hidden$="[[_hasEnrollments]]"
+				hidden$="[[!_hasEnrollments]]"
 				my-enrollments-entity="[[myEnrollmentsEntity]]"
 				parent-organizations="[[_parentOrganizations]]"
 				sort-field="[[_sortField]]">
@@ -138,7 +138,7 @@
 						</button>
 						<d2l-dropdown-content id="filterDropdownContent" no-padding min-width="350">
 							<d2l-filter-menu-content
-								id="filter"
+								id="filterMenuContent"
 								my-enrollments-entity="[[myEnrollmentsEntity]]">
 							</d2l-filter-menu-content>
 						</d2l-dropdown-content>
@@ -253,8 +253,8 @@
 			attached: function() {
 				this.listen(this.$.sortDropdown, 'd2l-menu-item-change', '_updateSortBy');
 				this.listen(this.$.filterDropdownContent, 'd2l-dropdown-close', '_onFilterDropdownClose');
-				this.listen(this.$.filter, 'd2l-filter-menu-content-filters-changed', '_onFilterChanged');
-				this.listen(this.$.filter, 'd2l-filter-menu-content-hide', '_onFilterHideChanged');
+				this.listen(this.$.filterMenuContent, 'd2l-filter-menu-content-filters-changed', '_onFilterChanged');
+				this.listen(this.$.filterMenuContent, 'd2l-filter-menu-content-hide', '_onFilterHideChanged');
 
 				window.addEventListener('resize', this._onResize.bind(this));
 
@@ -263,8 +263,8 @@
 			detached: function() {
 				this.unlisten(this.$.sortDropdown, 'd2l-menu-item-change', '_updateSortBy');
 				this.unlisten(this.$.filterDropdownContent, 'd2l-dropdown-close', '_onFilterDropdownClose');
-				this.unlisten(this.$.filter, 'd2l-filter-menu-content-filters-changed', '_onFilterChanged');
-				this.unlisten(this.$.filter, 'd2l-filter-menu-content-hide', '_onFilterHideChanged');
+				this.unlisten(this.$.filterMenuContent, 'd2l-filter-menu-content-filters-changed', '_onFilterChanged');
+				this.unlisten(this.$.filterMenuContent, 'd2l-filter-menu-content-hide', '_onFilterHideChanged');
 			},
 			getCourseTileItemCount: function() {
 				var itemCount = Math.max(this.pinnedEnrollments.length, this.unpinnedEnrollments.length);
@@ -277,7 +277,7 @@
 				// Only make the call to load the filter menu contents if user has a
 				// substantial number of enrollments - otherwise, hide the filter menu
 				if (this.pinnedEnrollments.length + this.unpinnedEnrollments.length >= 20) {
-					this.$.filter.load();
+					this.$.filterMenuContent.load();
 					this.toggleClass('hidden', false, this.$.filterAndSort);
 				}
 			},
@@ -337,7 +337,7 @@
 					this.$.filterDropdownOpener.focus();
 				} else {
 					this.$.filterDropdownContent.open();
-					this.$.filter.load();
+					this.$.filterMenuContent.load();
 				}
 				this.set('_filterDropdownOpen', !this._filterDropdownOpen);
 			},

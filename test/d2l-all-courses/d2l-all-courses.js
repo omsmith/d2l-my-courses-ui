@@ -1,4 +1,4 @@
-/* global describe, it, before, beforeEach, fixture, expect */
+/* global describe, it, before, beforeEach, fixture, expect, sinon */
 
 'use strict';
 
@@ -56,6 +56,43 @@ describe('d2l-all-courses', function() {
 		}
 	});
 
+	it('should hide search if user has no enrollments', function() {
+		var search = widget.$$('d2l-search-widget-custom');
+		expect(search.hidden).to.be.true;
+
+		widget.pinnedEnrollments = [pinnedEnrollmentEntity];
+
+		expect(search.hidden).to.be.false;
+	});
+
+	it('should not load filter menu content when there are insufficient enrollments', function() {
+		var stub = sinon.stub(widget.$.filterMenuContent, 'load');
+
+		widget.pinnedEnrollments = Array(19).fill(pinnedEnrollmentEntity);
+		widget.load();
+		expect(stub.called).to.be.false;
+	});
+
+	it('should load filter menu content when there are sufficient enrollments', function() {
+		var stub = sinon.stub(widget.$.filterMenuContent, 'load');
+
+		widget.pinnedEnrollments = Array(20).fill(pinnedEnrollmentEntity);
+		widget.load();
+		expect(stub.called).to.be.true;
+	});
+
+	it('should hide filter menu when there are insufficient enrollments', function() {
+		widget.pinnedEnrollments = Array(19).fill(pinnedEnrollmentEntity);
+		widget.load();
+		expect(widget.$.filterAndSort.classList.contains('hidden')).to.be.true;
+	});
+
+	it('should show filter menu when there are sufficient enrollments', function() {
+		widget.pinnedEnrollments = Array(20).fill(pinnedEnrollmentEntity);
+		widget.load();
+		expect(widget.$.filterAndSort.classList.contains('hidden')).to.be.false;
+	});
+
 	describe('d2l-filter-menu-content-filters-changed', function() {
 		var event = {
 			value: [1],
@@ -63,11 +100,12 @@ describe('d2l-all-courses', function() {
 		};
 
 		it('should update the parent organizations passed to d2l-search-widget-custom', function() {
-			expect(widget._parentOrganizations.length).to.equal(0);
+			var search = widget.$$('d2l-search-widget-custom');
+			expect(search.parentOrganizations.length).to.equal(0);
 
 			widget.$$('d2l-filter-menu-content').fire('d2l-filter-menu-content-filters-changed', event);
 
-			expect(widget._parentOrganizations.length).to.equal(1);
+			expect(search.parentOrganizations.length).to.equal(1);
 		});
 
 		it('should update the filter menu opener text', function() {
