@@ -65,8 +65,10 @@
 			behaviors: [
 				window.D2L.PolymerBehaviors.MenuItemSelectableBehavior
 			],
-			listeners: {
-				'd2l-menu-item-select': '_onSelect'
+			attached: function() {
+				Polymer.RenderStatus.afterNextRender(this, function() {
+					this.listen(this, 'd2l-menu-item-select', '_onSelect');
+				}.bind(this));
 			},
 			_onEnrollmentEntityChanged: function(entity) {
 				if (entity.getLinkByRel && entity.getLinkByRel(/\/organization$/)) {
@@ -112,8 +114,7 @@
 				display: none !important;
 			}
 			button:hover,
-			button:focus,
-			.focus {
+			button:focus {
 				text-decoration: underline;
 				color: var(--d2l-color-celestine);
 			}
