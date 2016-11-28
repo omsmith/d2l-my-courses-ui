@@ -44,7 +44,6 @@
 			properties: {
 				enrollmentEntity: {
 					type: Object,
-					value: function() { return {}; },
 					observer: '_onEnrollmentEntityChanged'
 				},
 				selected: {
@@ -52,15 +51,7 @@
 					observer: '_onSelectedChanged',
 					reflectToAttribute: true
 				},
-				_departments: {
-					type: Array,
-					value: function() { return []; }
-				},
-				_organizationUrl: String,
-				_semesters: {
-					type: Array,
-					value: function() { return []; }
-				}
+				_organizationUrl: String
 			},
 			behaviors: [
 				window.D2L.PolymerBehaviors.MenuItemSelectableBehavior
@@ -417,13 +408,13 @@
 				this.set(moreUrlPath, this[hasMorePath] ? entity.getLinkByRel('next').href : '');
 
 				// If user has >1 departments or >1 semesters, signal to d2l-all-courses to show filters
-				if (this._departments && this._departments.length > 1
-					|| this._semesters && this._semesters.length > 1
-				) {
-					this.fire('d2l-filter-menu-content-hide', {
-						hide: false
-					});
-				}
+				var smallNumberOfDepartmentsAndSemesters =
+					this._departments && this._departments.length <= 1
+					&& this._semesters && this._semesters.length <= 1;
+
+				this.fire('d2l-filter-menu-content-hide', {
+					hide: smallNumberOfDepartmentsAndSemesters
+				});
 			},
 			_onDepartmentSearchResults: function(e) {
 				this.set('_departments', e.detail.entities);
