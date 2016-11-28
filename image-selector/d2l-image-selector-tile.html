@@ -133,7 +133,7 @@
 				this.$.setImageRequest.generateRequest();
 				this._doTelemetrySetImageRequest();
 				this._fireCourseImageMessage('set');
-				this.fire('close-simple-overlay');
+				this.fire('image-selector-tile-image-selected');
 			},
 			_updateImageSource: function() {
 				var courseImage = Polymer.dom(this.root).querySelector('img');

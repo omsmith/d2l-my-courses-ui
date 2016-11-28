@@ -22,12 +22,26 @@
 				left: 0;
 				bottom: 0;
 				width: 6px;
-				background-color: #1598cb;
 				border-top-left-radius: 3px;
 				border-bottom-left-radius: 3px;
 				border-top-right-radius: 0;
 				border-bottom-right-radius: 0;
 				margin: -1px;
+			}
+			:host[type="error"] .message-highlight {
+				background-color: #f0533f;
+			}
+			:host[type="warning"] .message-highlight {
+				background-color: #ffce51;
+			}
+			:host[type="call-to-action"] .message-highlight {
+				background-color: #1598cb;
+			}
+			:host[type="reinforcement"] .message-highlight {
+				background-color: #7c8695;
+			}
+			:host[type="confirmation"] .message-highlight {
+				background-color: #00ae81;
 			}
 			:host-context([dir='rtl']) .message-highlight {
 				left: auto;
@@ -38,8 +52,7 @@
 				border-bottom-right-radius: 3px;
 			}
 		</style>
-
-		<div class="message-wrapper" hidden$="{{!visible}}">
+		<div class="message-wrapper">
 			<div class="message-highlight"></div>
 			<content></content>
 		</div>
@@ -51,9 +64,10 @@
 		Polymer({
 			is: 'd2l-alert',
 			properties: {
-				visible: {
-					type: Boolean,
-					value: false
+				type: {
+					type: String,
+					value: 'call-to-action',
+					reflectToAttribute: true
 				}
 			}
 		});

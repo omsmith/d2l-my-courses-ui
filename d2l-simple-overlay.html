@@ -46,7 +46,7 @@
 			],
 			listeners: {
 				'neon-animation-finish': '_onNeonAnimationFinish',
-				'close-simple-overlay': '_handleCloseSimpleOverlayEvent'
+				'image-selector-tile-image-selected': '_handleCloseSimpleOverlayEvent'
 			},
 			properties: {
 				// Title for overlay
@@ -106,6 +106,7 @@
 			},
 			_handleClose: function() {
 				this.close();
+				this.fire('simple-overlay-closed');
 				this.fire('recalculate-columns');
 			},
 			_handleCloseSimpleOverlayEvent: function(e) {

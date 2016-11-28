@@ -17,9 +17,9 @@ describe('<d2l-image-selector-tile>', function() {
 		expect(widget).to.exist;
 	});
 
-	it('fires a close-simple-overlay message when clicked', function() {
+	it('fires a image-selector-tile-image-selected message when clicked', function() {
 		var messageSent = false;
-		widget.addEventListener('close-simple-overlay', function() {
+		widget.addEventListener('image-selector-tile-image-selected', function() {
 			messageSent = true;
 		});
 
@@ -65,10 +65,10 @@ describe('<d2l-image-selector-tile>', function() {
 			expect(widget._fireCourseImageMessage.calledWith('set')).to.equal(true);
 		});
 
-		it('fires a "close simple overlay event"', function() {
+		it('fires a "image-selector-tile-image-selected event"', function() {
 			widget.fire = sinon.stub();
 			widget._selectImage();
-			expect(widget.fire.calledWith('close-simple-overlay')).to.equal(true);
+			expect(widget.fire.calledWith('image-selector-tile-image-selected')).to.equal(true);
 		});
 
 		it('generates a setImageRequest', function() {

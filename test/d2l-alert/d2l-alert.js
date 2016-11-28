@@ -13,15 +13,12 @@ describe('d2l-alert', function() {
 		expect(component.innerHTML).to.contain('Alert text');
 	});
 
-	it('should hide content when visible=false', function() {
-		component.visible = false;
-
-		expect(component.$$('.message-wrapper').hasAttribute('hidden')).to.be.true;
+	it('should apply the call-to-action alert type by default', function() {
+		expect(component.attributes.getNamedItem('type').value).to.equal('call-to-action');
 	});
 
-	it('should show content when visible=true', function() {
-		component.visible = true;
-
-		expect(component.$$('.message-wrapper').hasAttribute('hidden')).to.be.false;
+	it('should apply the alert type property value as an attribute', function() {
+		component['type'] = 'reinforcement';
+		expect(component.attributes.getNamedItem('type').value).to.equal('reinforcement');
 	});
 });

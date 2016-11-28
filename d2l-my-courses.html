@@ -5,6 +5,7 @@
 <link rel="import" href="../d2l-link/d2l-link.html">
 <link rel="import" href="../d2l-loading-spinner/d2l-loading-spinner.html">
 <link rel="import" href="d2l-alert.html">
+<link rel="import" href="d2l-alert-behavior.html">
 <link rel="import" href="d2l-simple-overlay.html">
 <link rel="import" href="d2l-all-courses.html">
 <link rel="import" href="d2l-course-tile-grid.html">
@@ -50,7 +51,8 @@
 				display: none;
 			}
 			d2l-alert {
-				padding-bottom: 30px;
+				display: block;
+				margin-bottom: 20px;
 				clear: both;
 			}
 			d2l-loading-spinner {
@@ -85,14 +87,16 @@
 		</d2l-loading-spinner>
 
 		<div class="my-courses-content hidden">
-			<d2l-alert visible="[[!_hasPinnedEnrollments]]">
-				{{_alertMessage}}
-				<a
-					is="d2l-link"
-					href="Javascript:void(0);"
-					hidden$="[[_hasEnrollments]]"
-					on-tap="_refreshPage">{{localize('refresh')}}</a>
-			</d2l-alert>
+			<template is="dom-repeat" items="{{_alerts}}">
+				<d2l-alert type="[[item.alertType]]">
+					{{item.alertMessage}}
+					<a
+						is="d2l-link"
+						href="Javascript:void(0);"
+						hidden$="[[_hasEnrollments]]"
+						on-tap="_refreshPage">{{localize('refresh')}}</a>
+				</d2l-alert>
+			</template>
 			<d2l-course-tile-grid
 				enrollments="{{pinnedEnrollments}}"
 				tile-sizes="[[_tileSizes]]"
@@ -177,8 +181,6 @@
 				tenantId: String,
 				// URL to send telemetry to
 				telemetryEndpoint: String,
-				// Message to display in alert if no enrollments are found
-				_alertMessage: String,
 				// URL constructed to fetch a user's enrollments with the enrollments search Action
 				_enrollmentsSearchUrl: String,
 				// Object containing the last response from an enrollments search request
@@ -198,16 +200,22 @@
 				window.D2L.MyCourses.CourseTileResponsiveGridBehavior,
 				window.D2L.MyCourses.LocalizeBehavior,
 				window.D2L.MyCourses.InteractionDetectionBehavior,
-				window.D2L.MyCourses.CourseManagementBehavior
+				window.D2L.MyCourses.CourseManagementBehavior,
+				window.D2L.MyCourses.AlertBehavior
 			],
 			listeners: {
 				'open-change-image-view': '_openChangeImageView',
 				'set-course-image': '_setCourseImageEvent',
-				'clear-image-scroll-threshold': '_clearImageScrollThreshold'
+				'clear-image-scroll-threshold': '_clearImageScrollThreshold',
+				'simple-overlay-closed': '_onSimpleOverlayClosed'
 			},
+			observers: [
+				'_updateEnrollmentAlerts(_hasEnrollments, _hasPinnedEnrollments)'
+			],
 			ready: function() {
 				this._pinnedCoursesMap = {};
-				this._alertMessage = this.localize('noCoursesMessage');
+				this._updateEnrollmentAlerts(this._hasEnrollments, this._hasPinnedEnrollments);
+
 				this.toggleClass('hidden', true, this.$.courseTiles);
 				this.toggleClass('hidden', true, this.$.courseList);
 			},
@@ -294,10 +302,6 @@
 						{ mobile: { maxwidth: 767, size: 50 }, tablet: { maxwidth: 1243, size: 33 }, desktop: { size: 20 } } :
 						{ mobile: { maxwidth: 767, size: 100 }, tablet: { maxwidth: 1243, size: 67 }, desktop: { size: 25 } };
 
-					if (this._hasEnrollments) {
-						this._alertMessage = this.localize('noPinnedCoursesMessage');
-					}
-
 					this.fire('recalculate-columns');
 				}
 
@@ -345,6 +349,12 @@
 				}
 			},
 			_setCourseImageEvent: function(e) {
+				this._removeAlert('setCourseImageFailure');
+				if (e && e.detail) {
+					if (e.detail.status === 'failure') {
+						this._addAlert('warning', 'setCourseImageFailure', this.localize('error.settingImage'));
+					}
+				}
 				this.$$('d2l-all-courses').setCourseImage(e);
 				this.$$('d2l-course-tile-grid').setCourseImage(e);
 			},
@@ -353,6 +363,20 @@
 			},
 			_clearImageScrollThreshold: function() {
 				this.$['image-selector-threshold'].clearTriggers();
+			},
+			_updateEnrollmentAlerts: function(hasEnrollments, hasPinnedEnrollments) {
+				this._clearAlerts();
+
+				if (hasEnrollments) {
+					if (!hasPinnedEnrollments) {
+						this._addAlert('call-to-action', 'noPinnedCourses', this.localize('noPinnedCoursesMessage'));
+					}
+				} else {
+					this._addAlert('call-to-action', 'noCourses', this.localize('noCoursesMessage'));
+				}
+			},
+			_onSimpleOverlayClosed: function() {
+				this._removeAlert('setCourseImageFailure');
 			}
 		});
 	</script>

@@ -272,7 +272,7 @@ describe('d2l-my-courses', function() {
 			});
 		});
 
-		it('should display appropriate message when there are no enrollments', function(done) {
+		it('should display appropriate alert when there are no enrollments', function(done) {
 			server.respondWith(
 				'GET',
 				widget.enrollmentsUrl,
@@ -291,7 +291,7 @@ describe('d2l-my-courses', function() {
 
 			widget.$.enrollmentsSearchRequest.addEventListener('iron-ajax-response', function() {
 				expect(widget._hasEnrollments).to.equal(false);
-				expect(widget._alertMessage).to.equal('Your courses aren\'t quite ready. Please check back soon.');
+				expect(widget._alerts).to.include({ alertName: 'noCourses', alertType: 'call-to-action', alertMessage: 'Your courses aren\'t quite ready. Please check back soon.' });
 				done();
 			});
 		});
@@ -315,9 +315,44 @@ describe('d2l-my-courses', function() {
 
 			widget.$.enrollmentsSearchRequest.addEventListener('iron-ajax-response', function() {
 				expect(widget._hasEnrollments).to.equal(true);
-				expect(widget._alertMessage).to.equal('You don\'t have any pinned courses. Pin your favorite courses to make them easier to find.');
+				expect(widget._alerts).to.include({ alertName: 'noPinnedCourses', alertType: 'call-to-action', alertMessage: 'You don\'t have any pinned courses. Pin your favorite courses to make them easier to find.' });
 				done();
 			});
+		});
+
+		it('should update enrollment alerts when enrollment information is updated', function(done) {
+			server.respondWith(
+				'GET',
+				widget.enrollmentsUrl,
+				function(req) {
+					req.respond(200, {}, JSON.stringify(enrollmentsRootResponse));
+				});
+
+			server.respondWith(
+				'GET',
+				new RegExp(searchHref),
+				function(req) {
+					req.respond(200, {}, JSON.stringify(noPinnedEnrollmentsResponse));
+				});
+
+			widget.$.enrollmentsRootRequest.generateRequest();
+
+			widget.$.enrollmentsSearchRequest.addEventListener('iron-ajax-response', function() {
+				expect(widget._hasEnrollments).to.equal(true);
+				expect(widget._alerts).to.include({ alertName: 'noPinnedCourses', alertType: 'call-to-action', alertMessage: 'You don\'t have any pinned courses. Pin your favorite courses to make them easier to find.' });
+				var updateEnrollmentAlertsSpy = sinon.spy(widget, '_updateEnrollmentAlerts');
+				widget._hasPinnedEnrollments = true;
+				expect(updateEnrollmentAlertsSpy.called);
+				done();
+			});
+		});
+
+		it('should remove all existing alerts when enrollment alerts are updated', function() {
+			widget._addAlert('error', 'testError', 'this is a test');
+			widget._addAlert('warning', 'testWarning', 'this is another test');
+			expect(widget._alerts).to.include({ alertName: 'testError', alertType: 'error', alertMessage: 'this is a test'});
+			widget._updateEnrollmentAlerts(true, true);
+			expect(widget._alerts).to.not.include({ alertName: 'testError', alertType: 'error', alertMessage: 'this is a test'});
 		});
 	});
 
@@ -353,6 +388,27 @@ describe('d2l-my-courses', function() {
 			expect(widget._hasEnrollments).to.be.true;
 			expect(widget._hasPinnedEnrollments).to.be.true;
 		});
+
+		it('should add a setCourseImageFailure warning alert when a request to set the image fails', function() {
+			var setCourseImageEvent = { detail: { status: 'failure'} };
+			widget._setCourseImageEvent(setCourseImageEvent);
+			expect(widget._alerts).to.include({ alertName: 'setCourseImageFailure', alertType: 'warning', alertMessage: 'Sorry, we\'re unable to change your image right now. Please try again later.' });
+		});
+
+		it('should not add a setCourseImageFailure warning alert when a request to set the image succeeds', function() {
+			var setCourseImageEvent = { detail: { status: 'success'} };
+			widget._setCourseImageEvent(setCourseImageEvent);
+			expect(widget._alerts).not.to.include({ alertName: 'setCourseImageFailure', alertType: 'warning', alertMessage: 'Sorry, we\'re unable to change your image right now. Please try again later.' });
+		});
+
+		it('should remove a setCourseImageFailure warning alert when a request to set the image is made', function() {
+			var setCourseImageEvent = { detail: { status: 'failure'} };
+			widget._setCourseImageEvent(setCourseImageEvent);
+			expect(widget._alerts).to.include({ alertName: 'setCourseImageFailure', alertType: 'warning', alertMessage: 'Sorry, we\'re unable to change your image right now. Please try again later.' });
+			setCourseImageEvent = { detail: { status: 'set'} };
+			widget._setCourseImageEvent(setCourseImageEvent);
+			expect(widget._alerts).not.to.include({ alertName: 'setCourseImageFailure', alertType: 'warning', alertMessage: 'Sorry, we\'re unable to change your image right now. Please try again later.' });
+		});
 	});
 
 	describe('User interaction', function() {
@@ -366,6 +422,13 @@ describe('d2l-my-courses', function() {
 				widget.$$('d2l-all-courses')._rescaleCourseTileRegions.restore();
 				done();
 			}, 100);
+		});
+
+		it('should remove a setCourseImageFailure alert when the all-courses overlay is closed', function() {
+			widget._addAlert('warning', 'setCourseImageFailure', 'failed to do that thing it should do');
+			expect(widget._alerts).to.include({ alertName: 'setCourseImageFailure', alertType: 'warning', alertMessage: 'failed to do that thing it should do' });
+			widget.$['all-courses']._handleClose();
+			expect(widget._alerts).to.not.include({ alertName: 'setCourseImageFailure', alertType: 'warning', alertMessage: 'failed to do that thing it should do' });
 		});
 	});
 });
