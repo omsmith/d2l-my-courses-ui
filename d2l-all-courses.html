@@ -36,6 +36,12 @@
 				margin-right: 0.5rem;
 			}
 		</style>
+		<d2l-ajax
+			auto
+			url="[[_organizationUrl]]"
+			headers='{ "Accept": "application/vnd.siren+json" }'
+			on-iron-ajax-response="_onOrganizationResponse">
+		</d2l-ajax>
 		<d2l-icon icon="d2l-tier2:check-box-unchecked" aria-hidden="true"></d2l-icon>
 		<span>[[text]]</span>
 	</template>
@@ -43,17 +49,51 @@
 		'use strict';
 		Polymer({
 			is: 'd2l-list-item-filter',
+			properties: {
+				enrollmentEntity: {
+					type: Object,
+					value: function() { return {}; },
+					observer: '_onEnrollmentEntityChanged'
+				},
+				selected: {
+					type: Boolean,
+					value: false,
+					observer: '__onSelectedChanged',
+					reflectToAttribute: true
+				},
+				_organizationUrl: String
+			},
 			behaviors: [
 				window.D2L.PolymerBehaviors.MenuItemSelectableBehavior
 			],
 			listeners: {
 				'd2l-menu-item-select': '_onSelect'
 			},
+			_onEnrollmentEntityChanged: function(entity) {
+				this.set('_organizationUrl', entity.getLinkByRel(/\/organization$/).href);
+			},
+			_onOrganizationResponse: function(response) {
+				if (response.detail.status === 200 ) {
+					if (!this._parser) {
+						this._parser = document.createElement('d2l-siren-parser');
+					}
+
+					var entity = this._parser.parse(response.detail.xhr.response);
+
+					this.set('text', entity.properties.name);
+					this.set('value', entity.getLinkByRel('self').href);
+				}
+			},
 			_onSelect: function(e) {
 				this.set('selected', !this.selected);
-				this.$$('d2l-icon').setAttribute('icon', this.selected ? 'd2l-tier2:check-box' : 'd2l-tier2:check-box-unchecked');
 				this.__onSelect(e);
-			}
+			},
+			__onSelectedChanged: function(e) {
+				// The selected state can be changed by click/tap or by _checkSelected below - need to update the icon when this happens
+				this.$$('d2l-icon').setAttribute('icon', this.selected ? 'd2l-tier2:check-box' : 'd2l-tier2:check-box-unchecked');
+				this._onSelectedChanged(e);
+			},
+			_parser: null
 		});
 	</script>
 </dom-module>
@@ -209,12 +249,6 @@
 		</style>
 
 		<d2l-ajax
-			id="organizationsRequest"
-			url="[[_organizationsUrl]]"
-			on-iron-ajax-response="_onOrganizationsResponse">
-		</d2l-ajax>
-
-		<d2l-ajax
 			id="moreDepartmentsRequest"
 			url="[[_moreDepartmentsUrl]]"
 			headers='{ "Accept": "application/vnd.siren+json" }'
@@ -231,13 +265,13 @@
 		<div class="search-and-filter">
 			<d2l-search-widget-custom
 				hidden$="[[_hasEnrollments]]"
-				search-root-url="[[searchUrl]]"
+				my-enrollments-entity="[[myEnrollmentsEntity]]"
 				parent-organizations="[[_parentOrganizations]]"
 				sort-field="[[_sortField]]">
 			</d2l-search-widget-custom>
 
-			<div id="filterAndSort">
-				<div id="filterSection">
+			<div id="filterAndSort" class="hidden">
+				<div id="filterSection" class="hidden">
 					<span id="filterText" class="dropdown-opener-text" on-tap="_toggleFilterDropdown">{{localize('filtering.filter')}}</span>
 					<d2l-dropdown id="filterDropdown">
 						<button
@@ -253,7 +287,7 @@
 						<d2l-dropdown-content id="filterDropdownContent" no-padding min-width="350">
 							<div class="dropdown-content-header">
 								<span class="dropdown-content-header-text">{{localize('filtering.filterBy')}}</span>
-								<template is="dom-if" if="[[_isFiltered]]">
+								<template is="dom-if" if="[[_showClearButton]]">
 									<button class="clear-button" on-tap="_clearFilters">{{localize('filtering.clear')}}</button>
 								</template>
 							</div>
@@ -287,11 +321,10 @@
 									search-field-name="search"
 									cache-responses></d2l-search-widget>
 								<d2l-menu label="{{localize('filtering.semester')}}">
-									<template is="dom-repeat" items="[[_semesterOrganizations]]">
+									<template is="dom-repeat" items="[[_semesters]]">
 										<d2l-list-item-filter
-											value="[[getEntityIdentifier(item)]]"
-											text="[[item.properties.name]]"
-											selected="[[item.properties.selected]]">
+											enrollment-entity="[[item]]"
+											selected="[[_checkSelected(item)]]">
 										</d2l-list-item-filter>
 									</template>
 								</d2l-menu>
@@ -304,11 +337,10 @@
 									search-field-name="search"
 									cache-responses></d2l-search-widget>
 								<d2l-menu label="{{localize('filtering.department')}}">
-									<template is="dom-repeat" items="[[_departmentOrganizations]]">
+									<template is="dom-repeat" items="[[_departments]]">
 										<d2l-list-item-filter
-											value="[[getEntityIdentifier(item)]]"
-											text="[[item.properties.name]]"
-											selected="[[item.properties.selected]]">
+											enrollment-entity="[[item]]"
+											selected="[[_checkSelected(item)]]">
 										</d2l-list-item-filter>
 									</template>
 								</d2l-menu>
@@ -381,18 +413,17 @@
 					type: Boolean,
 					value: true
 				},
-				// URL for search widget; should have search-my-enrollments Action
-				searchUrl: {
-					type: String,
-					value: ''
+				myEnrollmentsEntity: {
+					type: Object,
+					observer: '_myEnrollmentsEntityChanged'
 				},
-				_departmentOrganizations: {
+				_departments: {
 					type: Array,
 					value: function() {
 						return [];
 					}
 				},
-				_isFiltered: {
+				_showClearButton: {
 					type: Boolean,
 					value: false
 				},
@@ -412,44 +443,9 @@
 					type: String,
 					value: ''
 				},
-				_organizationsUrl: {
-					type: String,
-					value: '/d2l/api/hm/organizations',
-					readOnly: true
-				},
-				_searchSemestersAction: {
-					type: Object,
-					value: {
-						'name':'search-course-collection',
-						'method':'GET',
-						'href': '/d2l/api/hm/organizations',
-						'fields':[
-							{'name':'search', 'type':'search', 'value':''},
-							{'name':'page', 'type':'number', 'value':'1'},
-							{'name':'pageSize', 'type':'number', 'value':'20'},
-							{'name':'embedDepth', 'type':'number', 'value':'1'},
-							// 5 is the default type ID for semesters
-							// organizationTypeIds is updated by organizationsRequest
-							{'name':'organizationTypeIds', 'type':'hidden', 'value':'5'}]
-					}
-				},
-				_searchDepartmentsAction: {
-					type: Object,
-					value: {
-						'name':'search-course-collection',
-						'method':'GET',
-						'href':'/d2l/api/hm/organizations',
-						'fields':[
-							{'name':'search', 'type':'search', 'value':''},
-							{'name':'page', 'type':'number', 'value':'1'},
-							{'name':'pageSize', 'type':'number', 'value':'20'},
-							{'name':'embedDepth', 'type':'number', 'value':'1'},
-							// 203 is the default type ID for departments
-							// organizationTypeIds is updated by organizationsRequest
-							{'name':'organizationTypeIds', 'type':'hidden', 'value':'203'}]
-					}
-				},
-				_semesterOrganizations: {
+				_searchSemestersAction: Object,
+				_searchDepartmentsAction: Object,
+				_semesters: {
 					type: Array,
 					value: function() {
 						return [];
@@ -504,6 +500,8 @@
 				this.$.scrollThreshold.scrollTarget = this.$.filterDropdownContent.querySelector('.d2l-dropdown-content-container');
 
 				window.addEventListener('resize', this._onResize.bind(this));
+
+				this._parser = document.createElement('d2l-siren-parser');
 			},
 			detached: function() {
 				this.unlisten(this.$.sortDropdown, 'd2l-menu-item-change', '_updateSortBy');
@@ -519,8 +517,17 @@
 				var itemCount = Math.max(this.pinnedEnrollments.length, this.unpinnedEnrollments.length);
 				return itemCount;
 			},
-			loadCourseTiles: function() {
+			load: function() {
+				// Load course tile and filter contents. Called from d2l-my-courses.
 				this.delayCourseTileLoad = false;
+
+				// Only make the call to load the filter menu contents if user has a
+				// substantial number of enrollments - otherwise, hide the filter menu
+				if (this.pinnedEnrollments.length + this.unpinnedEnrollments.length >= 20) {
+					this.$.departmentSearchWidget.search();
+					this.$.semesterSearchWidget.search();
+					this.toggleClass('hidden', false, this.$.filterAndSort);
+				}
 			},
 			setCourseImage: function(details) {
 				this._removeAlert('setCourseImageFailure');
@@ -535,23 +542,23 @@
 			_filterDropdownOpen: false,
 			_numSemesterFilters: 0,
 			_numDepartmentFilters: 0,
+			_parser: null,
 			_sortTextOptions: {
 				'courseCode': 'sorting.sortCourseCode',
 				'courseName': 'sorting.sortCourseName',
 				'pinDate': 'sorting.sortDatePinned',
 				'lastAccessed': 'sorting.sortLastAccessed'
 			},
-			_checkFilterEntities: function(entities) {
-				entities.forEach(function(entity) {
-					var id = this.getEntityIdentifier(entity);
-					entity.properties.selected = this._parentOrganizations.indexOf(id) > -1;
-				}.bind(this));
+			_checkSelected: function(entity) {
+				// Checks if the given entity should be "selected" - used when semester/department search results change mostly
+				var id = entity.getLinkByRel(/\/organization$/).href;
+				return this._parentOrganizations.indexOf(id) > -1;
 			},
 			_clearFilters: function() {
 				Polymer.dom(this.$.filterDropdown).querySelectorAll('d2l-menu-item-checkbox').forEach(function(item) {
 					item.selected = false;
 				});
-				this._isFiltered = false;
+				this._showClearButton = false;
 				// Clear button is removed via dom-if, so need to manually set focus to next element
 				this.$.semesterListButton.focus();
 				this._parentOrganizations = [];
@@ -581,14 +588,28 @@
 					this.toggleClass('focus', false, this.$.filterText);
 				}
 			},
+			_myEnrollmentsEntityChanged: function(entity) {
+				// Set up search URLs and search Actions for filter dropdown
+				if (entity) {
+					var myEnrollmentsEntity = this._parser.parse(entity);
+
+					this.set('_searchDepartmentsAction', myEnrollmentsEntity.getActionByName('add-department-filter'));
+					this.set('_searchSemestersAction', myEnrollmentsEntity.getActionByName('add-semester-filter'));
+				}
+			},
 			_focusFilterText: function() {
 				this.toggleClass('focus', true, this.$.filterText);
 			},
-			_updateMoreParameters: function(entity, moreUrlPath, hasMorePath) {
-				this._checkFilterEntities(entity.entities);
-
+			_onSearchResults: function(entity, moreUrlPath, hasMorePath) {
 				this.set(hasMorePath, entity.hasLinkByRel('next'));
 				this.set(moreUrlPath, this[hasMorePath] ? entity.getLinkByRel('next').href : '');
+
+				// If user has >1 departments or >1 semesters, signal to d2l-all-courses to show filters
+				if (this._departments && this._departments.length > 1
+					|| this._semesters && this._semesters.length > 1
+				) {
+					this.toggleClass('hidden', false, this.$.filterSection);
+				}
 			},
 			_onFilterDropdownClose: function() {
 				// If the dropdown is closed by clicking elsewhere, we need to manually update _filterDropdownOpen
@@ -602,76 +623,29 @@
 				this._selectSemesterList();
 			},
 			_onDepartmentSearchResults: function(e) {
-				this.set('_departmentOrganizations', e.detail.entities);
-				this._updateMoreParameters(e.detail, '_moreDepartmentsUrl', '_hasMoreDepartments');
+				this.set('_departments', e.detail.entities);
+				this._onSearchResults(e.detail, '_moreDepartmentsUrl', '_hasMoreDepartments');
 			},
 			_onSemesterSearchResults: function(e) {
-				this.set('_semesterOrganizations', e.detail.entities);
-				this._updateMoreParameters(e.detail, '_moreSemestersUrl', '_hasMoreSemesters');
+				this.set('_semesters', e.detail.entities);
+				this._onSearchResults(e.detail, '_moreSemestersUrl', '_hasMoreSemesters');
 			},
 			_onMoreResponse: function(response, organizationsPath, moreUrlPath, hasMorePath) {
 				if (response.detail.status === 200 || response.detail.status === 304) {
-					var parser = document.createElement('d2l-siren-parser');
-					var responseEntity = parser.parse(response.detail.xhr.response);
+					var responseEntity = this._parser.parse(response.detail.xhr.response);
 
 					responseEntity.entities.forEach(function(entity) {
 						this.push(organizationsPath, entity);
 					}.bind(this));
 
-					this._updateMoreParameters(responseEntity, moreUrlPath, hasMorePath);
+					this._onSearchResults(responseEntity, moreUrlPath, hasMorePath);
 				}
 			},
 			_onMoreDepartmentsResponse: function(response) {
-				this._onMoreResponse(response, '_departmentOrganizations', '_moreDepartmentsUrl', '_hasMoreDepartments');
+				this._onMoreResponse(response, '_departments', '_moreDepartmentsUrl', '_hasMoreDepartments');
 			},
 			_onMoreSemestersResponse: function(response) {
-				this._onMoreResponse(response, '_semesterOrganizations', '_moreSemestersUrl', '_hasMoreSemesters');
-			},
-			_onOrganizationsResponse: function(response) {
-				if (this.pinnedEnrollments.length + this.unpinnedEnrollments.length <= 20) {
-					// Small optimization - hide filter menu and don't fetch contents if user doesn't have a lot of enrollments
-					this.toggleClass('hidden', true, this.$.filterAndSort);
-					return;
-				}
-
-				if (response.detail.status === 200) {
-					var parser = document.createElement('d2l-siren-parser');
-					var responseEntity = parser.parse(response.detail.xhr.response);
-
-					var departmentId = responseEntity.getActionByName('add-department-filter').getFieldByName('organizationTypeIds').value;
-					var departmentAction = {
-						name: 'search-course-collection',
-						method: 'GET',
-						href: this._organizationsUrl,
-						fields: [
-							{ name: 'organizationTypeIds', type: 'hidden', value: departmentId },
-							{ name: 'search', type: 'search', value: '' },
-							{ name: 'page', type: 'number', value: '1' },
-							{ name: 'pageSize', type: 'number', value: '20' },
-							{ name: 'embedDepth', type: 'number', value: '1' }
-						]
-					};
-					this.set('_searchDepartmentsAction', departmentAction);
-
-					var semesterId = responseEntity.getActionByName('add-semester-filter').getFieldByName('organizationTypeIds').value;
-					var semesterAction = {
-						name: 'search-course-collection',
-						method: 'GET',
-						href: this._organizationsUrl,
-						fields: [
-							{ name: 'organizationTypeIds', type: 'hidden', value: semesterId },
-							{ name: 'search', type: 'search', value: '' },
-							{ name: 'page', type: 'number', value: '1' },
-							{ name: 'pageSize', type: 'number', value: '20' },
-							{ name: 'embedDepth', type: 'number', value: '1' }
-						]
-					};
-					this.set('_searchSemestersAction', semesterAction);
-
-					// This calls .clear() on both search widgets (which searches with an empty query),
-					// so this needs to run after we have both search Actions updated
-					this._selectSemesterList();
-				}
+				this._onMoreResponse(response, '_semesters', '_moreSemestersUrl', '_hasMoreSemesters');
 			},
 			_onResize: function() {
 				this._updateTileSizes();
@@ -729,7 +703,7 @@
 					this.$.filterText.textContent = this.localize('filtering.filterMultiple', 'num', this._parentOrganizations.length);
 				}
 
-				this._isFiltered = this._parentOrganizations.length > 0;
+				this._showClearButton = this._parentOrganizations.length > 0;
 				this.$.semesterListButton.textContent = this._numSemesterFilters > 0
 					? this.localize('filtering.semesterMultiple', 'num', this._numSemesterFilters)
 					: this.localize('filtering.semester');

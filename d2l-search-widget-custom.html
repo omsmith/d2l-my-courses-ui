@@ -109,13 +109,6 @@
 		</style>
 
 		<d2l-ajax
-			id="searchRootRequest"
-			url="[[searchRootUrl]]"
-			headers='{ "Accept": "application/vnd.siren+json" }'
-			on-iron-ajax-response="_onSearchRootResponse">
-		</d2l-ajax>
-
-		<d2l-ajax
 			id="searchRequest"
 			url="[[_searchUrl]]"
 			headers='{ "Accept": "application/vnd.siren+json" }'
@@ -196,10 +189,10 @@
 			is: 'd2l-search-widget-custom',
 
 			properties: {
-				// Root search URL, which should have the search Action in the response
-				searchRootUrl: {
+				// Entity returned by the "my-enrollments" link on the /enrollments root
+				myEnrollmentsEntity: {
 					type: String,
-					observer: '_onSearchRootUrlChanged'
+					observer: '_myEnrollmentsEntityChanged'
 				},
 
 				// Value to send for the `sortField` parameter in the search query
@@ -431,18 +424,18 @@
 				return this._advancedSearchUrl + searchTerm;
 			},
 
-			_onSearchRootUrlChanged: function(url) {
-				if (url) {
-					this.$.searchRootRequest.generateRequest();
-				}
-			},
-
-			_onSearchRootResponse: function(response) {
-				if (response.detail.status === 200) {
+			_myEnrollmentsEntityChanged: function(entity) {
+				if (entity) {
 					var parser = document.createElement('d2l-siren-parser');
-					var searchRootResponse = parser.parse(response.detail.xhr.response);
+					var enrollmentsRoot = parser.parse(entity);
 
-					this._searchAction = searchRootResponse.getActionByName('search-my-enrollments');
+					if (!enrollmentsRoot.hasAction('search-my-enrollments')) {
+						return;
+					}
+
+					var searchAction = enrollmentsRoot.getActionByName('search-my-enrollments');
+
+					this.set('_searchAction', searchAction);
 				}
 			},
 
