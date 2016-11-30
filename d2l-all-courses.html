@@ -70,7 +70,9 @@
 				'd2l-menu-item-select': '_onSelect'
 			},
 			_onEnrollmentEntityChanged: function(entity) {
-				this.set('_organizationUrl', entity.getLinkByRel(/\/organization$/).href);
+				if (entity.getLinkByRel && entity.getLinkByRel(/\/organization$/)) {
+					this.set('_organizationUrl', entity.getLinkByRel(/\/organization$/).href);
+				}
 			},
 			_onOrganizationResponse: function(response) {
 				if (response.detail.status === 200 ) {
@@ -88,10 +90,10 @@
 				this.set('selected', !this.selected);
 				this.__onSelect(e);
 			},
-			__onSelectedChanged: function(e) {
+			_onSelectedChanged: function(e) {
 				// The selected state can be changed by click/tap or by _checkSelected below - need to update the icon when this happens
 				this.$$('d2l-icon').setAttribute('icon', this.selected ? 'd2l-tier2:check-box' : 'd2l-tier2:check-box-unchecked');
-				this._onSelectedChanged(e);
+				this.__onSelectedChanged(e);
 			},
 			_parser: null
 		});
