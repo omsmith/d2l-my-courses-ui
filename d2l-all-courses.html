@@ -1,4 +1,5 @@
 <link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../iron-scroll-threshold/iron-scroll-threshold.html">
 <link rel="import" href="../d2l-colors/d2l-colors.html">
 <link rel="import" href="../d2l-dropdown/d2l-dropdown.html">
 <link rel="import" href="../d2l-dropdown/d2l-dropdown-content.html">
@@ -141,6 +142,10 @@
 								id="filterMenuContent"
 								my-enrollments-entity="[[myEnrollmentsEntity]]">
 							</d2l-filter-menu-content>
+							<iron-scroll-threshold
+								id="scrollThreshold"
+								on-lower-threshold="_onLowerThreshold">
+							</iron-scroll-threshold>
 						</d2l-dropdown-content>
 					</d2l-dropdown>
 				</div>
@@ -256,6 +261,8 @@
 				this.listen(this.$.filterMenuContent, 'd2l-filter-menu-content-filters-changed', '_onFilterChanged');
 				this.listen(this.$.filterMenuContent, 'd2l-filter-menu-content-hide', '_onFilterHideChanged');
 
+				this.$.scrollThreshold.scrollTarget = this.$.filterDropdownContent.querySelector('.d2l-dropdown-content-container');
+
 				window.addEventListener('resize', this._onResize.bind(this));
 
 				this._parser = document.createElement('d2l-siren-parser');
@@ -323,6 +330,10 @@
 			},
 			_onFilterHideChanged: function(e) {
 				this.toggleClass('hidden', e.detail.hide, this.$.filterSection);
+			},
+			_onLowerThreshold: function() {
+				this.$.scrollThreshold.clearTriggers();
+				this.$.filterMenuContent._loadMore();
 			},
 			_onResize: function() {
 				this._updateTileSizes();

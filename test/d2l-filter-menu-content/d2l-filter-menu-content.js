@@ -239,7 +239,75 @@ describe('d2l-filter-menu-content', function() {
 				expect(widget._moreDepartmentsUrl).to.equal('/enrollments?page=2');
 				done();
 			});
+		});
 
+		it('should set internal values appropriately when there are not any more semesters', function(done) {
+			widget.$.semesterSearchWidget.fire('d2l-search-widget-results-changed', {
+				links: [{
+					rel: ['self'],
+					href: '/enrollments'
+				}]
+			});
+
+			setTimeout(function() {
+				expect(widget._hasMoreSemesters).to.be.false;
+				expect(widget._moreSemestersUrl).to.equal('');
+				done();
+			});
+		});
+
+		it('should set internal values appropriately when there are more semesters', function(done) {
+			widget.$.semesterSearchWidget.fire('d2l-search-widget-results-changed', {
+				links: [{
+					rel: ['self'],
+					href: '/enrollments'
+				}, {
+					rel: ['next'],
+					href: '/enrollments?page=2'
+				}]
+			});
+
+			setTimeout(function() {
+				expect(widget._hasMoreSemesters).to.be.true;
+				expect(widget._moreSemestersUrl).to.equal('/enrollments?page=2');
+				done();
+			});
+		});
+
+		it('should trigger a request for more departments when the departments tab is selected', function() {
+			var departmentStub = sinon.stub(widget.$.moreDepartmentsRequest, 'generateRequest');
+			var semesterStub = sinon.stub(widget.$.moreSemestersRequest, 'generateRequest');
+			widget._selectDepartmentList();
+
+			widget._loadMore();
+
+			expect(departmentStub.called).to.be.false;
+			expect(semesterStub.called).to.be.false;
+
+			widget.set('_hasMoreDepartments', true);
+
+			widget._loadMore();
+
+			expect(departmentStub.called).to.be.true;
+			expect(semesterStub.called).to.be.false;
+		});
+
+		it('should trigger a request for more semesters when the semesters tab is selected', function() {
+			var departmentStub = sinon.stub(widget.$.moreDepartmentsRequest, 'generateRequest');
+			var semesterStub = sinon.stub(widget.$.moreSemestersRequest, 'generateRequest');
+			widget._selectSemesterList();
+
+			widget._loadMore();
+
+			expect(departmentStub.called).to.be.false;
+			expect(semesterStub.called).to.be.false;
+
+			widget.set('_hasMoreSemesters', true);
+
+			widget._loadMore();
+
+			expect(departmentStub.called).to.be.false;
+			expect(semesterStub.called).to.be.true;
 		});
 	});
 });
