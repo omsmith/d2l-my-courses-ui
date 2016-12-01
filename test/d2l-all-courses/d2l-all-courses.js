@@ -1,4 +1,4 @@
-/* global describe, it, before, beforeEach, fixture, expect, sinon */
+/* global describe, it, beforeEach, fixture, expect, sinon */
 
 'use strict';
 
@@ -7,7 +7,7 @@ describe('d2l-all-courses', function() {
 		pinnedEnrollmentEntity,
 		unpinnedEnrollmentEntity;
 
-	before(function() {
+	beforeEach(function() {
 		var parser = document.createElement('d2l-siren-parser');
 		pinnedEnrollmentEntity = parser.parse({
 			class: ['pinned', 'enrollment'],
@@ -31,9 +31,6 @@ describe('d2l-all-courses', function() {
 				href: '/organizations/123'
 			}]
 		});
-	});
-
-	beforeEach(function() {
 		widget = fixture('d2l-all-courses-fixture');
 	});
 

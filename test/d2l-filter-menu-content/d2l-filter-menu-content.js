@@ -1,4 +1,4 @@
-/* global describe, it, before, beforeEach, fixture, expect, sinon */
+/* global describe, it, beforeEach, fixture, expect, sinon */
 
 'use strict';
 
@@ -9,7 +9,7 @@ describe('d2l-filter-menu-content', function() {
 		enrollment,
 		parser;
 
-	before(function() {
+	beforeEach(function() {
 		parser = document.createElement('d2l-siren-parser');
 		myEnrollmentsEntity = parser.parse({
 			actions: [{
@@ -30,9 +30,6 @@ describe('d2l-filter-menu-content', function() {
 				href: '/organizations/1'
 			}]
 		};
-	});
-
-	beforeEach(function() {
 		sandbox = sinon.sandbox.create();
 		widget = fixture('d2l-filter-menu-content-fixture');
 	});
