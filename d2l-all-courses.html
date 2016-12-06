@@ -292,7 +292,9 @@
 				this._removeAlert('setCourseImageFailure');
 				if (details && details.detail) {
 					if (details.detail.status === 'failure') {
-						this._addAlert('warning', 'setCourseImageFailure', this.localize('error.settingImage'));
+						setTimeout(function() {
+							this._addAlert('warning', 'setCourseImageFailure', this.localize('error.settingImage'));
+						}.bind(this), 1000); // delay until the tile fail icon animation begins to kick in (1 sec delay)
 					}
 				}
 				this.$$('#all-courses-pinned').setCourseImage(details);
