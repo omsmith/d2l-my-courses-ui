@@ -54,7 +54,7 @@
 				margin-bottom: 30px;
 			}
 
-			#lazyLoadSpinner.hidden {
+			#lazyLoadSpinner.d2l-basic-image-selector-hidden {
 				display: none;
 			}
 		</style>
@@ -158,7 +158,7 @@
 				_nextDefaultResultPage: String,
 				_loadingSpinnerClass: {
 					type: String,
-					value: 'hidden'
+					value: 'd2l-basic-image-selector-hidden'
 				},
 				_telemetryEvent: String
 			},
@@ -233,7 +233,7 @@
 				this._nextSearchResultPage = null;
 			},
 			_onImagesRequestResponse: function(response, loadMore, isDefault) {
-				this._loadingSpinnerClass = 'hidden';
+				this._loadingSpinnerClass = 'd2l-basic-image-selector-hidden';
 				if (response.detail.status !== 200) {
 					return;
 				}
@@ -321,7 +321,7 @@
 			},
 			loadMore: function() {
 				if (!this._showGrid) {
-					this._loadingSpinnerClass = 'hidden';
+					this._loadingSpinnerClass = 'd2l-basic-image-selector-hidden';
 					return;
 				}
 
@@ -334,7 +334,7 @@
 					this.$.lazyLoadSpinner.scrollIntoView();
 					this.$.moreDefaultImagesRequest.generateRequest();
 				} else {
-					this._loadingSpinnerClass = 'hidden';
+					this._loadingSpinnerClass = 'd2l-basic-image-selector-hidden';
 				}
 			},
 			_moreDefaultImagesRequestResponse: function(response) {

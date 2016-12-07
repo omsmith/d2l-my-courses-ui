@@ -37,7 +37,7 @@
 				--d2l-icon-width: 15px;
 				margin-top: -0.35rem;
 			}
-			.hidden {
+			.d2l-all-courses-hidden {
 				display: none !important;
 			}
 			.search-and-filter {
@@ -123,8 +123,8 @@
 				sort-field="[[_sortField]]">
 			</d2l-search-widget-custom>
 
-			<div id="filterAndSort" class="hidden">
-				<div id="filterSection" class="hidden">
+			<div id="filterAndSort" class="d2l-all-courses-hidden">
+				<div id="filterSection" class="d2l-all-courses-hidden">
 					<span id="filterText" class="dropdown-opener-text" on-tap="_toggleFilterDropdown">[[_filterText]]</span>
 					<d2l-dropdown id="filterDropdown">
 						<button
@@ -285,7 +285,7 @@
 				// substantial number of enrollments - otherwise, hide the filter menu
 				if (this.pinnedEnrollments.length + this.unpinnedEnrollments.length >= 20) {
 					this.$.filterMenuContent.load();
-					this.toggleClass('hidden', false, this.$.filterAndSort);
+					this.toggleClass('d2l-all-courses-hidden', false, this.$.filterAndSort);
 				}
 			},
 			setCourseImage: function(details) {

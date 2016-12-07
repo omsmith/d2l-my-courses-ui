@@ -98,10 +98,10 @@
 			:host {
 				display: block;
 			}
-			.invisible {
+			.d2l-filter-menu-content-invisible {
 				visibility: hidden;
 			}
-			.hidden {
+			.d2l-filter-menu-content-hidden {
 				display: none !important;
 			}
 			button:hover,
@@ -347,7 +347,7 @@
 			},
 			_loadMore: function() {
 				// Generate the request based off of which tab is selected, and whether there are more to load or not
-				if (this.$.semesterList.classList.contains('hidden')) {
+				if (this.$.semesterList.classList.contains('d2l-filter-menu-content-hidden')) {
 					if (this._hasMoreDepartments) {
 						this.$.moreDepartmentsRequest.generateRequest();
 					}
@@ -435,8 +435,8 @@
 				this.__onMoreResponse(response, '_semesters', '_moreSemestersUrl', '_hasMoreSemesters');
 			},
 			__toggleSelectedList: function(list, button, highlight, selected) {
-				this.toggleClass('hidden', !selected, list);
-				this.toggleClass('invisible', !selected, highlight);
+				this.toggleClass('d2l-filter-menu-content-hidden', !selected, list);
+				this.toggleClass('d2l-filter-menu-content-invisible', !selected, highlight);
 				button.setAttribute('aria-pressed', selected);
 			},
 			_selectDepartmentList: function() {

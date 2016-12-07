@@ -81,13 +81,13 @@ describe('d2l-all-courses', function() {
 	it('should hide filter menu when there are insufficient enrollments', function() {
 		widget.pinnedEnrollments = Array(19).fill(pinnedEnrollmentEntity);
 		widget.load();
-		expect(widget.$.filterAndSort.classList.contains('hidden')).to.be.true;
+		expect(widget.$.filterAndSort.classList.contains('d2l-all-courses-hidden')).to.be.true;
 	});
 
 	it('should show filter menu when there are sufficient enrollments', function() {
 		widget.pinnedEnrollments = Array(20).fill(pinnedEnrollmentEntity);
 		widget.load();
-		expect(widget.$.filterAndSort.classList.contains('hidden')).to.be.false;
+		expect(widget.$.filterAndSort.classList.contains('d2l-all-courses-hidden')).to.be.false;
 	});
 
 	describe('d2l-filter-menu-content-filters-changed', function() {
