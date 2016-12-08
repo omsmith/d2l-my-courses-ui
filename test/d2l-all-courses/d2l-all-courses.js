@@ -1,11 +1,12 @@
-/* global describe, it, beforeEach, fixture, expect, sinon */
+/* global describe, it, beforeEach, afterEach, fixture, expect, sinon */
 
 'use strict';
 
 describe('d2l-all-courses', function() {
 	var widget,
 		pinnedEnrollmentEntity,
-		unpinnedEnrollmentEntity;
+		unpinnedEnrollmentEntity,
+		clock;
 
 	beforeEach(function() {
 		var parser = document.createElement('d2l-siren-parser');
@@ -31,7 +32,14 @@ describe('d2l-all-courses', function() {
 				href: '/organizations/123'
 			}]
 		});
+
+		clock = sinon.useFakeTimers();
+
 		widget = fixture('d2l-all-courses-fixture');
+	});
+
+	afterEach(function() {
+		clock.restore;
 	});
 
 	it('should return the correct value from getCourseTileItemCount (should be maximum of pinned or unpinned course count)', function() {
@@ -148,6 +156,7 @@ describe('d2l-all-courses', function() {
 		it('should add a setCourseImageFailure warning alert when a request to set the image fails', function() {
 			var setCourseImageEvent = { detail: { status: 'failure'} };
 			widget.setCourseImage(setCourseImageEvent);
+			clock.tick(1001);
 			expect(widget._alerts).to.include({ alertName: 'setCourseImageFailure', alertType: 'warning', alertMessage: 'Sorry, we\'re unable to change your image right now. Please try again later.' });
 		});
 
@@ -160,6 +169,7 @@ describe('d2l-all-courses', function() {
 		it('should remove a setCourseImageFailure warning alert when a request to set the image is made', function() {
 			var setCourseImageEvent = { detail: { status: 'failure'} };
 			widget.setCourseImage(setCourseImageEvent);
+			clock.tick(1001);
 			expect(widget._alerts).to.include({ alertName: 'setCourseImageFailure', alertType: 'warning', alertMessage: 'Sorry, we\'re unable to change your image right now. Please try again later.' });
 			setCourseImageEvent = { detail: { status: 'set'} };
 			widget.setCourseImage(setCourseImageEvent);

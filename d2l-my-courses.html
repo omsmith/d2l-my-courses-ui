@@ -344,7 +344,9 @@
 				this._removeAlert('setCourseImageFailure');
 				if (e && e.detail) {
 					if (e.detail.status === 'failure') {
-						this._addAlert('warning', 'setCourseImageFailure', this.localize('error.settingImage'));
+						setTimeout(function() {
+							this._addAlert('warning', 'setCourseImageFailure', this.localize('error.settingImage'));
+						}.bind(this), 1000); // delay until the tile fail icon animation begins to kick in (1 sec delay)
 					}
 				}
 				this.$$('d2l-all-courses').setCourseImage(e);

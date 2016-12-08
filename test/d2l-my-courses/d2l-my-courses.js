@@ -126,14 +126,18 @@ describe('d2l-my-courses', function() {
 			}]
 		};
 
+	var clock;
+
 	beforeEach(function() {
 		server = sinon.fakeServer.create();
 		server.respondImmediately = true;
+		clock = sinon.useFakeTimers();
 
 		widget = fixture('d2l-my-courses-fixture');
 	});
 
 	afterEach(function() {
+		clock.restore();
 		server.restore();
 	});
 
@@ -392,6 +396,7 @@ describe('d2l-my-courses', function() {
 		it('should add a setCourseImageFailure warning alert when a request to set the image fails', function() {
 			var setCourseImageEvent = { detail: { status: 'failure'} };
 			widget._setCourseImageEvent(setCourseImageEvent);
+			clock.tick(1001);
 			expect(widget._alerts).to.include({ alertName: 'setCourseImageFailure', alertType: 'warning', alertMessage: 'Sorry, we\'re unable to change your image right now. Please try again later.' });
 		});
 
@@ -404,6 +409,7 @@ describe('d2l-my-courses', function() {
 		it('should remove a setCourseImageFailure warning alert when a request to set the image is made', function() {
 			var setCourseImageEvent = { detail: { status: 'failure'} };
 			widget._setCourseImageEvent(setCourseImageEvent);
+			clock.tick(1001);
 			expect(widget._alerts).to.include({ alertName: 'setCourseImageFailure', alertType: 'warning', alertMessage: 'Sorry, we\'re unable to change your image right now. Please try again later.' });
 			setCourseImageEvent = { detail: { status: 'set'} };
 			widget._setCourseImageEvent(setCourseImageEvent);
@@ -412,20 +418,19 @@ describe('d2l-my-courses', function() {
 	});
 
 	describe('User interaction', function() {
-		it('should rescale the all courses view when it is opened', function(done) {
+		it('should rescale the all courses view when it is opened', function() {
 			var allCoursesRescaleSpy = sinon.spy(widget.$$('d2l-all-courses'), '_rescaleCourseTileRegions');
 
 			widget.$$('button').click();
 
-			setTimeout(function() {
-				expect(allCoursesRescaleSpy.called);
-				widget.$$('d2l-all-courses')._rescaleCourseTileRegions.restore();
-				done();
-			}, 100);
+			clock.tick(100);
+			expect(allCoursesRescaleSpy.called);
+			widget.$$('d2l-all-courses')._rescaleCourseTileRegions.restore();
 		});
 
 		it('should remove a setCourseImageFailure alert when the all-courses overlay is closed', function() {
 			widget._addAlert('warning', 'setCourseImageFailure', 'failed to do that thing it should do');
+			clock.tick(1001);
 			expect(widget._alerts).to.include({ alertName: 'setCourseImageFailure', alertType: 'warning', alertMessage: 'failed to do that thing it should do' });
 			widget.$['all-courses']._handleClose();
 			expect(widget._alerts).to.not.include({ alertName: 'setCourseImageFailure', alertType: 'warning', alertMessage: 'failed to do that thing it should do' });
