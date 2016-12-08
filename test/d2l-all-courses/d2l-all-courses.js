@@ -122,6 +122,24 @@ describe('d2l-all-courses', function() {
 		});
 	});
 
+	describe('d2l-filter-menu-content-hide', function() {
+		it('should hide the filter if the filter contents says it should be hidden', function() {
+			widget.$$('d2l-filter-menu-content').fire('d2l-filter-menu-content-hide', {
+				hide: true
+			});
+
+			expect(getComputedStyle(widget.$.filterSection).display).to.equal('none');
+		});
+
+		it('should show the filter if the filter contents says it should be shown', function() {
+			widget.$$('d2l-filter-menu-content').fire('d2l-filter-menu-content-hide', {
+				hide: false
+			});
+
+			expect(getComputedStyle(widget.$.filterSection).display).to.not.equal('none');
+		});
+	});
+
 	describe('Alerts', function() {
 
 		it('should display appropriate message when there are no pinned enrollments', function() {
