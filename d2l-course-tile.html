@@ -308,7 +308,7 @@ in that organization - student, teacher, TA, etc.
 					// Remove the icon after a bit of time
 					setTimeout(function() {
 						if (success) {
-							this.toggleClass('hidden', false, courseImage);
+							this.toggleClass('d2l-course-tile-hidden', false, courseImage);
 							this._image = this._nextImage;
 						}
 						this.toggleClass(successClass, false, tileContainer);
