@@ -276,14 +276,14 @@ describe('d2l-filter-menu-content', function() {
 			var semesterStub = sinon.stub(widget.$.moreSemestersRequest, 'generateRequest');
 			widget._selectDepartmentList();
 
-			widget._loadMore();
+			widget.loadMore();
 
 			expect(departmentStub.called).to.be.false;
 			expect(semesterStub.called).to.be.false;
 
 			widget.set('_hasMoreDepartments', true);
 
-			widget._loadMore();
+			widget.loadMore();
 
 			expect(departmentStub.called).to.be.true;
 			expect(semesterStub.called).to.be.false;
@@ -294,14 +294,14 @@ describe('d2l-filter-menu-content', function() {
 			var semesterStub = sinon.stub(widget.$.moreSemestersRequest, 'generateRequest');
 			widget._selectSemesterList();
 
-			widget._loadMore();
+			widget.loadMore();
 
 			expect(departmentStub.called).to.be.false;
 			expect(semesterStub.called).to.be.false;
 
 			widget.set('_hasMoreSemesters', true);
 
-			widget._loadMore();
+			widget.loadMore();
 
 			expect(departmentStub.called).to.be.false;
 			expect(semesterStub.called).to.be.true;
