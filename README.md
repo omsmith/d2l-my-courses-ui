@@ -78,6 +78,8 @@ In the description of your pull request, please include the following informatio
 
 3. Areas of risk that should be addressed during testing
 
+Before your PR is merged, it should be tested thoroughly, and the person who does this testing should describe their test steps in detail in a comment. These steps should then be reviewed by the developer and assessed for gaps before the PR gets merged.
+
 > Note: To contribute, please create a branch in this repo instead of a fork.
 We are using [Sauce Labs](https://saucelabs.com/) in our CI builds which don't
 work in PRs from forks. Thanks!
