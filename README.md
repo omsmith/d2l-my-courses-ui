@@ -71,6 +71,15 @@ To publish a numbered "release" version, use the "Draft a new release" tool on G
 ## Contributing
 Contributions are welcome, please submit a pull request!
 
+In the description of your pull request, please include the following information:
+1. The associated user story number, if applicable
+
+2. The acceptance criteria for this feature
+
+3. Areas of risk that should be addressed during testing
+
+Before your PR is merged, it should be tested thoroughly, and the person who does this testing should describe their test steps in detail in a comment. These steps should then be reviewed by the developer and assessed for gaps before the PR gets merged.
+
 > Note: To contribute, please create a branch in this repo instead of a fork.
 We are using [Sauce Labs](https://saucelabs.com/) in our CI builds which don't
 work in PRs from forks. Thanks!
