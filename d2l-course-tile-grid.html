@@ -20,7 +20,7 @@
 					animate-insertion="[[_removeEnrollmentFromTransitionList(item)]]"
 					class="grid-child"
 					enrollment-id="[[getEntityIdentifier(item)]]"
-					delay-load="[[delayCourseTileLoad]]"
+					delay-load="[[delayLoad]]"
 					tile-sizes="[[tileSizes]]"
 					user-id="[[userId]]"
 					tenant-id="[[tenantId]]"
@@ -47,7 +47,7 @@
 
 			properties: {
 				// Sets the delay-load property on the course tiles
-				delayCourseTileLoad: Boolean,
+				delayLoad: Boolean,
 				// Set of enrollment Entities for which to display course tiles
 				enrollments: {
 					type: Array,

@@ -184,7 +184,7 @@
 			id="all-courses-pinned"
 			enrollments="{{pinnedEnrollments}}"
 			enrollments-queue="{{pinnedEnrollmentsQueue}}"
-			delay-course-tile-load="[[delayCourseTileLoad]]"
+			delay-load="[[delayLoad]]"
 			tile-sizes="[[_tileSizes]]">
 		</d2l-course-tile-grid>
 
@@ -194,7 +194,7 @@
 			id="all-courses-unpinned"
 			enrollments="{{unpinnedEnrollments}}"
 			enrollments-queue="{{unpinnedEnrollmentsQueue}}"
-			delay-course-tile-load="[[delayCourseTileLoad]]"
+			delay-load="[[delayLoad]]"
 			tile-sizes="[[_tileSizes]]">
 		</d2l-course-tile-grid>
 	</template>
@@ -206,7 +206,7 @@
 			is: 'd2l-all-courses',
 			properties: {
 				// Sets the delay-load property on the course tile grid
-				delayCourseTileLoad: {
+				delayLoad: {
 					type: Boolean,
 					value: true
 				},
@@ -279,7 +279,8 @@
 			},
 			load: function() {
 				// Load course tile and filter contents. Called from d2l-my-courses.
-				this.delayCourseTileLoad = false;
+
+				this.set('delayLoad', false);
 
 				// Only make the call to load the filter menu contents if user has a
 				// substantial number of enrollments - otherwise, hide the filter menu

@@ -161,14 +161,6 @@
 			is: 'd2l-my-courses',
 
 			properties: {
-				/*
-				* Allows for delaying the call to `enrollmentsUrl` (required by tests)
-				* TODO: Better way to do this?
-				*/
-				delayLoad: {
-					type: Boolean,
-					value: false
-				},
 				// URL that is called by the widget to fetch enrollments
 				enrollmentsUrl: String,
 				// URL that is called by the widget to fetch results from the course image catalog
@@ -218,9 +210,7 @@
 				this.toggleClass('d2l-my-courses-hidden', true, this.$.courseList);
 			},
 			attached: function() {
-				if (!this.delayLoad) {
-					this.$.enrollmentsRootRequest.generateRequest();
-				}
+				this.$.enrollmentsRootRequest.generateRequest();
 
 				this.$['all-courses-scroll-threshold'].scrollTarget = this.$['all-courses'].scrollRegion;
 				this.$['image-selector-threshold'].scrollTarget = this.$['basic-image-selector-overlay'].scrollRegion;
