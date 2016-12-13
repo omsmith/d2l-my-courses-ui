@@ -39,7 +39,7 @@ describe('d2l-all-courses', function() {
 	});
 
 	afterEach(function() {
-		clock.restore;
+		clock.restore();
 	});
 
 	it('should return the correct value from getCourseTileItemCount (should be maximum of pinned or unpinned course count)', function() {
@@ -89,25 +89,24 @@ describe('d2l-all-courses', function() {
 		expect(widget.$.filterAndSort.classList.contains('d2l-all-courses-hidden')).to.be.false;
 	});
 
-	describe('d2l-filter-menu-content-filters-changed', function() {
+	describe('d2l-filter-menu-content-change', function() {
 		var event = {
-			value: [1],
+			filters: [1],
 			text: 'foo'
 		};
 
-		it('should update the parent organizations passed to d2l-search-widget-custom', function() {
-			var search = widget.$$('d2l-search-widget-custom');
-			expect(search.parentOrganizations.length).to.equal(0);
+		it('should update the parent organizations', function() {
+			expect(widget._parentOrganizations.length).to.equal(0);
 
-			widget.$$('d2l-filter-menu-content').fire('d2l-filter-menu-content-filters-changed', event);
+			widget.$$('d2l-filter-menu-content').fire('d2l-filter-menu-content-change', event);
 
-			expect(search.parentOrganizations.length).to.equal(1);
+			expect(widget._parentOrganizations.length).to.equal(1);
 		});
 
 		it('should update the filter menu opener text', function() {
 			expect(widget._filterText).to.equal('Filter');
 
-			widget.$$('d2l-filter-menu-content').fire('d2l-filter-menu-content-filters-changed', event);
+			widget.$$('d2l-filter-menu-content').fire('d2l-filter-menu-content-change', event);
 
 			expect(widget._filterText).to.equal('foo');
 		});
