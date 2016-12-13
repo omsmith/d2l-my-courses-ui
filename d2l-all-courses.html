@@ -12,7 +12,7 @@
 <link rel="import" href="d2l-course-management-behavior.html">
 <link rel="import" href="d2l-course-tile-grid.html">
 <link rel="import" href="d2l-course-tile-responsive-grid-behavior.html">
-<link rel="import" href="d2l-filter-menu-content.html">
+<link rel="import" href="d2l-filter-menu-content/d2l-filter-menu-content.html">
 <link rel="import" href="d2l-search-widget-custom.html">
 <link rel="import" href="localize-behavior.html">
 
@@ -115,7 +115,7 @@
 			}
 		</style>
 
-		<div class="search-and-filter d2l-all-courses-hidden">
+		<div class="search-and-filter">
 			<d2l-search-widget-custom
 				hidden$="[[!_hasEnrollments]]"
 				my-enrollments-entity="[[myEnrollmentsEntity]]"
@@ -336,7 +336,7 @@
 			},
 			_onLowerThreshold: function() {
 				this.$.scrollThreshold.clearTriggers();
-				this.$.filterMenuContent._loadMore();
+				this.$.filterMenuContent.loadMore();
 			},
 			_onResize: function() {
 				this._updateTileSizes();
