@@ -1,0 +1,84 @@
+<link rel="import" href="../../polymer/polymer.html">
+<link rel="import" href="../../d2l-ajax/d2l-ajax.html">
+<link rel="import" href="../../d2l-colors/d2l-colors.html">
+<link rel="import" href="../../d2l-menu/d2l-menu.html">
+<link rel="import" href="../../d2l-siren-parser/d2l-siren-parser.html">
+<link rel="import" href="../localize-behavior.html">
+<link rel="import" href="d2l-list-item-filter.html">
+
+<dom-module is="d2l-filter-menu-content-simple">
+	<template>
+		<style>
+			:host {
+				display: block;
+			}
+			.dropdown-content-gradient {
+				background: linear-gradient(to top, white, var(--d2l-color-regolith));
+			}
+		</style>
+
+		<div class="dropdown-content-gradient">
+			<d2l-menu label="{{localize('filtering.filter')}}">
+				<template is="dom-repeat" items="[[filterItems]]">
+					<d2l-list-item-filter
+						enrollment-entity="[[item]]">
+					</d2l-list-item-filter>
+				</template>
+			</d2l-menu>
+		</div>
+	</template>
+
+	<script>
+		'use strict';
+
+		Polymer({
+			is: 'd2l-filter-menu-content-simple',
+			properties: {
+				filterItems: {
+					type: Array,
+					observer: '_filterItemsChanged'
+				},
+				_currentFilters: {
+					type: Array,
+					value: function() { return []; }
+				}
+			},
+			behaviors: [
+				window.D2L.MyCourses.LocalizeBehavior
+			],
+			attached: function() {
+				this.listen(this.$$('d2l-menu'), 'd2l-menu-item-change', '_updateFilter');
+			},
+			detached: function() {
+				this.unlisten(this.$$('d2l-menu'), 'd2l-menu-item-change', '_updateFilter');
+			},
+			_clearFilters: function() {
+				this.$$('d2l-menu').querySelectorAll('d2l-list-item-filter').forEach(function(item) {
+					item.selected = false;
+				});
+				this.set('_currentFilters', []);
+				this.fire('d2l-filter-menu-content-filters-changed', {
+					filters: this._currentFilters
+				});
+
+				// Clear button is removed via dom-if, so need to manually set focus to next element
+				this.$$('d2l-menu d2l-list-item-filter').focus();
+			},
+			_filterItemsChanged: function() {
+				this.$$('d2l-menu').resize();
+			},
+			_updateFilter: function(e) {
+				if (e.detail.selected) {
+					this.push('_currentFilters', e.detail.value);
+				} else {
+					var index = this._currentFilters.indexOf(e.detail.value);
+					this.splice('_currentFilters', index, 1);
+				}
+
+				this.fire('d2l-filter-menu-content-filters-changed', {
+					filters: this._currentFilters
+				});
+			}
+		});
+	</script>
+</dom-module>

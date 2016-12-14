@@ -1,8 +1,6 @@
 <link rel="import" href="../../polymer/polymer.html">
-<link rel="import" href="../../iron-scroll-threshold/iron-scroll-threshold.html">
 <link rel="import" href="../../d2l-ajax/d2l-ajax.html">
 <link rel="import" href="../../d2l-colors/d2l-colors.html">
-<link rel="import" href="../../d2l-icons/d2l-icons.html">
 <link rel="import" href="../../d2l-menu/d2l-menu.html">
 <link rel="import" href="../../d2l-search-widget/d2l-search-widget.html">
 <link rel="import" href="../../d2l-siren-parser/d2l-siren-parser.html">
@@ -307,7 +305,6 @@
 			_selectDepartmentList: function() {
 				this.__toggleSelectedList(this.$.departmentList, this.$.departmentListButton, this.$.departmentListHighlight, true);
 				this.__toggleSelectedList(this.$.semesterList, this.$.semesterListButton, this.$.semesterListHighlight, false);
-				this.$.semesterSearchWidget.clear();
 				this.$.departmentSearchWidget.clear();
 				this.$.departmentList.querySelector('d2l-menu').resize();
 			},
@@ -315,7 +312,6 @@
 				this.__toggleSelectedList(this.$.semesterList, this.$.semesterListButton, this.$.semesterListHighlight, true);
 				this.__toggleSelectedList(this.$.departmentList, this.$.departmentListButton, this.$.departmentListHighlight, false);
 				this.$.semesterSearchWidget.clear();
-				this.$.departmentSearchWidget.clear();
 				this.$.semesterList.querySelector('d2l-menu').resize();
 			},
 			__updateFilter: function(e, path) {
