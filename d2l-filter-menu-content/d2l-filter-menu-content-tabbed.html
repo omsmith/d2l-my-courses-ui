@@ -198,7 +198,6 @@
 			load: function() {
 				this.$.departmentSearchWidget.search();
 				this.$.semesterSearchWidget.search();
-				this._selectSemesterList();
 			},
 			loadMore: function() {
 				// Called from d2l-all-courses, as that's where the iron-scroll-threshold is
@@ -209,13 +208,11 @@
 					this.$.moreSemestersRequest.generateRequest();
 				}
 			},
-			__parser: null,
-			_parser: function() {
-				if (!this.__parser) {
-					this.__parser = document.createElement('d2l-siren-parser');
-				}
-				return this.__parser;
+			open: function() {
+				// When opened, select the leftmost (semester) tab. Also resizes the menu, in case the backing data has changed.
+				this._selectSemesterList();
 			},
+			_parser: null,
 			_checkSelected: function(entity) {
 				// Checks if the given entity should be "selected" - used when semester/department search results change mostly
 				var id = entity.getLinkByRel(/\/organization$/).href;
@@ -246,7 +243,8 @@
 			_myEnrollmentsEntityChanged: function(entity) {
 				// Set up search URLs and search Actions for filter dropdown
 				if (entity) {
-					var myEnrollmentsEntity = this._parser().parse(entity);
+					this._parser = this._parser || document.createElement('d2l-siren-parser');
+					var myEnrollmentsEntity = this._parser.parse(entity);
 
 					this.set('_searchDepartmentsAction', myEnrollmentsEntity.getActionByName('add-department-filter'));
 					this.set('_searchSemestersAction', myEnrollmentsEntity.getActionByName('add-semester-filter'));
@@ -266,7 +264,8 @@
 			},
 			__onSearchResults: function(entity, moreUrlPath, hasMorePath) {
 				if (!entity.hasLinkByRel) {
-					entity = this._parser().parse(entity);
+					this._parser = this._parser || document.createElement('d2l-siren-parser');
+					entity = this._parser.parse(entity);
 				}
 
 				this.set(hasMorePath, entity.hasLinkByRel('next'));
@@ -282,7 +281,8 @@
 			},
 			__onMoreResponse: function(response, organizationsPath, moreUrlPath, hasMorePath) {
 				if (response.detail.status === 200 || response.detail.status === 304) {
-					var responseEntity = this._parser().parse(response.detail.xhr.response);
+					this._parser = this._parser || document.createElement('d2l-siren-parser');
+					var responseEntity = this._parser.parse(response.detail.xhr.response);
 
 					responseEntity.entities.forEach(function(entity) {
 						this.push(organizationsPath, entity);

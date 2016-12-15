@@ -93,26 +93,19 @@
 				filterText: String,
 				myEnrollmentsEntity: {
 					type: Object,
-					value: function() { return {}; },
 					observer: '_myEnrollmentsEntityChanged'
 				},
 				_currentFilters: {
 					type: Array,
 					value: function() { return []; }
 				},
-				_departments: {
-					type: Array,
-					value: function() { return []; }
-				},
+				_departments: Array,
 				_departmentsUrl: String,
 				_hasManyFilters: {
 					type: Boolean,
 					value: false
 				},
-				_semesters: {
-					type: Array,
-					value: function() { return []; }
-				},
+				_semesters: Array,
 				_semestersUrl: String,
 				_showClearButton: {
 					type: Boolean,
@@ -144,15 +137,15 @@
 					this.$.tabbedContent.loadMore();
 				}
 			},
-			__parser: null,
-			_parser: function() {
-				if (!this.__parser) {
-					this.__parser = document.createElement('d2l-siren-parser');
-				}
-				return this.__parser;
+			open: function() {
+				this._currentContent().open();
 			},
+			_currentContent: function() {
+				return this.$$('#contentView > :not([hidden])');
+			},
+			_parser: null,
 			_clearFilters: function() {
-				this.$$('#contentView > :not([hidden])')._clearFilters();
+				this._currentContent()._clearFilters();
 
 				this._showClearButton = false;
 
@@ -162,7 +155,9 @@
 			_myEnrollmentsEntityChanged: function(entity) {
 				// Set up search URLs and search Actions for filter dropdown
 				if (entity && entity.actions) {
-					var myEnrollmentsEntity = this._parser().parse(entity);
+					this._parser = this._parser || document.createElement('d2l-siren-parser');
+
+					var myEnrollmentsEntity = this._parser.parse(entity);
 					var departmentsAction  = myEnrollmentsEntity.getActionByName('add-department-filter');
 					var semestersAction = myEnrollmentsEntity.getActionByName('add-semester-filter');
 					this.set('_departmentsUrl', this.createActionUrl(departmentsAction));
@@ -171,8 +166,13 @@
 			},
 			__onResponse: function(response, path) {
 				if (response.detail.status === 200 || response.detail.status === 304) {
-					var entity = this._parser().parse(response.detail.xhr.response);
+					this._parser = this._parser || document.createElement('d2l-siren-parser');
+					var entity = this._parser.parse(response.detail.xhr.response);
 					this.set(path, entity.entities);
+
+					if (!this._departments || !this._semesters) {
+						return;
+					}
 
 					this.set('_hasManyFilters', this._departments.length + this._semesters.length > 7);
 					if (this._hasManyFilters) {

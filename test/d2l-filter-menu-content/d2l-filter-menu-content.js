@@ -36,7 +36,8 @@ describe('d2l-filter-menu-content', function() {
 
 	describe('Visibility and content type', function() {
 		var enrollment,
-			response,
+			departmentsResponse,
+			semestersResponse,
 			server;
 
 		beforeEach(function() {
@@ -47,7 +48,14 @@ describe('d2l-filter-menu-content', function() {
 				/\/enrollments\/departments/,
 				function(req) {
 					expect(req.requestHeaders['accept']).to.equal('application/vnd.siren+json');
-					req.respond(200, {}, JSON.stringify(response));
+					req.respond(200, {}, JSON.stringify(departmentsResponse));
+				});
+			server.respondWith(
+				'GET',
+				/\/enrollments\/semesters/,
+				function(req) {
+					expect(req.requestHeaders['accept']).to.equal('application/vnd.siren+json');
+					req.respond(200, {}, JSON.stringify(semestersResponse));
 				});
 
 			enrollment = {
@@ -74,9 +82,8 @@ describe('d2l-filter-menu-content', function() {
 			};
 			document.addEventListener('d2l-filter-menu-content-hide', handler);
 
-			response = {
-				entities: [enrollment]
-			};
+			departmentsResponse = { entities: [enrollment] };
+			semestersResponse = { entities: [] };
 
 			component.myEnrollmentsEntity = myEnrollmentsEntity;
 			component.load();
@@ -90,9 +97,8 @@ describe('d2l-filter-menu-content', function() {
 			};
 			document.addEventListener('d2l-filter-menu-content-hide', handler);
 
-			response = {
-				entities: [enrollment, enrollment]
-			};
+			departmentsResponse = { entities: [enrollment] };
+			semestersResponse = { entities: [enrollment] };
 
 			component.myEnrollmentsEntity = myEnrollmentsEntity;
 			component.load();
@@ -100,16 +106,15 @@ describe('d2l-filter-menu-content', function() {
 
 		it('should show a simplified menu for users with <=7 semesters + departments', function(done) {
 			var handler = function() {
-				var content = component.$$('#contentView > :not([hidden])');
+				var content = component._currentContent();
 				expect(content.tagName).to.equal('D2L-FILTER-MENU-CONTENT-SIMPLE');
 				document.removeEventListener('d2l-filter-menu-content-hide', handler);
 				done();
 			};
 			document.addEventListener('d2l-filter-menu-content-hide', handler);
 
-			response = {
-				entities: [enrollment, enrollment, enrollment, enrollment, enrollment, enrollment, enrollment]
-			};
+			departmentsResponse = { entities: [enrollment, enrollment, enrollment, enrollment] };
+			semestersResponse = { entities: [enrollment, enrollment, enrollment] };
 
 			component.myEnrollmentsEntity = myEnrollmentsEntity;
 			component.load();
@@ -117,16 +122,15 @@ describe('d2l-filter-menu-content', function() {
 
 		it('should show a tabbed menu for users with >7 semesters + departments', function(done) {
 			var handler = function() {
-				var content = component.$$('#contentView > :not([hidden])');
+				var content = component._currentContent();
 				expect(content.tagName).to.equal('D2L-FILTER-MENU-CONTENT-TABBED');
 				document.removeEventListener('d2l-filter-menu-content-hide', handler);
 				done();
 			};
 			document.addEventListener('d2l-filter-menu-content-hide', handler);
 
-			response = {
-				entities: [enrollment, enrollment, enrollment, enrollment, enrollment, enrollment, enrollment, enrollment]
-			};
+			departmentsResponse = { entities: [enrollment, enrollment, enrollment, enrollment] };
+			semestersResponse = { entities: [enrollment, enrollment, enrollment, enrollment] };
 
 			component.myEnrollmentsEntity = myEnrollmentsEntity;
 			component.load();
@@ -149,7 +153,7 @@ describe('d2l-filter-menu-content', function() {
 		});
 
 		it('should be hidden when there are no filters selected', function() {
-			component.$$('#contentView > :not([hidden])').fire('d2l-filter-menu-content-filters-changed', {
+			component._currentContent().fire('d2l-filter-menu-content-filters-changed', {
 				filters: []
 			});
 
@@ -158,7 +162,7 @@ describe('d2l-filter-menu-content', function() {
 		});
 
 		it('should appear when at least one filter is selected', function(done) {
-			component.$$('#contentView > :not([hidden])').fire('d2l-filter-menu-content-filters-changed', {
+			component._currentContent().fire('d2l-filter-menu-content-filters-changed', {
 				filters: [1]
 			});
 
@@ -170,7 +174,7 @@ describe('d2l-filter-menu-content', function() {
 		});
 
 		it('should clear filters when clicked', function(done) {
-			component.$$('#contentView > :not([hidden])').fire('d2l-filter-menu-content-filters-changed', {
+			component._currentContent().fire('d2l-filter-menu-content-filters-changed', {
 				filters: [1]
 			});
 
@@ -184,7 +188,7 @@ describe('d2l-filter-menu-content', function() {
 
 	describe('Filter text', function() {
 		it('should read "Filter" when no filters are selected', function() {
-			component.$$('#contentView > :not([hidden])').fire('d2l-filter-menu-content-filters-changed', {
+			component._currentContent().fire('d2l-filter-menu-content-filters-changed', {
 				filters: []
 			});
 

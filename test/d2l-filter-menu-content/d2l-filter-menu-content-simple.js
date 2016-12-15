@@ -1,4 +1,4 @@
-/* global describe, it, beforeEach, fixture, expect, sinon */
+/* global describe, it, beforeEach, fixture */
 
 'use strict';
 
@@ -7,15 +7,6 @@ describe('d2l-filter-menu-content-simple', function() {
 
 	beforeEach(function() {
 		component = fixture('d2l-filter-menu-content-fixture');
-	});
-
-	it('should observe changes to filterItems', function() {
-		var spy = sinon.spy(component, '_filterItemsChanged');
-
-		component.filterItems = [1];
-
-		expect(spy.called).to.be.true;
-		spy.restore();
 	});
 
 	describe('d2l-filter-menu-content-filters-changed', function() {
