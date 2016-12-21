@@ -199,7 +199,9 @@
 				'open-change-image-view': '_openChangeImageView',
 				'set-course-image': '_setCourseImageEvent',
 				'clear-image-scroll-threshold': '_clearImageScrollThreshold',
-				'simple-overlay-closed': '_onSimpleOverlayClosed'
+				'simple-overlay-closed': '_onSimpleOverlayClosed',
+				'enrollment-pinned': '_onEnrollmentPinAction',
+				'enrollment-unpinned': '_onEnrollmentPinAction'
 			},
 			observers: [
 				'_updateEnrollmentAlerts(_hasEnrollments, _hasPinnedEnrollments)'
@@ -207,6 +209,7 @@
 			ready: function() {
 				this._pinnedCoursesMap = {};
 				this._updateEnrollmentAlerts(this._hasEnrollments, this._hasPinnedEnrollments);
+				this._onEnrollmentPinnedMessage = this._onEnrollmentPinnedMessage.bind(this);
 
 				this.toggleClass('d2l-my-courses-hidden', true, this.$.courseTiles);
 				this.toggleClass('d2l-my-courses-hidden', true, this.$.courseList);
@@ -214,8 +217,13 @@
 			attached: function() {
 				this.$.enrollmentsRootRequest.generateRequest();
 
+				document.body.addEventListener('d2l-course-pinned-change', this._onEnrollmentPinnedMessage, true);
+
 				this.$['all-courses-scroll-threshold'].scrollTarget = this.$['all-courses'].scrollRegion;
 				this.$['image-selector-threshold'].scrollTarget = this.$['basic-image-selector-overlay'].scrollRegion;
+			},
+			detached: function() {
+				document.body.removeEventListener('d2l-course-pinned-change', this._onEnrollmentPinnedMessage, true);
 			},
 			getCourseTileItemCount: function() {
 				return this.pinnedEnrollments.length;
@@ -252,8 +260,11 @@
 					var newUnpinnedEnrollments = [];
 
 					enrollmentEntities.forEach(function(enrollment) {
+						var enrollmentId = this.getEntityIdentifier(enrollment);
+						var orgUnitId = /organizations\/([0-9]+)/
+							.exec(enrollmentId)[1];
+
 						if (enrollment.hasClass('pinned')) {
-							var enrollmentId = this.getEntityIdentifier(enrollment);
 							if (!this._pinnedCoursesMap.hasOwnProperty(enrollmentId)) {
 								newPinnedEnrollments.push(enrollment);
 								this._pinnedCoursesMap[enrollmentId] = true;
@@ -261,6 +272,8 @@
 						} else {
 							newUnpinnedEnrollments.push(enrollment);
 						}
+
+						this._enrollmentIdMap[orgUnitId] = enrollmentId;
 					}, this);
 
 					this.pinnedEnrollments = this.pinnedEnrollments.concat(newPinnedEnrollments);
@@ -349,6 +362,27 @@
 			},
 			_clearImageScrollThreshold: function() {
 				this.$['image-selector-threshold'].clearTriggers();
+			},
+			_onEnrollmentPinAction: function(e) {
+				var isPinned = e.type === 'enrollment-pinned';
+				var orgUnitId = /organizations\/([0-9]+)/
+					.exec(this.getEntityIdentifier(e.detail.enrollment))[1];
+
+				this.fire(
+					'd2l-course-pinned-change', {
+						orgUnitId: orgUnitId,
+						isPinned: isPinned
+					}
+				);
+			},
+			_onEnrollmentPinnedMessage: function(e) {
+				if (e.target !== this) {
+					if (e.detail.isPinned) {
+						this._pinEnrollment(e.detail.orgUnitId);
+					} else {
+						this._unpinEnrollment(e.detail.orgUnitId);
+					}
+				}
 			},
 			_updateEnrollmentAlerts: function(hasEnrollments, hasPinnedEnrollments) {
 				this._clearAlerts();
