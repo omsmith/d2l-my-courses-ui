@@ -114,12 +114,19 @@
 			on-iron-ajax-response="_onSearchResponse">
 		</d2l-ajax>
 
+		<d2l-ajax
+			id="searchRequestTiles"
+			url="[[_searchUrlTiles]]"
+			headers='{ "Accept": "application/vnd.siren+json" }'
+			on-iron-ajax-response="_onSearchResponseTiles">
+		</d2l-ajax>
+
 		<d2l-dropdown no-auto-open>
 			<div class="search-bar d2l-dropdown-opener" id="opener">
 				<button
 					type="button"
 					aria-label$="{{localize('search.searchCourses')}}"
-					on-tap="_onSearchButtonClick"
+					on-tap="_performSearch"
 					class="search-icon search-button">
 					<d2l-icon icon="d2l-tier1:search"></d2l-icon>
 				</button>
@@ -154,7 +161,7 @@
 							<d2l-search-listbox>
 								<div class="d2l-heading-4" data-list-title disabled>{{localize('recentSearches')}}</div>
 								<template is="dom-repeat" items="[[_previousSearches]]">
-									<div selectable data-text$="[[item]]" data-href$="[[_computePreviousSearchLink(item)]]" role="option">
+									<div selectable data-text$="[[item]]" role="option">
 										[[item]]
 									</div>
 								</template>
@@ -231,6 +238,7 @@
 				},
 
 				_searchUrl: String,
+				_searchUrlTiles: String,
 
 				// List of strings containing previously searched terms/selected courses
 				_previousSearches: {
@@ -242,6 +250,7 @@
 			},
 
 			listeners: {
+				'iron-activate': '_onIronActivate',
 				'iron-select': '_onIronSelect'
 			},
 
@@ -271,7 +280,6 @@
 				for (i = 0; i < this._listboxes.length; i++) {
 					this._listboxes[i].owner = this.$$('input');
 				}
-
 				this._initializePreviousSearches();
 			},
 
@@ -306,7 +314,6 @@
 			// Calls the search-my-enrollments action, used to populate live search results in the listbox
 			_liveSearch: function() {
 				if (this._searchString) {
-					this.cancelDebouncer('liveSearchJob');
 
 					var queryParams = {
 						search: this._searchString,
@@ -334,16 +341,28 @@
 				}
 			},
 
-			_advancedSearch: function(searchString) {
-				if (searchString) {
-					var queryString = this._advancedSearchUrl + searchString;
-					this._addSearchToHistory(searchString);
-					window.location.href = queryString;
-				}
+			_search: function() {
+				var queryParams = {
+					search: this._searchString,
+					page: 1,
+					pageSize: 20,
+					parentOrganizations: this.parentOrganizations.join(','),
+					sortField: this.sortField,
+					// Need to reverse the order for sorting by name
+					sortDescending: this.sortField !== 'courseName'
+				};
+
+				this._searchUrlTiles = this.createActionUrl(
+					this._searchAction,
+					queryParams
+				);
+
+				this.$.searchRequestTiles.generateRequest();
 			},
 
-			_onSearchButtonClick: function() {
-				this._advancedSearch(this._searchString);
+			_performSearch: function() {
+				this._search();
+				this.$.dropdown.close();
 			},
 
 			_clearSearchResults: function() {
@@ -355,17 +374,15 @@
 					this.$$('iron-pages').select('recent-searches-page');
 				} else {
 					this.$.dropdown.close();
+
 				}
+				this.fire('d2l-root-enrollment-search');
 			},
 
 			_onSearchStringChanged: function(newString) {
 				if (this._listboxes) {
 					if (newString.length > 0) {
-						if (!this.isDebouncerActive('liveSearchJob')) {
-							this.debounce('liveSearchJob', this._liveSearch.bind(this), 250);
-						}
-					} else {
-						this._clearSearchResults();
+						this.debounce('liveSearchJob', this._liveSearch, 750);
 					}
 				}
 			},
@@ -373,9 +390,9 @@
 			_onSearchInputKeyPressed: function(e) {
 				switch (e.keyCode) {
 					case this._keyCodes.ENTER:
-						this._advancedSearch(this._searchString);
+						this._performSearch();
+						e.preventDefault();
 						break;
-
 					case this._keyCodes.DOWN:
 						if (this._currentListbox.hasItems()) {
 							this._currentListbox.focus();
@@ -418,11 +435,6 @@
 				}
 			},
 
-			//Creates a search URL from a previous search term
-			_computePreviousSearchLink: function(searchTerm) {
-				return this._advancedSearchUrl + searchTerm;
-			},
-
 			_myEnrollmentsEntityChanged: function(entity) {
 				if (entity) {
 					var parser = document.createElement('d2l-siren-parser');
@@ -443,7 +455,6 @@
 					var parser = document.createElement('d2l-siren-parser');
 					var searchResponse = parser.parse(response.detail.xhr.response);
 					var enrollmentEntities = searchResponse.entities;
-
 					this.$$('iron-pages').select(enrollmentEntities.length > 0 ? 'search-results-page' : 'no-results-page');
 					if (!this.$.dropdown.opened) {
 						this.$.dropdown.open();
@@ -459,7 +470,6 @@
 							ajax.onResponse = function(response) {
 								if (response.detail.status === 200 || response.detail.status === 304) {
 									var organization = parser.parse(response.detail.response);
-
 									// Polymer's splice method causes empty results to show up for an
 									// unknown reason, so use a normal Array.prototype.splice...
 									self._searchResults.splice(index, 0, {
@@ -485,28 +495,25 @@
 					}
 				}
 			},
-
-			// Handles iron-select events, which are fired when listbox items are selected and dropdown pages are changed
-			_onIronSelect: function(e) {
-				switch (e.target.nodeName) {
-					case 'IRON-PAGES':
-						// @TODO: Not a fan of any of this "current listbox" handling - necessary right now due to Iron Behavior regressions.
-						// Should find a better way.
-						var ironPages = this.$$('iron-pages');
-						var pageIndex = ironPages.indexOf(ironPages.selectedItem);
-						this._currentListbox = this._listboxes[pageIndex];
-						break;
-
-					case 'D2L-SEARCH-LISTBOX':
-						if (e.detail.item.dataset.href) {
-							if (e.detail.item.dataset.text) {
-								this._addSearchToHistory(e.detail.item.dataset.text);
-							}
-
-							window.location.href = e.detail.item.dataset.href;
-						}
-						break;
+			_onSearchResponseTiles: function(response) {
+				if (response.detail.status === 200) {
+					this.fire('d2l-search-enrollment-response', response);
 				}
+			},
+			_onIronSelect: function() {
+				var ironPages = this.$$('iron-pages');
+				var pageIndex = ironPages.indexOf(ironPages.selectedItem);
+				this._currentListbox = this._listboxes[pageIndex];
+			},
+			// Handles iron-activate events, which are fired when listbox items are selected and dropdown pages are changed
+			_onIronActivate: function(e) {
+				var text = e.detail.item.dataset.text;
+				if (text) {
+					this._addSearchToHistory(text);
+					this._searchString = text;
+					this._search();
+				}
+				e.stopPropagation();
 			},
 
 			_keyCodes: {
@@ -514,9 +521,6 @@
 				UP: 38,
 				ENTER: 13
 			},
-
-			// URL for advanced search functionality (existing advanced search page from legacy My Courses widget).
-			_advancedSearchUrl: 'le/manageCourses/search/6606?searchTerm=',
 
 			// Called when an element within the search bar gains focus, to open the dropdown if required
 			_onElementFocus: function() {
