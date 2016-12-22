@@ -224,12 +224,15 @@
 				return this._currentFilters.indexOf(id) > -1;
 			},
 			_clearFilters: function() {
-				this.$.departmentList.querySelectorAll('d2l-list-item-filter').forEach(function(item) {
-					item.selected = false;
-				});
-				this.$.semesterList.querySelectorAll('d2l-list-item-filter').forEach(function(item) {
-					item.selected = false;
-				});
+				var items = this.$.departmentList.querySelectorAll('d2l-list-item-filter');
+				var i;
+				for (i = 0; i < items.length; i++) {
+					items[i].selected = false;
+				}
+				items = this.$.semesterList.querySelectorAll('d2l-list-item-filter');
+				for (i = 0; i < items.length; i++) {
+					items[i].selected = false;
+				}
 
 				// Clear button is removed via dom-if, so need to manually set focus to next element
 				if (this.$.semesterList.classList.contains('d2l-filter-menu-content-hidden')) {
