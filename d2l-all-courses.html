@@ -525,19 +525,17 @@
 			attached: function() {
 				this.listen(this.$.sortDropdown, 'd2l-menu-item-change', '_updateSortBy');
 				this.listen(this.$.filterDropdownContent, 'd2l-dropdown-close', '_onFilterDropdownClose');
-				this.listen(this.$.filterMenuContent, 'd2l-filter-menu-content-filters-changed', '_onFilterChanged');
+				this.listen(this.$.filterMenuContent, 'd2l-filter-menu-content-change', '_onFilterChanged');
 				this.listen(this.$.filterMenuContent, 'd2l-filter-menu-content-hide', '_onFilterHideChanged');
 
 				this.$.scrollThreshold.scrollTarget = this.$.filterDropdownContent.querySelector('.d2l-dropdown-content-container');
 
 				window.addEventListener('resize', this._onResize.bind(this));
-
-				this._parser = document.createElement('d2l-siren-parser');
 			},
 			detached: function() {
 				this.unlisten(this.$.sortDropdown, 'd2l-menu-item-change', '_updateSortBy');
 				this.unlisten(this.$.filterDropdownContent, 'd2l-dropdown-close', '_onFilterDropdownClose');
-				this.unlisten(this.$.filterMenuContent, 'd2l-filter-menu-content-filters-changed', '_onFilterChanged');
+				this.unlisten(this.$.filterMenuContent, 'd2l-filter-menu-content-change', '_onFilterChanged');
 				this.unlisten(this.$.filterMenuContent, 'd2l-filter-menu-content-hide', '_onFilterHideChanged');
 			},
 			getCourseTileItemCount: function() {
@@ -590,7 +588,6 @@
 				this.$$('#all-courses-unpinned').setCourseImage(details);
 			},
 			_filterDropdownOpen: false,
-			_parser: null,
 			_sortTextOptions: {
 				'courseCode': 'sorting.sortCourseCode',
 				'courseName': 'sorting.sortCourseName',
@@ -608,7 +605,7 @@
 				this.toggleClass('focus', true, this.$.filterText);
 			},
 			_onFilterChanged: function(e) {
-				this.set('_parentOrganizations', e.detail.value);
+				this.set('_parentOrganizations', e.detail.filters);
 				this.set('_filterText', e.detail.text);
 			},
 			_onFilterDropdownClose: function() {
