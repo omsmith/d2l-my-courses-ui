@@ -3,7 +3,7 @@
 'use strict';
 
 describe('d2l-filter-menu-content', function() {
-	var widget,
+	var component,
 		myEnrollmentsEntity,
 		parser;
 
@@ -18,25 +18,26 @@ describe('d2l-filter-menu-content', function() {
 				href: '/enrollments/departments'
 			}]
 		});
-		widget = fixture('d2l-filter-menu-content-fixture');
+		component = fixture('d2l-filter-menu-content-fixture');
 	});
 
 	it('should observe changes to myEnrollmentsEntity', function() {
 		var sandbox = sinon.sandbox.create();
-		var spy = sandbox.spy(widget, '_myEnrollmentsEntityChanged');
+		var spy = sandbox.spy(component, '_myEnrollmentsEntityChanged');
 
-		widget.myEnrollmentsEntity = myEnrollmentsEntity;
+		component.myEnrollmentsEntity = myEnrollmentsEntity;
 
 		expect(spy.called).to.be.true;
-		expect(widget._departmentsUrl).to.equal('/enrollments/departments');
-		expect(widget._semestersUrl).to.equal('/enrollments/semesters');
+		expect(component._departmentsUrl).to.equal('/enrollments/departments');
+		expect(component._semestersUrl).to.equal('/enrollments/semesters');
 
 		sandbox.restore();
 	});
 
-	describe('Visibility', function() {
+	describe('Visibility and content type', function() {
 		var enrollment,
-			response,
+			departmentsResponse,
+			semestersResponse,
 			server;
 
 		beforeEach(function() {
@@ -47,7 +48,14 @@ describe('d2l-filter-menu-content', function() {
 				/\/enrollments\/departments/,
 				function(req) {
 					expect(req.requestHeaders['accept']).to.equal('application/vnd.siren+json');
-					req.respond(200, {}, JSON.stringify(response));
+					req.respond(200, {}, JSON.stringify(departmentsResponse));
+				});
+			server.respondWith(
+				'GET',
+				/\/enrollments\/semesters/,
+				function(req) {
+					expect(req.requestHeaders['accept']).to.equal('application/vnd.siren+json');
+					req.respond(200, {}, JSON.stringify(semestersResponse));
 				});
 
 			enrollment = {
@@ -74,12 +82,11 @@ describe('d2l-filter-menu-content', function() {
 			};
 			document.addEventListener('d2l-filter-menu-content-hide', handler);
 
-			response = {
-				entities: [enrollment]
-			};
+			departmentsResponse = { entities: [enrollment] };
+			semestersResponse = { entities: [] };
 
-			widget.myEnrollmentsEntity = myEnrollmentsEntity;
-			widget.load();
+			component.myEnrollmentsEntity = myEnrollmentsEntity;
+			component.load();
 		});
 
 		it('should signal that it should be shown if user has enough departments/semesters', function(done) {
@@ -90,43 +97,90 @@ describe('d2l-filter-menu-content', function() {
 			};
 			document.addEventListener('d2l-filter-menu-content-hide', handler);
 
-			response = {
-				entities: [enrollment, enrollment]
-			};
+			departmentsResponse = { entities: [enrollment] };
+			semestersResponse = { entities: [enrollment] };
 
-			widget.myEnrollmentsEntity = myEnrollmentsEntity;
-			widget.load();
+			component.myEnrollmentsEntity = myEnrollmentsEntity;
+			component.load();
+		});
+
+		it('should show a simplified menu for users with <=7 semesters + departments', function(done) {
+			var handler = function() {
+				var content = component._currentContent();
+				expect(content.tagName).to.equal('D2L-FILTER-MENU-CONTENT-SIMPLE');
+				document.removeEventListener('d2l-filter-menu-content-hide', handler);
+				done();
+			};
+			document.addEventListener('d2l-filter-menu-content-hide', handler);
+
+			departmentsResponse = { entities: [enrollment, enrollment, enrollment, enrollment] };
+			semestersResponse = { entities: [enrollment, enrollment, enrollment] };
+
+			component.myEnrollmentsEntity = myEnrollmentsEntity;
+			component.load();
+		});
+
+		it('should show a tabbed menu for users with >7 semesters + departments', function(done) {
+			var handler = function() {
+				var content = component._currentContent();
+				expect(content.tagName).to.equal('D2L-FILTER-MENU-CONTENT-TABBED');
+				document.removeEventListener('d2l-filter-menu-content-hide', handler);
+				done();
+			};
+			document.addEventListener('d2l-filter-menu-content-hide', handler);
+
+			departmentsResponse = { entities: [enrollment, enrollment, enrollment, enrollment] };
+			semestersResponse = { entities: [enrollment, enrollment, enrollment, enrollment] };
+
+			component.myEnrollmentsEntity = myEnrollmentsEntity;
+			component.load();
+
 		});
 	});
 
 	describe('Clear button', function() {
-		it('should be hidden when there are no filters selected', function() {
-			widget._clearFilters();
+		beforeEach(function() {
+			component.$$('d2l-filter-menu-content-simple').filterItems = [{
+				rel: ['enrollment'],
+				links: [{
+					rel: ['self'],
+					href: '/enrollments'
+				}, {
+					rel: ['/organization'],
+					href: '/organizations/1'
+				}]
+			}];
+		});
 
-			expect(widget._showClearButton).to.be.false;
-			expect(widget.$$('.clear-button')).to.be.null;
+		it('should be hidden when there are no filters selected', function() {
+			component._currentContent().fire('d2l-filter-menu-content-filters-changed', {
+				filters: []
+			});
+
+			expect(component._showClearButton).to.be.false;
+			expect(component.$$('.clear-button')).to.be.null;
 		});
 
 		it('should appear when at least one filter is selected', function(done) {
-			widget.$$('d2l-filter-menu-content-tabbed').fire('d2l-filter-menu-content-filters-changed', {
+			component._currentContent().fire('d2l-filter-menu-content-filters-changed', {
 				filters: [1]
 			});
 
 			setTimeout(function() {
-				expect(widget._showClearButton).to.be.true;
-				expect(widget.$$('.clear-button')).to.not.be.null;
+				expect(component._showClearButton).to.be.true;
+				expect(component.$$('.clear-button')).to.not.be.null;
 				done();
 			});
 		});
 
 		it('should clear filters when clicked', function(done) {
-			widget.$$('d2l-filter-menu-content-tabbed').fire('d2l-filter-menu-content-filters-changed', {
+			component._currentContent().fire('d2l-filter-menu-content-filters-changed', {
 				filters: [1]
 			});
 
 			setTimeout(function() {
-				widget.$$('.clear-button').click();
-				expect(widget._showClearButton).to.be.false;
+				component.$$('.clear-button').click();
+				expect(component._showClearButton).to.be.false;
 				done();
 			});
 		});
@@ -134,29 +188,31 @@ describe('d2l-filter-menu-content', function() {
 
 	describe('Filter text', function() {
 		it('should read "Filter" when no filters are selected', function() {
-			widget._clearFilters();
+			component._currentContent().fire('d2l-filter-menu-content-filters-changed', {
+				filters: []
+			});
 
-			expect(widget.filterText).to.equal('Filter');
+			expect(component.filterText).to.equal('Filter');
 		});
 
 		it('should read "Filter: 1 filter" when any 1 filter is selected', function(done) {
-			widget.$$('d2l-filter-menu-content-tabbed').fire('d2l-filter-menu-content-filters-changed', {
+			component.$$('d2l-filter-menu-content-tabbed').fire('d2l-filter-menu-content-filters-changed', {
 				filters: [1]
 			});
 
 			setTimeout(function() {
-				expect(widget.filterText).to.equal('Filter: 1 Filter');
+				expect(component.filterText).to.equal('Filter: 1 Filter');
 				done();
 			});
 		});
 
 		it('should read "Filter: 2 filters" when any 2 filters are selected', function(done) {
-			widget.$$('d2l-filter-menu-content-tabbed').fire('d2l-filter-menu-content-filters-changed', {
+			component.$$('d2l-filter-menu-content-tabbed').fire('d2l-filter-menu-content-filters-changed', {
 				filters: [1, 1]
 			});
 
 			setTimeout(function() {
-				expect(widget.filterText).to.equal('Filter: 2 Filters');
+				expect(component.filterText).to.equal('Filter: 2 Filters');
 				done();
 			});
 		});

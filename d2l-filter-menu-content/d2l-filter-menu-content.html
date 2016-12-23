@@ -5,6 +5,7 @@
 <link rel="import" href="../d2l-utility-behavior.html">
 <link rel="import" href="../localize-behavior.html">
 <link rel="import" href="d2l-list-item-filter.html">
+<link rel="import" href="d2l-filter-menu-content-simple.html">
 <link rel="import" href="d2l-filter-menu-content-tabbed.html">
 
 <dom-module is="d2l-filter-menu-content">
@@ -68,10 +69,19 @@
 				<button class="clear-button" on-tap="_clearFilters">{{localize('filtering.clear')}}</button>
 			</template>
 		</div>
-		<d2l-filter-menu-content-tabbed
-			id="tabbedContent"
-			my-enrollments-entity="[[myEnrollmentsEntity]]">
-		</d2l-filter-menu-content-tabbed>
+
+		<div id="contentView">
+			<d2l-filter-menu-content-simple
+				id="simpleContent"
+				hidden$="[[_hasManyFilters]]">
+			</d2l-filter-menu-content-simple>
+
+			<d2l-filter-menu-content-tabbed
+				id="tabbedContent"
+				hidden$="[[!_hasManyFilters]]"
+				my-enrollments-entity="[[myEnrollmentsEntity]]">
+			</d2l-filter-menu-content-tabbed>
+		</div>
 	</template>
 
 	<script>
@@ -83,22 +93,19 @@
 				filterText: String,
 				myEnrollmentsEntity: {
 					type: Object,
-					value: function() { return {}; },
 					observer: '_myEnrollmentsEntityChanged'
 				},
 				_currentFilters: {
 					type: Array,
 					value: function() { return []; }
 				},
-				_departments: {
-					type: Array,
-					value: function() { return []; }
-				},
+				_departments: Array,
 				_departmentsUrl: String,
-				_semesters: {
-					type: Array,
-					value: function() { return []; }
+				_hasManyFilters: {
+					type: Boolean,
+					value: false
 				},
+				_semesters: Array,
 				_semestersUrl: String,
 				_showClearButton: {
 					type: Boolean,
@@ -113,29 +120,32 @@
 				this.filterText = this.localize('filtering.filter');
 			},
 			attached: function() {
+				this.listen(this.$.simpleContent, 'd2l-filter-menu-content-filters-changed', '_onFiltersChanged');
 				this.listen(this.$.tabbedContent, 'd2l-filter-menu-content-filters-changed', '_onFiltersChanged');
 			},
 			detached: function() {
+				this.unlisten(this.$.simpleContent, 'd2l-filter-menu-content-filters-changed', '_onFiltersChanged');
 				this.unlisten(this.$.tabbedContent, 'd2l-filter-menu-content-filters-changed', '_onFiltersChanged');
 			},
 			load: function() {
 				this.$.departmentsRequest.generateRequest();
 				this.$.semestersRequest.generateRequest();
-				this.$.tabbedContent.load();
 			},
 			loadMore: function() {
-				// Called from d2l-all-courses, as that's where the iron-scroll-threshold is
-				this.$.tabbedContent.loadMore();
-			},
-			__parser: null,
-			_parser: function() {
-				if (!this.__parser) {
-					this.__parser = document.createElement('d2l-siren-parser');
+				if (this._hasManyFilters) {
+					// Called from d2l-all-courses, as that's where the iron-scroll-threshold is
+					this.$.tabbedContent.loadMore();
 				}
-				return this.__parser;
 			},
+			open: function() {
+				this._currentContent().open();
+			},
+			_currentContent: function() {
+				return this.$$('#contentView > :not([hidden])');
+			},
+			_parser: null,
 			_clearFilters: function() {
-				this.$.tabbedContent._clearFilters();
+				this._currentContent()._clearFilters();
 
 				this._showClearButton = false;
 
@@ -145,24 +155,35 @@
 			_myEnrollmentsEntityChanged: function(entity) {
 				// Set up search URLs and search Actions for filter dropdown
 				if (entity && entity.actions) {
-					var myEnrollmentsEntity = this._parser().parse(entity);
+					this._parser = this._parser || document.createElement('d2l-siren-parser');
+
+					var myEnrollmentsEntity = this._parser.parse(entity);
 					var departmentsAction  = myEnrollmentsEntity.getActionByName('add-department-filter');
 					var semestersAction = myEnrollmentsEntity.getActionByName('add-semester-filter');
-
 					this.set('_departmentsUrl', this.createActionUrl(departmentsAction));
 					this.set('_semestersUrl', this.createActionUrl(semestersAction));
 				}
 			},
 			__onResponse: function(response, path) {
 				if (response.detail.status === 200 || response.detail.status === 304) {
-					var entity = this._parser().parse(response.detail.xhr.response);
+					this._parser = this._parser || document.createElement('d2l-siren-parser');
+					var entity = this._parser.parse(response.detail.xhr.response);
 					this.set(path, entity.entities);
+
+					if (!this._departments || !this._semesters) {
+						return;
+					}
+
+					this.set('_hasManyFilters', this._departments.length + this._semesters.length > 7);
+					if (this._hasManyFilters) {
+						this.$.tabbedContent.load();
+					} else {
+						this.$.simpleContent.filterItems = this._departments.concat(this._semesters);
+					}
 
 					this.fire('d2l-filter-menu-content-hide', {
 						hide: this._semesters.length + this._departments.length <= 1
 					});
-
-					// TODO: Use simplified menu for small number of departments/semesters
 				}
 			},
 			_onDepartmentsResponse: function(response) {
