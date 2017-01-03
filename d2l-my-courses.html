@@ -53,8 +53,6 @@
 				margin-bottom: 20px;
 				clear: both;
 			}
-
-
 		</style>
 
 		<d2l-ajax
@@ -105,14 +103,8 @@
 			</button>
 		</div>
 
-		<d2l-all-courses
-			pinned-enrollments="[[pinnedEnrollments]]"
-			unpinned-enrollments="[[unpinnedEnrollments]]"
-			my-enrollments-entity="[[_lastEnrollmentsSearchResponse]]"
-			lastEnrollmentsSearchResponse="[[_lastEnrollmentsSearchResponse]]"
-			locale="[[locale]]"
-      		show-course-code="[[showCourseCode]]">
-		</d2l-all-courses>
+		<div id="allCoursesPlaceholder">
+		</div>
 
 		<d2l-simple-overlay
 			id="basic-image-selector-overlay"
@@ -147,6 +139,8 @@
 				imageCatalogLocation: String,
 				// hashed userid to send to telemetry
 				userId: String,
+				// Configuration value passed in to toggle course code
+				showCourseCode: Boolean,
 				// hashed tenantid to send to telemetry
 				tenantId: String,
 				// URL to send telemetry to
@@ -213,6 +207,7 @@
 			detached: function() {
 				document.body.removeEventListener('d2l-course-pinned-change', this._onEnrollmentPinnedMessage, true);
 			},
+			_allCoursesCreated: false,
 			getCourseTileItemCount: function() {
 				return this.pinnedEnrollments.length;
 			},
@@ -300,15 +295,21 @@
 				this.$['basic-image-selector-overlay'].open();
 			},
 			_openAllCoursesView: function(e) {
+				if (!this._allCoursesCreated) {
+					var allCourses = document.createElement('d2l-all-courses');
+					allCourses.pinnedEnrollments = this.pinnedEnrollments;
+					allCourses.unpinnedEnrollments = this.unpinnedEnrollments;
+					allCourses.myEnrollmentsEntity = this._lastEnrollmentsSearchResponse;
+					allCourses.lastEnrollmentsSearchResponse = this._lastEnrollmentsSearchResponse;
+					allCourses.locale = this.locale;
+					allCourses.showCourseCode = this.showCourseCode;
+					this.$.allCoursesPlaceholder.appendChild(allCourses);
+					this._allCoursesCreated = true;
+				}
+
 				e.preventDefault();
 				e.stopPropagation();
-				this.$$('d2l-all-courses').lastEnrollmentsSearchResponse = this._lastEnrollmentsSearchResponse;
 				this.$$('d2l-all-courses').load();
-
-				setTimeout(function() {
-					// Slight delay to allow for overlay to get a DOM width before triggering the recalculation
-					this.fire('recalculate-columns');
-				}.bind(this), 50);
 			},
 			_refreshPage: function() {
 				document.location.reload(true);
@@ -326,7 +327,9 @@
 						}.bind(this), 1000); // delay until the tile fail icon animation begins to kick in (1 sec delay)
 					}
 				}
-				this.$$('d2l-all-courses').setCourseImage(e);
+				if (this._allCoursesCreated) {
+					this.$$('d2l-all-courses').setCourseImage(e);
+				}
 				this.$$('d2l-course-tile-grid').setCourseImage(e);
 			},
 			_changeImageLoadMore: function() {
