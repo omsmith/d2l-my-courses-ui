@@ -81,6 +81,12 @@ the user has in that organization - student, teacher, TA, etc.
 					</button>
 					<d2l-dropdown-menu id="overflow-dropdown">
 						<d2l-menu label$="[[_courseSettingsLabel]]">
+							<template is="dom-if" if="{{_courseInfoUrl}}" restamp="true">
+								<d2l-menu-item-link id="see-course-info-link"
+									text="{{localize('courseOfferingInformation')}}"
+									href="{{_courseInfoUrl}}">
+								</d2l-menu-item-link>
+							</template>
 							<template is="dom-if" if="{{_canChangeCourseImage}}" restamp="true">
 								<d2l-menu-item id="change-image-button"
 									text="{{localize('changeImage')}}"
@@ -149,6 +155,7 @@ the user has in that organization - student, teacher, TA, etc.
 				userId: String,
 				// Configuration value passed in to toggle course code
 				showCourseCode: Boolean,
+				_courseInfoUrl: String,
 				// Body sent for pin/unpin action
 				_enrollmentPinBody: String,
 				// HTTP method used by the pin/unpin action
@@ -404,6 +411,11 @@ the user has in that organization - student, teacher, TA, etc.
 					var organization = parser.parse(response.detail.xhr.response);
 
 					this._organization = organization;
+
+					var rel = /course-offering-info-page/;
+					var courseInfoUrl = organization && organization.getLinkByRel(rel);
+					this._courseInfoUrl = (courseInfoUrl) ? courseInfoUrl.href : null;
+
 					this._setCourseImageSrc();
 					this._organizationHomepageUrl = organization.getLinkByRel(/\/organization-homepage$/).href;
 					this._canChangeCourseImage = this._getCanChangeCourseImage(organization);
