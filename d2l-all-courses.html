@@ -242,7 +242,7 @@
 			properties: {
 				// URL constructed to fetch a user's enrollments with the enrollments search Action
 				_enrollmentsSearchUrl: String,
-					// Set of pinned enrollment Entities
+				// Set of pinned enrollment Entities
 				pinnedEnrollments: {
 					type: Array,
 					value: function() {
@@ -562,6 +562,11 @@
 					this.$.filterMenuContent.load();
 					this.toggleClass('d2l-all-courses-hidden', false, this.$.filterAndSort);
 				}
+
+				setTimeout(function() {
+					// Slight delay to allow for overlay to get a DOM width before triggering the recalculation
+					this.fire('recalculate-columns');
+				}.bind(this), 50);
 			},
 			setCourseImage: function(details) {
 				this._removeAlert('setCourseImageFailure');

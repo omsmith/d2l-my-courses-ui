@@ -98,7 +98,9 @@
 			<button
 				class="all-courses-button"
 				hidden$="{{!_hasEnrollments}}"
-				on-tap="_openAllCoursesView">
+				on-tap="_openAllCoursesView"
+				on-mouseover="_createAllCourses"
+				on-focus="_createAllCourses">
 				{{localize('viewAllCourses')}}
 			</button>
 		</div>
@@ -211,6 +213,19 @@
 			getCourseTileItemCount: function() {
 				return this.pinnedEnrollments.length;
 			},
+			_createAllCourses: function() {
+				if (!this._allCoursesCreated) {
+					var allCourses = document.createElement('d2l-all-courses');
+					allCourses.pinnedEnrollments = this.pinnedEnrollments;
+					allCourses.unpinnedEnrollments = this.unpinnedEnrollments;
+					allCourses.myEnrollmentsEntity = this._lastEnrollmentsSearchResponse;
+					allCourses.lastEnrollmentsSearchResponse = this._lastEnrollmentsSearchResponse;
+					allCourses.locale = this.locale;
+					allCourses.showCourseCode = this.showCourseCode;
+					this.$.allCoursesPlaceholder.appendChild(allCourses);
+					this._allCoursesCreated = true;
+				}
+			},
 			_rootEnrollmentRequest: function() {
 				this._pinnedCoursesMap = {};
 				this._unpinnedCoursesMap = {};
@@ -295,17 +310,7 @@
 				this.$['basic-image-selector-overlay'].open();
 			},
 			_openAllCoursesView: function(e) {
-				if (!this._allCoursesCreated) {
-					var allCourses = document.createElement('d2l-all-courses');
-					allCourses.pinnedEnrollments = this.pinnedEnrollments;
-					allCourses.unpinnedEnrollments = this.unpinnedEnrollments;
-					allCourses.myEnrollmentsEntity = this._lastEnrollmentsSearchResponse;
-					allCourses.lastEnrollmentsSearchResponse = this._lastEnrollmentsSearchResponse;
-					allCourses.locale = this.locale;
-					allCourses.showCourseCode = this.showCourseCode;
-					this.$.allCoursesPlaceholder.appendChild(allCourses);
-					this._allCoursesCreated = true;
-				}
+				this._createAllCourses();
 
 				e.preventDefault();
 				e.stopPropagation();
