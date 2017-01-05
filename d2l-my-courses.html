@@ -216,12 +216,6 @@
 			_createAllCourses: function() {
 				if (!this._allCoursesCreated) {
 					var allCourses = document.createElement('d2l-all-courses');
-					allCourses.pinnedEnrollments = this.pinnedEnrollments;
-					allCourses.unpinnedEnrollments = this.unpinnedEnrollments;
-					allCourses.myEnrollmentsEntity = this._lastEnrollmentsSearchResponse;
-					allCourses.lastEnrollmentsSearchResponse = this._lastEnrollmentsSearchResponse;
-					allCourses.locale = this.locale;
-					allCourses.showCourseCode = this.showCourseCode;
 					this.$.allCoursesPlaceholder.appendChild(allCourses);
 					this._allCoursesCreated = true;
 				}
@@ -312,9 +306,24 @@
 			_openAllCoursesView: function(e) {
 				this._createAllCourses();
 
+				var allCourses = this.$$('d2l-all-courses');
+				allCourses.open();
+
 				e.preventDefault();
 				e.stopPropagation();
-				this.$$('d2l-all-courses').load();
+
+				this.async(function() {
+					// The opening of the overlay lags slightly if we try to do this while it
+					// is opening - do it after the animation is finished. Animation takes
+					// 500ms, but some lag if we wait exactly that long, so +100ms for safety)
+					allCourses.pinnedEnrollments = this.pinnedEnrollments;
+					allCourses.unpinnedEnrollments = this.unpinnedEnrollments;
+					allCourses.myEnrollmentsEntity = this._lastEnrollmentsSearchResponse;
+					allCourses.lastEnrollmentsSearchResponse = this._lastEnrollmentsSearchResponse;
+					allCourses.locale = this.locale;
+					allCourses.showCourseCode = this.showCourseCode;
+					this.$$('d2l-all-courses').load();
+				}.bind(this), 600);
 			},
 			_refreshPage: function() {
 				document.location.reload(true);
