@@ -109,7 +109,7 @@
 			margin: auto;
 			transition: filter 0.25s, -webkit-filter 0.25s, transform 0.5s ease-in-out;
 		}
-		.course-image-container.hover > .course-image d2l-course-image {
+		.tile-container:not(.d2l-no-access) .course-image-container.hover > .course-image d2l-course-image {
 			/* Ensure only one filter per layer to avoid aliasing bug in Webkit during transforms */
 			-webkit-filter: contrast(1.15);
 			filter: contrast(1.15);
@@ -132,9 +132,12 @@
 			position: relative;
 			margin-top: 0.4rem;
 		}
-		.tile-container > a:focus,
-		.tile-container > a:hover {
+		.tile-container:not(.d2l-no-access) > a:focus,
+		.tile-container:not(.d2l-no-access) > a:hover {
 			text-decoration: underline;
+		}
+		.tile-container.d2l-no-access .course-text {
+			pointer-events: none;
 		}
 		.hover-menu {
 			position: absolute;
@@ -344,6 +347,10 @@
 			display: none;
 			justify-content: center;
 			align-items: center;
+		}
+
+		.notification-overlay {
+			pointer-events: none;
 		}
 
 		.not-started .notification-overlay {

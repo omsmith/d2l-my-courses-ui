@@ -426,7 +426,11 @@ the user has in that organization - student, teacher, TA, etc.
 					this._organization = organization;
 					this._checkStartDate(organization, response);
 					this._setCourseImageSrc();
-					this._organizationHomepageUrl = organization.getLinkByRel(/\/organization-homepage$/).href;
+					this._organizationHomepageUrl = (organization.getLinkByRel(/\/organization-homepage$/) || {}).href;
+					if (!this._organizationHomepageUrl) {
+						var tileContainer = this.$$('.tile-container');
+						this.toggleClass('d2l-no-access', true, tileContainer);
+					}
 					this._canChangeCourseImage = this._getCanChangeCourseImage(organization);
 					this._pinnedChanged();
 					this._courseSettingsLabel = this.localize('courseSettings', 'course', this._organization.properties.name);
