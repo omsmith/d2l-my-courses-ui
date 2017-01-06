@@ -84,6 +84,12 @@ the user has in that organization - student, teacher, TA, etc.
 									</div>
 								</div>
 							</template>
+							<template is="dom-if" restamp="true" if={{_endedOn}}>
+								<div class="end-date-container">
+									<div class="course-ended-text">{{localize('overlay.courseEnded')}}</div>
+									<div class="course-ended-date">{{_endedOn}}</div>
+								</div>
+							</template>
 						</div>
 						<d2l-course-image aria-hidden="true" image="[[_image]]" sizes="[[tileSizes]]" type="tile"></d2l-course-image>
 					</div>
@@ -165,6 +171,7 @@ the user has in that organization - student, teacher, TA, etc.
 					type: Boolean,
 					observer: '_pinnedChanged'
 				},
+				locale: String,
 				telemetryEndpoint: String,
 				tenantId: String,
 				// Size the tile should render with respect to vw
@@ -431,7 +438,7 @@ the user has in that organization - student, teacher, TA, etc.
 					var organization = parser.parse(response.detail.xhr.response);
 
 					this._organization = organization;
-					this._checkStartDate(organization, response);
+					this._checkStartDate(organization, response) || this._checkEndDate(organization, response);
 					
 					var rel = /course-offering-info-page/;
 					var courseInfoUrl = organization && organization.getLinkByRel(rel);
@@ -460,7 +467,27 @@ the user has in that organization - student, teacher, TA, etc.
 							'hours', this._startsIn.hours.toString(),
 							'minutes', this._startsIn.minutes.toString()
 						);
-						this.toggleClass('not-started', true, this.$$('.tile-container'));
+						this.toggleClass('notification-overlay-active', true, this.$$('.tile-container'));
+						return true;
+					}
+				}
+				return false;
+			},
+			_checkEndDate: function(organization, response) {
+				if (organization.properties.endDate) {
+					var endDate = Date.parse(organization.properties.endDate);
+					var serverDate = Date.parse(response.detail.xhr.getResponseHeader('Date'));
+					if (endDate < serverDate) {
+						var formatter = new window.BSI.Intl.DateTimeFormat(this.locale, { format: 'MMM d, yyyy' });
+						var fullFormatter = new window.BSI.Intl.DateTimeFormat(this.locale, { format: 'MMMM d, yyyy' });
+						this._endedOn = formatter.format(new Date(endDate));
+						this._courseNotificationLabel = this.localize(
+							'overlay.courseEndedOn',
+							'date',
+							fullFormatter.format(new Date(endDate))
+						);
+						// TODO: change this class into "NoitificationOverlay" or something
+						this.toggleClass('notification-overlay-active', true, this.$$('.tile-container'));
 					}
 				}
 			},

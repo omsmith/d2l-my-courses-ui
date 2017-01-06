@@ -353,7 +353,7 @@
 			pointer-events: none;
 		}
 
-		.not-started .notification-overlay {
+		.notification-overlay-active .notification-overlay {
 			transition: filter 1s 2s, opacity 1s 2s;
 			filter: opacity(1);
 			width: 100%;
@@ -438,6 +438,28 @@
 			@apply(--d2l-body-standard-text);
 			font-size: 2rem;
 			font-weight: bolder;
+		}
+
+		.end-date-container {
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			position: absolute;
+			width: 100%;
+			height: 100%;
+			color: white;
+			padding: 10px;
+			text-align: center;
+		}
+
+		.course-ended-text {
+			font-size: 1.75rem;
+			font-weight: bold;
+		}
+
+		.course-ended-date {
+			margin-top: 10px;
+			font-size: 1.4rem;
 		}
 		</style>
 	</template>
