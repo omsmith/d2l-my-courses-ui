@@ -187,7 +187,7 @@ describe('d2l-all-courses', function() {
 		it('should remove a setCourseImageFailure alert when the overlay is opened', function() {
 			widget._addAlert('warning', 'setCourseImageFailure', 'failed to do that thing it should do');
 			expect(widget._alerts).to.include({ alertName: 'setCourseImageFailure', alertType: 'warning', alertMessage: 'failed to do that thing it should do' });
-			widget._onSimpleOverlayOpening();
+			widget.$$('d2l-simple-overlay')._renderOpened();
 			expect(widget._alerts).to.not.include({ alertName: 'setCourseImageFailure', alertType: 'warning', alertMessage: 'failed to do that thing it should do' });
 		});
 	});
