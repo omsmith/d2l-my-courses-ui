@@ -65,7 +65,7 @@ the user has in that organization - student, teacher, TA, etc.
 							</div>
 						</div>
 						<div class="notification-overlay" aria-hidden="true">
-							<template is="dom-if" restamp="true" if={{_showOverlay}}>
+							<template is="dom-if" if={{_showOverlay}}>
 								<div class="overlay-date-container">
 									<div class="overlay-text">{{_notificationTitle}}</div>
 									<div class="overlay-date">{{_notificationDate}}</div>
@@ -196,7 +196,7 @@ the user has in that organization - student, teacher, TA, etc.
 				},
 				// The JSON string of the telemetry event that will be sent on the opening of the change image UI */
 				_telemetryEvent: String,
-				_dateFotmatter: Object,
+				_dateFormatter: Object,
 				_fullDateFormatter: Object,
 				_showOverlay: Boolean
 			},
@@ -233,11 +233,6 @@ the user has in that organization - student, teacher, TA, etc.
 				this._onFocus = this._onFocus.bind(this);
 				this._closeDropdown = this._closeDropdown.bind(this);
 				this._hoverCourseTile = this._hoverCourseTile.bind(this);
-
-				if (window.BSI && window.BSI.Intl) {
-					this._dateFormatter = new window.BSI.Intl.DateTimeFormat(this.locale, { format: 'MMM d, yyyy' });
-					this._fullDateFormatter = new window.BSI.Intl.DateTimeFormat(this.locale, { format: 'MMMM d, yyyy' });
-				}
 
 				Polymer.IronA11yAnnouncer.requestAvailability();
 			},
@@ -427,7 +422,7 @@ the user has in that organization - student, teacher, TA, etc.
 
 					this._organization = organization;
 					this._checkDateBounds(organization, response);
-					
+
 					var rel = /course-offering-info-page/;
 					var courseInfoUrl = organization && organization.getLinkByRel(rel);
 					this._courseInfoUrl = (courseInfoUrl) ? courseInfoUrl.href : null;
@@ -445,24 +440,21 @@ the user has in that organization - student, teacher, TA, etc.
 			},
 			_checkDateBounds: function(organization, response) {
 				var serverDate = Date.parse(response.detail.xhr.getResponseHeader('Date'));
+				var endDate = Date.parse(organization.properties.endDate);
+				var startDate = Date.parse(organization.properties.startDate);
 
-				if (organization.properties.endDate) {
-					var endDate = Date.parse(organization.properties.endDate);
-					if (endDate < serverDate) {
-						this._setOverlayContent('courseEnded', endDate);
-						return;
-					}
-				}
-
-				if (organization.properties.startDate) {
-					var startDate = Date.parse(organization.properties.startDate);
-					if (startDate > serverDate) {
-						this._setOverlayContent('courseStarting', startDate);
-						return;
-					}
+				if (endDate < serverDate) {
+					this._setOverlayContent('courseEnded', endDate);
+				} else if (startDate > serverDate) {
+					this._setOverlayContent('courseStarting', startDate);
 				}
 			},
 			_setOverlayContent: function(type, date) {
+				if (!this._dateFormatter && window.BSI && window.BSI.Intl) {
+					this._dateFormatter = new window.BSI.Intl.DateTimeFormat(this.locale, { format: 'MMM d, yyyy' });
+					this._fullDateFormatter = new window.BSI.Intl.DateTimeFormat(this.locale, { format: 'MMMM d, yyyy' });
+				}
+
 				if (this._dateFormatter) {
 					var dateObj = new Date(date);
 					this._notificationDate = this._dateFormatter.format(dateObj);
