@@ -65,29 +65,10 @@ the user has in that organization - student, teacher, TA, etc.
 							</div>
 						</div>
 						<div class="notification-overlay" aria-hidden="true">
-							<template is="dom-if" restamp="true" if={{_startsIn}}>
-								<div class="start-date-container">
-									<div class="starting-in-text">{{localize('overlay.startsIn')}}</div>
-									<div class="date-nums">
-										<div class="date-num-container">
-											<div class="date-num-num date-num-days">{{_startsIn.days}}</div>
-											<div class="date-num-date">{{localize('overlay.days')}}</div>
-										</div>
-										<div class="date-num-container">
-											<div class="date-num-num date-num-hours">{{_startsIn.hours}}</div>
-											<div class="date-num-date">{{localize('overlay.hours')}}</div>
-										</div>
-										<div class="date-num-container">
-											<div class="date-num-num date-num-minutes">{{_startsIn.minutes}}</div>
-											<div class="date-num-date">{{localize('overlay.minutes')}}</div>
-										</div>
-									</div>
-								</div>
-							</template>
-							<template is="dom-if" restamp="true" if={{_endedOn}}>
-								<div class="end-date-container">
-									<div class="course-ended-text">{{localize('overlay.courseEnded')}}</div>
-									<div class="course-ended-date">{{_endedOn}}</div>
+							<template is="dom-if" restamp="true" if={{_showOverlay}}>
+								<div class="overlay-date-container">
+									<div class="overlay-text">{{_notificationTitle}}</div>
+									<div class="overlay-date">{{_notificationDate}}</div>
 								</div>
 							</template>
 						</div>
@@ -215,7 +196,9 @@ the user has in that organization - student, teacher, TA, etc.
 				},
 				// The JSON string of the telemetry event that will be sent on the opening of the change image UI */
 				_telemetryEvent: String,
-				_startsIn: Object
+				_dateFotmatter: Object,
+				_fullDateFormatter: Object,
+				_showOverlay: Boolean
 			},
 			behaviors: [
 				window.D2L.MyCourses.LocalizeBehavior,
@@ -250,6 +233,11 @@ the user has in that organization - student, teacher, TA, etc.
 				this._onFocus = this._onFocus.bind(this);
 				this._closeDropdown = this._closeDropdown.bind(this);
 				this._hoverCourseTile = this._hoverCourseTile.bind(this);
+
+				if (window.BSI && window.BSI.Intl) {
+					this._dateFormatter = new window.BSI.Intl.DateTimeFormat(this.locale, { format: 'MMM d, yyyy' });
+					this._fullDateFormatter = new window.BSI.Intl.DateTimeFormat(this.locale, { format: 'MMMM d, yyyy' });
+				}
 
 				Polymer.IronA11yAnnouncer.requestAvailability();
 			},
@@ -438,7 +426,7 @@ the user has in that organization - student, teacher, TA, etc.
 					var organization = parser.parse(response.detail.xhr.response);
 
 					this._organization = organization;
-					this._checkStartDate(organization, response) || this._checkEndDate(organization, response);
+					this._checkDateBounds(organization, response);
 					
 					var rel = /course-offering-info-page/;
 					var courseInfoUrl = organization && organization.getLinkByRel(rel);
@@ -455,40 +443,39 @@ the user has in that organization - student, teacher, TA, etc.
 					this._courseSettingsLabel = this.localize('courseSettings', 'course', this._organization.properties.name);
 				}
 			},
-			_checkStartDate: function(organization, response) {
-				if (organization.properties.startDate) {
-					var startDate = Date.parse(organization.properties.startDate);
-					var serverDate = Date.parse(response.detail.xhr.getResponseHeader('Date'));
-					if (startDate > serverDate) {
-						this._startsIn = this.timeBetween(serverDate, startDate);
-						this._courseNotificationLabel = this.localize(
-							'overlay.startsInDate',
-							'days', this._startsIn.days.toString(),
-							'hours', this._startsIn.hours.toString(),
-							'minutes', this._startsIn.minutes.toString()
-						);
-						this.toggleClass('notification-overlay-active', true, this.$$('.tile-container'));
-						return true;
-					}
-				}
-				return false;
-			},
-			_checkEndDate: function(organization, response) {
+			_checkDateBounds: function(organization, response) {
+				var serverDate = Date.parse(response.detail.xhr.getResponseHeader('Date'));
+
 				if (organization.properties.endDate) {
 					var endDate = Date.parse(organization.properties.endDate);
-					var serverDate = Date.parse(response.detail.xhr.getResponseHeader('Date'));
 					if (endDate < serverDate) {
-						var formatter = new window.BSI.Intl.DateTimeFormat(this.locale, { format: 'MMM d, yyyy' });
-						var fullFormatter = new window.BSI.Intl.DateTimeFormat(this.locale, { format: 'MMMM d, yyyy' });
-						this._endedOn = formatter.format(new Date(endDate));
-						this._courseNotificationLabel = this.localize(
-							'overlay.courseEndedOn',
-							'date',
-							fullFormatter.format(new Date(endDate))
-						);
-						// TODO: change this class into "NoitificationOverlay" or something
-						this.toggleClass('notification-overlay-active', true, this.$$('.tile-container'));
+						this._setOverlayContent('courseEnded', endDate);
+						return;
 					}
+				}
+
+				if (organization.properties.startDate) {
+					var startDate = Date.parse(organization.properties.startDate);
+					if (startDate > serverDate) {
+						this._setOverlayContent('courseStarting', startDate);
+						return;
+					}
+				}
+			},
+			_setOverlayContent: function(type, date) {
+				if (this._dateFormatter) {
+					var dateObj = new Date(date);
+					this._notificationDate = this._dateFormatter.format(dateObj);
+					this._courseNotificationLabel = this.localize(
+						(type === 'courseEnded') ? 'overlay.courseEndedOn' : 'overlay.courseStartingOn',
+						'date',
+						this._fullDateFormatter.format(dateObj)
+					);
+					this.toggleClass('notification-overlay-active', true, this.$$('.tile-container'));
+					this._notificationTitle = this.localize(
+						(type === 'courseEnded') ? 'overlay.courseEnded' : 'overlay.courseStarting'
+					);
+					this._showOverlay = true;
 				}
 			},
 			_onTileMouseOut: function() {
