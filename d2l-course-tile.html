@@ -65,12 +65,10 @@ the user has in that organization - student, teacher, TA, etc.
 							</div>
 						</div>
 						<div class="notification-overlay" aria-hidden="true">
-							<template is="dom-if" if={{_showOverlay}}>
-								<div class="overlay-date-container">
-									<div class="overlay-text">{{_notificationTitle}}</div>
-									<div class="overlay-date">{{_notificationDate}}</div>
-								</div>
-							</template>
+							<div class="overlay-date-container">
+								<div class="overlay-text">{{_notificationTitle}}</div>
+								<div class="overlay-date">{{_notificationDate}}</div>
+							</div>
 						</div>
 						<d2l-course-image aria-hidden="true" image="[[_image]]" sizes="[[tileSizes]]" type="tile"></d2l-course-image>
 					</div>
