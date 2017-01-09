@@ -108,6 +108,8 @@
 
 		<div id="allCoursesPlaceholder">
 		</div>
+			show-course-code="[[showCourseCode]]"
+			advanced-search-url="[[advancedSearchUrl]]">
 
 		<d2l-simple-overlay
 			id="basic-image-selector-overlay"
@@ -173,7 +175,9 @@
 				// URL used by the search widget to fetch department-type organizations
 				_departmentsUrl: String,
 				// Size the tile should render with respect to vw
-				_tileSizes: Object
+				_tileSizes: Object,
+				// URL that directs to the advanced search page
+				advancedSearchUrl: String
 			},
 			behaviors: [
 				window.D2L.MyCourses.CourseTileResponsiveGridBehavior,

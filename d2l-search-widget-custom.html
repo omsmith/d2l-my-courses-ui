@@ -105,6 +105,20 @@
 				border-color: var(--d2l-color-pressicus);
 				border-radius: 0.3rem;
 			}
+
+			.advancedSearch-link {
+				font-size: 0.8rem;
+				padding-top: 3px;
+			}
+
+			@media only screen and (max-width: 767px){
+				.advancedSearch-link {
+					font-size: 0.8rem;
+					padding-top: 3px;
+					text-align: right;
+				}
+			}
+
 		</style>
 
 		<d2l-ajax
@@ -187,6 +201,12 @@
 				</div>
 			</d2l-search-dropdown-content>
 		</d2l-dropdown>
+
+		<template is="dom-if" if="[[advancedSearchUrl]]">
+			<div class="advancedSearch-link">
+				<a is="d2l-link" href="[[advancedSearchUrl]]">{{localize('advancedSearch')}}</a>
+			</div>
+		</template>
 	</template>
 	<script>
 		'use strict';
@@ -246,7 +266,10 @@
 					value: function() {
 						return [];
 					}
-				}
+				},
+
+				// URL that directs to the advanced search page
+				advancedSearchUrl: String
 			},
 
 			listeners: {
