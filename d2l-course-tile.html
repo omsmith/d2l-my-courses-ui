@@ -28,7 +28,7 @@ the user has in that organization - student, teacher, TA, etc.
 		<d2l-ajax
 			id="organizationRequest"
 			url="[[_organizationUrl]]"
-			headers='{ "Accept": "application/vnd.siren+json", "Cache-control": "no-cache" }'
+			headers='{ "Accept": "application/vnd.siren+json", "Cache-control": "no-cache", "Pragma": "no-cache" }'
 			on-iron-ajax-response="_onOrganizationResponse">
 		</d2l-ajax>
 
