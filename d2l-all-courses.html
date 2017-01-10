@@ -53,22 +53,32 @@
 				align-items: center;
 				justify-content: space-between;
 				margin-bottom: 50px;
+				flex-wrap: wrap;
+			}
+			.advanced-search-link {
+				font-size: 0.8rem;
+				min-width: 100%;
 			}
 			.search-and-filter > d2l-search-widget-custom {
 				flex: calc(5 / 12);
+			}
+			.search-and-filter > #filterAndSort {
+				flex: calc(7 / 12);
+				display: flex;
+				justify-content: flex-end;
 			}
 			@media screen and (max-width: 767px) {
 				.search-and-filter > d2l-search-widget-custom {
 					flex: 1;
 				}
-				#filterAndSort {
+				.search-and-filter > #filterAndSort {
 					display: none;
 				}
-			}
-			.search-and-filter > div {
-				flex: calc(7 / 12);
-				display: flex;
-				justify-content: flex-end;
+				.advanced-search-link {
+					font-size: 0.8rem;
+					text-align: right;
+					flex: 1;
+				}
 			}
 			.dropdown-opener-text {
 				@apply(--d2l-body-small-text);
@@ -153,7 +163,6 @@
 						parent-organizations="[[_parentOrganizations]]"
 						sort-field="[[_sortField]]">
 					</d2l-search-widget-custom>
-
 					<div id="filterAndSort" class="d2l-all-courses-hidden">
 						<div id="filterSection" class="d2l-all-courses-hidden">
 							<span id="filterText" class="dropdown-opener-text" on-tap="_toggleFilterDropdown">[[_filterText]]</span>
@@ -200,6 +209,9 @@
 								</d2l-menu>
 							</d2l-dropdown-menu>
 						</d2l-dropdown>
+			</div>
+			<div id="advancedSearchLink" class="advanced-search-link">
+				<a is="d2l-link" href="[[advancedSearchUrl]]">{{localize('advancedSearch')}}</a>
 					</div>
 				</div>
 
