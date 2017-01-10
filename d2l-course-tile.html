@@ -195,8 +195,7 @@ the user has in that organization - student, teacher, TA, etc.
 				// The JSON string of the telemetry event that will be sent on the opening of the change image UI */
 				_telemetryEvent: String,
 				_dateFormatter: Object,
-				_fullDateFormatter: Object,
-				_showOverlay: Boolean
+				_fullDateFormatter: Object
 			},
 			behaviors: [
 				window.D2L.MyCourses.LocalizeBehavior,
@@ -445,6 +444,8 @@ the user has in that organization - student, teacher, TA, etc.
 					this._setOverlayContent('courseEnded', endDate);
 				} else if (startDate > serverDate) {
 					this._setOverlayContent('courseStarting', startDate);
+				} else {
+					this._clearOverlayContent();
 				}
 			},
 			_setOverlayContent: function(type, date) {
@@ -465,8 +466,13 @@ the user has in that organization - student, teacher, TA, etc.
 					this._notificationTitle = this.localize(
 						(type === 'courseEnded') ? 'overlay.courseEnded' : 'overlay.courseStarting'
 					);
-					this._showOverlay = true;
 				}
+			},
+			_clearOverlayContent() {
+				this._notificationDate = null;
+				this._courseNotificationLabel = null;
+				this._notificationTitle = null;
+				this.toggleClass('notification-overlay-active', false, this.$$('.tile-container'));
 			},
 			_onTileMouseOut: function() {
 				this._unhoverCourseTile(true);
