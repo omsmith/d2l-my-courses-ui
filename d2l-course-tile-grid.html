@@ -446,6 +446,18 @@
 
 					this._courseTileBoundingRects.push(offsetData);
 				}.bind(this));
+			},
+			checkForStartedInactive: function(type) {
+				var courseTiles = this.$$('.course-tile-container').querySelectorAll('d2l-course-tile');
+				var searchAmount = type === 'remove' ? 2 : 1;
+
+				for (var i = 0; i < courseTiles.length; i++) {
+					if (courseTiles[i].isStartedInactive && --searchAmount === 0) {
+						return true;
+					}
+				}
+
+				return false;
 			}
 		});
 	</script>
