@@ -377,6 +377,7 @@
 						} else {
 							this._moveEnrollmentToUnpinnedList(enrollmentId);
 						}
+						setTimeout(this._setStartedInactive.bind(this), 50);
 					} else {
 						this._fetchEnrollmentEntity(e.detail.orgUnitId, e.detail.isPinned);
 					}
