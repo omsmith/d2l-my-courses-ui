@@ -108,8 +108,7 @@
 
 		<div id="allCoursesPlaceholder">
 		</div>
-			show-course-code="[[showCourseCode]]"
-			advanced-search-url="[[advancedSearchUrl]]">
+
 
 		<d2l-simple-overlay
 			id="basic-image-selector-overlay"
@@ -327,6 +326,7 @@
 					allCourses.lastEnrollmentsSearchResponse = this._lastEnrollmentsSearchResponse;
 					allCourses.locale = this.locale;
 					allCourses.showCourseCode = this.showCourseCode;
+					allCourses.advancedSearchUrl = this.advancedSearchUrl;
 					this.$$('d2l-all-courses').load();
 				}.bind(this), 600);
 			},
