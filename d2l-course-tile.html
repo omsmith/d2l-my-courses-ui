@@ -199,6 +199,8 @@ the user has in that organization - student, teacher, TA, etc.
 				_dateFormatter: Object,
 				_fullDateFormatter: Object,
 				_notificationInactive: String,
+				_notificationTitle: String,
+				_notificationDate: String,
 				isStartedInactive: {
 					type: Boolean,
 					value: false
@@ -497,7 +499,7 @@ the user has in that organization - student, teacher, TA, etc.
 				this.toggleClass('notification-overlay-active', true, this.$$('.tile-container'));
 				this.toggleClass('warning-circle-yellow', true, this.$$('.alert-color-circle'));
 			},
-			_clearOverlayContent: function(startedInactive) {
+			_clearOverlayContent: function() {
 				this._notificationDate = null;
 				this._courseNotificationLabel = null;
 				this._notificationTitle = null;
