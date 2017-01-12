@@ -86,6 +86,11 @@ describe('d2l-all-courses', function() {
 	it('should show filter menu when there are sufficient enrollments', function() {
 		widget.pinnedEnrollments = Array(20).fill(pinnedEnrollmentEntity);
 		widget.load();
+
+		// Class is only changed after column recalculation is done, which is done
+		// in a setTimeout to allow for a DOM width to be set
+		clock.tick(51);
+
 		expect(widget.$.filterAndSort.classList.contains('d2l-all-courses-hidden')).to.be.false;
 	});
 
