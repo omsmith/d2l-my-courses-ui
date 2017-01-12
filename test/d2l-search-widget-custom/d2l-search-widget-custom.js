@@ -75,7 +75,7 @@ describe('<d2l-search-widget-custom>', function() {
 
 	it('should perform a search when sort changes', function(done) {
 
-		widget.$.searchRequestTiles.addEventListener('iron-ajax-response', function() {
+		widget.$.fullSearchRequest.addEventListener('iron-ajax-response', function() {
 			done();
 		});
 
@@ -87,7 +87,7 @@ describe('<d2l-search-widget-custom>', function() {
 
 	it('should perform a search when filter changes', function(done) {
 
-		widget.$.searchRequestTiles.addEventListener('iron-ajax-response', function() {
+		widget.$.fullSearchRequest.addEventListener('iron-ajax-response', function() {
 			done();
 		});
 
@@ -105,19 +105,19 @@ describe('<d2l-search-widget-custom>', function() {
 		widget.parentOrganizations = [3, 2, 1];
 		widget.isAttached = true;
 
-		widget.$.searchRequestTiles.addEventListener('iron-ajax-response', function() {
-			expect(/sortField=newSortField/.exec(widget._searchUrlTiles).length).to.equal(1);
-			expect(/parentOrganizations=3,2,1/.exec(widget._searchUrlTiles).length).to.equal(1);
+		widget.$.fullSearchRequest.addEventListener('iron-ajax-response', function() {
+			expect(/sortField=newSortField/.exec(widget._fullSearchUrl).length).to.equal(1);
+			expect(/parentOrganizations=3,2,1/.exec(widget._fullSearchUrl).length).to.equal(1);
 			done();
 		});
 
-		widget.$$('.clear-search-button').click();
+		widget.$$('button').click();
 
 	});
 
 	it('only performs one search per debounce period', function() {
 
-		widget._search = sinon.spy();
+		widget.__search = sinon.spy();
 
 		for (var i = 0; i < 20; i++) {
 			widget.set('sortField', 'sortField' + i);
@@ -126,7 +126,7 @@ describe('<d2l-search-widget-custom>', function() {
 
 		clock.tick(501);
 
-		expect(widget._search.callCount).to.equal(1);
+		expect(widget.__search.callCount).to.equal(1);
 
 	});
 });
