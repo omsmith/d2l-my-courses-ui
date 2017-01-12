@@ -480,7 +480,7 @@ the user has in that organization - student, teacher, TA, etc.
 						(type === 'courseEnded') ? 'overlay.courseEnded' : 'overlay.courseStarting'
 					);
 
-					this._notificationInactive = (type === 'courseStarting' && inactive) ? this.localize('overlay.inactiveBrackets') : null;
+					this._notificationInactive = (type === 'courseStarting' && inactive) ? this.localize('brackets', 'content', this.localize('overlay.inactive')) : null;
 				}
 			},
 			_setOverlayInactive: function() {
@@ -492,12 +492,12 @@ the user has in that organization - student, teacher, TA, etc.
 			_setOverlayStartedInactive: function() {
 				this._clearOverlayContent(true);
 				this._notificationTitle = this.localize('overlay.courseStarted');
-				this._notificationInactive = this.localize('overlay.inactiveBrackets');
+				this._notificationInactive = this.localize('brackets', 'content', this.localize('overlay.inactive'));
 				this._courseNotificationLabel = this._notificationTitle + ' ' + this._notificationInactive;
 				this.isStartedInactive = true;
 				this.fire('startedInactiveAlert', { type: 'add' });
 				this.toggleClass('notification-overlay-active', true, this.$$('.tile-container'));
-				this.toggleClass('warning-circle-yellow', true, this.$$('.alert-color-circle'));
+				this.toggleClass('warning-circle', true, this.$$('.alert-color-circle'));
 			},
 			_clearOverlayContent: function() {
 				this._notificationDate = null;
@@ -506,7 +506,7 @@ the user has in that organization - student, teacher, TA, etc.
 				this._notificationInactive = null;
 				this.isStartedInactive = false;
 				this.toggleClass('notification-overlay-active', false, this.$$('.tile-container'));
-				this.toggleClass('warning-circle-yellow', false, this.$$('.alert-color-circle'));
+				this.toggleClass('warning-circle', false, this.$$('.alert-color-circle'));
 			},
 			_onTileMouseOut: function() {
 				this._unhoverCourseTile(true);
