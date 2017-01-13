@@ -481,7 +481,11 @@ describe('<d2l-course-tile>', function() {
 	var formattedDate = 'FORMATTED_DATE';
 	var inactiveText = '(Inactive)';
 
-	function verifyOverlay(title, date, inactive) {
+	function verifyOverlay(params) {
+		var title = params.title;
+		var inactive = params.showInactiveIndicator;
+		var date = params.showDate;
+
 		expect(widget.$$('.overlay-text').textContent.trim()).to.equal(title);
 		var overlayDate = widget.$$('.overlay-date');
 		var overlayInactive = widget.$$('.overlay-inactive');
@@ -494,7 +498,7 @@ describe('<d2l-course-tile>', function() {
 		if (inactive) {
 			expect(overlayInactive.textContent).to.equal(inactiveText);
 		} else {
-			expect(overlayDate.textContent).to.not.equal(inactiveText);
+			expect(overlayInactive.textContent).to.not.equal(inactiveText);
 		}
 	}
 
@@ -529,7 +533,11 @@ describe('<d2l-course-tile>', function() {
 				it('Adds an overlay with the date', function() {
 					org.properties.startDate = getFutureDate();
 					widget._checkDateBounds(org, response);
-					verifyOverlay('Course Starts', true, false);
+					verifyOverlay({
+						title:'Course Starts',
+						showDate: true,
+						showInactiveIndicator: false
+					});
 				});
 			});
 
@@ -538,7 +546,11 @@ describe('<d2l-course-tile>', function() {
 					org.properties.startDate = getFutureDate();
 					org.properties.isActive = false;
 					widget._checkDateBounds(org, response);
-					verifyOverlay('Course Starts', true, true);
+					verifyOverlay({
+						title: 'Course Starts',
+						showDate: true,
+						showInactiveIndicator: true
+					});
 				});
 			});
 		});
@@ -548,7 +560,11 @@ describe('<d2l-course-tile>', function() {
 				it('Adds an overlay with the date', function() {
 					org.properties.endDate = getPastDate();
 					widget._checkDateBounds(org, response);
-					verifyOverlay('Course Ended', true, false);
+					verifyOverlay({
+						title: 'Course Ended',
+						showDate: true,
+						showInactiveIndicator: false
+					});
 				});
 			});
 
@@ -557,7 +573,11 @@ describe('<d2l-course-tile>', function() {
 					org.properties.endDate = getPastDate();
 					org.properties.isActive = false;
 					widget._checkDateBounds(org, response);
-					verifyOverlay('Course Ended', true, false);
+					verifyOverlay({
+						title: 'Course Ended',
+						showDate: true,
+						showInactiveIndicator: false
+					});
 				});
 			});
 		});
@@ -566,7 +586,11 @@ describe('<d2l-course-tile>', function() {
 			describe('course active', function() {
 				it('does not add an overlay', function() {
 					widget._checkDateBounds(org, response);
-					verifyOverlay('', false, false);
+					verifyOverlay({
+						title: '',
+						showDate: false,
+						showInactiveIndicator: false
+					});
 				});
 			});
 
@@ -574,7 +598,11 @@ describe('<d2l-course-tile>', function() {
 				it('adds an "inactive" overlay', function() {
 					org.properties.isActive = false;
 					widget._checkDateBounds(org, response);
-					verifyOverlay('Course Started', false, true);
+					verifyOverlay({
+						title: 'Course Started',
+						showDate: false,
+						showInactiveIndicator: true
+					});
 				});
 			});
 		});
@@ -584,7 +612,11 @@ describe('<d2l-course-tile>', function() {
 				it('does not add an overlay', function() {
 					org.properties.startDate = null;
 					widget._checkDateBounds(org, response);
-					verifyOverlay('', false, false);
+					verifyOverlay({
+						title: '',
+						showDate: false,
+						showInactiveIndicator: false
+					});
 				});
 			});
 
@@ -593,7 +625,11 @@ describe('<d2l-course-tile>', function() {
 					org.properties.startDate = null;
 					org.properties.isActive = false;
 					widget._checkDateBounds(org, response);
-					verifyOverlay('Inactive', false, false);
+					verifyOverlay({
+						title: 'Inactive',
+						showDate: false,
+						showInactiveIndicator: false
+					});
 				});
 			});
 		});
