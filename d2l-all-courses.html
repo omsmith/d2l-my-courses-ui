@@ -57,6 +57,7 @@
 			}
 			.search-and-filter-row > .advanced-search-link {
 				font-size: 0.8rem;
+				margin-top: 3px;
 				flex: 1;
 			}
 			.search-and-filter-row > d2l-search-widget-custom {
@@ -74,6 +75,7 @@
 				}
 				.search-and-filter-row > .advanced-search-link {
 					text-align: right;
+					margin-top: 5px;
 				}
 			}
 			.dropdown-opener-text {
@@ -209,7 +211,7 @@
 							</d2l-dropdown>
 						</div>
 					</div>
-					<div class="search-and-filter-row">
+					<div id="advancedSearchLink" class="search-and-filter-row d2l-all-courses-hidden">
 						<div class="advanced-search-link">
 							<a is="d2l-link" href$="[[advancedSearchUrl]]">{{localize('advancedSearch')}}</a>
 						</div>
@@ -537,6 +539,8 @@
 				this._updateTileSizes();
 
 				this._filterText = this.localize('filtering.filter');
+
+				this.toggleClass('d2l-all-courses-hidden', !this.advancedSearchUrl, this.$.advancedSearchLink);
 			},
 			attached: function() {
 				this.listen(this.$.sortDropdown, 'd2l-menu-item-change', '_updateSortBy');
