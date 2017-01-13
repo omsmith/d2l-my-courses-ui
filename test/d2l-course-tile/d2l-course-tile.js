@@ -502,7 +502,7 @@ describe('<d2l-course-tile>', function() {
 		}
 	}
 
-	describe('notification overlay', function() {
+	describe('Notification Overlay', function() {
 		var org, response;
 
 		beforeEach(function() {
@@ -528,8 +528,8 @@ describe('<d2l-course-tile>', function() {
 			};
 		});
 
-		describe('course not started', function() {
-			describe('course active', function() {
+		describe('given the course not started', function() {
+			describe('when the course is active', function() {
 				it('Adds an overlay with the date', function() {
 					org.properties.startDate = getFutureDate();
 					widget._checkDateBounds(org, response);
@@ -541,7 +541,7 @@ describe('<d2l-course-tile>', function() {
 				});
 			});
 
-			describe('course inactive', function() {
+			describe('when the course is inactive', function() {
 				it('Adds an overlay with the date and "inactive"', function() {
 					org.properties.startDate = getFutureDate();
 					org.properties.isActive = false;
@@ -555,8 +555,8 @@ describe('<d2l-course-tile>', function() {
 			});
 		});
 
-		describe('course ended', function() {
-			describe('course active', function() {
+		describe('given the course has ended', function() {
+			describe('when the course is active', function() {
 				it('Adds an overlay with the date', function() {
 					org.properties.endDate = getPastDate();
 					widget._checkDateBounds(org, response);
@@ -568,7 +568,7 @@ describe('<d2l-course-tile>', function() {
 				});
 			});
 
-			describe('course inactive', function() {
+			describe('when the course is inactive', function() {
 				it('Adds an overlay with the date', function() {
 					org.properties.endDate = getPastDate();
 					org.properties.isActive = false;
@@ -582,8 +582,8 @@ describe('<d2l-course-tile>', function() {
 			});
 		});
 
-		describe('course in progress', function() {
-			describe('course active', function() {
+		describe('given the course is in progress', function() {
+			describe('when the course is active', function() {
 				it('does not add an overlay', function() {
 					widget._checkDateBounds(org, response);
 					verifyOverlay({
@@ -594,7 +594,7 @@ describe('<d2l-course-tile>', function() {
 				});
 			});
 
-			describe('course inactive', function() {
+			describe('when the course is inactive', function() {
 				it('adds an "inactive" overlay', function() {
 					org.properties.isActive = false;
 					widget._checkDateBounds(org, response);
@@ -607,8 +607,8 @@ describe('<d2l-course-tile>', function() {
 			});
 		});
 
-		describe('no start date, not ended', function() {
-			describe('course active', function() {
+		describe('given there is no start date, and the course has not ended', function() {
+			describe('when the course is active', function() {
 				it('does not add an overlay', function() {
 					org.properties.startDate = null;
 					widget._checkDateBounds(org, response);
@@ -620,8 +620,8 @@ describe('<d2l-course-tile>', function() {
 				});
 			});
 
-			describe('course inactive', function() {
-				it('adds an "inactive" overlay', function() {
+			describe('when the course is inactive', function() {
+				it('adds an overlay with the "inactive" tile', function() {
 					org.properties.startDate = null;
 					org.properties.isActive = false;
 					widget._checkDateBounds(org, response);
