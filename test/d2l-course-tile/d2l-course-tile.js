@@ -475,7 +475,7 @@ describe('<d2l-course-tile>', function() {
 	}
 
 	function getCurrentDate() {
-		return new Date(curDate).toISOString()
+		return new Date(curDate).toISOString();
 	}
 
 	var formattedDate = 'FORMATTED_DATE';
@@ -486,15 +486,15 @@ describe('<d2l-course-tile>', function() {
 		var overlayDate = widget.$$('.overlay-date');
 		var overlayInactive = widget.$$('.overlay-inactive');
 		if (date) {
-			expect(overlayDate.textContent).to.equal(formattedDate)
+			expect(overlayDate.textContent).to.equal(formattedDate);
 		} else {
-			expect(overlayDate.textContent).to.not.equal(formattedDate)
+			expect(overlayDate.textContent).to.not.equal(formattedDate);
 		}
 
 		if (inactive) {
-			expect(overlayInactive.textContent).to.equal(inactiveText)
+			expect(overlayInactive.textContent).to.equal(inactiveText);
 		} else {
-			expect(overlayDate.textContent).to.not.equal(inactiveText)
+			expect(overlayDate.textContent).to.not.equal(inactiveText);
 		}
 	}
 
@@ -509,7 +509,6 @@ describe('<d2l-course-tile>', function() {
 					isActive: true
 				}
 			};
-			console.log('org', org);
 			response = {
 				detail: {
 					xhr: {
