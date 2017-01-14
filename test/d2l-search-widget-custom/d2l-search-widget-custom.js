@@ -3,7 +3,8 @@
 'use strict';
 
 describe('<d2l-search-widget-custom>', function() {
-	var server,
+	var sandbox,
+		server,
 		widget,
 		clock,
 		myEnrollmentsEntity = {
@@ -46,6 +47,7 @@ describe('<d2l-search-widget-custom>', function() {
 
 	beforeEach(function() {
 
+		sandbox = sinon.sandbox.create();
 		server = sinon.fakeServer.create();
 		server.respondImmediately = true;
 		server.respondWith(
@@ -62,6 +64,7 @@ describe('<d2l-search-widget-custom>', function() {
 
 	afterEach(function() {
 
+		sandbox.restore();
 		server.restore();
 		clock.restore();
 
@@ -117,7 +120,7 @@ describe('<d2l-search-widget-custom>', function() {
 
 	it('only performs one search per debounce period', function() {
 
-		widget.__search = sinon.spy();
+		var spy = sandbox.spy(widget, '__search');
 
 		for (var i = 0; i < 20; i++) {
 			widget.set('sortField', 'sortField' + i);
@@ -126,7 +129,28 @@ describe('<d2l-search-widget-custom>', function() {
 
 		clock.tick(501);
 
-		expect(widget.__search.callCount).to.equal(1);
+		expect(spy.callCount).to.equal(1);
 
+	});
+
+	it('should fetch the content for a given URL the first time', function() {
+		var stub = sandbox.stub(widget.$.fullSearchRequest, 'generateRequest');
+
+		widget.set('_fullSearchUrl', 'foo');
+
+		expect(stub.callCount).to.equal(1);
+	});
+
+	it('should cache search responses for a given URL', function(done) {
+		var spy = sandbox.spy(widget, '__search');
+		widget._searchResultsCache['foo'] = { test: 'bar' };
+
+		document.addEventListener('d2l-search-enrollment-response', function(e) {
+			expect(e.detail.test).to.equal('bar');
+			expect(spy.callCount).to.equal(0);
+			done();
+		});
+
+		widget.set('_fullSearchUrl', 'foo');
 	});
 });

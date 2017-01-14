@@ -270,6 +270,7 @@
 
 			_fullSearchPageSize: 20,
 			_liveSearchPageSize: 5,
+			_searchResultsCache: {},
 
 			// Retrieves previous searches from local storage to populate listbox
 			_initializePreviousSearches: function() {
@@ -309,7 +310,12 @@
 			},
 
 			// Handlers called when full/live search URLs are changed by __search
-			_onFullSearchUrlChanged: function() {
+			_onFullSearchUrlChanged: function(newUrl) {
+				if (this._searchResultsCache[newUrl]) {
+					// If we've cached this response already, return it immediately
+					this.fire('d2l-search-enrollment-response', this._searchResultsCache[newUrl]);
+					return;
+				}
 				this.$.fullSearchRequest.generateRequest();
 				this.$.dropdown.close();
 			},
@@ -488,6 +494,7 @@
 			},
 			_onFullSearchResponse: function(response) {
 				if (response.detail.status === 200) {
+					this._searchResultsCache[response.detail.url] = response;
 					this.fire('d2l-search-enrollment-response', response);
 				}
 			},
