@@ -234,12 +234,14 @@ the user has in that organization - student, teacher, TA, etc.
 				this.setAttribute('role', 'link');
 			},
 			attached: function() {
-				if (this.animateInsertion) {
-					this.toggleClass('animate-insertion-pre', true, this);
-				}
-				var tileContainerEl = this.$$('.tile-container');
-				document.body.addEventListener('focus', this._onFocus, true);
-				tileContainerEl.addEventListener('focus', this._hoverCourseTile, true);
+				Polymer.RenderStatus.afterNextRender(this, function() {
+					if (this.animateInsertion) {
+						this.toggleClass('animate-insertion-pre', true, this);
+					}
+					var tileContainerEl = this.$$('.tile-container');
+					document.body.addEventListener('focus', this._onFocus, true);
+					tileContainerEl.addEventListener('focus', this._hoverCourseTile, true);
+				}.bind(this));
 			},
 			ready: function() {
 				// Currently only needed in tests, but it is entirely possible
