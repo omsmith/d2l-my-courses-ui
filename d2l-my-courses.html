@@ -179,7 +179,9 @@
 				// URL used by the search widget to fetch department-type organizations
 				_departmentsUrl: String,
 				// Size the tile should render with respect to vw
-				_tileSizes: Object
+				_tileSizes: Object,
+				// URL that directs to the advanced search page
+				advancedSearchUrl: String
 			},
 			behaviors: [
 				window.D2L.MyCourses.CourseTileResponsiveGridBehavior,
@@ -328,6 +330,7 @@
 					allCourses.lastEnrollmentsSearchResponse = this._lastEnrollmentsSearchResponse;
 					allCourses.locale = this.locale;
 					allCourses.showCourseCode = this.showCourseCode;
+					allCourses.advancedSearchUrl = this.advancedSearchUrl;
 					this.$$('d2l-all-courses').load();
 				}.bind(this), 600);
 			},
