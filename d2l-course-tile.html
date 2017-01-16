@@ -335,11 +335,12 @@ the user has in that organization - student, teacher, TA, etc.
 			_enrollmentChanged: function() {
 				this.pinned = this.enrollment.hasClass('pinned');
 
-				if (!this.delayLoad && this.enrollment) {
-					var organizationLink = this.enrollment.getLinkByRel(/\/organization$/);
+				var organizationLink = this.enrollment.getLinkByRel(/\/organization$/);
 
-					if (!this._organizationUrl || this._organizationUrl.indexOf(organizationLink.href) !== 0) {
-						this._organizationUrl = organizationLink.href + '?embedDepth=1';
+				if (!this._organizationUrl || this._organizationUrl.indexOf(organizationLink.href) !== 0) {
+					this._organizationUrl = organizationLink.href + '?embedDepth=1';
+
+					if (!this.delayLoad) {
 						this._generateOrganizationRequest();
 					}
 				}
@@ -593,7 +594,7 @@ the user has in that organization - student, teacher, TA, etc.
 				}.bind(this), 0);
 			},
 			_closeDropdown: function() {
-				if (Polymer.dom(this.root).querySelectorAll(':hover').length === 0) {
+				if (Polymer.dom(this.root).querySelectorAll(':hover').length === 0 && this._showHoverMenu) {
 					var dropdown = this.$$('#overflow-dropdown');
 					dropdown.close();
 					this._setCourseTileHovered(false);
