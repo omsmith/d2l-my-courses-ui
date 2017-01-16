@@ -316,9 +316,10 @@ the user has in that organization - student, teacher, TA, etc.
 			_enrollmentPinRequest: null,
 			_organizationRequest: null,
 			_organizationUrl: null,
-			_telemetryRequest: null,
+			_parser: null,
 			_pendingPinAction: false,
 			_pinAnimationInProgress: false,
+			_telemetryRequest: null,
 			_generateOrganizationRequest: function() {
 				this._organizationRequest = this._organizationRequest || document.createElement('d2l-ajax');
 				this._organizationRequest.url = this._organizationUrl;
@@ -438,15 +439,15 @@ the user has in that organization - student, teacher, TA, etc.
 				if (response.detail.status === 200) {
 					// The pin action returns the updated enrollment, so update
 					// this.enrollment with the modified one
-					var parser = document.createElement('d2l-siren-parser');
-					this.enrollment = parser.parse(response.detail.xhr.response);
+					this._parser = this._parser ||  document.createElement('d2l-siren-parser');
+					this.enrollment = this._parser.parse(response.detail.xhr.response);
 					this.pinned = this.enrollment.hasClass('pinned');
 				}
 			},
 			_onOrganizationResponse: function(response) {
 				if (response.detail.status === 200) {
-					var parser = document.createElement('d2l-siren-parser');
-					var organization = parser.parse(response.detail.xhr.response);
+					this._parser = this._parser || document.createElement('d2l-siren-parser');
+					var organization = this._parser.parse(response.detail.xhr.response);
 
 					this._organization = organization;
 					this._checkDateBounds(organization, response);
