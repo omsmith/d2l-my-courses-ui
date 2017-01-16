@@ -180,6 +180,7 @@
 				_departmentsUrl: String,
 				// Size the tile should render with respect to vw
 				_tileSizes: Object,
+				_startedInactive: Boolean,
 				// URL that directs to the advanced search page
 				advancedSearchUrl: String
 			},
@@ -212,6 +213,7 @@
 				this._rootEnrollmentRequest();
 
 				document.body.addEventListener('d2l-course-pinned-change', this._onEnrollmentPinnedMessage, true);
+				this.$$('d2l-course-tile-grid').addEventListener('startedInactiveAlert', this._setStartedInactive.bind(this));
 				this.$['image-selector-threshold'].scrollTarget = this.$['basic-image-selector-overlay'].scrollRegion;
 			},
 			detached: function() {
@@ -383,6 +385,7 @@
 						} else {
 							this._moveEnrollmentToUnpinnedList(enrollmentId);
 						}
+						setTimeout(this._setStartedInactive.bind(this), 50);
 					} else {
 						this._fetchEnrollmentEntity(e.detail.orgUnitId, e.detail.isPinned);
 					}
@@ -399,8 +402,18 @@
 					this._addAlert('call-to-action', 'noCourses', this.localize('noCoursesMessage'));
 				}
 			},
+			_setStartedInactive: function(e) {
+				var type = e && e.detail && e.detail.type;
+
+				this._removeAlert('startedInactiveCourses');
+				if (this.$$('d2l-course-tile-grid').checkForStartedInactive(type)) {
+					this._addAlert('warning', 'startedInactiveCourses', this.localize('startedInactiveAlert'));
+				}
+			},
 			_onSimpleOverlayClosed: function() {
 				this._removeAlert('setCourseImageFailure');
+				// update the startedInactive alert in case the user changed the pinned states in the overlay
+				this._setStartedInactive();
 			}
 		});
 	</script>
