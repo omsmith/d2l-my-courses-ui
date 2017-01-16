@@ -268,6 +268,7 @@
 				document.body.removeEventListener('click', this._handleClickBound, true);
 			},
 
+			_isSearched: false,
 			_fullSearchPageSize: 20,
 			_liveSearchPageSize: 5,
 			_searchResultsCache: {},
@@ -344,23 +345,25 @@
 			},
 
 			_clearOrSearch: function() {
-				var icon = this.$$('d2l-icon').getAttribute('icon');
-				if (icon.indexOf('close-default') > -1 || this._searchInput.length === 0) {
+				if (this._isSearched) {
 					this._clearSearch();
-					this._setSearchIcon();
 				} else {
 					this._fullSearch();
-					this._setClearIcon();
 				}
+				this._isSearched = !this._isSearched;
+				this._updateIcon();
 			},
 
+			_updateIcon: function() {
+				this._isSearched ? this._setClearIcon() : this._setSearchIcon();
+			},
 			_setClearIcon: function() {
-				this.$$('d2l-icon').setAttribute('icon', 'd2l-tier1:close-default');
-				this.$$('button').setAttribute('aria-label', this.localize('search.clearSearch'));
+				this.$$('.search-bar > button > d2l-icon').setAttribute('icon', 'd2l-tier1:close-default');
+				this.$$('.search-bar > button').setAttribute('aria-label', this.localize('search.clearSearch'));
 			},
 			_setSearchIcon: function() {
-				this.$$('d2l-icon').setAttribute('icon', 'd2l-tier1:search');
-				this.$$('button').setAttribute('aria-label', this.localize('search.searchCourses'));
+				this.$$('.search-bar > button > d2l-icon').setAttribute('icon', 'd2l-tier1:search');
+				this.$$('.search-bar > button').setAttribute('aria-label', this.localize('search.searchCourses'));
 			},
 
 			// Observer for search input field text, calls debounced live search
@@ -369,6 +372,8 @@
 					// Don't live search for empty inputs
 					return;
 				}
+				// Need to directly set search icon, as _isSearched may already be true here
+				// e.g. user types, searches, then adds a character to search string
 				this._setSearchIcon();
 
 				// Checking for _searchAction required here to avoid problems on init
@@ -384,7 +389,8 @@
 			_onSearchInputKeyPressed: function(e) {
 				switch (e.keyCode) {
 					case this._keyCodes.ENTER:
-						this._setClearIcon();
+						this._isSearched = true;
+						this._updateIcon();
 						this._fullSearch();
 						e.preventDefault();
 						break;
