@@ -48,6 +48,11 @@
 			.d2l-my-courses-hidden {
 				display: none;
 			}
+			.spinner-container {
+				display: flex;
+				justify-content: center;
+				align-items: center;
+			}
 			d2l-alert {
 				display: block;
 				margin-bottom: 20px;
@@ -70,11 +75,12 @@
 			last-response="{{_lastEnrollmentsSearchResponse}}">
 		</d2l-ajax>
 
-		<d2l-loading-spinner
-			id="initialLoadingSpinner"
-			class="d2l-my-courses-hidden"
-			size="100">
-		</d2l-loading-spinner>
+		<div class="spinner-container">
+			<d2l-loading-spinner
+				id="initialLoadingSpinner"
+				size="100">
+			</d2l-loading-spinner>
+		</div>
 
 		<div class="my-courses-content d2l-my-courses-hidden">
 			<template is="dom-repeat" items="{{_alerts}}">
@@ -189,7 +195,6 @@
 				'set-course-image': '_setCourseImageEvent',
 				'clear-image-scroll-threshold': '_clearImageScrollThreshold',
 				'd2l-simple-overlay-closed': '_onSimpleOverlayClosed',
-				'd2l-root-enrollment-search': '_rootEnrollmentRequest',
 				'enrollment-pinned': '_onEnrollmentPinAction',
 				'enrollment-unpinned': '_onEnrollmentPinAction'
 			},

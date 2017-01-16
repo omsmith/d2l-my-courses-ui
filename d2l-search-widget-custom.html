@@ -259,6 +259,10 @@
 				window.D2L.MyCourses.UtilityBehavior
 			],
 
+			observers: [
+				'_onSearchDependencyChanged(sortField, parentOrganizations)'
+			],
+
 			ready: function() {
 				this._handleFocusBound = this._handleFocus.bind(this);
 				this._handleClickBound = this._handleClick.bind(this);
@@ -374,7 +378,7 @@
 					this.$.dropdown.close();
 
 				}
-				this.fire('d2l-root-enrollment-search');
+				this._search();
 			},
 
 			_onSearchStringChanged: function(newString) {
@@ -445,6 +449,12 @@
 					var searchAction = enrollmentsRoot.getActionByName('search-my-enrollments');
 
 					this.set('_searchAction', searchAction);
+				}
+			},
+
+			_onSearchDependencyChanged: function() {
+				if (this.isAttached) {
+					this.debounce('_onSearchDependencyChanged', this._search, 500);
 				}
 			},
 
