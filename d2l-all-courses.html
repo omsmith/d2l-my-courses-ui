@@ -377,7 +377,10 @@
 					}
 				},
 				// URL that directs to the advanced search page
-				advancedSearchUrl: String
+				advancedSearchUrl: {
+					type: String,
+					observer: '_advancedSearchUrlChanged'
+				}
 			},
 			behaviors: [
 				window.D2L.MyCourses.CourseTileResponsiveGridBehavior,
@@ -537,8 +540,6 @@
 				this._updateTileSizes();
 
 				this._filterText = this.localize('filtering.filter');
-
-				this.toggleClass('d2l-all-courses-hidden', !this.advancedSearchUrl, this.$.advancedSearchLink);
 			},
 			attached: function() {
 				this.listen(this.$.sortDropdown, 'd2l-menu-item-change', '_updateSortBy');
@@ -567,6 +568,9 @@
 			},
 			_setFilteredUnpinnedEnrollments: function() {
 				this.filteredUnpinnedEnrollments = this.unpinnedEnrollments.slice();
+			},
+			_advancedSearchUrlChanged: function() {
+				this.toggleClass('d2l-all-courses-hidden', !this.advancedSearchUrl, this.$.advancedSearchLink);
 			},
 			load: function() {
 				// Load course tile and filter contents. Called from d2l-my-courses.
