@@ -129,7 +129,7 @@ describe('<d2l-search-widget-custom>', function() {
 			expect(widget.$$('button > d2l-icon').getAttribute('icon')).to.contain('close-default');
 
 			widget._searchInput = 'foo';
-			expect(widget._isSearched).to.be.true;
+			expect(widget._isSearched).to.be.false;
 			expect(widget.$$('button > d2l-icon').getAttribute('icon')).to.contain('search');
 			done();
 		});

@@ -60,6 +60,10 @@
 				padding-right: 64px;
 			}
 
+			input::-ms-clear {
+				display: none;
+			}
+
 			.dropdown-content {
 				background: transparent;
 			}
@@ -304,6 +308,7 @@
 
 			// Called by various key/mouse interactions
 			_fullSearch: function() {
+				this._isSearched = true;
 				this.__search(this._fullSearchPageSize, '_fullSearchUrl');
 			},
 			_liveSearch: function() {
@@ -341,7 +346,9 @@
 				} else {
 					this.$.dropdown.close();
 				}
-				this._fullSearch();
+
+				this._isSearched = false;
+				this.__search(this._fullSearchPageSize, '_fullSearchUrl');
 			},
 
 			_clearOrSearch: function() {
@@ -350,7 +357,6 @@
 				} else {
 					this._fullSearch();
 				}
-				this._isSearched = !this._isSearched;
 				this._updateIcon();
 			},
 
@@ -372,9 +378,10 @@
 					// Don't live search for empty inputs
 					return;
 				}
-				// Need to directly set search icon, as _isSearched may already be true here
-				// e.g. user types, searches, then adds a character to search string
-				this._setSearchIcon();
+
+				// Search term no longer matches results, so consider it "not searched"
+				this._isSearched = false;
+				this._updateIcon();
 
 				// Checking for _searchAction required here to avoid problems on init
 				if (this._searchAction && !this.$.dropdown.opened) {
@@ -389,9 +396,8 @@
 			_onSearchInputKeyPressed: function(e) {
 				switch (e.keyCode) {
 					case this._keyCodes.ENTER:
-						this._isSearched = true;
-						this._updateIcon();
 						this._fullSearch();
+						this._updateIcon();
 						e.preventDefault();
 						break;
 					case this._keyCodes.DOWN:
