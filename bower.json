@@ -27,7 +27,7 @@
     "/demo/"
   ],
   "dependencies": {
-    "app-localize-behavior": "https://github.com/Brightspace/app-localize-behavior.git#master",
+    "app-localize-behavior": "PolymerElements/app-localize-behavior#~0.10.0",
     "d2l-ajax": "^3.2.3",
     "d2l-colors": "^2.2.3",
     "d2l-dropdown": "^4.0.0",
