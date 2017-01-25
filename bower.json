@@ -29,6 +29,7 @@
   "dependencies": {
     "app-localize-behavior": "PolymerElements/app-localize-behavior#~0.10.0",
     "d2l-ajax": "^3.2.3",
+	"d2l-alert": "git://github.com/Brightspace/alert.git#master",
     "d2l-colors": "^2.2.3",
     "d2l-dropdown": "^4.0.0",
     "d2l-icons": "^2.16.1",
@@ -48,7 +49,6 @@
     "iron-scroll-threshold": "PolymerElements/iron-scroll-threshold#^1.0.2",
     "iron-pages": "^1.0.8",
     "neon-animation": "^1.2.4",
-    "polymer": "^1.7.0",
-    "d2l-alert": "git://github.com/Brightspace/alert.git#master"
+    "polymer": "^1.7.0"
   }
 }
