@@ -48,6 +48,7 @@
     "iron-scroll-threshold": "PolymerElements/iron-scroll-threshold#^1.0.2",
     "iron-pages": "^1.0.8",
     "neon-animation": "^1.2.4",
-    "polymer": "^1.7.0"
+    "polymer": "^1.7.0",
+    "d2l-alert": "git://github.com/Brightspace/alert.git#master"
   }
 }
