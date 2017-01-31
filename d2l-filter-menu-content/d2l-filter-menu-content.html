@@ -116,13 +116,19 @@
 					type: Array,
 					value: function() { return []; }
 				},
-				_departments: Array,
+				_departments: {
+					type: Array,
+					value: function() { return []; }
+				},
 				_departmentsUrl: String,
 				_hasManyFilters: {
 					type: Boolean,
 					value: false
 				},
-				_semesters: Array,
+				_semesters: {
+					type: Array,
+					value: function() { return []; }
+				},
 				_semestersUrl: String,
 				_showClearButton: {
 					type: Boolean,
@@ -145,8 +151,12 @@
 				this.unlisten(this.$.tabbedContent, 'd2l-filter-menu-content-filters-changed', '_onFiltersChanged');
 			},
 			load: function() {
-				this.$.departmentsRequest.generateRequest();
-				this.$.semestersRequest.generateRequest();
+				if (this._departmentsUrl) {
+					this.$.departmentsRequest.generateRequest();
+				}
+				if (this._semestersUrl) {
+					this.$.semestersRequest.generateRequest();
+				}
 			},
 			loadMore: function() {
 				if (this._hasManyFilters) {
@@ -199,30 +209,14 @@
 					}
 
 					this._hideLoadingSpinner();
-
-					var filterLength;
-					this.set('_hasManyFilters', this._departments && this._semesters && this._departments.length + this._semesters.length > 7
-						|| this._semesters && this._semesters.length > 7
-						||  this._departments && this._departments.length > 7);
-					if (this._departments && this._semesters && this._departments.length + this._semesters.length > 7) {
-						console.log('1');
+					this.set('_hasManyFilters', (this._semesters.length + this._departments.length) > 7);
+					if (this._hasManyFilters) {
 						this.$.tabbedContent.load();
-						filterLength =  this._semesters.length + this._departments.length;
-					} else if (!this._semesters) {
-						console.log('2');
-						this.$.tabbedContent.load();
-						filterLength = this._departments.length;
-					} else if (!this._departments) {
-						console.log('3');
-						this.$.tabbedContent.load();
-						filterLength = this._semesters.length;
 					} else {
-						console.log('4');
 						this.$.simpleContent.filterItems = this._departments.concat(this._semesters);
-						filterLength =  this._semesters.length + this._departments.length;
 					}
 					this.fire('d2l-filter-menu-content-hide', {
-						hide: filterLength <= 1
+						hide: this._semesters.length + this._departments.length <= 1
 					});
 				}
 			},
