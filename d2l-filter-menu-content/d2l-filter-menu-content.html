@@ -209,12 +209,13 @@
 					}
 
 					this._hideLoadingSpinner();
-					this.set('_hasManyFilters', (this._semesters.length + this._departments.length) > 7);
+					this.set('_hasManyFilters', this._semesters.length + this._departments.length > 7);
 					if (this._hasManyFilters) {
 						this.$.tabbedContent.load();
 					} else {
 						this.$.simpleContent.filterItems = this._departments.concat(this._semesters);
 					}
+
 					this.fire('d2l-filter-menu-content-hide', {
 						hide: this._semesters.length + this._departments.length <= 1
 					});
