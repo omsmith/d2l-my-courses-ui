@@ -69,17 +69,21 @@ s		*/
 			* fine for the purpose of creating a decent layout for a hidden widget.
 			*/
 			_getAvailableWidth: function(node) {
+				if (node.nodeType === 11) {
+					return this._getAvailableWidth(node.host);
+				}
+
 				var width = node.getBoundingClientRect().width;
 
 				if (width > 0) {
 					return width;
 				}
 
-				if (!node.parentElement) {
+				if (!node.parentNode) {
 					return 0;
 				}
 
-				return this._getAvailableWidth(node.parentElement);
+				return this._getAvailableWidth(node.parentNode);
 			},
 			_rescaleCourseTileRegions: function() {
 				var itemCount = this.getCourseTileItemCount();
