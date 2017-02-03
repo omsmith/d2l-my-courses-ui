@@ -116,19 +116,13 @@
 					type: Array,
 					value: function() { return []; }
 				},
-				_departments: {
-					type: Array,
-					value: function() { return []; }
-				},
+				_departments: Array,
 				_departmentsUrl: String,
 				_hasManyFilters: {
 					type: Boolean,
 					value: false
 				},
-				_semesters: {
-					type: Array,
-					value: function() { return []; }
-				},
+				_semesters: Array,
 				_semestersUrl: String,
 				_showClearButton: {
 					type: Boolean,
@@ -204,10 +198,11 @@
 					var entity = this._parser.parse(response.detail.xhr.response);
 					this.set(path, entity.entities);
 
-					if ( (path === '_departments' && this._semestersUrl && this._semesters.length === 0)
-						|| (path === '_semesters' && this._departmentsUrl && this._departments.length === 0) ) {
+					if ( (this._semestersUrl && !this._semesters) || (this._departmentsUrl && !this._departments) ) {
 						return;
 					}
+					this._semesters = this._semesters || [];
+					this._departments = this._departments || [];
 
 					this._hideLoadingSpinner();
 					this.set('_hasManyFilters', this._semesters.length + this._departments.length > 7);
