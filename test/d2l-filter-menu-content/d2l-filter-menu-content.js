@@ -85,8 +85,8 @@ describe('d2l-filter-menu-content', function() {
 			document.addEventListener('d2l-filter-menu-content-hide', handler);
 
 			expect(component.$$('d2l-loading-spinner').classList.contains('d2l-filter-menu-content-hidden')).to.be.false;
-			departmentsResponse = { entities: [] };
-			semestersResponse = { entities: [] };
+			departmentsResponse = { entities: [enrollment] };
+			semestersResponse = { entities: [enrollment] };
 			component.load();
 		});
 
