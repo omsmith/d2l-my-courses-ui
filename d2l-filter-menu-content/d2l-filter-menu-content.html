@@ -204,7 +204,8 @@
 					var entity = this._parser.parse(response.detail.xhr.response);
 					this.set(path, entity.entities);
 
-					if (!this._departments && !this._semesters) {
+					if ( (path === '_departments' && this._semestersUrl && this._semesters.length === 0)
+						|| (path === '_semesters' && this._departmentsUrl && this._departments.length === 0) ) {
 						return;
 					}
 
