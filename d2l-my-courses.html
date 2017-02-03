@@ -265,14 +265,13 @@
 					var searchAction = enrollmentsRoot.getActionByName('search-my-enrollments');
 					this.fetchEnrollmentUrl = searchAction.href + '/organizations/';
 
-					var pinDateQuery = {
+					var query = {
 						pageSize: 25,
 						embedDepth: 1,
-						sortField: 'pinDate',
-						sortDescending: true,
+						sort: '-PinDate,OrgUnitId',
 						autoPinCourses: true
 					};
-					this._enrollmentsSearchUrl = this.createActionUrl(searchAction, pinDateQuery);
+					this._enrollmentsSearchUrl = this.createActionUrl(searchAction, query);
 					this.$.enrollmentsSearchRequest.generateRequest();
 				} else {
 					this._showContent();

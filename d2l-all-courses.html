@@ -161,7 +161,7 @@
 							id="search-widget"
 							my-enrollments-entity="[[myEnrollmentsEntity]]"
 							parent-organizations="[[_parentOrganizations]]"
-							sort-field="[[_sortField]]">
+							sort="[[_sortParameter]]">
 						</d2l-search-widget-custom>
 
 						<div id="filterAndSort" class="d2l-all-courses-hidden">
@@ -205,10 +205,10 @@
 										<div class="dropdown-content-header">
 											<span>{{localize('sorting.sortBy')}}</span>
 										</div>
-										<d2l-menu-item-radio class="d2l-body-small dropdown-content-gradient" value="courseCode" text="{{localize('sorting.courseCode')}}"></d2l-menu-item-radio>
-										<d2l-menu-item-radio class="d2l-body-small" value="courseName" text="{{localize('sorting.courseName')}}"></d2l-menu-item-radio>
-										<d2l-menu-item-radio class="d2l-body-small" value="pinDate" text="{{localize('sorting.datePinned')}}"></d2l-menu-item-radio>
-										<d2l-menu-item-radio class="d2l-body-small" value="lastAccessed" text="{{localize('sorting.lastAccessed')}}"></d2l-menu-item-radio>
+										<d2l-menu-item-radio class="d2l-body-small dropdown-content-gradient" value="OrgUnitName" text="{{localize('sorting.sortCourseName')}}"></d2l-menu-item-radio>
+										<d2l-menu-item-radio value="d2l-body-small OrgUnitCode" text="{{localize('sorting.sortCourseCode')}}"></d2l-menu-item-radio>
+										<d2l-menu-item-radio value="d2l-body-small PinDate" text="{{localize('sorting.sortDatePinned')}}"></d2l-menu-item-radio>
+										<d2l-menu-item-radio value="d2l-body-small LastAccessed" text="{{localize('sorting.sortLastAccessed')}}"></d2l-menu-item-radio>
 									</d2l-menu>
 								</d2l-dropdown-menu>
 							</d2l-dropdown>
@@ -371,9 +371,12 @@
 				_filterText: String,
 				defaultSortValue: {
 					type: String,
-					value: 'pinDate'
+					value: 'PinDate'
 				},
-				_sortField: String,
+				_sortParameter: {
+					type: String,
+					value: '-PinDate,OrgUnitName,OrgUnitId'
+				},
 				_tileSizes: Object,
 				_parentOrganizations: {
 					type: Array,
@@ -564,7 +567,7 @@
 
 				this._filterText = this.localize('filtering.filter');
 				this.$.sortDropdownMenu.querySelector('d2l-menu-item-radio[value=' + this.defaultSortValue + ']').selected = true;
-				this._sortField = this.defaultSortValue;
+				this._sortParameter = this._sortOptions[this.defaultSortValue].queryParameter;
 			},
 			attached: function() {
 				this.listen(this.$.sortDropdown, 'd2l-menu-item-change', '_updateSortBy');
@@ -643,11 +646,24 @@
 				this.$$('#all-courses-pinned').setCourseImage(details);
 				this.$$('#all-courses-unpinned').setCourseImage(details);
 			},
-			_sortTextOptions: {
-				'courseCode': 'sorting.sortCourseCode',
-				'courseName': 'sorting.sortCourseName',
-				'pinDate': 'sorting.sortDatePinned',
-				'lastAccessed': 'sorting.sortLastAccessed'
+			_sortOptions: {
+				OrgUnitCode: {
+					text: 'sorting.sortCourseCode',
+					queryParameter: '-PinDate,OrgUnitCode,OrgUnitId'
+				},
+				OrgUnitName: {
+					text: 'sorting.sortCourseName',
+					queryParameter: '-PinDate,OrgUnitName,OrgUnitId'
+				},
+				PinDate: {
+					text: 'sorting.sortDatePinned',
+					queryParameter: '-PinDate,OrgUnitId'
+				},
+				LastAccessed: {
+					text: 'sorting.sortLastAccessed',
+					// Note: Sorting by LastAccessed is done differently LMS-side, hence this being different
+					queryParameter: 'LastAccessed'
+				}
 			},
 			_blurFilterText: function() {
 				// Only de-highlight text if focus has moved AND we're not hovering over the opener button anymore
@@ -696,8 +712,8 @@
 				}
 			},
 			_updateSortBy: function(e) {
-				this.set('_sortField', e.detail.value);
-				this.$.sortText.textContent = this.localize(this._sortTextOptions[this._sortField] || '');
+				this.set('_sortParameter', this._sortOptions[e.detail.value].queryParameter);
+				this.$.sortText.textContent = this.localize(this._sortOptions[e.detail.value].text || '');
 				this.$.sortDropdown.toggleOpen();
 			},
 			_updateEnrollmentAlerts: function(hasPinnedEnrollments) {
@@ -725,9 +741,9 @@
 			_resetSortDropdown: function() {
 				this.$.sortDropdownMenu.querySelector('d2l-menu-item-radio[value=' + this.defaultSortValue + ']').click();
 
-				//the click will not fire an event if the the value is already selected, so need to update the sortField manually incase
-				if (this._sortField !== this.defaultSortValue) {
-					this._sortField = this.defaultSortValue;
+				// The click will not fire an event if the value is already selected, so need to update the sort manually
+				if (this._sortParameter !== this._sortOptions[this.defaultSortValue].queryParameter) {
+					this._sortParameter = this._sortOptions[this.defaultSortValue].queryParameter;
 				}
 
 				var content = this.$.sortDropdown.queryEffectiveChildren('[d2l-dropdown-content]');

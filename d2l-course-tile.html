@@ -502,6 +502,8 @@ the user has in that organization - student, teacher, TA, etc.
 					this._setOverlayStartedInactive();
 				} else if (inactive) {
 					this._setOverlayInactive();
+				} else {
+					this._clearOverlayContent();
 				}
 			},
 			_setOverlayContent: function(type, date, inactive) {
