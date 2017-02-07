@@ -183,7 +183,9 @@
 									<d2l-dropdown-content id="filterDropdownContent" no-padding min-width="350" render-content>
 										<d2l-filter-menu-content
 											id="filterMenuContent"
-											my-enrollments-entity="[[myEnrollmentsEntity]]">
+											my-enrollments-entity="[[myEnrollmentsEntity]]",
+											filter-standard-semester-name="[[filterStandardSemesterName]]",
+											filter-standard-department-name="[[filterStandardDepartmentName]]">
 										</d2l-filter-menu-content>
 										<iron-scroll-threshold
 											id="scrollThreshold"
@@ -386,6 +388,10 @@
 					type: String,
 					observer: '_advancedSearchUrlChanged'
 				},
+				// Standard Semester OU Type name to be displayed in the filter dropdown
+				filterStandardSemesterName: String,
+				// Standard Department OU Type name to be displayed in the filter dropdown
+				filterStandardDepartmentName: String,
 				// The number of Enrollments required to show the filter menu
 				_numEnrollmentsRequiredToShowFilters: {
 					type: Number,
