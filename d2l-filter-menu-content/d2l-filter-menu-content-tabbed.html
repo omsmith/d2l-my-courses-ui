@@ -174,14 +174,6 @@
 					type: Number,
 					value: 0
 				},
-				_onlySemesters: {
-					type: Boolean,
-					value: false
-				},
-				_onlyDepartments: {
-					type: Boolean,
-					value: false
-				},
 				_oneTab: {
 					type: Boolean,
 					value: false
@@ -234,10 +226,10 @@
 				}
 			},
 			open: function() {
-				if (this._onlyDepartments) {
-					this._selectDepartmentList();
-				} else {
+				if (this._searchSemestersAction) {
 					this._selectSemesterList();
+				} else {
+					this._selectDepartmentList();
 				}
 			},
 			_parser: null,
@@ -274,19 +266,9 @@
 					this._parser = this._parser || document.createElement('d2l-siren-parser');
 					var myEnrollmentsEntity = this._parser.parse(entity);
 
-					if (myEnrollmentsEntity.hasAction('add-department-filter')) {
-						this.set('_searchDepartmentsAction', myEnrollmentsEntity.getActionByName('add-department-filter'));
-						this._onlySemesters = false;
-					} else {
-						this._onlySemesters = true;
-					}
-					if (myEnrollmentsEntity.hasAction('add-semester-filter')) {
-						this.set('_searchSemestersAction', myEnrollmentsEntity.getActionByName('add-semester-filter'));
-						this._onlyDepartments = false;
-					} else {
-						this._onlyDepartments = true;
-					}
-					this._oneTab = this._onlyDepartments || this._onlySemesters;
+					this._searchSemestersAction = myEnrollmentsEntity.hasAction('add-semester-filter') ? myEnrollmentsEntity.getActionByName('add-semester-filter') : undefined;
+					this._searchDepartmentsAction = myEnrollmentsEntity.hasAction('add-department-filter') ? myEnrollmentsEntity.getActionByName('add-department-filter') : undefined;
+					this._oneTab = !this._searchDepartmentsAction || !this._searchSemestersAction;
 				}
 			},
 			_updateDepartmentFilterLabel: function(numDepartmentFilters, departmentFilterName) {
