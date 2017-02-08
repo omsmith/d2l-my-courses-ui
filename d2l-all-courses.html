@@ -282,7 +282,7 @@
 					value: function() {
 						return [];
 					},
-					observer: '_updatePinnedEnrollmentsEvent'
+					observer: '_pinnedEnrollmentsChanged'
 				},
 				// filtered pinned enrollment entities
 				filteredPinnedEnrollments: {
@@ -297,7 +297,7 @@
 					value: function() {
 						return [];
 					},
-					observer: '_updateUnpinnedEnrollmentsEvent'
+					observer: '_unpinnedEnrollmentsChanged'
 				},
 				filteredUnpinnedEnrollments: {
 					type: Array,
@@ -546,11 +546,11 @@
 					this.lastEnrollmentsSearchResponse = enrollments;
 				}
 			},
-			_updatePinnedEnrollmentsEvent: function() {
+			_pinnedEnrollmentsChanged: function() {
 				this._updateTileSizes();
 				this._setFilteredPinnedEnrollments();
 			},
-			_updateUnpinnedEnrollmentsEvent: function() {
+			_unpinnedEnrollmentsChanged: function() {
 				this._updateTileSizes();
 				this._setFilteredUnpinnedEnrollments();
 			},
