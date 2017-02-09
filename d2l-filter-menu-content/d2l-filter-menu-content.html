@@ -145,8 +145,12 @@
 				this.unlisten(this.$.tabbedContent, 'd2l-filter-menu-content-filters-changed', '_onFiltersChanged');
 			},
 			load: function() {
-				this.$.departmentsRequest.generateRequest();
-				this.$.semestersRequest.generateRequest();
+				if (this._departmentsUrl) {
+					this.$.departmentsRequest.generateRequest();
+				}
+				if (this._semestersUrl) {
+					this.$.semestersRequest.generateRequest();
+				}
 			},
 			loadMore: function() {
 				if (this._hasManyFilters) {
@@ -180,10 +184,12 @@
 					this._parser = this._parser || document.createElement('d2l-siren-parser');
 
 					var myEnrollmentsEntity = this._parser.parse(entity);
-					var departmentsAction  = myEnrollmentsEntity.getActionByName('add-department-filter');
-					var semestersAction = myEnrollmentsEntity.getActionByName('add-semester-filter');
-					this.set('_departmentsUrl', this.createActionUrl(departmentsAction));
-					this.set('_semestersUrl', this.createActionUrl(semestersAction));
+					if (myEnrollmentsEntity.hasAction('add-department-filter'))	{
+						this.set('_departmentsUrl', this.createActionUrl(myEnrollmentsEntity.getActionByName('add-department-filter')));
+					}
+					if (myEnrollmentsEntity.hasAction('add-semester-filter')) {
+						this.set('_semestersUrl', this.createActionUrl(myEnrollmentsEntity.getActionByName('add-semester-filter')));
+					}
 				}
 			},
 			__onResponse: function(response, path) {
@@ -192,13 +198,14 @@
 					var entity = this._parser.parse(response.detail.xhr.response);
 					this.set(path, entity.entities);
 
-					if (!this._departments || !this._semesters) {
+					if ( (this._semestersUrl && !this._semesters) || (this._departmentsUrl && !this._departments) ) {
 						return;
 					}
+					this._semesters = this._semesters || [];
+					this._departments = this._departments || [];
 
 					this._hideLoadingSpinner();
-
-					this.set('_hasManyFilters', this._departments.length + this._semesters.length > 7);
+					this.set('_hasManyFilters', this._semesters.length + this._departments.length > 7);
 					if (this._hasManyFilters) {
 						this.$.tabbedContent.load();
 					} else {
