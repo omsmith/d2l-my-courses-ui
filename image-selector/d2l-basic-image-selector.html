@@ -1,15 +1,16 @@
 <link rel="import" href="../../polymer/polymer.html">
 <link rel="import" href="../../d2l-ajax/d2l-ajax.html">
-<link rel="import" href="../localize-behavior.html">
-<link rel="import" href="../../d2l-search-widget/d2l-search-widget.html">
-<link rel="import" href="../../d2l-loading-spinner/d2l-loading-spinner.html">
 <link rel="import" href="../../d2l-icons/d2l-icons.html">
 <link rel="import" href="../../d2l-colors/d2l-colors.html">
+<link rel="import" href="../../d2l-loading-spinner/d2l-loading-spinner.html">
+<link rel="import" href="../../d2l-search-widget/d2l-search-widget.html">
+<link rel="import" href="../../d2l-typography/d2l-typography.html">
+<link rel="import" href="../localize-behavior.html">
 <link rel="import" href="d2l-image-tile-grid.html">
 
 <dom-module id="d2l-basic-image-selector">
 	<template>
-		<style>
+		<style include="d2l-typography">
 			#image-search{
 				width: 50%;
 			}
@@ -31,20 +32,15 @@
 				margin-bottom: 45px;
 			}
 
-			.upload {
-				color: var(--d2l-color-ferrite);
-				font-weight: 400;
-				margin: 5px 10px;
+			.upload-text {
+				margin-left: 5px;
 			}
 
 			.upload:focus .upload-text,
-			.upload:hover .upload-text {
-				text-decoration: underline;
-				color: var(--d2l-color-celestine);
-			}
-
+			.upload:hover .upload-text,
 			.upload:focus .upload-icon,
 			.upload:hover .upload-icon {
+				text-decoration: underline;
 				color: var(--d2l-color-celestine);
 			}
 
@@ -88,7 +84,7 @@
 			method="POST">
 		</d2l-ajax>
 
-		<div class="top-section">
+		<div class="d2l-typography top-section">
 			<d2l-search-widget
 				id="image-search"
 				class="small"
@@ -119,11 +115,11 @@
 		</template>
 
 		<template is="dom-if" if="{{!_showGrid}}">
-			<div class="no-results-area">
+			<div class="d2l-typography no-results-area">
 				<div class="no-results-text">
 					<span>{{_noResultsTextStart}}</span><span class="no-results-search-text">{{_noResultsTextMid}}</span><span>{{_noResultsTextEnd}}</span>
 				</div>
-				<div class="please-change-text">{{localize('images.pleaseModify')}}</div>
+				{{localize('images.pleaseModify')}}
 			</div>
 		</template>
 		<d2l-loading-spinner
