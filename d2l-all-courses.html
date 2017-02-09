@@ -282,7 +282,7 @@
 					value: function() {
 						return [];
 					},
-					observer: '_setFilteredPinnedEnrollments'
+					observer: '_pinnedEnrollmentsChanged'
 				},
 				// filtered pinned enrollment entities
 				filteredPinnedEnrollments: {
@@ -297,7 +297,7 @@
 					value: function() {
 						return [];
 					},
-					observer: '_setFilteredUnpinnedEnrollments'
+					observer: '_unpinnedEnrollmentsChanged'
 				},
 				filteredUnpinnedEnrollments: {
 					type: Array,
@@ -540,16 +540,19 @@
 						this.filteredPinnedEnrollments = newPinnedEnrollments;
 						this.filteredUnpinnedEnrollments = newUnpinnedEnrollments;
 					}
-					var colNum = this._calcNumColumns(this._getAvailableWidth(Polymer.dom(this.root).node.host), this.filteredPinnedEnrollments.length);
-					this._tileSizes = (colNum === 2) ?
-						{ mobile: { maxwidth: 767, size: 50 }, tablet: { maxwidth: 1243, size: 33 }, desktop: { size: 20 } } :
-						{ mobile: { maxwidth: 767, size: 100 }, tablet: { maxwidth: 1243, size: 67 }, desktop: { size: 25 } };
 
-					this.fire('recalculate-columns');
 					this.toggleClass('d2l-all-courses-hidden', true, this.$.lazyLoadSpinner);
 					this.$['all-courses-scroll-threshold'].clearTriggers();
 					this.lastEnrollmentsSearchResponse = enrollments;
 				}
+			},
+			_pinnedEnrollmentsChanged: function() {
+				this._updateTileSizes();
+				this._setFilteredPinnedEnrollments();
+			},
+			_unpinnedEnrollmentsChanged: function() {
+				this._updateTileSizes();
+				this._setFilteredUnpinnedEnrollments();
 			},
 			ready: function() {
 				this._updateEnrollmentAlerts(this._hasFilteredPinnedEnrollments);
@@ -584,7 +587,8 @@
 				this.unlisten(this.$.filterMenuContent, 'd2l-filter-menu-content-hide', '_onFilterHideChanged');
 			},
 			getCourseTileItemCount: function() {
-				var itemCount = Math.max(this.pinnedEnrollments.length, this.unpinnedEnrollments.length);
+				var itemCount = Math.max(this.pinnedEnrollments ? this.pinnedEnrollments.length : 0,
+					this.unpinnedEnrollments ? this.unpinnedEnrollments.length : 0);
 				return itemCount;
 			},
 			_setFilteredPinnedEnrollments: function() {
