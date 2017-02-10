@@ -5,14 +5,14 @@
 <link rel="import" href="../d2l-loading-spinner/d2l-loading-spinner.html">
 <link rel="import" href="../d2l-icons/d2l-icons.html">
 <link rel="import" href="../d2l-menu/d2l-menu-item-link.html">
+<link rel="import" href="../d2l-offscreen/d2l-offscreen.html">
 <link rel="import" href="../d2l-polymer-behaviors/d2l-dom.html">
 <link rel="import" href="../d2l-siren-parser/d2l-siren-parser.html">
-<link rel="import" href="../d2l-offscreen/d2l-offscreen.html">
 <link rel="import" href="../iron-a11y-announcer/iron-a11y-announcer.html">
-<link rel="import" href="d2l-course-tile-styles.html">
-<link rel="import" href="localize-behavior.html">
-<link rel="import" href="d2l-utility-behavior.html">
 <link rel="import" href="components/d2l-course-image.html">
+<link rel="import" href="d2l-course-tile-styles.html">
+<link rel="import" href="d2l-utility-behavior.html">
+<link rel="import" href="localize-behavior.html">
 
 <!--
 An important distinction to make in understanding the functionality of the course tile is the difference between an
@@ -25,7 +25,7 @@ the user has in that organization - student, teacher, TA, etc.
 	<template>
 		<style include="d2l-course-tile-styles"></style>
 
-		<div class="tile-container"
+		<div class="d2l-typography tile-container"
 			on-mouseover="_hoverCourseTile"
 			on-mouseout="_onTileMouseOut">
 			<div class="alert-color-circle"></div>
@@ -53,9 +53,10 @@ the user has in that organization - student, teacher, TA, etc.
 				</div>
 
 				<div class="course-info">
-					<div class="course-text d2l-heading-4">{{_organization.properties.name}}
+					<div class="course-text">
+						{{_organization.properties.name}}
 						<template id="courseCodeTemplate" is="dom-if" if="[[showCourseCode]]">
-							<span class="course-code-text">{{_organization.properties.code}}</span>
+							<span class="d2l-body-small course-code-text">{{_organization.properties.code}}</span>
 						</template>
 						<d2l-offscreen>[[_courseNotificationLabel]]</d2l-offscreen>
 					</div>
@@ -501,6 +502,8 @@ the user has in that organization - student, teacher, TA, etc.
 					this._setOverlayStartedInactive();
 				} else if (inactive) {
 					this._setOverlayInactive();
+				} else {
+					this._clearOverlayContent();
 				}
 			},
 			_setOverlayContent: function(type, date, inactive) {

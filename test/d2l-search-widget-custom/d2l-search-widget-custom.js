@@ -26,13 +26,9 @@ describe('<d2l-search-widget-custom>', function() {
 					type: 'number',
 					value: 0
 				}, {
-					name: 'sortField',
-					type: 'radio',
-					value: ''
-				}, {
-					name: 'sortDescending',
-					type: 'checkbox',
-					value: false
+					name: 'sort',
+					type: 'text',
+					value: 'OrgUnitName,OrgUnitId'
 				}, {
 					name: 'parentOrganizations',
 					type: 'hidden',
@@ -76,7 +72,7 @@ describe('<d2l-search-widget-custom>', function() {
 			done();
 		});
 
-		widget.set('sortField', 'courseName');
+		widget.set('sort', '-PinDate,OrgUnitName,OrgUnitId');
 
 		clock.tick(501);
 	});
@@ -139,11 +135,11 @@ describe('<d2l-search-widget-custom>', function() {
 
 	it('should apply current search parameters when search button is clicked', function(done) {
 		// Set new values for sort/filter fields and prevent auto-search observer from firing
-		widget.sortField = 'newSortField';
+		widget.sort = 'NewSort';
 		widget.parentOrganizations = [3, 2, 1];
 
 		widget.$.fullSearchRequest.addEventListener('iron-ajax-response', function() {
-			expect(widget._fullSearchUrl).to.contain('sortField=newSortField');
+			expect(widget._fullSearchUrl).to.contain('sort=NewSort');
 			expect(widget._fullSearchUrl).to.contain('parentOrganizations=3,2,1');
 			done();
 		});
@@ -155,7 +151,7 @@ describe('<d2l-search-widget-custom>', function() {
 		var spy = sandbox.spy(widget, '__search');
 
 		for (var i = 0; i < 20; i++) {
-			widget.set('sortField', 'sortField' + i);
+			widget.set('sort', 'sort' + i);
 			clock.tick(200);
 		}
 

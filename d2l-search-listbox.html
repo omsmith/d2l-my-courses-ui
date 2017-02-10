@@ -1,11 +1,9 @@
 <link rel="import" href="../polymer/polymer.html">
-<link rel="import" href="../iron-menu-behavior/iron-menu-behavior.html">
 <link rel="import" href="../iron-a11y-keys/iron-a11y-keys.html">
-<link rel="import" href="../d2l-typography/d2l-typography-shared-styles.html">
+<link rel="import" href="../iron-menu-behavior/iron-menu-behavior.html">
 
 <dom-module id="d2l-search-listbox">
 	<template>
-		<style include="d2l-typography-shared-styles"></style>
 		<style>
 			:host {
 				box-sizing: border-box;
@@ -21,13 +19,11 @@
 				border: 1px solid var(--d2l-color-titanius);
 				border-top-color: var(--d2l-color-gypsum);
 				border-bottom-color: transparent;
-				color: var(--d2l-color-ferrite);
 				list-style-type: none;
 				width: 100%;
 				padding-left: 30px;
 				padding-top: 0.9rem;
 				padding-bottom: 0.9rem;
-				font-weight: 400;
 				cursor: pointer;
 			}
 
@@ -53,6 +49,7 @@
 				font-weight: 700;
 				padding-top: 1rem;
 				padding-bottom: 1rem;
+				cursor: default;
 			}
 		</style>
 		<content></content>

@@ -5,15 +5,15 @@
 <link rel="import" href="../d2l-dropdown/d2l-dropdown.html">
 <link rel="import" href="../d2l-icons/d2l-icons.html">
 <link rel="import" href="../d2l-siren-parser/d2l-siren-parser.html">
-<link rel="import" href="../d2l-typography/d2l-typography-shared-styles.html">
-<link rel="import" href="localize-behavior.html">
+<link rel="import" href="../d2l-typography/d2l-typography.html">
 <link rel="import" href="d2l-search-listbox.html">
 <link rel="import" href="d2l-utility-behavior.html">
 <link rel="import" href="d2l-search-dropdown-content.html">
+<link rel="import" href="localize-behavior.html">
 
 <dom-module id="d2l-search-widget-custom">
 	<template>
-		<style>
+		<style include="d2l-typography">
 			:host {
 				position: relative;
 				display: block;
@@ -34,10 +34,6 @@
 				border-radius: .3rem;
 				border-style: solid;
 				vertical-align: middle;
-				font-size: 0.95rem;
-				font-weight: 400;
-				letter-spacing: .015rem;
-				font-family: inherit;
 				box-sizing: border-box;
 				-webkit-transition-duration: .5s;
 				transition-duration: .5s;
@@ -95,7 +91,6 @@
 			d2l-icon {
 				--d2l-icon-height: 22px;
 				--d2l-icon-width: 22px;
-				color: var(--d2l-color-tungsten);
 			}
 		</style>
 
@@ -116,6 +111,7 @@
 		<d2l-dropdown no-auto-open>
 			<div class="search-bar d2l-dropdown-opener" id="opener">
 				<input
+					class="d2l-typography"
 					is="iron-input"
 					bind-value="{{_searchInput}}"
 					role="combobox"
@@ -185,8 +181,8 @@
 					observer: '_myEnrollmentsEntityChanged'
 				},
 
-				// Value to send for the `sortField` parameter in the search query
-				sortField: String,
+				// Value to send for the `sort` parameter in the search query
+				sort: String,
 
 				// Array of parent organization IDs (self links) by which to limit the search results
 				parentOrganizations: {
@@ -247,7 +243,7 @@
 			],
 
 			observers: [
-				'_onSearchDependencyChanged(sortField, parentOrganizations)'
+				'_onSearchDependencyChanged(sort, parentOrganizations)'
 			],
 
 			ready: function() {
@@ -299,8 +295,7 @@
 					page: 1,
 					pageSize: pageSize,
 					parentOrganizations: this.parentOrganizations.join(','),
-					sortField: this.sortField,
-					sortDescending: this.sortField !== 'courseName' && this.sortField !== 'courseCode'
+					sort: this.sort
 				};
 
 				this.set(path, this.createActionUrl(this._searchAction, queryParams));
