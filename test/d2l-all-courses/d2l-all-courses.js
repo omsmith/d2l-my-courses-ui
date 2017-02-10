@@ -254,19 +254,19 @@ describe('d2l-all-courses', function() {
 
 			var event = {
 				selected: true,
-				value: 'courseCode'
+				value: 'OrgUnitCode'
 			};
 
 			var defaultValue = widget.defaultSortValue;
 
 			widget.load();
-			expect(widget._sortField).to.equal(defaultValue);
+			expect(widget._sortParameter).to.equal(widget._sortOptions[defaultValue].queryParameter);
 			widget.$$('d2l-dropdown-menu').fire('d2l-menu-item-change', event);
-			expect(widget._sortField).to.equal(event.value);
+			expect(widget._sortParameter).to.equal(widget._sortOptions[event.value].queryParameter);
 
 			widget.$$('d2l-simple-overlay')._renderOpened();
 			expect(spy.called).to.be.true;
-			expect(widget._sortField).to.equal(defaultValue);
+			expect(widget._sortParameter).to.equal(widget._sortOptions[defaultValue].queryParameter);
 		});
 	});
 });

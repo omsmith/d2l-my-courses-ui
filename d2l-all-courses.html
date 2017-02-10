@@ -1,5 +1,6 @@
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../iron-scroll-threshold/iron-scroll-threshold.html">
+<link rel="import" href="../d2l-alert/d2l-alert.html">
 <link rel="import" href="../d2l-colors/d2l-colors.html">
 <link rel="import" href="../d2l-dropdown/d2l-dropdown.html">
 <link rel="import" href="../d2l-dropdown/d2l-dropdown-content.html">
@@ -9,27 +10,23 @@
 <link rel="import" href="../d2l-menu/d2l-menu-item-radio.html">
 <link rel="import" href="../d2l-simple-overlay/d2l-simple-overlay.html">
 <link rel="import" href="../d2l-siren-parser/d2l-siren-parser.html">
-<link rel="import" href="../d2l-alert/d2l-alert.html">
+<link rel="import" href="../d2l-typography/d2l-typography.html">
 <link rel="import" href="d2l-alert-behavior.html">
 <link rel="import" href="d2l-course-tile-grid.html">
 <link rel="import" href="d2l-course-tile-responsive-grid-behavior.html">
 <link rel="import" href="d2l-filter-menu-content/d2l-filter-menu-content.html">
 <link rel="import" href="d2l-search-widget-custom.html">
-<link rel="import" href="localize-behavior.html">
 <link rel="import" href="d2l-updates-behavior.html">
-
+<link rel="import" href="localize-behavior.html">
 
 <dom-module id="d2l-all-courses">
 	<template>
-		<style>
+		<style include="d2l-typography">
 			:host {
 				display: block;
 			}
 			h2 {
-				/* overrides to d2l-heading-3 */
-				margin: 20px 0 10px 0;
-				font-size: 20px;
-				/* end overrides */
+				margin: 20px 0 10px 0 !important;
 			}
 			d2l-alert {
 				display: block;
@@ -56,35 +53,32 @@
 				display: flex;
 				justify-content: space-between;
 			}
-			.search-and-filter-row > .advanced-search-link {
+			.advanced-search-link {
 				font-size: 0.8rem;
 				margin-top: 3px;
 				flex: 1;
 			}
-			.search-and-filter-row > d2l-search-widget-custom {
+			d2l-search-widget-custom {
 				flex: 1;
 			}
-			.search-and-filter-row > #filterAndSort {
+			#filterAndSort {
 				flex: 1.4;
 				display: flex;
 				justify-content: flex-end;
 				align-items: center;
 			}
 			@media screen and (max-width: 767px) {
-				.search-and-filter-row > #filterAndSort {
+				#filterAndSort {
 					display: none;
 				}
-				.search-and-filter-row > .advanced-search-link {
+				.advanced-search-link {
 					text-align: right;
 					margin-top: 5px;
 				}
 			}
 			.dropdown-opener-text {
-				@apply(--d2l-body-small-text);
-				/* overrides to d2l-body-small-text */
 				font-size: 0.95rem;
-				color: var(--d2l-color-ferrite);
-				/* end overrides */
+				font-family: Lato;
 				cursor: pointer;
 				padding: 0;
 				margin-left: 1rem;
@@ -104,6 +98,9 @@
 				border-bottom: 1px solid var(--d2l-color-gypsum);
 				width: 100%;
 				padding: 20px;
+			}
+			.dropdown-content-gradient {
+				background: linear-gradient(to top, white, var(--d2l-color-regolith));
 			}
 			@media screen and (-ms-high-contrast: active), (-ms-high-contrast: none) {
 				#filterText {
@@ -146,11 +143,12 @@
 			title-name="{{localize('allCourses')}}"
 			locale="[[locale]]"
 			close-simple-overlay-alt-text="{{localize('closeSimpleOverlayAltText')}}"
+			class="d2l-typography"
 			with-backdrop>
 
 			<div
 				id="overlayContent"
-				class="d2l-all-courses-hidden">
+				class="d2l-typography d2l-all-courses-hidden">
 
 				<iron-scroll-threshold
 					id="all-courses-scroll-threshold"
@@ -163,7 +161,7 @@
 							id="search-widget"
 							my-enrollments-entity="[[myEnrollmentsEntity]]"
 							parent-organizations="[[_parentOrganizations]]"
-							sort-field="[[_sortField]]">
+							sort="[[_sortParameter]]">
 						</d2l-search-widget-custom>
 
 						<div id="filterAndSort" class="d2l-all-courses-hidden">
@@ -199,18 +197,18 @@
 								<button
 									class="d2l-dropdown-opener dropdown-button"
 									aria-labelledby="sortText">
-									<span id="sortText" class="dropdown-opener-text">{{localize('sorting.sortDatePinned')}}</span>
+									<span id="sortText" class="dropdown-opener-text">{{localize('sorting.sortCourseName')}}</span>
 									<d2l-icon icon="d2l-tier1:chevron-down" aria-hidden="true"></d2l-icon>
 								</button>
 								<d2l-dropdown-menu no-padding min-width="350">
 									<d2l-menu id="sortDropdownMenu" label="{{localize('sorting.sortBy')}}">
 										<div class="dropdown-content-header">
-											<span class="dropdown-content-header-text">{{localize('sorting.sortBy')}}</span>
+											<span>{{localize('sorting.sortBy')}}</span>
 										</div>
-										<d2l-menu-item-radio class="dropdown-content-gradient" value="courseCode" text="{{localize('sorting.courseCode')}}"></d2l-menu-item-radio>
-										<d2l-menu-item-radio value="courseName" text="{{localize('sorting.courseName')}}"></d2l-menu-item-radio>
-										<d2l-menu-item-radio value="pinDate" text="{{localize('sorting.datePinned')}}"></d2l-menu-item-radio>
-										<d2l-menu-item-radio value="lastAccessed" text="{{localize('sorting.lastAccessed')}}"></d2l-menu-item-radio>
+										<d2l-menu-item-radio class="d2l-body-small dropdown-content-gradient" value="OrgUnitName" text="{{localize('sorting.sortCourseName')}}"></d2l-menu-item-radio>
+										<d2l-menu-item-radio class="d2l-body-small" value="OrgUnitCode" text="{{localize('sorting.sortCourseCode')}}"></d2l-menu-item-radio>
+										<d2l-menu-item-radio class="d2l-body-small" value="PinDate" text="{{localize('sorting.sortDatePinned')}}"></d2l-menu-item-radio>
+										<d2l-menu-item-radio class="d2l-body-small" value="LastAccessed" text="{{localize('sorting.sortLastAccessed')}}"></d2l-menu-item-radio>
 									</d2l-menu>
 								</d2l-dropdown-menu>
 							</d2l-dropdown>
@@ -282,7 +280,7 @@
 					value: function() {
 						return [];
 					},
-					observer: '_setFilteredPinnedEnrollments'
+					observer: '_pinnedEnrollmentsChanged'
 				},
 				// filtered pinned enrollment entities
 				filteredPinnedEnrollments: {
@@ -297,7 +295,7 @@
 					value: function() {
 						return [];
 					},
-					observer: '_setFilteredUnpinnedEnrollments'
+					observer: '_unpinnedEnrollmentsChanged'
 				},
 				filteredUnpinnedEnrollments: {
 					type: Array,
@@ -373,9 +371,12 @@
 				_filterText: String,
 				defaultSortValue: {
 					type: String,
-					value: 'pinDate'
+					value: 'OrgUnitName'
 				},
-				_sortField: String,
+				_sortParameter: {
+					type: String,
+					value: '-PinDate,OrgUnitName,OrgUnitId'
+				},
 				_tileSizes: Object,
 				_parentOrganizations: {
 					type: Array,
@@ -540,16 +541,19 @@
 						this.filteredPinnedEnrollments = newPinnedEnrollments;
 						this.filteredUnpinnedEnrollments = newUnpinnedEnrollments;
 					}
-					var colNum = this._calcNumColumns(this._getAvailableWidth(Polymer.dom(this.root).node.host), this.filteredPinnedEnrollments.length);
-					this._tileSizes = (colNum === 2) ?
-						{ mobile: { maxwidth: 767, size: 50 }, tablet: { maxwidth: 1243, size: 33 }, desktop: { size: 20 } } :
-						{ mobile: { maxwidth: 767, size: 100 }, tablet: { maxwidth: 1243, size: 67 }, desktop: { size: 25 } };
 
-					this.fire('recalculate-columns');
 					this.toggleClass('d2l-all-courses-hidden', true, this.$.lazyLoadSpinner);
 					this.$['all-courses-scroll-threshold'].clearTriggers();
 					this.lastEnrollmentsSearchResponse = enrollments;
 				}
+			},
+			_pinnedEnrollmentsChanged: function() {
+				this._updateTileSizes();
+				this._setFilteredPinnedEnrollments();
+			},
+			_unpinnedEnrollmentsChanged: function() {
+				this._updateTileSizes();
+				this._setFilteredUnpinnedEnrollments();
 			},
 			ready: function() {
 				this._updateEnrollmentAlerts(this._hasFilteredPinnedEnrollments);
@@ -563,7 +567,7 @@
 
 				this._filterText = this.localize('filtering.filter');
 				this.$.sortDropdownMenu.querySelector('d2l-menu-item-radio[value=' + this.defaultSortValue + ']').selected = true;
-				this._sortField = this.defaultSortValue;
+				this._sortParameter = this._sortOptions[this.defaultSortValue].queryParameter;
 			},
 			attached: function() {
 				this.listen(this.$.sortDropdown, 'd2l-menu-item-change', '_updateSortBy');
@@ -584,7 +588,8 @@
 				this.unlisten(this.$.filterMenuContent, 'd2l-filter-menu-content-hide', '_onFilterHideChanged');
 			},
 			getCourseTileItemCount: function() {
-				var itemCount = Math.max(this.pinnedEnrollments.length, this.unpinnedEnrollments.length);
+				var itemCount = Math.max(this.pinnedEnrollments ? this.pinnedEnrollments.length : 0,
+					this.unpinnedEnrollments ? this.unpinnedEnrollments.length : 0);
 				return itemCount;
 			},
 			_setFilteredPinnedEnrollments: function() {
@@ -641,11 +646,24 @@
 				this.$$('#all-courses-pinned').setCourseImage(details);
 				this.$$('#all-courses-unpinned').setCourseImage(details);
 			},
-			_sortTextOptions: {
-				'courseCode': 'sorting.sortCourseCode',
-				'courseName': 'sorting.sortCourseName',
-				'pinDate': 'sorting.sortDatePinned',
-				'lastAccessed': 'sorting.sortLastAccessed'
+			_sortOptions: {
+				OrgUnitCode: {
+					text: 'sorting.sortCourseCode',
+					queryParameter: '-PinDate,OrgUnitCode,OrgUnitId'
+				},
+				OrgUnitName: {
+					text: 'sorting.sortCourseName',
+					queryParameter: '-PinDate,OrgUnitName,OrgUnitId'
+				},
+				PinDate: {
+					text: 'sorting.sortDatePinned',
+					queryParameter: '-PinDate,OrgUnitId'
+				},
+				LastAccessed: {
+					text: 'sorting.sortLastAccessed',
+					// Note: Sorting by LastAccessed is done differently LMS-side, hence this being different
+					queryParameter: 'LastAccessed'
+				}
 			},
 			_blurFilterText: function() {
 				// Only de-highlight text if focus has moved AND we're not hovering over the opener button anymore
@@ -694,8 +712,8 @@
 				}
 			},
 			_updateSortBy: function(e) {
-				this.set('_sortField', e.detail.value);
-				this.$.sortText.textContent = this.localize(this._sortTextOptions[this._sortField] || '');
+				this.set('_sortParameter', this._sortOptions[e.detail.value].queryParameter);
+				this.$.sortText.textContent = this.localize(this._sortOptions[e.detail.value].text || '');
 				this.$.sortDropdown.toggleOpen();
 			},
 			_updateEnrollmentAlerts: function(hasPinnedEnrollments) {
@@ -710,7 +728,8 @@
 				this._tileSizes = Math.floor(100 / this._numColsOverlay) + 'vw';
 			},
 			_clearSearchWidget: function() {
-				this.$['search-widget']._searchInput = '';
+				this.$['search-widget']._clearSearch();
+				this.$['search-widget']._setSearchIcon();
 				this._clearFilteredCourses();
 			},
 			_clearFilteredCourses: function() {
@@ -722,9 +741,9 @@
 			_resetSortDropdown: function() {
 				this.$.sortDropdownMenu.querySelector('d2l-menu-item-radio[value=' + this.defaultSortValue + ']').click();
 
-				//the click will not fire an event if the the value is already selected, so need to update the sortField manually incase
-				if (this._sortField !== this.defaultSortValue) {
-					this._sortField = this.defaultSortValue;
+				// The click will not fire an event if the value is already selected, so need to update the sort manually
+				if (this._sortParameter !== this._sortOptions[this.defaultSortValue].queryParameter) {
+					this._sortParameter = this._sortOptions[this.defaultSortValue].queryParameter;
 				}
 
 				var content = this.$.sortDropdown.queryEffectiveChildren('[d2l-dropdown-content]');
