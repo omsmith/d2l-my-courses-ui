@@ -7,39 +7,33 @@ describe('<d2l-search-widget-custom>', function() {
 		server,
 		widget,
 		clock,
-		myEnrollmentsEntity = {
-			class: ['enrollments', 'root'],
-			actions: [{
-				name: 'search-my-enrollments',
-				method: 'GET',
-				href: '/enrollments/users/169',
-				fields: [{
-					name: 'search',
-					type: 'search',
-					value: ''
-				}, {
-					name: 'pageSize',
-					type: 'number',
-					value: 20
-				}, {
-					name: 'embedDepth',
-					type: 'number',
-					value: 0
-				}, {
-					name: 'sort',
-					type: 'text',
-					value: 'OrgUnitName,OrgUnitId'
-				}, {
-					name: 'parentOrganizations',
-					type: 'hidden',
-					value: ''
-				}]
-			}],
-			links: [{
-				rel: ['self'],
-				href: '/enrollments'
+		searchAction = {
+			name: 'search-my-enrollments',
+			method: 'GET',
+			href: '/enrollments/users/169',
+			fields: [{
+				name: 'search',
+				type: 'search',
+				value: ''
+			}, {
+				name: 'pageSize',
+				type: 'number',
+				value: 20
+			}, {
+				name: 'embedDepth',
+				type: 'number',
+				value: 0
+			}, {
+				name: 'sort',
+				type: 'text',
+				value: 'OrgUnitName,OrgUnitId'
+			}, {
+				name: 'parentOrganizations',
+				type: 'hidden',
+				value: ''
 			}]
-		};
+		},
+		searchFieldName = 'search';
 
 	beforeEach(function() {
 		sandbox = sinon.sandbox.create();
@@ -54,7 +48,8 @@ describe('<d2l-search-widget-custom>', function() {
 
 		widget = fixture('d2l-search-widget-custom-fixture');
 		widget._searchResultsCache = {};
-		widget.myEnrollmentsEntity = myEnrollmentsEntity;
+		widget.searchAction = searchAction;
+		widget.searchFieldName = searchFieldName;
 	});
 
 	afterEach(function() {
@@ -139,8 +134,8 @@ describe('<d2l-search-widget-custom>', function() {
 		widget.parentOrganizations = [3, 2, 1];
 
 		widget.$.fullSearchRequest.addEventListener('iron-ajax-response', function() {
-			expect(widget._fullSearchUrl).to.contain('sort=NewSort');
-			expect(widget._fullSearchUrl).to.contain('parentOrganizations=3,2,1');
+			expect(widget._searchUrl).to.contain('sort=NewSort');
+			expect(widget._searchUrl).to.contain('parentOrganizations=3,2,1');
 			done();
 		});
 
@@ -148,7 +143,7 @@ describe('<d2l-search-widget-custom>', function() {
 	});
 
 	it('only performs one search per debounce period', function() {
-		var spy = sandbox.spy(widget, '__search');
+		var spy = sandbox.spy(widget, '_setSearchUrl');
 
 		for (var i = 0; i < 20; i++) {
 			widget.set('sort', 'sort' + i);
@@ -163,21 +158,21 @@ describe('<d2l-search-widget-custom>', function() {
 	it('should fetch the content for a given URL the first time', function() {
 		var stub = sandbox.stub(widget.$.fullSearchRequest, 'generateRequest');
 
-		widget.set('_fullSearchUrl', 'foo');
+		widget.set('_searchUrl', 'foo');
 
 		expect(stub.callCount).to.equal(1);
 	});
 
 	it('should cache search responses for a given URL', function(done) {
-		var spy = sandbox.spy(widget, '__search');
+		var spy = sandbox.spy(widget, '_setSearchUrl');
 		widget._searchResultsCache['foo'] = { test: 'bar' };
 
-		document.addEventListener('d2l-search-enrollment-response', function(e) {
+		document.addEventListener('d2l-search-widget-results-changed', function(e) {
 			expect(e.detail.test).to.equal('bar');
 			expect(spy.callCount).to.equal(0);
 			done();
 		});
 
-		widget.set('_fullSearchUrl', 'foo');
+		widget.set('_searchUrl', 'foo');
 	});
 });
