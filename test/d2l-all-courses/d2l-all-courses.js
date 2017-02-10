@@ -37,7 +37,7 @@ describe('d2l-all-courses', function() {
 		clock = sinon.useFakeTimers();
 
 		widget = fixture('d2l-all-courses-fixture');
-		sinon.stub(widget.$['search-widget'], '__search');
+		sinon.stub(widget.$['search-widget'], '_setSearchUrl');
 
 		widgetNoAdvancedSearch = fixture('d2l-all-courses-without-advanced-search-fixture');
 	});
