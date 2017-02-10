@@ -181,8 +181,8 @@
 					observer: '_myEnrollmentsEntityChanged'
 				},
 
-				// Value to send for the `sortField` parameter in the search query
-				sortField: String,
+				// Value to send for the `sort` parameter in the search query
+				sort: String,
 
 				// Array of parent organization IDs (self links) by which to limit the search results
 				parentOrganizations: {
@@ -243,7 +243,7 @@
 			],
 
 			observers: [
-				'_onSearchDependencyChanged(sortField, parentOrganizations)'
+				'_onSearchDependencyChanged(sort, parentOrganizations)'
 			],
 
 			ready: function() {
@@ -295,8 +295,7 @@
 					page: 1,
 					pageSize: pageSize,
 					parentOrganizations: this.parentOrganizations.join(','),
-					sortField: this.sortField,
-					sortDescending: this.sortField !== 'courseName' && this.sortField !== 'courseCode'
+					sort: this.sort
 				};
 
 				this.set(path, this.createActionUrl(this._searchAction, queryParams));

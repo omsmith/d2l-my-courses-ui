@@ -27,13 +27,9 @@ describe('d2l-my-courses', function() {
 					type: 'number',
 					value: 0
 				}, {
-					name: 'sortField',
-					type: 'radio',
+					name: 'sort',
+					type: 'text',
 					value: ''
-				}, {
-					name: 'sortDescending',
-					type: 'checkbox',
-					value: false
 				}]
 			}],
 			links: [{
@@ -250,7 +246,7 @@ describe('d2l-my-courses', function() {
 			});
 		});
 
-		it('should set the request URL for pinned courses, sortDescending', function(done) {
+		it('should set the request URL for pinned courses', function(done) {
 			server.respondWith(
 				'GET',
 				widget.enrollmentsUrl,
@@ -262,8 +258,7 @@ describe('d2l-my-courses', function() {
 			widget.$.enrollmentsRootRequest.generateRequest();
 
 			widget.$.enrollmentsRootRequest.addEventListener('iron-ajax-response', function() {
-				expect(widget._enrollmentsSearchUrl).to.match(/sortField=pinDate/);
-				expect(widget._enrollmentsSearchUrl).to.match(/sortDescending=true/);
+				expect(widget._enrollmentsSearchUrl).to.match(/sort=-PinDate/);
 				done();
 			});
 		});
