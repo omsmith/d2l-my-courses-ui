@@ -1,0 +1,48 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../d2l-siren-parser/d2l-siren-parser.html">
+
+<script>
+	'use strict';
+
+	window.D2L = window.D2L || {};
+	window.D2L.MyCourses = window.D2L.MyCourses || {};
+
+	/*
+	* General utility functions that can be used in many places.
+	* @polymerBehavior window.D2L.MyCourses.UtilityBehavior
+	*/
+	window.D2L.MyCourses.UtilityBehavior = {
+		// Creates a URL with a query from an Action and an object of required parameters
+		createActionUrl: function(action, parameters) {
+			parameters = parameters || {};
+			action.fields = action.fields || [];
+			var query = {};
+
+			action.fields.forEach(function(field) {
+				if (parameters.hasOwnProperty(field.name)) {
+					query[field.name] = parameters[field.name];
+				} else {
+					query[field.name] = field.value;
+				}
+			});
+
+			var queryString = Object.keys(query).map(function(key) {
+				return key + '=' + query[key];
+			}).join('&');
+
+			return queryString ? action.href + '?' + queryString : action.href;
+		},
+		// Creates a unique identifier for a Siren Entity (really just the self Link href)
+		getEntityIdentifier: function(entity) {
+			// An entity's self href should be unique, so use it as an identifier
+			var selfLink = entity.getLinkByRel('self');
+			return selfLink.href;
+		},
+		getOrgUnitId: function(enrollmentId) {
+			if (enrollmentId && typeof enrollmentId === 'string') {
+				return /organizations.*?\/([0-9]+)/
+							.exec(enrollmentId)[1];
+			}
+		}
+	};
+</script>

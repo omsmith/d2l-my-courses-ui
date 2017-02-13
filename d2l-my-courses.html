@@ -271,6 +271,7 @@
 						sort: '-PinDate,OrgUnitName,OrgUnitId',
 						autoPinCourses: true
 					};
+					console.log('searchAction', searchAction);
 					this._enrollmentsSearchUrl = this.createActionUrl(searchAction, query);
 					this.$.enrollmentsSearchRequest.generateRequest();
 				} else {

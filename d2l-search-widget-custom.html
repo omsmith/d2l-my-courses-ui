@@ -6,10 +6,10 @@
 <link rel="import" href="../d2l-icons/d2l-icons.html">
 <link rel="import" href="../d2l-siren-parser/d2l-siren-parser.html">
 <link rel="import" href="../d2l-typography/d2l-typography.html">
-<link rel="import" href="../d2l-utility-behavior/d2l-utility-behavior.html">
 <link rel="import" href="d2l-search-listbox.html">
 <link rel="import" href="d2l-search-dropdown-content.html">
 <link rel="import" href="localize-behavior.html">
+<link rel="import" href="d2l-utility-behavior.html">
 
 <dom-module id="d2l-search-widget-custom">
 	<template>
@@ -290,15 +290,17 @@
 			},
 
 			__search: function(pageSize, path) {
-				var queryParams = {
-					search: encodeURIComponent(this._searchInput),
-					page: 1,
-					pageSize: pageSize,
-					parentOrganizations: this.parentOrganizations.join(','),
-					sort: this.sort
-				};
+				if (this._searchAction) {
+					var queryParams = {
+						search: encodeURIComponent(this._searchInput),
+						page: 1,
+						pageSize: pageSize,
+						parentOrganizations: this.parentOrganizations.join(','),
+						sort: this.sort
+					};
 
-				this.set(path, this.createActionUrl(this._searchAction, queryParams));
+					this.set(path, this.createActionUrl(this._searchAction, queryParams));
+				}
 			},
 
 			// Called by various key/mouse interactions
