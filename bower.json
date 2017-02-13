@@ -40,7 +40,7 @@
     "d2l-offscreen": "^2.2.2",
     "d2l-polymer-behaviors": "<1.0.0",
     "d2l-search-widget": "git://github.com/Brightspace/d2l-search-widget-ui.git#~0.4.2",
-    "d2l-simple-overlay": "git://github.com/Brightspace/simple-overlay#~0.0.3",
+    "d2l-simple-overlay": "git://github.com/Brightspace/simple-overlay#~0.0.4",
     "d2l-siren-parser": "git://github.com/Brightspace/d2l-siren-parser-ui.git#^1.1.2",
     "d2l-typography": "^5.2.2",
     "d2l-organization-hm-behavior": "git://github.com/Brightspace/organization-hm-behavior.git#~0.0.1",
