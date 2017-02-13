@@ -95,7 +95,6 @@
 		Polymer({
 			is: 'd2l-filter-menu-content',
 			properties: {
-				filterText: String,
 				myEnrollmentsEntity: {
 					type: Object,
 					observer: '_myEnrollmentsEntityChanged'
@@ -104,7 +103,7 @@
 				filterStandardSemesterName: String,
 				// Standard Department OU Type name to be displayed in the dropdown
 				filterStandardDepartmentName: String,
-				_currentFilters: {
+				currentFilters: {
 					type: Array,
 					value: function() { return []; }
 				},
@@ -125,9 +124,6 @@
 				window.D2L.MyCourses.LocalizeBehavior,
 				window.D2L.MyCourses.UtilityBehavior
 			],
-			ready: function() {
-				this.filterText = this.localize('filtering.filter');
-			},
 			attached: function() {
 				this.listen(this.$.simpleContent, 'd2l-filter-menu-content-filters-changed', '_onFiltersChanged');
 				this.listen(this.$.tabbedContent, 'd2l-filter-menu-content-filters-changed', '_onFiltersChanged');
@@ -162,8 +158,7 @@
 
 				this._showClearButton = false;
 
-				this.set('_currentFilters', []);
-				this.set('filterText', this.localize('filtering.filter'));
+				this.set('currentFilters', []);
 			},
 			_hideLoadingSpinner: function() {
 				this.toggleClass('d2l-filter-menu-content-hidden', true, this.$$('d2l-loading-spinner'));
@@ -219,21 +214,12 @@
 				this.__onResponse(response, '_semesters');
 			},
 			_onFiltersChanged: function(e) {
-				this.set('_currentFilters', e.detail.filters);
+				this.set('currentFilters', e.detail.filters);
 
-				this._showClearButton = this._currentFilters.length > 0;
-
-				if (this._currentFilters.length === 0) {
-					this.filterText = this.localize('filtering.filter');
-				} else if (this._currentFilters.length === 1) {
-					this.filterText = this.localize('filtering.filterSingle');
-				} else {
-					this.filterText = this.localize('filtering.filterMultiple', 'num', this._currentFilters.length);
-				}
+				this._showClearButton = this.currentFilters.length > 0;
 
 				this.fire('d2l-filter-menu-content-change', {
-					text: this.filterText,
-					filters: this._currentFilters
+					filters: this.currentFilters
 				});
 			}
 		});
