@@ -92,6 +92,9 @@
 				padding: 0;
 				color: var(--d2l-color-ferrite);
 			}
+			.dropdown-button > d2l-icon {
+				margin-left: 4px;
+			}
 			.dropdown-content-header {
 				box-sizing: border-box;
 				display: flex;
@@ -104,17 +107,6 @@
 			.dropdown-content-gradient {
 				background: linear-gradient(to top, white, var(--d2l-color-regolith));
 			}
-			@media screen and (-ms-high-contrast: active), (-ms-high-contrast: none) {
-				#filterText {
-					padding-top: 4px;
-				}
-			}
-			#filterSection {
-				display: flex;
-			}
-			#filterText {
-				padding-right: 4px;
-			}
 			button[aria-pressed="true"] {
 				color: var(--d2l-color-celestine);
 			}
@@ -122,10 +114,6 @@
 			button:hover > d2l-icon,
 			button:focus > span,
 			button:hover > span,
-			#filterText:hover,
-			#filterText:focus,
-			#filterText:hover + d2l-dropdown button d2l-icon,
-			#filterText:focus + d2l-dropdown button d2l-icon,
 			.focus {
 				text-decoration: underline;
 				color: var(--d2l-color-celestine);
@@ -167,33 +155,26 @@
 						</d2l-search-widget-custom>
 
 						<div id="filterAndSort" class="d2l-all-courses-hidden">
-							<div id="filterSection" class="d2l-all-courses-hidden">
-								<span id="filterText" class="dropdown-opener-text" on-tap="_toggleFilterDropdown">[[_filterText]]</span>
-								<d2l-dropdown id="filterDropdown">
-									<button
-										id="filterDropdownOpener"
-										class="d2l-dropdown-opener dropdown-button"
-										on-focus="_focusFilterText"
-										on-blur="_blurFilterText"
-										on-mouseenter="_focusFilterText"
-										on-mouseleave="_blurFilterText"
-										aria-labelledby="filterText">
-										<d2l-icon icon="d2l-tier1:chevron-down" aria-hidden="true"></d2l-icon>
-									</button>
-									<d2l-dropdown-content id="filterDropdownContent" no-padding min-width="350" render-content>
-										<d2l-filter-menu-content
-											id="filterMenuContent"
-											my-enrollments-entity="[[myEnrollmentsEntity]]",
-											filter-standard-semester-name="[[filterStandardSemesterName]]",
-											filter-standard-department-name="[[filterStandardDepartmentName]]">
-										</d2l-filter-menu-content>
-										<iron-scroll-threshold
-											id="scrollThreshold"
-											on-lower-threshold="_onLowerThreshold">
-										</iron-scroll-threshold>
-									</d2l-dropdown-content>
-								</d2l-dropdown>
-							</div>
+							<d2l-dropdown id="filterDropdown" class="d2l-all-courses-hidden">
+								<button
+									class="d2l-dropdown-opener dropdown-button"
+									aria-labelledby="filterText">
+									<span id="filterText" class="dropdown-opener-text">[[_filterText]]</span>
+									<d2l-icon icon="d2l-tier1:chevron-down" aria-hidden="true"></d2l-icon>
+								</button>
+								<d2l-dropdown-content id="filterDropdownContent" no-padding min-width="350" render-content>
+									<d2l-filter-menu-content
+										id="filterMenuContent"
+										my-enrollments-entity="[[myEnrollmentsEntity]]",
+										filter-standard-semester-name="[[filterStandardSemesterName]]",
+										filter-standard-department-name="[[filterStandardDepartmentName]]">
+									</d2l-filter-menu-content>
+									<iron-scroll-threshold
+										id="scrollThreshold"
+										on-lower-threshold="_onLowerThreshold">
+									</iron-scroll-threshold>
+								</d2l-dropdown-content>
+							</d2l-dropdown>
 
 							<d2l-dropdown id="sortDropdown">
 								<button
@@ -668,29 +649,28 @@
 					queryParameter: 'LastAccessed'
 				}
 			},
-			_blurFilterText: function() {
-				// Only de-highlight text if focus has moved AND we're not hovering over the opener button anymore
-				// Without this check, the text de-highlights once the dropdown is opened as focus moves to the tabs
-				if (this.$$('#filterDropdownOpener:focus') === null && this.$$('#filterDropdownOpener:hover') === null) {
-					this.toggleClass('focus', false, this.$.filterText);
-				}
-			},
-			_focusFilterText: function() {
-				this.toggleClass('focus', true, this.$.filterText);
-			},
 			_onFilterChanged: function(e) {
 				this._parentOrganizations = [];
 				this.set('_parentOrganizations', e.detail.filters);
-				this.set('_filterText', e.detail.text);
 			},
 			_onFilterDropdownOpen: function() {
+				this.set('_filterText', this.localize('filtering.filter'));
 				this.$.filterMenuContent.open();
 			},
 			_onFilterDropdownClose: function() {
-				this.$.filterDropdownOpener.focus();
+				var length = this.$.filterMenuContent.currentFilters.length;
+				var text;
+				if (length === 0) {
+					text = this.localize('filtering.filter');
+				} else if (length === 1) {
+					text = this.localize('filtering.filterSingle');
+				} else {
+					text = this.localize('filtering.filterMultiple', 'num', length);
+				}
+				this.set('_filterText', text);
 			},
 			_onFilterHideChanged: function(e) {
-				this.toggleClass('d2l-all-courses-hidden', e.detail.hide, this.$.filterSection);
+				this.toggleClass('d2l-all-courses-hidden', e.detail.hide, this.$.filterDropdown);
 			},
 			_onLowerThreshold: function() {
 				this.$.scrollThreshold.clearTriggers();
@@ -705,14 +685,8 @@
 				if (this._hasManyEnrollments) {
 					this.$.filterMenuContent._clearFilters();
 				}
+				this._filterText = this.localize('filtering.filter');
 				this._resetSortDropdown();
-			},
-			_toggleFilterDropdown: function() {
-				if (this.$.filterDropdownContent.opened) {
-					this.$.filterDropdownContent.close();
-				} else {
-					this.$.filterDropdownContent.open();
-				}
 			},
 			_updateSortBy: function(e) {
 				this.set('_sortParameter', this._sortOptions[e.detail.value].queryParameter);

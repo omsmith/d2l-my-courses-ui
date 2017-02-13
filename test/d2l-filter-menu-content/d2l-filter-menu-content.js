@@ -192,36 +192,4 @@ describe('d2l-filter-menu-content', function() {
 			});
 		});
 	});
-
-	describe('Filter text', function() {
-		it('should read "Filter" when no filters are selected', function() {
-			component._currentContent().fire('d2l-filter-menu-content-filters-changed', {
-				filters: []
-			});
-
-			expect(component.filterText).to.equal('Filter');
-		});
-
-		it('should read "Filter: 1 filter" when any 1 filter is selected', function(done) {
-			component.$$('d2l-filter-menu-content-tabbed').fire('d2l-filter-menu-content-filters-changed', {
-				filters: [1]
-			});
-
-			setTimeout(function() {
-				expect(component.filterText).to.equal('Filter: 1 Filter');
-				done();
-			});
-		});
-
-		it('should read "Filter: 2 filters" when any 2 filters are selected', function(done) {
-			component.$$('d2l-filter-menu-content-tabbed').fire('d2l-filter-menu-content-filters-changed', {
-				filters: [1, 1]
-			});
-
-			setTimeout(function() {
-				expect(component.filterText).to.equal('Filter: 2 Filters');
-				done();
-			});
-		});
-	});
 });

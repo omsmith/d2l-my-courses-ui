@@ -116,8 +116,7 @@ describe('d2l-all-courses', function() {
 
 	describe('d2l-filter-menu-content-change', function() {
 		var event = {
-			filters: [1],
-			text: 'foo'
+			filters: [1]
 		};
 
 		it('should update the parent organizations', function() {
@@ -127,13 +126,25 @@ describe('d2l-all-courses', function() {
 
 			expect(widget._parentOrganizations.length).to.equal(1);
 		});
+	});
 
-		it('should update the filter menu opener text', function() {
+	describe('Filter text', function() {
+		it('should read "Filter" when no filters are selected', function() {
+			widget.$.filterMenuContent.currentFilters = [];
+			widget.$.filterDropdownContent.fire('d2l-dropdown-close', {});
 			expect(widget._filterText).to.equal('Filter');
+		});
 
-			widget.$$('d2l-filter-menu-content').fire('d2l-filter-menu-content-change', event);
+		it('should read "Filter: 1 filter" when any 1 filter is selected', function() {
+			widget.$.filterMenuContent.currentFilters = [1];
+			widget.$.filterDropdownContent.fire('d2l-dropdown-close', {});
+			expect(widget._filterText).to.equal('Filter: 1 Filter');
+		});
 
-			expect(widget._filterText).to.equal('foo');
+		it('should read "Filter: 2 filters" when any 2 filters are selected', function() {
+			widget.$.filterMenuContent.currentFilters = [1, 1];
+			widget.$.filterDropdownContent.fire('d2l-dropdown-close', {});
+			expect(widget._filterText).to.equal('Filter: 2 Filters');
 		});
 	});
 
@@ -143,7 +154,7 @@ describe('d2l-all-courses', function() {
 				hide: true
 			});
 
-			expect(getComputedStyle(widget.$.filterSection).display).to.equal('none');
+			expect(getComputedStyle(widget.$.filterDropdown).display).to.equal('none');
 		});
 
 		it('should show the filter if the filter contents says it should be shown', function() {
@@ -151,7 +162,7 @@ describe('d2l-all-courses', function() {
 				hide: false
 			});
 
-			expect(getComputedStyle(widget.$.filterSection).display).to.not.equal('none');
+			expect(getComputedStyle(widget.$.filterDropdown).display).to.not.equal('none');
 		});
 	});
 
@@ -233,17 +244,12 @@ describe('d2l-all-courses', function() {
 		it('should clear filters', function() {
 			var spy = sandbox.spy(widget.$.filterMenuContent, '_clearFilters');
 
-			var event = {
-				filters: [1],
-				text: 'foo'
-			};
-
 			widget._hasManyEnrollments = true;
 
-			expect(widget._filterText).to.equal('Filter');
-			widget.$$('d2l-filter-menu-content').fire('d2l-filter-menu-content-change', event);
-			expect(widget._filterText).to.equal('foo');
+			widget.$.filterMenuContent.currentFilters = [1];
+			widget.$.filterDropdownContent.fire('d2l-dropdown-close', {});
 
+			expect(widget._filterText).to.equal('Filter: 1 Filter');
 			widget.$$('d2l-simple-overlay')._renderOpened();
 			expect(spy.called).to.be.true;
 			expect(widget._filterText).to.equal('Filter');
