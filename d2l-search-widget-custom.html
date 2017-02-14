@@ -217,6 +217,7 @@
 			*/
 
 			search: function() {
+				this._addSearchToHistory(this._searchInput);
 				this.set('_showClearIcon', true);
 				this._setSearchUrl(this._searchPageSize, '_searchUrl');
 			},
@@ -306,24 +307,26 @@
 				}
 			},
 			_addSearchToHistory: function(searchTerm) {
-				var previousSearches = this._previousSearches.slice();
-
 				// Remove prior existence of this search term if it exists
-				var currSearchHistoryIndex = previousSearches.indexOf(searchTerm);
-
-				if (currSearchHistoryIndex !== -1) {
-					previousSearches.splice(currSearchHistoryIndex, 1);
+				for (var i = 0; i < this._previousSearches.length; i++) {
+					if (searchTerm === this._previousSearches[i]) {
+						this.splice('_previousSearches', i, 1);
+					}
 				}
 
-				if (previousSearches.unshift(searchTerm) > 5) {
-					previousSearches.splice(previousSearches.length - 1, 1);
+				// Add to beginning of list
+				this.unshift('_previousSearches', searchTerm);
+
+				// If too many recent items, trim the list
+				if (this._previousSearches.length > 5) {
+					this.splice('_previousSearches', 4, this._previousSearches.length - 4);
 				}
 
 				try {
 					window.localStorage.setItem(
 						'myCourses.previousSearches',
 						JSON.stringify({
-							searches: previousSearches
+							searches: this._previousSearches
 						})
 					);
 				} catch (e) {
