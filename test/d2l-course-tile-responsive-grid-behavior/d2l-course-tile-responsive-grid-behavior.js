@@ -48,7 +48,7 @@ describe('d2l-course-tile-responsive-grid-behavior', function() {
 			}, {
 				width: 767,
 				itemCount: 3,
-				expectedColumns: 1
+				expectedColumns: 2
 			}, {
 				width: 767,
 				itemCount: 4,
