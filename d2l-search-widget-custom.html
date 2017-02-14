@@ -3,15 +3,15 @@
 <link rel="import" href="../iron-pages/iron-pages.html">
 <link rel="import" href="../d2l-ajax/d2l-ajax.html">
 <link rel="import" href="../d2l-dropdown/d2l-dropdown.html">
+<link rel="import" href="../d2l-dropdown/d2l-dropdown-content.html">
 <link rel="import" href="../d2l-icons/d2l-icons.html">
 <link rel="import" href="../d2l-siren-parser/d2l-siren-parser.html">
 <link rel="import" href="../d2l-search-widget/d2l-search-widget-behavior.html">
 <link rel="import" href="../d2l-search-widget/d2l-search-widget-styles.html">
 <link rel="import" href="../d2l-typography/d2l-typography.html">
 <link rel="import" href="d2l-search-listbox.html">
-<link rel="import" href="d2l-search-dropdown-content.html">
-<link rel="import" href="localize-behavior.html">
 <link rel="import" href="d2l-utility-behavior.html">
+<link rel="import" href="localize-behavior.html">
 
 <dom-module id="d2l-search-widget-custom">
 	<template>
@@ -29,8 +29,8 @@
 				min-width: 100%;
 			}
 
-			d2l-search-listbox {
-				border-radius: 6px;
+			d2l-dropdown-content {
+				--d2l-dropdown-verticaloffset: 5px;
 			}
 		</style>
 
@@ -68,8 +68,10 @@
 					<d2l-icon icon="d2l-tier1:search"></d2l-icon>
 				</button>
 			</div>
-			<d2l-search-dropdown-content
+			<d2l-dropdown-content
 				id="dropdown"
+				min-width="[[_dropdownWidth]]"
+				max-width="[[_dropdownWidth]]"
 				no-pointer
 				no-auto-close
 				no-auto-focus
@@ -78,10 +80,10 @@
 				<div class="dropdown-content">
 					<iron-pages selectable=".search-results-listbox-page" attr-for-selected="data-page-name" selected="recent-searches-page">
 						<div class="search-results-listbox-page" data-page-name="recent-searches-page">
-							<d2l-search-listbox>
-								<div class="d2l-heading-4" data-list-title disabled>{{localize('recentSearches')}}</div>
+							<d2l-search-listbox class="d2l-typography">
+								<div data-list-title disabled>{{localize('recentSearches')}}</div>
 								<template is="dom-repeat" items="[[_previousSearches]]">
-									<div selectable data-text$="[[item]]" role="option">
+									<div class="d2l-body-small" selectable data-text$="[[item]]" role="option">
 										[[item]]
 									</div>
 								</template>
@@ -89,9 +91,9 @@
 						</div>
 
 						<div class="search-results-listbox-page" data-page-name="search-results-page">
-							<d2l-search-listbox>
+							<d2l-search-listbox class="d2l-typography">
 								<template id="courseSearchResultsTemplate" is="dom-repeat" items="[[_liveSearchResults]]">
-									<div selectable data-text$="[[item.name]]" data-href$="[[item.href]]" role="option">
+									<div class="d2l-body-small" selectable data-text$="[[item.name]]" data-href$="[[item.href]]" role="option">
 										[[item.name]]
 									</div>
 								</template>
@@ -99,13 +101,13 @@
 						</div>
 
 						<div class="search-results-listbox-page" data-page-name="no-results-page">
-							<d2l-search-listbox>
+							<d2l-search-listbox class="d2l-typography">
 								<div disabled>{{localize('noSearchResults')}}</div>
 							</d2l-search-listbox>
 						</div>
 					</iron-pages>
 				</div>
-			</d2l-search-dropdown-content>
+			</d2l-dropdown-content>
 		</d2l-dropdown>
 	</template>
 	<script>
@@ -153,7 +155,10 @@
 					value: function() {
 						return [];
 					}
-				}
+				},
+
+				// Calculated width of live search dropdown
+				_dropdownWidth: Number
 			},
 
 			listeners: {
@@ -410,6 +415,8 @@
 				if (this.$.dropdown.opened) {
 					return;
 				}
+
+				this.set('_dropdownWidth', this.$$('input').offsetWidth);
 
 				// If the search field is blank, we want to open the previous searches, but only if there are some
 				if (!this._searchInput) {
