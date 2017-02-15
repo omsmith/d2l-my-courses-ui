@@ -714,16 +714,13 @@
 				this._noUnpinnedCoursesInSearch = false;
 				var isSearched = this.$['search-widget']._isSearched,
 					hasAlert = this._hasAlert('noPinnedCourses');
-				if (!hasPinnedEnrollments && !hasAlert) {
-					if (isSearched) {
-						if (!hasPinnedEnrollments) {
-							this._noPinnedCoursesInSearch = true;
-						}
+				this._clearAlerts();
+				if (!hasPinnedEnrollments) {
+					if (isSearched && !hasAlert) {
+						this._noPinnedCoursesInSearch = true;
 					} else {
 						this._addAlert('call-to-action', 'noPinnedCourses', this.localize('noPinnedCoursesMessage'));
 					}
-				} else if (hasPinnedEnrollments && hasAlert) {
-					this._clearAlerts();
 				}
 				if (!hasUnpinnedEnrollments && isSearched) {
 					this._noUnpinnedCoursesInSearch = true;
