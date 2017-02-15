@@ -206,6 +206,10 @@
 
 				<h2 class="d2l-heading-3">{{localize('pinnedCourses')}}</h2>
 
+				<span id="no-pinned-in-search" hidden$="{{!_noPinnedCoursesInSearch}}">
+					{{localize('noPinnedCoursesInSearch')}}
+				</span>
+
 				<template is="dom-repeat" items="{{_alerts}}">
 					<d2l-alert type="[[item.alertType]]">
 						{{item.alertMessage}}
@@ -224,6 +228,10 @@
 				</d2l-course-tile-grid>
 
 				<h2 class="d2l-heading-3">{{localize('unpinnedCourses')}}</h2>
+
+				<span id="no-pinned-in-search" hidden$="{{!_noUnpinnedCoursesInSearch}}">
+					{{localize('noUnpinnedCoursesInSearch')}}
+				</span>
 
 				<d2l-course-tile-grid
 					id="all-courses-unpinned"
@@ -333,6 +341,12 @@
 					value: false
 				},
 
+				// True when there are filtered unpinned enrollments (i.e. `filteredUnpinnedEnrollments.length > 0`)
+				_hasFilteredUnpinnedEnrollments: {
+					type: Boolean,
+					value: false
+				},
+
 				// True when there are any filtered enrollments (pinned or unpinned)
 				_hasFilteredEnrollments: {
 					type: Boolean,
@@ -383,7 +397,9 @@
 					value: 20
 				},
 				// Determines if the filter menu can be shown (The number of enrollments >= enrollments required)
-				_hasManyEnrollments: false
+				_hasManyEnrollments: false,
+				_noPinnedCoursesInSearch: false,
+				_noUnpinnedCoursesInSearch: false
 			},
 			behaviors: [
 				window.D2L.MyCourses.CourseTileResponsiveGridBehavior,
@@ -401,7 +417,7 @@
 				'd2l-search-enrollment-response': '_updateFilteredEnrollmentsEvent'
 			},
 			observers: [
-				'_updateEnrollmentAlerts(_hasFilteredPinnedEnrollments)',
+				'_updateEnrollmentAlerts(_hasFilteredPinnedEnrollments, _hasFilteredUnpinnedEnrollments)',
 				'_enrollmentsChanged(filteredPinnedEnrollments.length, filteredPinnedEnrollmentsQueue.length, filteredUnpinnedEnrollments.length, filteredUnpinnedEnrollmentsQueue.length)'
 			],
 			created: function() {
@@ -424,12 +440,12 @@
 				this._hasFilteredPinnedEnrollments =
 					this.filteredPinnedEnrollments.length > 0 ||
 					this.filteredPinnedEnrollmentsQueue.length > 0;
-				// Need to factor in queues here - if user has 1 enrollment, it will briefly
-				// disappear from both enrollments arrays when pinned/unpinned
-				this._hasFilteredEnrollments =
-					this._hasFilteredPinnedEnrollments ||
+				this._hasFilteredUnpinnedEnrollments =
 					this.filteredUnpinnedEnrollments.length > 0 ||
 					this.filteredUnpinnedEnrollmentsQueue.length > 0;
+				// Need to factor in queues here - if user has 1 enrollment, it will briefly
+				// disappear from both enrollments arrays when pinned/unpinned
+				this._hasFilteredEnrollments = this._hasFilteredPinnedEnrollments || this._hasFilteredUnpinnedEnrollments;
 				this.$['all-courses-scroll-threshold'].clearTriggers();
 			},
 			_moveEnrollmentToPinnedList: function(enrollment) {
@@ -540,7 +556,7 @@
 				this._setFilteredUnpinnedEnrollments();
 			},
 			ready: function() {
-				this._updateEnrollmentAlerts(this._hasFilteredPinnedEnrollments);
+				this._updateEnrollmentAlerts(this._hasFilteredPinnedEnrollments, this._hasFilteredUnpinnedEnrollments);
 
 				// Both course tile grids in this view should have the same number of columns, so use a custom getter
 				var courseTileGrids = Polymer.dom(this.root).querySelectorAll('d2l-course-tile-grid');
@@ -693,11 +709,24 @@
 				this.$.sortText.textContent = this.localize(this._sortOptions[e.detail.value].text || '');
 				this.$.sortDropdown.toggleOpen();
 			},
-			_updateEnrollmentAlerts: function(hasPinnedEnrollments) {
-				this._clearAlerts();
-
-				if (!hasPinnedEnrollments) {
-					this._addAlert('call-to-action', 'noPinnedCourses', this.localize('noPinnedCoursesMessage'));
+			_updateEnrollmentAlerts: function(hasPinnedEnrollments, hasUnpinnedEnrollments) {
+				this._noPinnedCoursesInSearch = false;
+				this._noUnpinnedCoursesInSearch = false;
+				var isSearched = this.$['search-widget']._isSearched,
+					hasAlert = this._hasAlert('noPinnedCourses');
+				if (!hasPinnedEnrollments && !hasAlert) {
+					if (isSearched) {
+						if (!hasPinnedEnrollments) {
+							this._noPinnedCoursesInSearch = true;
+						}
+					} else {
+						this._addAlert('call-to-action', 'noPinnedCourses', this.localize('noPinnedCoursesMessage'));
+					}
+				} else if (hasPinnedEnrollments && hasAlert) {
+					this._clearAlerts();
+				}
+				if (!hasUnpinnedEnrollments && isSearched) {
+					this._noUnpinnedCoursesInSearch = true;
 				}
 			},
 			_updateTileSizes: function() {
