@@ -101,6 +101,8 @@
 			<d2l-search-widget
 				id="semesterSearchWidget"
 				placeholder-text="{{localize('filtering.searchSemesters')}}"
+				search-button-label="{{localize('search')}}"
+				clear-button-label="{{localize('search.clearSearch')}}"
 				search-action="[[_searchSemestersAction]]"
 				search-field-name="search"
 				cache-responses></d2l-search-widget>
@@ -117,6 +119,8 @@
 			<d2l-search-widget
 				id="departmentSearchWidget"
 				placeholder-text="{{localize('filtering.searchDepartments')}}"
+				search-button-label="{{localize('search')}}"
+				clear-button-label="{{localize('search.clearSearch')}}"
 				search-action="[[_searchDepartmentsAction]]"
 				search-field-name="search"
 				cache-responses></d2l-search-widget>
@@ -280,6 +284,7 @@
 				this.$.departmentListButton.textContent = this.localize('filtering.filterLabel', 'filterLabel', label, 'num', numDepartmentFilters);
 
 				this.$.departmentSearchWidget.placeholderText = this.localize('filtering.searchBy', 'filter', departmentFilterName);
+				this.$.departmentSearchWidget.searchButtonLabel = this.localize('filtering.searchBy', 'filter', departmentFilterName);
 
 				this.fire('d2l-filter-menu-content-filters-changed', {
 					filters: this._currentFilters
@@ -291,6 +296,7 @@
 				this.$.semesterListButton.textContent = this.localize('filtering.filterLabel', 'filterLabel', label, 'num', numSemesterFilters);
 
 				this.$.semesterSearchWidget.placeholderText = this.localize('filtering.searchBy', 'filter', semesterFilterName);
+				this.$.semesterSearchWidget.searchButtonLabel = this.localize('filtering.searchBy', 'filter', semesterFilterName);
 
 				this.fire('d2l-filter-menu-content-filters-changed', {
 					filters: this._currentFilters
