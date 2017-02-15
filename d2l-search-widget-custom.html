@@ -218,13 +218,11 @@
 
 			search: function() {
 				this._addSearchToHistory(this._searchInput);
-				this.set('_showClearIcon', true);
 				this._setSearchUrl(this._searchPageSize, '_searchUrl');
 			},
 			clear: function() {
 				// Triggers _onSearchInputChanged to call _setSearchUrl with empty query
 				this.set('_searchInput', '');
-				this.set('_showClearIcon', false);
 
 				this.cancelDebouncer('liveSearchJob');
 				this.set('_liveSearchResults', []);
@@ -251,10 +249,14 @@
 				this.set(path, this.createActionUrl(this._searchAction, queryParams));
 			},
 			_onSearchInputChanged: function(newSearchString) {
-				if (newSearchString.length === 0) {
+				if (newSearchString.trim().length === 0) {
 					this._setSearchUrl(this._searchPageSize, '_searchUrl');
 				} else {
 					this.set('_showClearIcon', false);
+				}
+
+				if (newSearchString.trim().length === 0 && this._previousSearches.length > 0) {
+					this.$$('iron-pages').select('recent-searches-page');
 				}
 
 				// Checking for _searchAction required here to avoid problems on init
@@ -271,6 +273,9 @@
 					case this._keyCodes.ENTER:
 						this._addSearchToHistory(this._searchInput);
 						this.search();
+						if (this._searchInput.trim().length > 0) {
+							this.$.dropdown.close();
+						}
 						e.preventDefault();
 						break;
 					case this._keyCodes.DOWN:
@@ -307,6 +312,10 @@
 				}
 			},
 			_addSearchToHistory: function(searchTerm) {
+				if (searchTerm.trim() === '') {
+					return;
+				}
+
 				// Remove prior existence of this search term if it exists
 				for (var i = 0; i < this._previousSearches.length; i++) {
 					if (searchTerm === this._previousSearches[i]) {
@@ -319,7 +328,7 @@
 
 				// If too many recent items, trim the list
 				if (this._previousSearches.length > 5) {
-					this.splice('_previousSearches', 4, this._previousSearches.length - 4);
+					this.splice('_previousSearches', 5, this._previousSearches.length - 5);
 				}
 
 				try {
@@ -339,7 +348,9 @@
 			*/
 
 			_liveSearch: function() {
-				this._setSearchUrl(this._liveSearchPageSize, '_liveSearchUrl');
+				if (this._searchInput.trim().length > 0) {
+					this._setSearchUrl(this._liveSearchPageSize, '_liveSearchUrl');
+				}
 			},
 			_onLiveSearchUrlChanged: function() {
 				this._organizationRequests.forEach(function(req) {
@@ -422,12 +433,8 @@
 				this.set('_dropdownWidth', this.$$('input').offsetWidth);
 
 				// If the search field is blank, we want to open the previous searches, but only if there are some
-				if (!this._searchInput) {
-					if (this._previousSearches.length > 0) {
-						this.$$('iron-pages').select('recent-searches-page');
-						this.$.dropdown.open();
-					}
-					return;
+				if (this._searchInput === '' && this._previousSearches.length > 0) {
+					this.$$('iron-pages').select('recent-searches-page');
 				}
 
 				// If there is a search value, just re-open the dropdown (either results or no-results will show,
