@@ -15,7 +15,6 @@
 		// Creates a URL with a query from an Action and an object of required parameters
 		createActionUrl: function(action, parameters) {
 			parameters = parameters || {};
-			action = action || {};
 			action.fields = action.fields || [];
 			var query = {};
 
@@ -33,34 +32,6 @@
 
 			return queryString ? action.href + '?' + queryString : action.href;
 		},
-		getImageSrcset: function(image, imageClass) {
-			if (!image) { return ''; }
-			var srcset = '',
-				sizes = this._getImageLinks(image, imageClass),
-				imageWidths = {
-					tile: {
-						lowMin: 145, lowMid: 220, lowMax: 540,
-						highMin: 290, highMid: 440, highMax: 1080
-					},
-					narrow: {
-						lowMin: 320, lowMid: 375, lowMax: 767,
-						highMin: 640, highMid: 750, highMax: 1534
-					}
-				};
-			['lowMin', 'lowMid', 'lowMax', 'highMin', 'highMid', 'highMax'].forEach(function(size) {
-				srcset += sizes[size] ? sizes[size] + ' ' + imageWidths[imageClass][size] + 'w, ' : '';
-			});
-			return srcset.replace(/,\s*$/, '');
-		},
-		// Returns the best available image to use as a default
-		getDefaultImageLink: function(image, imageClass) {
-			if (!image) {
-				return;
-			}
-
-			var sizes = this._getImageLinks(image, imageClass);
-			return sizes.highMax || sizes.lowMax || sizes.highMid || sizes.lowMid || sizes.highMin || sizes.lowMin;
-		},
 		// Creates a unique identifier for a Siren Entity (really just the self Link href)
 		getEntityIdentifier: function(entity) {
 			// An entity's self href should be unique, so use it as an identifier
@@ -72,16 +43,6 @@
 				return /organizations.*?\/([0-9]+)/
 							.exec(enrollmentId)[1];
 			}
-		},
-		_getImageLinks: function(image, imageClass) {
-			var imageLinks = image.getLinksByClass(imageClass || 'tile'),
-				sizes = {};
-			imageLinks.forEach(function(link) {
-				var size = link.hasClass('min') && 'Min' || link.hasClass('mid') && 'Mid' || link.hasClass('max') && 'Max',
-					density = link.hasClass('high-density') ? 'high' : 'low';
-				sizes[density + size] = link.href;
-			});
-			return sizes;
 		}
 	};
 </script>

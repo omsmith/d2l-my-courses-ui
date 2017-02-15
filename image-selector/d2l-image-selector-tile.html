@@ -1,10 +1,10 @@
 <link rel="import" href="../../polymer/polymer.html">
 <link rel="import" href="../../d2l-ajax/d2l-ajax.html">
+<link rel="import" href="../../d2l-course-image/d2l-course-image.html">
 <link rel="import" href="../../d2l-icons/d2l-icons.html">
-<link rel="import" href="../components/d2l-course-image.html">
+<link rel="import" href="../../d2l-organization-hm-behavior/d2l-organization-hm-behavior.html">
 <link rel="import" href="../d2l-course-tile-grid-styles.html">
 <link rel="import" href="../d2l-course-tile-responsive-grid-behavior.html">
-<link rel="import" href="../d2l-utility-behavior.html">
 <link rel="import" href="../localize-behavior.html">
 <link rel="import" href="d2l-image-selector-tile-styles.html">
 
@@ -86,7 +86,7 @@
 			},
 			behaviors: [
 				window.D2L.MyCourses.LocalizeBehavior,
-				window.D2L.MyCourses.UtilityBehavior
+				window.D2L.Hypermedia.OrganizationHMBehavior
 			],
 			_getTileClass: function(image) {
 				return image ? 'd2l-image-tile' : 'd2l-image-tile no-image';
