@@ -193,7 +193,6 @@
 				document.body.removeEventListener('click', this._handleClickBound, true);
 			},
 
-			_isSearched: false,
 			_searchPageSize: 20,
 			_liveSearchPageSize: 5,
 			_keyCodes: {
@@ -213,12 +212,15 @@
 			*/
 
 			search: function() {
-				this._isSearched = true;
+				this.set('_showClearIcon', true);
 				this._setSearchUrl(this._searchPageSize, '_searchUrl');
 			},
 			clear: function() {
+				// Triggers _onSearchInputChanged to call _setSearchUrl with empty query
+				this.set('_searchInput', '');
+				this.set('_showClearIcon', false);
+
 				this.cancelDebouncer('liveSearchJob');
-				this._searchInput = '';
 				this.set('_liveSearchResults', []);
 
 				if (this._previousSearches.length > 0) {
@@ -226,31 +228,28 @@
 				} else {
 					this.$.dropdown.close();
 				}
-
-				this._isSearched = false;
-				this._updateIcon();
-				this._setSearchUrl(this._searchPageSize, '_searchUrl');
 			},
 			_setSearchUrl: function(pageSize, path) {
+				if (!this._searchAction) {
+					return;
+				}
+
 				var queryParams = {
 					page: 1,
 					pageSize: pageSize,
 					parentOrganizations: this.parentOrganizations.join(','),
 					sort: this.sort
 				};
-				queryParams[this.searchFieldName] = encodeURIComponent(this._searchInput);
+				queryParams[this.searchFieldName] = encodeURIComponent(this._searchInput.trim());
 
 				this.set(path, this.createActionUrl(this._searchAction, queryParams));
 			},
 			_onSearchInputChanged: function(newSearchString) {
 				if (newSearchString.length === 0) {
-					// Don't live search for empty inputs
-					return;
+					this._setSearchUrl(this._searchPageSize, '_searchUrl');
+				} else {
+					this.set('_showClearIcon', false);
 				}
-
-				// Search term no longer matches results, so consider it "not searched"
-				this._isSearched = false;
-				this._updateIcon();
 
 				// Checking for _searchAction required here to avoid problems on init
 				if (this._searchAction && !this.$.dropdown.opened) {
@@ -266,7 +265,6 @@
 					case this._keyCodes.ENTER:
 						this._addSearchToHistory(this._searchInput);
 						this.search();
-						this._updateIcon();
 						e.preventDefault();
 						break;
 					case this._keyCodes.DOWN:
