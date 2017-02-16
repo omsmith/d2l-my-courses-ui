@@ -314,10 +314,22 @@
 			_onDepartmentSearchResults: function(e) {
 				this.set('_departments', e.detail.entities);
 				this.__onSearchResults(e.detail, '_moreDepartmentsUrl', '_hasMoreDepartments');
+				this.$.departmentList.querySelector('d2l-menu').resize();
+
+				setTimeout(function() {
+					// DE24225 - force dropdown to resize after opening
+					window.dispatchEvent(new Event('resize'));
+				}.bind(this), 200);
 			},
 			_onSemesterSearchResults: function(e) {
 				this.set('_semesters', e.detail.entities);
 				this.__onSearchResults(e.detail, '_moreSemestersUrl', '_hasMoreSemesters');
+				this.$.semesterList.querySelector('d2l-menu').resize();
+
+				setTimeout(function() {
+					// DE24225 - force dropdown to resize after opening
+					window.dispatchEvent(new Event('resize'));
+				}.bind(this), 200);
 			},
 			__onMoreResponse: function(response, organizationsPath, moreUrlPath, hasMorePath) {
 				if (response.detail.status === 200 || response.detail.status === 304) {
