@@ -341,12 +341,22 @@
 				this.__toggleSelectedList(this.$.semesterList, this.$.semesterListButton, this.$.semesterListHighlight, false);
 				this.$.departmentSearchWidget.clear();
 				this.$.departmentList.querySelector('d2l-menu').resize();
+
+				setTimeout(function() {
+					// DE24225 - force dropdown to resize after opening
+					window.dispatchEvent(new Event('resize'));
+				}.bind(this), 200);
 			},
 			_selectSemesterList: function() {
 				this.__toggleSelectedList(this.$.semesterList, this.$.semesterListButton, this.$.semesterListHighlight, true);
 				this.__toggleSelectedList(this.$.departmentList, this.$.departmentListButton, this.$.departmentListHighlight, false);
 				this.$.semesterSearchWidget.clear();
 				this.$.semesterList.querySelector('d2l-menu').resize();
+
+				setTimeout(function() {
+					// DE24225 - force dropdown to resize after opening
+					window.dispatchEvent(new Event('resize'));
+				}.bind(this), 200);
 			},
 			__updateFilter: function(e, path) {
 				if (e.detail.selected) {
