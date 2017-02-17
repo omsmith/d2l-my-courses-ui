@@ -217,7 +217,6 @@
 			ready: function() {
 				this._updateEnrollmentAlerts(this._hasEnrollments, this._hasPinnedEnrollments);
 				this._onEnrollmentPinnedMessage = this._onEnrollmentPinnedMessage.bind(this);
-
 				this.toggleClass('d2l-my-courses-hidden', true, this.$.courseTiles);
 				this.toggleClass('d2l-my-courses-hidden', true, this.$.courseList);
 			},
@@ -348,6 +347,9 @@
 					allCourses.filterStandardDepartmentName = this.standardDepartmentName;
 					allCourses.updateCountMap = this.updateCountMap;
 					allCourses.courseUpdatesConfig = this.courseUpdatesConfig;
+					allCourses.telemetryEndpoint = this.telemetryEndpoint;
+					allCourses.userId = this.userId;
+					allCourses.tenantId = this.tenantId;
 
 					this.$$('d2l-all-courses').load();
 				}.bind(this), 600);
