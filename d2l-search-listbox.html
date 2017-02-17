@@ -1,58 +1,55 @@
 <link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../d2l-typography/d2l-typography.html">
 <link rel="import" href="../iron-a11y-keys/iron-a11y-keys.html">
 <link rel="import" href="../iron-menu-behavior/iron-menu-behavior.html">
 
 <dom-module id="d2l-search-listbox">
 	<template>
+		<style include="d2l-typography"></style>
 		<style>
 			:host {
 				box-sizing: border-box;
 				display: block;
 				width: 100%;
-				background: -moz-linear-gradient(top, var(--d2l-color-regolith) 0%, var(--d2l-color-white) 80px);
-				background: -webkit-linear-gradient(top, var(--d2l-color-regolith) 0%, var(--d2l-color-white) 80px);
-				background: linear-gradient(to bottom, var(--d2l-color-regolith) 0%, var(--d2l-color-white) 80px);
 			}
 
-			::content > * {
+			::slotted(*) {
 				box-sizing: border-box;
-				border: 1px solid var(--d2l-color-titanius);
-				border-top-color: var(--d2l-color-gypsum);
-				border-bottom-color: transparent;
+				border-top: 1px solid transparent;
+				border-bottom: 1px solid var(--d2l-color-gypsum);
 				list-style-type: none;
-				width: 100%;
-				padding-left: 30px;
-				padding-top: 0.9rem;
-				padding-bottom: 0.9rem;
+				width: calc(100% - 2px);
+				padding: 0.75rem 1.5rem;
 				cursor: pointer;
 			}
 
-			::content > .list-item-first {
-				border-top-left-radius: 6px;
-				border-top-right-radius: 6px;
+			::slotted(div:last-of-type) {
+				border-bottom-color: transparent;
 			}
 
-			::content > .list-item-last {
-				border-bottom-left-radius: 6px;
-				border-bottom-right-radius: 6px;
-				border-bottom-color: var(--d2l-color-gypsum);
-			}
-
-			::content > *:not([disabled]):focus,
-			::content > *:not([disabled]):hover {
+			::slotted(*:not([disabled]):focus),
+			::slotted(*:not([disabled]):hover) {
 				background-color: var(--d2l-color-celestine-light-1);
-				border: 1px solid var(--d2l-color-celestine-light-2);
+				border-top-color: var(--d2l-color-celestine-light-2);
+				border-bottom-color: var(--d2l-color-celestine-light-2);
 				color: var(--d2l-color-celestine);
 			}
 
-			::content > [data-list-title] {
-				font-weight: 700;
+			::slotted([data-list-title]) {
 				padding-top: 1rem;
 				padding-bottom: 1rem;
+				margin: 0 !important;
 				cursor: default;
+				border-bottom-color: var(--d2l-color-titanius);
+			}
+
+			::slotted([data-list-title]+div) {
+				background: -moz-linear-gradient(to top, white, var(--d2l-color-regolith));
+				background: -webkit-linear-gradient(to top, white, var(--d2l-color-regolith));
+				background: linear-gradient(to top, white, var(--d2l-color-regolith));
 			}
 		</style>
-		<content></content>
+		<slot></slot>
 	</template>
 	<script>
 		'use strict';
@@ -74,10 +71,6 @@
 				Polymer.IronMenuBehavior,
 				Polymer.IronA11yKeysBehavior
 			],
-
-			listeners: {
-				'iron-items-changed': '_onItemsChanged'
-			},
 
 			hasItems: function() {
 				var selectableItems = this.items.filter( function(item) {
@@ -163,19 +156,6 @@
 			_focusedItemChanged: function(focusedItem) {
 				if (focusedItem) {
 					focusedItem.focus();
-				}
-			},
-
-			// Update classes for first/last items when listbox items change
-			_onItemsChanged: function() {
-				if (this.items.length > 0) {
-					for (var i = 0; i < this.items.length; i++) {
-						this.toggleClass('list-item-first', false, this.items[i]);
-						this.toggleClass('list-item-last', false, this.items[i]);
-					}
-
-					this.toggleClass('list-item-first', true, this.items[0]);
-					this.toggleClass('list-item-last', true, this.items[this.items.length - 1]);
 				}
 			},
 
