@@ -228,7 +228,10 @@
 					tile-sizes="[[_tileSizes]]"
 					locale="[[locale]]"
 					show-course-code="[[showCourseCode]]"
-					update-count-map="[[updateCountMap]]">
+					update-count-map="[[updateCountMap]]"
+					telemetry-endpoint="[[telemetryEndpoint]]"
+					user-id="[[userId]]"
+					tenant-id="[[tenantId]]">
 				</d2l-course-tile-grid>
 
 				<h2 class="d2l-heading-3">{{localize('unpinnedCourses')}}</h2>
@@ -245,7 +248,10 @@
 					tile-sizes="[[_tileSizes]]"
 					locale="[[locale]]"
 					show-course-code="[[showCourseCode]]"
-					update-count-map="[[updateCountMap]]">
+					update-count-map="[[updateCountMap]]"
+					telemetry-endpoint="[[telemetryEndpoint]]"
+					user-id="[[userId]]"
+					tenant-id="[[tenantId]]">
 				</d2l-course-tile-grid>
 
 				<d2l-loading-spinner
@@ -405,7 +411,11 @@
 				_hasManyEnrollments: false,
 				_noPinnedCoursesInSearch: false,
 				_noUnpinnedCoursesInSearch: false,
-				_enrollmentsSearchAction: Object
+				_enrollmentsSearchAction: Object,
+				// the endpoint for the telemetry service
+				telemetryEndpoint: String,
+				userId: String,
+				tenantId: String
 			},
 			behaviors: [
 				window.D2L.MyCourses.CourseTileResponsiveGridBehavior,
